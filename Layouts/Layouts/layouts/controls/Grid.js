@@ -7,8 +7,8 @@ var __extends = this.__extends || function (d, b) {
     __.prototype = b.prototype;
     d.prototype = new __();
 };
-var tsui;
-(function (tsui) {
+var layouts;
+(function (layouts) {
     var controls;
     (function (controls) {
         (function (GridUnitType) {
@@ -197,7 +197,7 @@ var tsui;
             }
             Grid.prototype.measureOverride = function (constraint) {
                 var _this = this;
-                var desideredSize = new tsui.Size();
+                var desideredSize = new layouts.Size();
                 var hSizeToContent = !isFinite(constraint.width);
                 var vSizeToContent = !isFinite(constraint.height);
                 this.rowDefs = new Array(Math.max(this.rows.count, 1));
@@ -253,7 +253,7 @@ var tsui;
                 }
                 this.elementDefs.forEach(function (el) {
                     if (!el.measuredHeightFirstPass || !el.measuredWidthFirstPass) {
-                        el.element.measure(new tsui.Size(el.availWidth, el.availHeight));
+                        el.element.measure(new layouts.Size(el.availWidth, el.availHeight));
                         if (isNaN(el.desWidth))
                             el.desWidth = el.element.desideredSize.width;
                         if (isNaN(el.desHeight))
@@ -362,7 +362,7 @@ var tsui;
                 });
                 elementToMeasure.forEach(function (e) {
                     if (!e.measuredHeightFirstPass || !e.measuredWidthFirstPass) {
-                        e.element.measure(new tsui.Size(e.availWidth, e.availHeight));
+                        e.element.measure(new layouts.Size(e.availWidth, e.availHeight));
                         e.desWidth = e.element.desideredSize.width;
                         e.desHeight = e.element.desideredSize.height;
                         e.measuredWidthFirstPass = true;
@@ -387,14 +387,14 @@ var tsui;
                     var finalHeight = 0;
                     _this.rowDefs.slice(el.row, el.row + el.rowSpan).forEach(function (r) { return finalHeight += r.desHeight; });
                     finalHeight += (el.cellTopOffset * 2);
-                    el.element.arrange(new tsui.Rect(finalLeft + el.cellLeftOffset, finalTop + el.cellTopOffset, finalWidth, finalHeight));
+                    el.element.arrange(new layouts.Rect(finalLeft + el.cellLeftOffset, finalTop + el.cellTopOffset, finalWidth, finalHeight));
                 });
                 return finalSize;
             };
             Object.defineProperty(Grid.prototype, "rows", {
                 get: function () {
                     if (this._rows == null) {
-                        this._rows = new tsui.ObservableCollection();
+                        this._rows = new layouts.ObservableCollection();
                         this._rows.on(this.onRowsChanged);
                     }
                     return this._rows;
@@ -408,7 +408,7 @@ var tsui;
             Object.defineProperty(Grid.prototype, "columns", {
                 get: function () {
                     if (this._columns == null) {
-                        this._columns = new tsui.ObservableCollection();
+                        this._columns = new layouts.ObservableCollection();
                         this._columns.on(this.onColumnsChanged);
                     }
                     return this._columns;
@@ -454,6 +454,6 @@ var tsui;
             return Grid;
         })(controls.Panel);
         controls.Grid = Grid;
-    })(controls = tsui.controls || (tsui.controls = {}));
-})(tsui || (tsui = {}));
+    })(controls = layouts.controls || (layouts.controls = {}));
+})(layouts || (layouts = {}));
 //# sourceMappingURL=Grid.js.map

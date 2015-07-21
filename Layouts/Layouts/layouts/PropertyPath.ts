@@ -1,4 +1,4 @@
-﻿module tsui {
+﻿module layouts {
     export class PropertyPath
     {
         path: string;

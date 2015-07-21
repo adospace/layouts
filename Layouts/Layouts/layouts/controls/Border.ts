@@ -2,7 +2,7 @@
 /// <reference path="..\DepObject.ts" />
 /// <reference path="..\FrameworkElement.ts" /> 
 
-module tsui.controls {
+module layouts.controls {
     export class CornerRadius {
         constructor(public topleft: number = 0, public topright: number = null, public bottomright: number = null, public bottomleft: number = null) {
             if (topright == null)

@@ -1,7 +1,7 @@
 ﻿/// <reference path="DepProperty.ts" />
 /// <reference path="DepObject.ts" />
 
-module tsui {
+module layouts {
     export class Size { constructor(public width: number = 0, public height: number = 0) { } }
     export class Rect { constructor(public x: number = 0, public y: number = 0, public width: number = 0, public height: number = 0) { } get size(): Size { return new Size(this.width, this.height); } }
     export class Vector { constructor(public x: number = 0, public y: number = 0) { } }

@@ -1,4 +1,4 @@
-﻿module tsui {
+﻿module layouts {
     export class DepProperty {
         name: string;
         defaultValue: any;

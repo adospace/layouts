@@ -2,7 +2,7 @@
 /// <reference path="..\FrameworkElement.ts" /> 
 /// <reference path="Panel.ts" />
 
-module tsui.controls {
+module layouts.controls {
     /// <summary>
     /// Orientation indicates a direction of a control/layout that can exist in a horizontal or vertical state.
     /// Examples of these elements include: <see cref="Slider" /> and <see cref="Primitives.ScrollBar" />.

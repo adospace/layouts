@@ -2,7 +2,7 @@
 /// <reference path="..\FrameworkElement.ts" /> 
 /// <reference path="Panel.ts" />
 
-module tsui.controls {
+module layouts.controls {
     export enum GridUnitType {
         /// The value indicates that content should be calculated without constraints. 
         Auto = 0,

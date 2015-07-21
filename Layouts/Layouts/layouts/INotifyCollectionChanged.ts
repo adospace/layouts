@@ -1,4 +1,4 @@
-﻿module tsui {
+﻿module layouts {
     export interface INotifyCollectionChanged<T> {
         //subscribe to collection changes
         on(handler: { (collection: INotifyCollectionChanged<T>, added: T[], removed: T[]): void });

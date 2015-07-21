@@ -1,5 +1,5 @@
 ﻿
-module tsui {
+module layouts {
     export class PropertyMap {
         constructor() {
         }

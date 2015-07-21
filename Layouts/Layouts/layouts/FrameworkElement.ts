@@ -2,7 +2,7 @@
 /// <reference path="DepObject.ts" />
 /// <reference path="UIElement.ts" />
 
-module tsui {
+module layouts {
     export enum VerticalAlignment { Top, Center, Bottom, Stretch }
     export enum HorizontalAlignment { Left, Center, Right, Stretch }
     export class Thickness { constructor(public left: number = 0, public top: number = 0, public right: number = 0, public bottom: number = 0) { } }

@@ -1,7 +1,8 @@
-﻿/// <reference path="LayoutManager.ts" />
+﻿/// <reference path="Extensions.ts" />
+/// <reference path="LayoutManager.ts" />
 /// <reference path="Controls\Page.ts" />
 
-module tsui {
+module layouts {
     export class Application {
 
         constructor() {
@@ -15,12 +16,12 @@ module tsui {
             return Application._current;
         }
 
-        private _page: tsui.controls.Page;
-        get page(): tsui.controls.Page {
+        private _page: layouts.controls.Page;
+        get page(): layouts.controls.Page {
             return this._page;
         }
 
-        set page(page: tsui.controls.Page) {
+        set page(page: layouts.controls.Page) {
             if (this._page != page) {
                 this._page = page;
                 LayoutManager.requestLayoutUpdate();

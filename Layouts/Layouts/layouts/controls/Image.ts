@@ -2,7 +2,7 @@
 /// <reference path="..\DepObject.ts" />
 /// <reference path="..\FrameworkElement.ts" /> 
 
-module tsui.controls {
+module layouts.controls {
     /// <summary>
     ///     Stretch - Enum which descibes how a source rect should be stretched to fit a 
     ///     destination rect.

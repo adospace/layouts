@@ -7,8 +7,8 @@ var __extends = this.__extends || function (d, b) {
     __.prototype = b.prototype;
     d.prototype = new __();
 };
-var tsui;
-(function (tsui) {
+var layouts;
+(function (layouts) {
     var controls;
     (function (controls) {
         var Panel = (function (_super) {
@@ -19,7 +19,7 @@ var tsui;
             Object.defineProperty(Panel.prototype, "children", {
                 get: function () {
                     if (this._children == null) {
-                        this._children = new tsui.ObservableCollection();
+                        this._children = new layouts.ObservableCollection();
                         var self = this;
                         this._children.on(function (c, added, removed) {
                             removed.forEach(function (el) {
@@ -75,8 +75,8 @@ var tsui;
             Panel.backgroundProperty = (new Panel()).registerProperty("Background", null, 16 /* AffectsRender */);
             Panel.isItemsHostProperty = (new Panel()).registerProperty("IsItemsHost", false, 128 /* NotDataBindable */);
             return Panel;
-        })(tsui.FrameworkElement);
+        })(layouts.FrameworkElement);
         controls.Panel = Panel;
-    })(controls = tsui.controls || (tsui.controls = {}));
-})(tsui || (tsui = {}));
+    })(controls = layouts.controls || (layouts.controls = {}));
+})(layouts || (layouts = {}));
 //# sourceMappingURL=Panel.js.map

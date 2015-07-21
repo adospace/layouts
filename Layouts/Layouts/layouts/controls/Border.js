@@ -7,8 +7,8 @@ var __extends = this.__extends || function (d, b) {
     __.prototype = b.prototype;
     d.prototype = new __();
 };
-var tsui;
-(function (tsui) {
+var layouts;
+(function (layouts) {
     var controls;
     (function (controls) {
         var CornerRadius = (function () {
@@ -64,16 +64,16 @@ var tsui;
                 _super.prototype.attachVisualOverride.call(this, elementContainer);
             };
             Border.prototype.measureOverride = function (constraint) {
-                var mySize = new tsui.Size();
+                var mySize = new layouts.Size();
                 // Compute the chrome size added by the various elements
-                var border = new tsui.Size(this.borderThickness.left + this.borderThickness.right, this.borderThickness.top + this.borderThickness.bottom);
-                var padding = new tsui.Size(this.padding.left + this.padding.right, this.padding.top + this.padding.bottom);
+                var border = new layouts.Size(this.borderThickness.left + this.borderThickness.right, this.borderThickness.top + this.borderThickness.bottom);
+                var padding = new layouts.Size(this.padding.left + this.padding.right, this.padding.top + this.padding.bottom);
                 //If we have a child
                 if (this._child != null) {
                     // Combine into total decorating size
-                    var combined = new tsui.Size(border.width + padding.width, border.height + padding.height);
+                    var combined = new layouts.Size(border.width + padding.width, border.height + padding.height);
                     // Remove size of border only from child's reference size.
-                    var childConstraint = new tsui.Size(Math.max(0.0, constraint.width - combined.width), Math.max(0.0, constraint.height - combined.height));
+                    var childConstraint = new layouts.Size(Math.max(0.0, constraint.width - combined.width), Math.max(0.0, constraint.height - combined.height));
                     this._child.measure(childConstraint);
                     var childSize = this._child.desideredSize;
                     // Now use the returned size to drive our size, by adding back the margins, etc.
@@ -82,20 +82,20 @@ var tsui;
                 }
                 else {
                     // Combine into total decorating size
-                    mySize = new tsui.Size(border.width + padding.width, border.height + padding.height);
+                    mySize = new layouts.Size(border.width + padding.width, border.height + padding.height);
                 }
                 return mySize;
             };
             Border.prototype.arrangeOverride = function (finalSize) {
                 var borders = this.borderThickness;
-                var boundRect = new tsui.Rect(0, 0, finalSize.width, finalSize.height);
-                var innerRect = new tsui.Rect(boundRect.x + borders.left, boundRect.y + borders.top, Math.max(0.0, boundRect.width - borders.left - borders.right), Math.max(0.0, boundRect.height - borders.top - borders.bottom));
+                var boundRect = new layouts.Rect(0, 0, finalSize.width, finalSize.height);
+                var innerRect = new layouts.Rect(boundRect.x + borders.left, boundRect.y + borders.top, Math.max(0.0, boundRect.width - borders.left - borders.right), Math.max(0.0, boundRect.height - borders.top - borders.bottom));
                 var borderBrush = this.borderBrush;
                 //  arrange child
                 var child = this._child;
                 var padding = this.padding;
                 if (child != null) {
-                    var childRect = new tsui.Rect(innerRect.x + padding.left, innerRect.y + padding.top, Math.max(0.0, innerRect.width - padding.left - padding.right), Math.max(0.0, innerRect.height - padding.top - padding.bottom));
+                    var childRect = new layouts.Rect(innerRect.x + padding.left, innerRect.y + padding.top, Math.max(0.0, innerRect.width - padding.left - padding.right), Math.max(0.0, innerRect.height - padding.top - padding.bottom));
                     child.arrange(childRect);
                 }
                 return finalSize;
@@ -148,13 +148,13 @@ var tsui;
                 enumerable: true,
                 configurable: true
             });
-            Border.borderThicknessProperty = (new Border()).registerProperty("BorderThickness", new tsui.Thickness(), 1 /* AffectsMeasure */ | 16 /* AffectsRender */);
-            Border.paddingProperty = (new Border()).registerProperty("Padding", new tsui.Thickness(), 1 /* AffectsMeasure */ | 16 /* AffectsRender */);
+            Border.borderThicknessProperty = (new Border()).registerProperty("BorderThickness", new layouts.Thickness(), 1 /* AffectsMeasure */ | 16 /* AffectsRender */);
+            Border.paddingProperty = (new Border()).registerProperty("Padding", new layouts.Thickness(), 1 /* AffectsMeasure */ | 16 /* AffectsRender */);
             Border.backgroundProperty = (new Border()).registerProperty("Background", null, 16 /* AffectsRender */);
             Border.borderBrushProperty = (new Border()).registerProperty("BorderBrush", null, 16 /* AffectsRender */);
             return Border;
-        })(tsui.FrameworkElement);
+        })(layouts.FrameworkElement);
         controls.Border = Border;
-    })(controls = tsui.controls || (tsui.controls = {}));
-})(tsui || (tsui = {}));
+    })(controls = layouts.controls || (layouts.controls = {}));
+})(layouts || (layouts = {}));
 //# sourceMappingURL=Border.js.map

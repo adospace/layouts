@@ -2,7 +2,7 @@
 /// <reference path="..\DepObject.ts" />
 /// <reference path="..\FrameworkElement.ts" /> 
 
-module tsui.controls {
+module layouts.controls {
     export enum SizeToContent {
         None = 0,
         Both = 1,
@@ -13,10 +13,10 @@ module tsui.controls {
     export class Page extends FrameworkElement {
 
         private _child: UIElement;
-        get child(): UIElement {
+        get Child(): UIElement {
             return this._child;
         }
-        set child(value: UIElement) {
+        set Child(value: UIElement) {
             if (this._child != value) {
                 if (this._child != null && this._child.parent == this)
                     this._child.parent = null;
@@ -57,7 +57,7 @@ module tsui.controls {
         }   
 
 
-        sizeToContent: SizeToContent = SizeToContent.None;
+        SizeToContent: SizeToContent = SizeToContent.None;
 
     }
 }

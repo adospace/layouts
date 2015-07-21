@@ -2,7 +2,7 @@
 /// <reference path="..\DepObject.ts" />
 /// <reference path="..\FrameworkElement.ts" /> 
 
-module tsui.controls {
+module layouts.controls {
     export class Button extends FrameworkElement {
 
         private _child: UIElement;

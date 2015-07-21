@@ -1,7 +1,7 @@
 ﻿/// <reference path="DepProperty.ts" />
 /// <reference path="PropertyMap.ts" />
 
-module tsui {
+module layouts {
     export class DepObject {
         ///Map of properties for each dependency object
         private static globalPropertyMap: { [typeName: string]: PropertyMap; } = {};

@@ -18,12 +18,6 @@
     <IISExpressUseClassicPipelineMode />
   </PropertyGroup>
   <ItemGroup>
-    <Content Include="layouts\controls\Border.js" />
-    <Content Include="layouts\controls\Grid.js" />
-    <Content Include="layouts\controls\Panel.js" />
-    <Content Include="layouts\Extentions.js" />
-  </ItemGroup>
-  <ItemGroup>
     <TypeScriptCompile Include="layouts\Application.ts" />
     <TypeScriptCompile Include="layouts\Binding.ts" />
     <TypeScriptCompile Include="layouts\controls\Border.ts" />
@@ -37,14 +31,22 @@
     <TypeScriptCompile Include="layouts\controls\TextBlock.ts" />
     <TypeScriptCompile Include="layouts\DepObject.ts" />
     <TypeScriptCompile Include="layouts\DepProperty.ts" />
-    <TypeScriptCompile Include="layouts\Extentions.ts" />
+    <TypeScriptCompile Include="layouts\Extensions.ts" />
     <TypeScriptCompile Include="layouts\FrameworkElement.ts" />
     <TypeScriptCompile Include="layouts\INotifyCollectionChanged.ts" />
     <TypeScriptCompile Include="layouts\LayoutManager.ts" />
     <TypeScriptCompile Include="layouts\ObservableCollection.ts" />
+    <TypeScriptCompile Include="layouts\LmlReader.ts" />
     <TypeScriptCompile Include="layouts\PropertyMap.ts" />
     <TypeScriptCompile Include="layouts\PropertyPath.ts" />
     <TypeScriptCompile Include="layouts\UIElement.ts" />
+    <TypeScriptCompile Include="layouts\linq.d.ts" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="definitions\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="layouts.d.ts" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">12.0</VisualStudioVersion>
@@ -75,6 +77,8 @@
   <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
     <TypeScriptRemoveComments>false</TypeScriptRemoveComments>
     <TypeScriptSourceMap>true</TypeScriptSourceMap>
+    <TypeScriptGeneratesDeclarations>True</TypeScriptGeneratesDeclarations>
+    <TypeScriptOutFile>layouts.js</TypeScriptOutFile>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)' == 'Release'">
     <TypeScriptRemoveComments>true</TypeScriptRemoveComments>

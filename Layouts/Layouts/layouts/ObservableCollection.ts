@@ -1,4 +1,4 @@
-﻿module tsui {
+﻿module layouts {
     export class ObservableCollection<T> implements INotifyCollectionChanged<T> {
         private elements: T[] = new Array<T>();
 
