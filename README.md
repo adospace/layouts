@@ -1,4 +1,4 @@
-# layouts
+# layouTS
 LayouTS is a TypeScript library that allows web developers to create complex user interfaces in HTML5
 
 WPF/SL are great libraries for creating UI for desktop and web applications that introduced a number of powerful paradigms I couldn't find in any other JavaScript/TypeScript on the web.
