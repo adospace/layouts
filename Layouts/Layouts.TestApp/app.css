@@ -1,7 +1,13 @@
-﻿body {
-    font-family: 'Segoe UI', sans-serif;
+﻿* {
+    margin: 0px;
 }
 
-span {
-    font-style: italic;
+html { 
+    height:100%; 
+}
+
+body {
+    font-family: 'Segoe UI', sans-serif;
+    height:100%; 
+    margin:0px; 
 }

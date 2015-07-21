@@ -18,20 +18,33 @@
     <IISExpressUseClassicPipelineMode />
   </PropertyGroup>
   <ItemGroup>
-    <Content Include="app.css" />
-    <Content Include="index.html" />
-    <Content Include="web.config" />
+    <Content Include="layouts\controls\Border.js" />
+    <Content Include="layouts\controls\Grid.js" />
+    <Content Include="layouts\controls\Panel.js" />
+    <Content Include="layouts\Extentions.js" />
   </ItemGroup>
   <ItemGroup>
-    <TypeScriptCompile Include="app.ts" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="web.Debug.config">
-      <DependentUpon>web.config</DependentUpon>
-    </None>
-    <None Include="web.Release.config">
-      <DependentUpon>web.config</DependentUpon>
-    </None>
+    <TypeScriptCompile Include="layouts\Application.ts" />
+    <TypeScriptCompile Include="layouts\Binding.ts" />
+    <TypeScriptCompile Include="layouts\controls\Border.ts" />
+    <TypeScriptCompile Include="layouts\controls\Button.ts" />
+    <TypeScriptCompile Include="layouts\controls\Grid.ts" />
+    <TypeScriptCompile Include="layouts\controls\Image.ts" />
+    <TypeScriptCompile Include="layouts\controls\ItemsControl.ts" />
+    <TypeScriptCompile Include="layouts\controls\Page.ts" />
+    <TypeScriptCompile Include="layouts\controls\Panel.ts" />
+    <TypeScriptCompile Include="layouts\controls\Stack.ts" />
+    <TypeScriptCompile Include="layouts\controls\TextBlock.ts" />
+    <TypeScriptCompile Include="layouts\DepObject.ts" />
+    <TypeScriptCompile Include="layouts\DepProperty.ts" />
+    <TypeScriptCompile Include="layouts\Extentions.ts" />
+    <TypeScriptCompile Include="layouts\FrameworkElement.ts" />
+    <TypeScriptCompile Include="layouts\INotifyCollectionChanged.ts" />
+    <TypeScriptCompile Include="layouts\LayoutManager.ts" />
+    <TypeScriptCompile Include="layouts\ObservableCollection.ts" />
+    <TypeScriptCompile Include="layouts\PropertyMap.ts" />
+    <TypeScriptCompile Include="layouts\PropertyPath.ts" />
+    <TypeScriptCompile Include="layouts\UIElement.ts" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">12.0</VisualStudioVersion>
