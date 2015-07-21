@@ -5,6 +5,8 @@ VisualStudioVersion = 12.0.31101.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Layouts", "Layouts\Layouts.csproj", "{6FD30FFB-6C2C-4BDA-9C76-1BF5D8AF07F2}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Layouts.TestApp", "Layouts.TestApp\Layouts.TestApp.csproj", "{10508A2D-D35A-49BA-A819-752F1438E203}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,10 @@ Global
 		{6FD30FFB-6C2C-4BDA-9C76-1BF5D8AF07F2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6FD30FFB-6C2C-4BDA-9C76-1BF5D8AF07F2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6FD30FFB-6C2C-4BDA-9C76-1BF5D8AF07F2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{10508A2D-D35A-49BA-A819-752F1438E203}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{10508A2D-D35A-49BA-A819-752F1438E203}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{10508A2D-D35A-49BA-A819-752F1438E203}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{10508A2D-D35A-49BA-A819-752F1438E203}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
