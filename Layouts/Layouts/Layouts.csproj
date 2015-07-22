@@ -34,6 +34,7 @@
     <TypeScriptCompile Include="layouts\Extensions.ts" />
     <TypeScriptCompile Include="layouts\FrameworkElement.ts" />
     <TypeScriptCompile Include="layouts\INotifyCollectionChanged.ts" />
+    <TypeScriptCompile Include="layouts\ISupport.ts" />
     <TypeScriptCompile Include="layouts\LayoutManager.ts" />
     <TypeScriptCompile Include="layouts\ObservableCollection.ts" />
     <TypeScriptCompile Include="layouts\LmlReader.ts" />
@@ -42,12 +43,7 @@
     <TypeScriptCompile Include="layouts\UIElement.ts" />
     <TypeScriptCompile Include="layouts\linq.d.ts" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="definitions\" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="layouts.d.ts" />
-  </ItemGroup>
+  <ItemGroup />
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">12.0</VisualStudioVersion>
   </PropertyGroup>
@@ -60,7 +56,7 @@
     <VisualStudio>
       <FlavorProperties GUID="{349c5851-65df-11da-9384-00065b846f21}">
         <WebProjectProperties>
-          <UseIIS>True</UseIIS>
+          <UseIIS>False</UseIIS>
           <AutoAssignPort>True</AutoAssignPort>
           <DevelopmentServerPort>61184</DevelopmentServerPort>
           <DevelopmentServerVPath>/</DevelopmentServerVPath>

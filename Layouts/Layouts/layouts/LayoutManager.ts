@@ -9,8 +9,8 @@
         static updateLayout() {
             var page = Application.current.page;
             if (page != null) {
-                var sizeToContentWidth = page.SizeToContent == layouts.controls.SizeToContent.Both || page.SizeToContent == layouts.controls.SizeToContent.Horizontal;
-                var sizeToContentHeight = page.SizeToContent == layouts.controls.SizeToContent.Both || page.SizeToContent == layouts.controls.SizeToContent.Vertical;
+                var sizeToContentWidth = page.sizeToContent == layouts.controls.SizeToContent.Both || page.sizeToContent == layouts.controls.SizeToContent.Horizontal;
+                var sizeToContentHeight = page.sizeToContent == layouts.controls.SizeToContent.Both || page.sizeToContent == layouts.controls.SizeToContent.Vertical;
 
                 var docWidth = document.body.clientWidth;
                 var docHeight = document.body.clientHeight;

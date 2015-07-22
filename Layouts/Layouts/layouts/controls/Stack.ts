@@ -19,6 +19,11 @@ module layouts.controls {
     }
 
     export class Stack extends Panel {
+        static typeName: string = "layouts.controls.Stack";
+        get typeName(): string {
+            return Stack.typeName;
+        }
+
 
         protected measureOverride(constraint: Size): Size {
             var mySize = new Size();
@@ -66,12 +71,12 @@ module layouts.controls {
             return finalSize;
         }
 
-        static orientationProperty = (new Stack()).registerProperty("Orientation", Orientation.Vertical, FrameworkPropertyMetadataOptions.AffectsMeasure);
+        static orientationProperty = DepObject.registerProperty(Stack.typeName, "Orientation", Orientation.Vertical, FrameworkPropertyMetadataOptions.AffectsMeasure);
         get orientation(): Orientation {
-            return <Orientation>super.getValue(Stack.orientationProperty);
+            return <Orientation>this.getValue(Stack.orientationProperty);
         }
         set orientation(value: Orientation) {
-            super.setValue(Stack.orientationProperty, value);
+            this.setValue(Stack.orientationProperty, value);
         }
 
     }

@@ -7,26 +7,36 @@ module layouts {
         private static globalPropertyMap: { [typeName: string]: PropertyMap; } = {};
 
         ///Register a dependency property for the object
-        registerProperty(name: string, defaultValue?: any, options?: any): DepProperty {
-            if (DepObject.globalPropertyMap[this.typeName] == null)
-                DepObject.globalPropertyMap[this.typeName] = new PropertyMap();
+        static registerProperty(typeName: string, name: string, defaultValue?: any, options?: any): DepProperty {
+            if (DepObject.globalPropertyMap[typeName] == null)
+                DepObject.globalPropertyMap[typeName] = new PropertyMap();
 
             var newProperty = new DepProperty(name, defaultValue, options);
-            DepObject.globalPropertyMap[this.typeName].register(name, newProperty);
+            DepObject.globalPropertyMap[typeName].register(name, newProperty);
             return newProperty;
         }
 
-        ///Returns the type name of object
-        private internalTypeName: string = null;
-        get typeName(): string {
-            if (this.internalTypeName == null)
-                this.internalTypeName = this.getTypeName();
-            return this.internalTypeName;
+        ///Get the dependency property registered with this type of object (or null if property doesn't exist on object)
+        static getProperty(typeName: string, name: string): DepProperty {
+            if (DepObject.globalPropertyMap[typeName] == null)
+                return null;
+
+            return DepObject.globalPropertyMap[typeName].getProperty(name);
         }
 
-        ///Get the dependency property registered with this type of object
-        static getProperty(typeName: string, name: string): DepProperty {
-            return DepObject.globalPropertyMap[typeName].getProperty(name);
+        static lookupProperty(obj: DepObject, name: string): DepProperty {
+            if (obj == null)
+                return null;
+
+            var typeName = <string>obj["typeName"];
+            if (DepObject.globalPropertyMap[typeName] == null)
+                return null;
+
+            var property = DepObject.globalPropertyMap[typeName].getProperty(name);
+            if (property == null)
+                return DepObject.lookupProperty(obj["__proto__"], name);
+
+            return property;
         }
 
         protected localPropertyValueMap: { [propertyName: string]: any; } = {};
@@ -40,7 +50,7 @@ module layouts {
         }
 
         //set property value to this object
-        setValue(property: DepProperty, value : any) {
+        setValue(property: DepProperty, value: any) {
             if (value != this.localPropertyValueMap[property.name]) {
                 this.localPropertyValueMap[property.name] = value;
                 this.onPropertyChanged(property, value);

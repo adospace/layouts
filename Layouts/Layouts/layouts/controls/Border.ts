@@ -1,6 +1,7 @@
 ﻿/// <reference path="..\DepProperty.ts" />
 /// <reference path="..\DepObject.ts" />
 /// <reference path="..\FrameworkElement.ts" /> 
+/// <reference path="..\ISupport.ts" /> 
 
 module layouts.controls {
     export class CornerRadius {
@@ -15,6 +16,10 @@ module layouts.controls {
     }
 
     export class Border extends FrameworkElement {
+        static typeName: string = "layouts.controls.Border";
+        get typeName(): string {
+            return Border.typeName;
+        }
 
         private _child: UIElement;
         get child(): UIElement {
@@ -114,36 +119,36 @@ module layouts.controls {
                 this._child.layout();
         }
 
-        static borderThicknessProperty = (new Border()).registerProperty("BorderThickness", new Thickness(), FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender);
+        static borderThicknessProperty = DepObject.registerProperty(Border.typeName, "BorderThickness", new Thickness(), FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender);
         get borderThickness(): Thickness {
-            return <Thickness>super.getValue(Border.borderThicknessProperty);
+            return <Thickness>this.getValue(Border.borderThicknessProperty);
         }
         set borderThickness(value: Thickness) {
-            super.setValue(Border.borderThicknessProperty, value);
+            this.setValue(Border.borderThicknessProperty, value);
         }
 
-        static paddingProperty = (new Border()).registerProperty("Padding", new Thickness(), FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender);
+        static paddingProperty = DepObject.registerProperty(Border.typeName, "Padding", new Thickness(), FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender);
         get padding(): Thickness {
-            return <Thickness>super.getValue(Border.paddingProperty);
+            return <Thickness>this.getValue(Border.paddingProperty);
         }
         set padding(value: Thickness) {
-            super.setValue(Border.paddingProperty, value);
+            this.setValue(Border.paddingProperty, value);
         }
 
-        static backgroundProperty = (new Border()).registerProperty("Background", null, FrameworkPropertyMetadataOptions.AffectsRender);
+        static backgroundProperty = DepObject.registerProperty(Border.typeName, "Background", null, FrameworkPropertyMetadataOptions.AffectsRender);
         get background(): string {
-            return <string>super.getValue(Border.backgroundProperty);
+            return <string>this.getValue(Border.backgroundProperty);
         }
         set background(value: string) {
-            super.setValue(Border.backgroundProperty, value);
+            this.setValue(Border.backgroundProperty, value);
         }
 
-        static borderBrushProperty = (new Border()).registerProperty("BorderBrush", null, FrameworkPropertyMetadataOptions.AffectsRender);
+        static borderBrushProperty = DepObject.registerProperty(Border.typeName, "BorderBrush", null, FrameworkPropertyMetadataOptions.AffectsRender);
         get borderBrush(): string {
-            return <string>super.getValue(Border.borderBrushProperty);
+            return <string>this.getValue(Border.borderBrushProperty);
         }
         set borderBrush(value: string) {
-            super.setValue(Border.borderBrushProperty, value);
+            this.setValue(Border.borderBrushProperty, value);
         }
     }
 }

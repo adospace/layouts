@@ -59,19 +59,23 @@ module layouts.controls {
     } 
 
     export class Image extends FrameworkElement {
+        static typeName: string = "layouts.controls.Image";
+        get typeName(): string {
+            return Image.typeName;
+        }
+
 
         private _imgElement: HTMLImageElement;
         attachVisualOverride(elementContainer: HTMLElement) {
             this._visual = this._imgElement = document.createElement("img");
 
-            var self = this;
-            this._imgElement.onload = (ev) => self.invalidateMeasure();
+            this._imgElement.onload = (ev) => this.invalidateMeasure();
 
             super.attachVisualOverride(elementContainer);
         }
 
         protected measureOverride(constraint: Size): Size {
-            var src = this.src;
+            var src = this.source;
             var mySize = new Size();
             var imgElement = this._imgElement;
             var srcChanged = (imgElement.src != src);
@@ -185,29 +189,29 @@ module layouts.controls {
             return new Size(scaleX, scaleY);
         }
 
-        static srcProperty = (new Image()).registerProperty("src", null, FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender);
-        get src(): string {
-            return <string>super.getValue(Image.srcProperty);
+        static srcProperty = DepObject.registerProperty(Image.typeName, "Source", null, FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender);
+        get source(): string {
+            return <string>this.getValue(Image.srcProperty);
         }
-        set src(value: string) {
-            super.setValue(Image.srcProperty, value);
+        set source(value: string) {
+            this.setValue(Image.srcProperty, value);
         }
 
 
-        static stretchProperty = (new Image()).registerProperty("Stretch", Stretch.None, FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender);
+        static stretchProperty = DepObject.registerProperty(Image.typeName, "Stretch", Stretch.None, FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender);
         get stretch(): Stretch {
-            return <Stretch>super.getValue(Image.stretchProperty);
+            return <Stretch>this.getValue(Image.stretchProperty);
         }
         set stretch(value: Stretch) {
-            super.setValue(Image.stretchProperty, value);
+            this.setValue(Image.stretchProperty, value);
         }
 
-        static stretchDirectionProperty = (new Image()).registerProperty("StretchDirection", StretchDirection.Both, FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender);
+        static stretchDirectionProperty = DepObject.registerProperty(Image.typeName, "StretchDirection", StretchDirection.Both, FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender);
         get stretchDirection(): StretchDirection {
-            return <StretchDirection>super.getValue(Image.stretchDirectionProperty);
+            return <StretchDirection>this.getValue(Image.stretchDirectionProperty);
         }
         set stretchDirection(value: StretchDirection) {
-            super.setValue(Image.stretchDirectionProperty, value);
+            this.setValue(Image.stretchDirectionProperty, value);
         }
     }
 } 

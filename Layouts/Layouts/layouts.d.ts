@@ -1,8 +1,10 @@
 interface String {
     format(...replacements: string[]): string;
+    toUpperFirstLetter(): string;
+    toLowerFirstLetter(): string;
 }
 interface Object {
-    getTypeName(): string;
+    hasProperty(propertyName: string): boolean;
 }
 interface Number {
     isEpsilon(): boolean;
@@ -39,10 +41,9 @@ declare module layouts {
 declare module layouts {
     class DepObject {
         private static globalPropertyMap;
-        registerProperty(name: string, defaultValue?: any, options?: any): DepProperty;
-        private internalTypeName;
-        typeName: string;
+        static registerProperty(typeName: string, name: string, defaultValue?: any, options?: any): DepProperty;
         static getProperty(typeName: string, name: string): DepProperty;
+        static lookupProperty(obj: DepObject, name: string): DepProperty;
         protected localPropertyValueMap: {
             [propertyName: string]: any;
         };
@@ -93,6 +94,8 @@ declare module layouts {
         BindsTwoWayByDefault = 256,
     }
     class UIElement extends DepObject {
+        static typeName: string;
+        typeName: string;
         desideredSize: Size;
         renderSize: Size;
         private previousAvailableSize;
@@ -147,6 +150,8 @@ declare module layouts {
         constructor(left?: number, top?: number, right?: number, bottom?: number);
     }
     class FrameworkElement extends UIElement {
+        static typeName: string;
+        typeName: string;
         private unclippedDesiredSize;
         private needClipBounds;
         protected visualOffset: Vector;
@@ -197,12 +202,15 @@ declare module layouts.controls {
         Horizontal = 3,
     }
     class Page extends FrameworkElement {
+        static typeName: string;
+        typeName: string;
         private _child;
-        Child: UIElement;
+        child: UIElement;
         protected layoutOverride(): void;
         protected measureOverride(constraint: Size): Size;
         protected arrangeOverride(finalSize: Size): Size;
-        SizeToContent: SizeToContent;
+        static sizeToContentProperty: DepProperty;
+        sizeToContent: SizeToContent;
     }
 }
 declare module layouts {
@@ -228,6 +236,8 @@ declare module layouts {
         private onSourcePropertyChanged(depObject, property, value);
     }
 }
+declare module layouts {
+}
 declare module layouts.controls {
     class CornerRadius {
         topleft: number;
@@ -237,6 +247,8 @@ declare module layouts.controls {
         constructor(topleft?: number, topright?: number, bottomright?: number, bottomleft?: number);
     }
     class Border extends FrameworkElement {
+        static typeName: string;
+        typeName: string;
         private _child;
         child: UIElement;
         protected _divElement: HTMLDivElement;
@@ -256,6 +268,8 @@ declare module layouts.controls {
 }
 declare module layouts.controls {
     class Button extends FrameworkElement {
+        static typeName: string;
+        typeName: string;
         private _child;
         child: UIElement;
         protected _buttonElement: HTMLButtonElement;
@@ -271,8 +285,11 @@ declare module layouts.controls {
 }
 declare module layouts.controls {
     class Panel extends FrameworkElement {
+        static typeName: string;
+        typeName: string;
         private _children;
         children: ObservableCollection<UIElement>;
+        private childrenCollectionChanged(collection, added, removed);
         layoutOverride(): void;
         protected _divElement: HTMLDivElement;
         attachVisualOverride(elementContainer: HTMLElement): void;
@@ -311,6 +328,8 @@ declare module layouts.controls {
         constructor(width?: GridLength, minWidth?: number, maxWidth?: number);
     }
     class Grid extends Panel {
+        static typeName: string;
+        typeName: string;
         private rowDefs;
         private columnDefs;
         private elementDefs;
@@ -349,13 +368,15 @@ declare module layouts.controls {
         Both = 2,
     }
     class Image extends FrameworkElement {
+        static typeName: string;
+        typeName: string;
         private _imgElement;
         attachVisualOverride(elementContainer: HTMLElement): void;
         protected measureOverride(constraint: Size): Size;
         protected arrangeOverride(finalSize: Size): Size;
         static computeScaleFactor(availableSize: Size, contentSize: Size, stretch: Stretch, stretchDirection: StretchDirection): Size;
         static srcProperty: DepProperty;
-        src: string;
+        source: string;
         static stretchProperty: DepProperty;
         stretch: Stretch;
         static stretchDirectionProperty: DepProperty;
@@ -365,9 +386,11 @@ declare module layouts.controls {
 declare module layouts.controls {
     class ItemsControl extends FrameworkElement {
         private _items;
-        items: ObservableCollection<Object>;
+        items: Array<Object>;
+        private itemsCollectionChanged(collection, added, removed);
         private _itemsSource;
-        itemsSource: INotifyCollectionChanged<Object>;
+        ItemsSource: INotifyCollectionChanged<Object>;
+        private itemsSourceCollectionChanged(collection, added, removed);
     }
 }
 declare module layouts.controls {
@@ -376,6 +399,8 @@ declare module layouts.controls {
         Vertical = 1,
     }
     class Stack extends Panel {
+        static typeName: string;
+        typeName: string;
         protected measureOverride(constraint: Size): Size;
         protected arrangeOverride(finalSize: Size): Size;
         static orientationProperty: DepProperty;
@@ -384,6 +409,8 @@ declare module layouts.controls {
 }
 declare module layouts.controls {
     class TextBlock extends FrameworkElement {
+        static typeName: string;
+        typeName: string;
         private _pElement;
         attachVisualOverride(elementContainer: HTMLElement): void;
         protected layoutOverride(): void;
@@ -405,8 +432,29 @@ declare module layouts {
     }
 }
 declare module layouts {
+    class LmlReader {
+        instanceLoader: InstanceLoader;
+        namespaceResolver: {
+            (xmlNs: string): string;
+        };
+        private static DefaultNamespace;
+        private static DefaultNamespaceResolver(xmlNs);
+        constructor(instanceLoader?: InstanceLoader, namespaceResolver?: {
+            (xmlNs: string): string;
+        });
+        Parse(lml: string): any;
+        Load(lmlNode: Node): any;
+        LoadChildren(lmlNode: Node, parentPanel: controls.Panel): void;
+        private static TrySetProperty(obj, propertyName, propertyNameSpace, value);
+        private static TryCallMethod(obj, methodName, value);
+        private static FindObjectWithProperty(obj, propertyNames);
+    }
+}
+declare module layouts {
     class ObservableCollection<T> implements INotifyCollectionChanged<T> {
-        private elements;
+        constructor(elements?: Array<T>);
+        elements: T[];
+        toArray(): T[];
         add(element: T): void;
         remove(element: T): void;
         at(index: number): T;
@@ -419,15 +467,6 @@ declare module layouts {
         off(handler: {
             (collection: ObservableCollection<T>, added: T[], removed: T[]): void;
         }): void;
-    }
-}
-declare module layouts {
-    class LmlReader {
-        private static DefaultNamespace;
-        static Parse(lml: string): any;
-        static Load(lmlNode: Node, loader: InstanceLoader): any;
-        private static TrySetProperty(obj, propertyName, value);
-        private static FindObjectWithProperty(obj, propertyNames);
     }
 }
 declare module layouts {

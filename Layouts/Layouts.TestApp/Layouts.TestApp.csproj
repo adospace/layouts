@@ -29,9 +29,78 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="..\Layouts\layouts.d.ts">
-      <Link>definitions\layouts.d.ts</Link>
-    </Content>
+    <TypeScriptCompile Include="..\Layouts\layouts\Application.ts">
+      <Link>layouts\Application.ts</Link>
+    </TypeScriptCompile>
+    <TypeScriptCompile Include="..\Layouts\layouts\Binding.ts">
+      <Link>layouts\Binding.ts</Link>
+    </TypeScriptCompile>
+    <TypeScriptCompile Include="..\Layouts\layouts\controls\Border.ts">
+      <Link>layouts\controls\Border.ts</Link>
+    </TypeScriptCompile>
+    <TypeScriptCompile Include="..\Layouts\layouts\controls\Button.ts">
+      <Link>layouts\controls\Button.ts</Link>
+    </TypeScriptCompile>
+    <TypeScriptCompile Include="..\Layouts\layouts\controls\Grid.ts">
+      <Link>layouts\controls\Grid.ts</Link>
+    </TypeScriptCompile>
+    <TypeScriptCompile Include="..\Layouts\layouts\controls\Image.ts">
+      <Link>layouts\controls\Image.ts</Link>
+    </TypeScriptCompile>
+    <TypeScriptCompile Include="..\Layouts\layouts\controls\ItemsControl.ts">
+      <Link>layouts\controls\ItemsControl.ts</Link>
+    </TypeScriptCompile>
+    <TypeScriptCompile Include="..\Layouts\layouts\controls\Page.ts">
+      <Link>layouts\controls\Page.ts</Link>
+    </TypeScriptCompile>
+    <TypeScriptCompile Include="..\Layouts\layouts\controls\Panel.ts">
+      <Link>layouts\controls\Panel.ts</Link>
+    </TypeScriptCompile>
+    <TypeScriptCompile Include="..\Layouts\layouts\controls\Stack.ts">
+      <Link>layouts\controls\Stack.ts</Link>
+    </TypeScriptCompile>
+    <TypeScriptCompile Include="..\Layouts\layouts\controls\TextBlock.ts">
+      <Link>layouts\controls\TextBlock.ts</Link>
+    </TypeScriptCompile>
+    <TypeScriptCompile Include="..\Layouts\layouts\DepObject.ts">
+      <Link>layouts\DepObject.ts</Link>
+    </TypeScriptCompile>
+    <TypeScriptCompile Include="..\Layouts\layouts\DepProperty.ts">
+      <Link>layouts\DepProperty.ts</Link>
+    </TypeScriptCompile>
+    <TypeScriptCompile Include="..\Layouts\layouts\Extensions.ts">
+      <Link>layouts\Extensions.ts</Link>
+    </TypeScriptCompile>
+    <TypeScriptCompile Include="..\Layouts\layouts\FrameworkElement.ts">
+      <Link>layouts\FrameworkElement.ts</Link>
+    </TypeScriptCompile>
+    <TypeScriptCompile Include="..\Layouts\layouts\INotifyCollectionChanged.ts">
+      <Link>layouts\INotifyCollectionChanged.ts</Link>
+    </TypeScriptCompile>
+    <TypeScriptCompile Include="..\Layouts\layouts\ISupport.ts">
+      <Link>layouts\ISupport.ts</Link>
+    </TypeScriptCompile>
+    <TypeScriptCompile Include="..\Layouts\layouts\LayoutManager.ts">
+      <Link>layouts\LayoutManager.ts</Link>
+    </TypeScriptCompile>
+    <TypeScriptCompile Include="..\Layouts\layouts\linq.d.ts">
+      <Link>layouts\linq.d.ts</Link>
+    </TypeScriptCompile>
+    <TypeScriptCompile Include="..\Layouts\layouts\LmlReader.ts">
+      <Link>layouts\LmlReader.ts</Link>
+    </TypeScriptCompile>
+    <TypeScriptCompile Include="..\Layouts\layouts\ObservableCollection.ts">
+      <Link>layouts\ObservableCollection.ts</Link>
+    </TypeScriptCompile>
+    <TypeScriptCompile Include="..\Layouts\layouts\PropertyMap.ts">
+      <Link>layouts\PropertyMap.ts</Link>
+    </TypeScriptCompile>
+    <TypeScriptCompile Include="..\Layouts\layouts\PropertyPath.ts">
+      <Link>layouts\PropertyPath.ts</Link>
+    </TypeScriptCompile>
+    <TypeScriptCompile Include="..\Layouts\layouts\UIElement.ts">
+      <Link>layouts\UIElement.ts</Link>
+    </TypeScriptCompile>
     <TypeScriptCompile Include="app.ts" />
   </ItemGroup>
   <ItemGroup>
@@ -53,7 +122,7 @@
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <Target Name="CopyLinkedFiles" BeforeTargets="Build">
     <ItemGroup>
-      <LinkedItem Include="@(Content)" Condition="%(Content.Link) != ''" />
+      <LinkedItem Include="@(TypeScriptCompile)" Condition="%(TypeScriptCompile.Link) != ''" />
     </ItemGroup>
     <Copy SourceFiles="@(LinkedItem)" DestinationFiles="%(LinkedItem.Link)" />
   </Target>

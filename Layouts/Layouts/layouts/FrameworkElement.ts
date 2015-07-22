@@ -40,6 +40,10 @@ module layouts {
     }
 
     export class FrameworkElement extends UIElement {
+        static typeName: string = "layouts.FrameworkElement";
+        get typeName(): string {
+            return FrameworkElement.typeName;
+        }
 
         private unclippedDesiredSize: Size;
         private needClipBounds: boolean;
@@ -250,129 +254,129 @@ module layouts {
         }
 
         //width property
-        static widthProperty = (new FrameworkElement()).registerProperty("Width", Number.NaN, FrameworkPropertyMetadataOptions.AffectsMeasure);
+        static widthProperty = DepObject.registerProperty(FrameworkElement.typeName, "Width", Number.NaN, FrameworkPropertyMetadataOptions.AffectsMeasure);
         get width(): number {
-            return <number>super.getValue(FrameworkElement.widthProperty);
+            return <number>this.getValue(FrameworkElement.widthProperty);
         }
         set width(value: number) {
-            super.setValue(FrameworkElement.widthProperty, value);
+            this.setValue(FrameworkElement.widthProperty, value);
         }
 
         //height property
-        static heightProperty = (new FrameworkElement()).registerProperty("Height", Number.NaN, FrameworkPropertyMetadataOptions.AffectsMeasure);
+        static heightProperty = DepObject.registerProperty(FrameworkElement.typeName, "Height", Number.NaN, FrameworkPropertyMetadataOptions.AffectsMeasure);
         get height(): number {
-            return <number>super.getValue(FrameworkElement.heightProperty);
+            return <number>this.getValue(FrameworkElement.heightProperty);
         }
         set height(value: number) {
-            super.setValue(FrameworkElement.heightProperty, value);
+            this.setValue(FrameworkElement.heightProperty, value);
         }
 
         //actualWidth property
-        static actualWidthProperty = (new FrameworkElement()).registerProperty("ActualWidth", 0);
+        static actualWidthProperty = DepObject.registerProperty(FrameworkElement.typeName, "ActualWidth", 0);
         get actualWidth(): number {
-            return <number>super.getValue(FrameworkElement.actualWidthProperty);
+            return <number>this.getValue(FrameworkElement.actualWidthProperty);
         }
         private setActualWidth(value: number) {
-            super.setValue(FrameworkElement.actualWidthProperty, value);
+            this.setValue(FrameworkElement.actualWidthProperty, value);
         }
 
         //actualHeight property
-        static actualHeightProperty = (new FrameworkElement()).registerProperty("ActualHeight", 0);
+        static actualHeightProperty = DepObject.registerProperty(FrameworkElement.typeName, "ActualHeight", 0);
         get actualHeight(): number {
-            return <number>super.getValue(FrameworkElement.actualHeightProperty);
+            return <number>this.getValue(FrameworkElement.actualHeightProperty);
         }
         private setActualHeight(value: number) {
-            super.setValue(FrameworkElement.actualHeightProperty, value);
+            this.setValue(FrameworkElement.actualHeightProperty, value);
         }
 
         //minWidth property
-        static minWidthProperty = (new FrameworkElement()).registerProperty("MinWidth", 0, FrameworkPropertyMetadataOptions.AffectsMeasure);
+        static minWidthProperty = DepObject.registerProperty(FrameworkElement.typeName, "MinWidth", 0, FrameworkPropertyMetadataOptions.AffectsMeasure);
         get minWidth(): number {
-            return <number>super.getValue(FrameworkElement.minWidthProperty);
+            return <number>this.getValue(FrameworkElement.minWidthProperty);
         }
         set minWidth(value: number) {
-            super.setValue(FrameworkElement.minWidthProperty, value);
+            this.setValue(FrameworkElement.minWidthProperty, value);
         }
 
         //minHeight property
-        static minHeightProperty = (new FrameworkElement()).registerProperty("MinHeight", 0, FrameworkPropertyMetadataOptions.AffectsMeasure);
+        static minHeightProperty = DepObject.registerProperty(FrameworkElement.typeName, "MinHeight", 0, FrameworkPropertyMetadataOptions.AffectsMeasure);
         get minHeight(): number {
-            return <number>super.getValue(FrameworkElement.minHeightProperty);
+            return <number>this.getValue(FrameworkElement.minHeightProperty);
         }
         set minHeight(value: number) {
-            super.setValue(FrameworkElement.minHeightProperty, value);
+            this.setValue(FrameworkElement.minHeightProperty, value);
         }
 
         //maxWidth property
-        static maxWidthProperty = (new FrameworkElement()).registerProperty("MaxWidth", Infinity, FrameworkPropertyMetadataOptions.AffectsMeasure);
+        static maxWidthProperty = DepObject.registerProperty(FrameworkElement.typeName, "MaxWidth", Infinity, FrameworkPropertyMetadataOptions.AffectsMeasure);
         get maxWidth(): number {
-            return <number>super.getValue(FrameworkElement.maxWidthProperty);
+            return <number>this.getValue(FrameworkElement.maxWidthProperty);
         }
         set maxWidth(value: number) {
-            super.setValue(FrameworkElement.maxWidthProperty, value);
+            this.setValue(FrameworkElement.maxWidthProperty, value);
         }
 
         //maxHeight property
-        static maxHeightProperty = (new FrameworkElement()).registerProperty("MaxHeight", Infinity, FrameworkPropertyMetadataOptions.AffectsMeasure);
+        static maxHeightProperty = DepObject.registerProperty(FrameworkElement.typeName, "MaxHeight", Infinity, FrameworkPropertyMetadataOptions.AffectsMeasure);
         get maxHeight(): number {
-            return <number>super.getValue(FrameworkElement.maxHeightProperty);
+            return <number>this.getValue(FrameworkElement.maxHeightProperty);
         }
         set maxHeight(value: number) {
-            super.setValue(FrameworkElement.maxHeightProperty, value);
+            this.setValue(FrameworkElement.maxHeightProperty, value);
         }
 
         //verticalAlignment property
-        static verticalAlignmentProperty = (new FrameworkElement()).registerProperty("VerticalAlignment", VerticalAlignment.Stretch, FrameworkPropertyMetadataOptions.AffectsArrange);
+        static verticalAlignmentProperty = DepObject.registerProperty(FrameworkElement.typeName, "VerticalAlignment", VerticalAlignment.Stretch, FrameworkPropertyMetadataOptions.AffectsArrange);
         get verticalAlignment(): VerticalAlignment {
-            return <VerticalAlignment>super.getValue(FrameworkElement.verticalAlignmentProperty);
+            return <VerticalAlignment>this.getValue(FrameworkElement.verticalAlignmentProperty);
         }
         set verticalAlignment(value: VerticalAlignment) {
-            super.setValue(FrameworkElement.verticalAlignmentProperty, value);
+            this.setValue(FrameworkElement.verticalAlignmentProperty, value);
         }
 
         //horizontalAlignment property
-        static horizontalAlignmentProperty = (new FrameworkElement()).registerProperty("HorizontalAlignment", HorizontalAlignment.Stretch, FrameworkPropertyMetadataOptions.AffectsArrange);
+        static horizontalAlignmentProperty = DepObject.registerProperty(FrameworkElement.typeName, "HorizontalAlignment", HorizontalAlignment.Stretch, FrameworkPropertyMetadataOptions.AffectsArrange);
         get horizontalAlignment(): HorizontalAlignment {
-            return <HorizontalAlignment>super.getValue(FrameworkElement.horizontalAlignmentProperty);
+            return <HorizontalAlignment>this.getValue(FrameworkElement.horizontalAlignmentProperty);
         }
         set horizontalAlignment(value: HorizontalAlignment) {
-            super.setValue(FrameworkElement.horizontalAlignmentProperty, value);
+            this.setValue(FrameworkElement.horizontalAlignmentProperty, value);
         }
 
         //margin property
-        static marginProperty = (new FrameworkElement()).registerProperty("Margin", new Thickness(), FrameworkPropertyMetadataOptions.AffectsMeasure);
+        static marginProperty = DepObject.registerProperty(FrameworkElement.typeName, "Margin", new Thickness(), FrameworkPropertyMetadataOptions.AffectsMeasure);
         get margin(): Thickness {
-            return <Thickness>super.getValue(FrameworkElement.marginProperty);
+            return <Thickness>this.getValue(FrameworkElement.marginProperty);
         }
         set margin(value: Thickness) {
-            super.setValue(FrameworkElement.marginProperty, value);
+            this.setValue(FrameworkElement.marginProperty, value);
         }
 
         //dataContext property
-        static dataContextProperty = (new FrameworkElement()).registerProperty("DataContext", null, FrameworkPropertyMetadataOptions.Inherits);
+        static dataContextProperty = DepObject.registerProperty(FrameworkElement.typeName, "DataContext", null, FrameworkPropertyMetadataOptions.Inherits);
         get dataContext(): any {
-            return super.getValue(FrameworkElement.dataContextProperty);
+            return this.getValue(FrameworkElement.dataContextProperty);
         }
         set dataContext(value: any) {
-            super.setValue(FrameworkElement.dataContextProperty, value);
+            this.setValue(FrameworkElement.dataContextProperty, value);
         }
 
         //name property
-        static nameProperty = (new FrameworkElement()).registerProperty("Name", "", FrameworkPropertyMetadataOptions.AffectsRender);
+        static nameProperty = DepObject.registerProperty(FrameworkElement.typeName, "Name", "", FrameworkPropertyMetadataOptions.AffectsRender);
         get name(): string {
-            return <string>super.getValue(FrameworkElement.nameProperty);
+            return <string>this.getValue(FrameworkElement.nameProperty);
         }
         set name(value: string) {
-            super.setValue(FrameworkElement.nameProperty, value);
+            this.setValue(FrameworkElement.nameProperty, value);
         }
 
         //tag property
-        static tagProperty = (new FrameworkElement()).registerProperty("Tag");
+        static tagProperty = DepObject.registerProperty(FrameworkElement.typeName, "Tag");
         get tag(): any {
-            return <string>super.getValue(FrameworkElement.tagProperty);
+            return <string>this.getValue(FrameworkElement.tagProperty);
         }
         set tag(value: any) {
-            super.setValue(FrameworkElement.tagProperty, value);
+            this.setValue(FrameworkElement.tagProperty, value);
         }
     }
        

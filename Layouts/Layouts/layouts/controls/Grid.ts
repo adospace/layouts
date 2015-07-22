@@ -132,6 +132,11 @@ module layouts.controls {
     }
 
     export class Grid extends Panel {
+        static typeName: string = "layouts.controls.Grid";
+        get typeName(): string {
+            return Grid.typeName;
+        }
+
 
         private rowDefs: RowDef[];
         private columnDefs: ColumnDef[];
@@ -373,7 +378,7 @@ module layouts.controls {
         }
 
         //Grid.Row property
-        static rowProperty = (new Grid()).registerProperty("Grid#Row", 0, FrameworkPropertyMetadataOptions.AffectsMeasure);
+        static rowProperty = DepObject.registerProperty(Grid.typeName, "Grid#Row", 0, FrameworkPropertyMetadataOptions.AffectsMeasure);
         static getRow(target: DepObject): number {
             return <number>target.getValue(Grid.rowProperty);
         }
@@ -382,7 +387,7 @@ module layouts.controls {
         }
 
         //Grid.Column property
-        static columnProperty = (new Grid()).registerProperty("Grid#Column", 0, FrameworkPropertyMetadataOptions.AffectsMeasure);
+        static columnProperty = DepObject.registerProperty(Grid.typeName, "Grid#Column", 0, FrameworkPropertyMetadataOptions.AffectsMeasure);
         static getColumn(target: DepObject): number {
             return <number>target.getValue(Grid.columnProperty);
         }
@@ -391,7 +396,7 @@ module layouts.controls {
         }
 
         //Grid.RowSpan property
-        static rowSpanProperty = (new Grid()).registerProperty("Grid#RowSpan", 1, FrameworkPropertyMetadataOptions.AffectsMeasure);
+        static rowSpanProperty = DepObject.registerProperty(Grid.typeName, "Grid#RowSpan", 1, FrameworkPropertyMetadataOptions.AffectsMeasure);
         static getRowSpan(target: DepObject): number {
             return <number>target.getValue(Grid.rowSpanProperty);
         }
@@ -400,7 +405,7 @@ module layouts.controls {
         }
 
         //Grid.ColumnSpan property
-        static columnSpanProperty = (new Grid()).registerProperty("Grid#ColumnSpan", 1, FrameworkPropertyMetadataOptions.AffectsMeasure);
+        static columnSpanProperty = DepObject.registerProperty(Grid.typeName, "Grid#ColumnSpan", 1, FrameworkPropertyMetadataOptions.AffectsMeasure);
         static getColumnSpan(target: DepObject): number {
             return <number>target.getValue(Grid.columnSpanProperty);
         }

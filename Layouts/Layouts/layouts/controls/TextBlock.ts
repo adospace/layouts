@@ -4,6 +4,11 @@
 
 module layouts.controls {
     export class TextBlock extends FrameworkElement {
+        static typeName: string = "layouts.controls.TextBlock";
+        get typeName(): string {
+            return TextBlock.typeName;
+        }
+
 
         private _pElement: HTMLParagraphElement;
         attachVisualOverride(elementContainer: HTMLElement) {
@@ -46,21 +51,21 @@ module layouts.controls {
             return mySize;
         }
 
-        static textProperty = (new TextBlock()).registerProperty("Text", null, FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender);
+        static textProperty = DepObject.registerProperty(TextBlock.typeName, "Text", null, FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender);
         get text(): string {
-            return <string>super.getValue(TextBlock.textProperty);
+            return <string>this.getValue(TextBlock.textProperty);
         }
         set text(value: string) {
-            super.setValue(TextBlock.textProperty, value);
+            this.setValue(TextBlock.textProperty, value);
         }
 
 
-        static whiteSpaceProperty = (new TextBlock()).registerProperty("WhiteSpace", "pre", FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender);
+        static whiteSpaceProperty = DepObject.registerProperty(TextBlock.typeName, "WhiteSpace", "pre", FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender);
         get whiteSpace(): string {
-            return <string>super.getValue(TextBlock.whiteSpaceProperty);
+            return <string>this.getValue(TextBlock.whiteSpaceProperty);
         }
         set whiteSpace(value: string) {
-            super.setValue(TextBlock.whiteSpaceProperty, value);
+            this.setValue(TextBlock.whiteSpaceProperty, value);
         }
 
 

@@ -1,6 +1,15 @@
 ﻿module layouts {
     export class ObservableCollection<T> implements INotifyCollectionChanged<T> {
-        private elements: T[] = new Array<T>();
+        constructor(elements?: Array<T>) {
+            this.elements = elements == null ? new Array<T>() : elements.slice();
+        }
+
+        elements: T[];
+
+        toArray(): T[]{
+            //return underling item list
+            return this.elements;
+        }
 
         add(element: T) {
             var iElement = this.elements.indexOf(element);

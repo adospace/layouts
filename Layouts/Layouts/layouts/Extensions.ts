@@ -1,6 +1,8 @@
 ﻿
 interface String {
     format(...replacements: string[]): string;
+    toUpperFirstLetter(): string;
+    toLowerFirstLetter(): string;
 }
 
 if (!String.prototype.format) {
@@ -15,15 +17,32 @@ if (!String.prototype.format) {
     };
 }
 
-interface Object {
-    getTypeName(): string;
+if (!String.prototype.toUpperFirstLetter) {
+    String.prototype.toUpperFirstLetter = function () {
+        return this.charAt(0).toUpperCase() + this.slice(1);
+    }
 }
 
-Object.prototype.getTypeName = function () {
-    var funcNameRegex = /function (.{1,})\(/;
-    var results = (funcNameRegex).exec((this).constructor.toString());
-    return (results && results.length > 1) ? results[1] : "";
-};
+if (!String.prototype.toLowerFirstLetter) {
+    String.prototype.toLowerFirstLetter = function () {
+        return this.charAt(0).toLowerCase() + this.slice(1);
+    }
+}
+
+interface Object {
+    hasProperty(propertyName: string): boolean;
+}
+
+//Object.prototype.getTypeName = function () {
+//    var funcNameRegex = /function (.{1,})\(/;
+//    var results = (funcNameRegex).exec((this).constructor.toString());
+//    return (results && results.length > 1) ? results[1] : "";
+//};
+
+Object.prototype.hasProperty = function (propertyName) {
+    var proto = this.__proto__ || this.constructor.prototype;
+    return (propertyName in this) || (propertyName in proto);
+}
 
 interface Number {
     isEpsilon(): boolean;

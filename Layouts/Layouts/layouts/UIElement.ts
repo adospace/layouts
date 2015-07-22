@@ -42,6 +42,12 @@ module layouts {
 
     export class UIElement extends DepObject {
 
+        static typeName: string = "layouts.UIElement";
+        get typeName(): string {
+            return UIElement.typeName;
+        }
+
+
         desideredSize: Size;
         renderSize: Size;
 
@@ -210,28 +216,28 @@ module layouts {
 
         }
 
-        static isVisibleProperty = (new UIElement()).registerProperty("IsVisible", true, FrameworkPropertyMetadataOptions.AffectsParentMeasure | FrameworkPropertyMetadataOptions.AffectsRender);
+        static isVisibleProperty = DepObject.registerProperty(UIElement.typeName, "IsVisible", true, FrameworkPropertyMetadataOptions.AffectsParentMeasure | FrameworkPropertyMetadataOptions.AffectsRender);
         get isVisible(): boolean {
-            return <boolean>super.getValue(UIElement.isVisibleProperty);
+            return <boolean>this.getValue(UIElement.isVisibleProperty);
         }
         set isVisible(value: boolean) {
-            super.setValue(UIElement.isVisibleProperty, value);
+            this.setValue(UIElement.isVisibleProperty, value);
         }
         
-        static styleProperty = (new UIElement()).registerProperty("cssStyle", "", FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender);
+        static styleProperty = DepObject.registerProperty(UIElement.typeName, "cssStyle", "", FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender);
         get cssStyle(): string {
-            return <string>super.getValue(UIElement.styleProperty);
+            return <string>this.getValue(UIElement.styleProperty);
         }
         set cssStyle(value: string) {
-            super.setValue(UIElement.styleProperty, value);
+            this.setValue(UIElement.styleProperty, value);
         }
 
-        static classProperty = (new UIElement()).registerProperty("cssClass", "", FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender);
+        static classProperty = DepObject.registerProperty(UIElement.typeName, "cssClass", "", FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender);
         get cssClass(): string {
-            return <string>super.getValue(UIElement.classProperty);
+            return <string>this.getValue(UIElement.classProperty);
         }
         set cssClass(value: string) {
-            super.setValue(UIElement.classProperty, value);
+            this.setValue(UIElement.classProperty, value);
         }
 
     }

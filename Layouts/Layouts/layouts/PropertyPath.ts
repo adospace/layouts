@@ -41,7 +41,7 @@
                 var dotIndex = this.path.indexOf(".");
                 if (dotIndex > -1) {
                     this.name = this.path.substring(0, dotIndex);
-                    this.sourceProperty = DepObject.getProperty(this.source.typeName, this.name);
+                    this.sourceProperty = DepObject.getProperty(this.source["typeName"], this.name);
                     var sourcePropertyValue = <DepObject>this.source.getValue(this.sourceProperty);
                     if (sourcePropertyValue != null) {
                         var nextPath = this.path.substring(dotIndex + 1);

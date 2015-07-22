@@ -1,9 +1,15 @@
 ﻿/// <reference path="..\DepProperty.ts" />
 /// <reference path="..\DepObject.ts" />
 /// <reference path="..\FrameworkElement.ts" /> 
+/// <reference path="..\ISupport.ts" /> 
 
 module layouts.controls {
     export class Button extends FrameworkElement {
+        static typeName: string = "layouts.controls.Button";
+        get typeName(): string {
+            return Button.typeName;
+        }
+
 
         private _child: UIElement;
         get child(): UIElement {
@@ -114,21 +120,21 @@ module layouts.controls {
 
         //Dependency properties
 
-        static paddingProperty = (new Button()).registerProperty("Padding", new Thickness(), FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender);
+        static paddingProperty = DepObject.registerProperty(Button.typeName, "Padding", new Thickness(), FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender);
         get padding(): Thickness {
-            return <Thickness>super.getValue(Button.paddingProperty);
+            return <Thickness>this.getValue(Button.paddingProperty);
         }
         set padding(value: Thickness) {
-            super.setValue(Button.paddingProperty, value);
+            this.setValue(Button.paddingProperty, value);
         }
 
 
-        static textProperty = (new Button()).registerProperty("Text", null, FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender);
+        static textProperty = DepObject.registerProperty(Button.typeName, "Text", null, FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender);
         get text(): string {
-            return <string>super.getValue(Button.textProperty);
+            return <string>this.getValue(Button.textProperty);
         }
         set text(value: string) {
-            super.setValue(Button.textProperty, value);
+            this.setValue(Button.textProperty, value);
         }
 
     }
