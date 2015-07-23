@@ -33,12 +33,6 @@ interface Object {
     hasProperty(propertyName: string): boolean;
 }
 
-//Object.prototype.getTypeName = function () {
-//    var funcNameRegex = /function (.{1,})\(/;
-//    var results = (funcNameRegex).exec((this).constructor.toString());
-//    return (results && results.length > 1) ? results[1] : "";
-//};
-
 Object.prototype.hasProperty = function (propertyName) {
     var proto = this.__proto__ || this.constructor.prototype;
     return (propertyName in this) || (propertyName in proto);

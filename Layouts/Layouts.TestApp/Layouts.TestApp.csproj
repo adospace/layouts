@@ -32,9 +32,6 @@
     <TypeScriptCompile Include="..\Layouts\layouts\Application.ts">
       <Link>layouts\Application.ts</Link>
     </TypeScriptCompile>
-    <TypeScriptCompile Include="..\Layouts\layouts\Binding.ts">
-      <Link>layouts\Binding.ts</Link>
-    </TypeScriptCompile>
     <TypeScriptCompile Include="..\Layouts\layouts\controls\Border.ts">
       <Link>layouts\controls\Border.ts</Link>
     </TypeScriptCompile>
@@ -61,6 +58,9 @@
     </TypeScriptCompile>
     <TypeScriptCompile Include="..\Layouts\layouts\controls\TextBlock.ts">
       <Link>layouts\controls\TextBlock.ts</Link>
+    </TypeScriptCompile>
+    <TypeScriptCompile Include="..\Layouts\layouts\controls\TextBox.ts">
+      <Link>layouts\controls\TextBox.ts</Link>
     </TypeScriptCompile>
     <TypeScriptCompile Include="..\Layouts\layouts\DepObject.ts">
       <Link>layouts\DepObject.ts</Link>
@@ -94,9 +94,6 @@
     </TypeScriptCompile>
     <TypeScriptCompile Include="..\Layouts\layouts\PropertyMap.ts">
       <Link>layouts\PropertyMap.ts</Link>
-    </TypeScriptCompile>
-    <TypeScriptCompile Include="..\Layouts\layouts\PropertyPath.ts">
-      <Link>layouts\PropertyPath.ts</Link>
     </TypeScriptCompile>
     <TypeScriptCompile Include="..\Layouts\layouts\UIElement.ts">
       <Link>layouts\UIElement.ts</Link>

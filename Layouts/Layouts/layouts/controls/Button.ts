@@ -2,6 +2,7 @@
 /// <reference path="..\DepObject.ts" />
 /// <reference path="..\FrameworkElement.ts" /> 
 /// <reference path="..\ISupport.ts" /> 
+/// <reference path="..\Command.ts" /> 
 
 module layouts.controls {
     export class Button extends FrameworkElement {
@@ -42,6 +43,8 @@ module layouts.controls {
         }
 
         protected measureOverride(constraint: Size): Size {
+            this._buttonElement.disabled = this.command == null || this.command.canExecute(this.commandParameter);
+
             var mySize = new Size();
 
             // Compute the chrome size added by padding
@@ -93,6 +96,7 @@ module layouts.controls {
                 mySize = new Size(padding.width, padding.height);
             }
 
+
             return mySize;
         }
 
@@ -110,13 +114,15 @@ module layouts.controls {
             }
 
             return finalSize;
-        }   
+        }
 
         protected layoutOverride() {
             super.layoutOverride();
             if (this._child != null)
                 this._child.layout();
         }
+
+
 
         //Dependency properties
 
@@ -135,6 +141,22 @@ module layouts.controls {
         }
         set text(value: string) {
             this.setValue(Button.textProperty, value);
+        }
+
+        static commandProperty = DepObject.registerProperty(Button.typeName, "Command", null, FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender);
+        get command(): Command {
+            return <Command>this.getValue(Button.commandProperty);
+        }
+        set command(value: Command) {
+            this.setValue(Button.commandProperty, value);
+        }
+
+        static commandParameterProperty = DepObject.registerProperty(Button.typeName, "commandParameter", null, FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender);
+        get commandParameter(): any {
+            return this.getValue(Button.commandParameterProperty);
+        }
+        set commandParameter(value: any) {
+            this.setValue(Button.commandParameterProperty, value);
         }
 
     }

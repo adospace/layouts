@@ -1,4 +1,26 @@
-﻿
+﻿class TestViewModel extends layouts.DepObject {
+    static typeName: string = "TestViewModel";
+    get typeName(): string {
+        return TestViewModel.typeName;
+    }
+
+    static nameProperty = layouts.DepObject.registerProperty(TestViewModel.typeName, "name", "test string");
+    get name(): string {
+        return <string>this.getValue(TestViewModel.nameProperty);
+    }
+    set name(value: string) {
+        this.setValue(TestViewModel.nameProperty, value);
+    }
+
+    static countProperty = layouts.DepObject.registerProperty(TestViewModel.typeName, "count", 0);
+    get count(): number {
+        return <number>this.getValue(TestViewModel.countProperty);
+    }
+    set count(value: number) {
+        this.setValue(TestViewModel.countProperty, value);
+    }
+}
+
 
 
 window.onload = () => {
@@ -10,26 +32,13 @@ window.onload = () => {
     //testPage.sizeToContent = layouts.controls.SizeToContent.Both;
 
     var lmlTest = `<?xml version="1.0" encoding="utf-8" ?>
-<Page Name="testPage" SizeToContent="Vertical">  
-  <Grid>
-    <!--<Grid.Rows>
-      <GridRow Height="*" />
-      <GridRow Height="Auto"/>
-    </Grid.Rows>
-    <Grid.Columns>
-      <GridColumn Width="Auto"/>
-      <GridColumn Width="*" />
-    </Grid.Columns>-->
-  
-    <Stack Orientation="Vertical" Height="1000">
-      <Border Grid.Row="0" Background="red" Height="80"/>
-      <Border Grid.Column="1" Background="yellow" Height="100"/>
-      <Border Grid.Row="1" Grid.ColumnSpan="2" Background="gray" Width="150"/>
-      <TextBlock Text="TEST TEST2" Grid.ColumnSpan="0"/>
-      <Image Source="http://2.bp.blogspot.com/-tRdfCkaPO0A/Ui-PRJLDZlI/AAAAAAABMI8/8L9maIUroq8/s640/google-new-logo.png" Grid.Column="1" Stretch="Uniform"/>
-    </Stack>
+<Page Name="testPage">  
+  <Grid Rows="Auto" Columns="Auto 299" VerticalAlignment="Center">
+      <TextBox Text="{count}"/>
+      <Button Text="Increment" Grid.Column="1"/>
   </Grid>
 </Page>`;
 
     app.page = lmlReader.Parse(lmlTest);
+    app.page.dataContext = new TestViewModel();
 };

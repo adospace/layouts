@@ -44,7 +44,7 @@
                     var propertyName = att.localName;
                     //try use FromLml<property-name> if exists
                     //!!!this operation can be expensive!!!
-                    if (!LmlReader.TryCallMethod(containerObject, "FromLml" + propertyName, att.value))
+                    if (!LmlReader.TryCallMethod(containerObject, "fromLml" + propertyName, att.value))
                         LmlReader.TrySetProperty(containerObject, propertyName, this.namespaceResolver(att.namespaceURI), att.value);//if no property with right name is found go ahead
                 }
             }
@@ -88,19 +88,7 @@
             return containerObject;
         }
 
-        LoadChildren(lmlNode: Node, parentPanel: controls.Panel) {
-            var children = Enumerable.From(lmlNode.childNodes).Where(_=> _.nodeType == 1).ToArray();
-
-            if (children.length == 0)
-                return;//no children
-
-
-            this.Load(lmlNode);
-
-
-        }
-
-        private static TrySetProperty(obj: any, propertyName: string, propertyNameSpace: string, value: any): boolean {
+        private static TrySetProperty(obj: any, propertyName: string, propertyNameSpace: string, value: string): boolean {
             //walk up in class hierarchy to find a property with right name
             if (obj == null)
                 return false;
@@ -110,22 +98,31 @@
                 var depObject = <DepObject>obj
                 var typeName = <string>depObject["typeName"];
 
+                var depProperty: DepProperty;
+
                 //if an attached property find the property on publisher object
                 //for example if Grid.Row-> lloks for property Grid#Row in Grid type
                 var indexOfDot = propertyName.indexOf(".");
                 if (indexOfDot > -1) {
                     typeName = propertyNameSpace + "." + propertyName.substr(0, indexOfDot);
                     propertyName = propertyName.replace(".", "#");
-                    var attachedDepProperty = DepObject.getProperty(typeName, propertyName);
-                    if (attachedDepProperty != null) {
-                        depObject.setValue(attachedDepProperty, value);
-                        return true;
-                    }
+                    depProperty = DepObject.getProperty(typeName, propertyName);
                 }
+                else
+                    depProperty = DepObject.lookupProperty(depObject, propertyName);
 
-                var depProperty = DepObject.lookupProperty(depObject, propertyName);
                 if (depProperty != null) {
-                    depObject.setValue(depProperty, value);
+                    //ok we have a depProperty and a depObject
+                    //test if value is actually a Binding object
+                    var bingingDef = LmlReader.tryParseBinding(value);
+                    if (bingingDef != null) {
+                        //here I should check the source of binding (not yet implemented)
+                        //by default if source == DataContext binding just connect to
+                        //"DataContext." + original path and source is depObject itself
+                        depObject.bind(depProperty, "DataContext." + bingingDef.path, bingingDef.twoway, depObject);
+                    }
+                    else
+                        depObject.setValue(depProperty, value);
                     return true;
                 }
                 else if (obj.hasOwnProperty(propertyName)) {
@@ -145,9 +142,6 @@
             return false;
         }
 
-
-
-
         private static TryCallMethod(obj: any, methodName: string, value: any): boolean {
             //walk up in class hierarchy to find a property with right name
             if (obj == null)
@@ -161,18 +155,22 @@
             return false;
         }
 
-        private static FindObjectWithProperty(obj: any, propertyNames: string[]): any {
-            //walk up in class hierarchy to find a property with right name than return the object
-            //that has it
-            if (obj == null)
-                return null;
 
-            for (var i = 0; i < propertyNames.length; i++) {
-                if (obj.hasOwnProperty(propertyNames[i]))
-                    return obj;
+        private static tryParseBinding(value: string): { path: string, twoway: boolean } {
+            var bindingValue = value.trim();
+            if (bindingValue.length >= 3 && //again here maybe better a regex
+                bindingValue[0] == '{' &&
+                bindingValue[bindingValue.length-1] == '}') {
+
+                var tokens = bindingValue.substr(1, bindingValue.length-2).split(",");
+                var path = tokens[0]; //ex. '.' or 'Name'
+                var twoway = tokens.length > 1 ? (tokens[1] == "twoway" || tokens[1] == "<>") : false;
+                var source = tokens.length > 2 ? tokens[2] : null; //todo convert to source=>self, element etc
+
+                return { path: path, twoway: twoway };
             }
 
-            return LmlReader.FindObjectWithProperty(obj["__proto__"], propertyNames);
+            return null;
         }
 
     }

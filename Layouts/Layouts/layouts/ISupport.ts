@@ -15,4 +15,17 @@
     //export interface ISupportItems {
     //    items: any[];
     //}
+
+    export interface ISupportDependencyPropertyChange {
+        onChangeDependencyProperty(depObject: DepObject, depProperty: DepProperty, value: any);
+    }
+
+    export interface ISupportPropertyChange {
+        onChangeProperty(propertyName: string, value: any);
+    }
+
+    export interface INotifyPropertyChanged {
+        registerObserver(observer: ISupportPropertyChange);
+        unregisterObserver(observer: ISupportPropertyChange);
+    }
 }

@@ -137,26 +137,29 @@ module layouts {
 
         protected onPropertyChanged(property: DepProperty, value: any) {
             var options = <FrameworkPropertyMetadataOptions>property.options;
-            if (options != null)
-            {
-                if ((options & FrameworkPropertyMetadataOptions.AffectsMeasure) != 0)
-                    this.invalidateMeasure();
-                else if ((options & FrameworkPropertyMetadataOptions.AffectsArrange) != 0)
-                    this.invalidateArrange();
-                else if ((options & FrameworkPropertyMetadataOptions.AffectsParentMeasure) != 0 && this._parent != null)
-                    this._parent.invalidateMeasure();
-                else if ((options & FrameworkPropertyMetadataOptions.AffectsParentArrange) != 0 && this._parent != null)
-                    this._parent.invalidateArrange();
-                else if ((options & FrameworkPropertyMetadataOptions.AffectsRender) != 0)
-                    this.invalidateLayout();
-            }
+            if ((options & FrameworkPropertyMetadataOptions.AffectsMeasure) != 0)
+                this.invalidateMeasure();
+            else if ((options & FrameworkPropertyMetadataOptions.AffectsArrange) != 0)
+                this.invalidateArrange();
+            else if ((options & FrameworkPropertyMetadataOptions.AffectsParentMeasure) != 0 && this._parent != null)
+                this._parent.invalidateMeasure();
+            else if ((options & FrameworkPropertyMetadataOptions.AffectsParentArrange) != 0 && this._parent != null)
+                this._parent.invalidateArrange();
+            else if ((options & FrameworkPropertyMetadataOptions.AffectsRender) != 0)
+                this.invalidateLayout();
+            else if ((options & FrameworkPropertyMetadataOptions.Inherits) != 0 && this._logicalChildren != null)
+                //foreach child notify property changing event, unfortunately
+                //there is not a more efficient way than walk logical tree down to leaves
+                this._logicalChildren.forEach((child) => child.onPropertyChanged(property, value));
+
+            super.onPropertyChanged(property, value);
         }
 
         getValue(property: DepProperty): any {
             if (this.localPropertyValueMap[property.name] == null) {
                 var options = <FrameworkPropertyMetadataOptions>property.options;
                 if (options != null &&
-                    parent != null &&
+                    this._parent != null &&
                     (options & FrameworkPropertyMetadataOptions.Inherits) != 0) {
                     //search property on parent
                     return this._parent.getValue(property);
@@ -199,15 +202,29 @@ module layouts {
                     this._parent.invalidateLayout();
             }
         }
+
         private _parent: UIElement;
         get parent(): UIElement {
             return this._parent;
         }
 
+        private _logicalChildren: Array<UIElement>;
         set parent(newParent: UIElement) {
             if (this._parent != newParent) {
                 var oldParent = this._parent;
                 this._parent = newParent;
+
+                if (oldParent != null) {
+                    var indexOfElement = oldParent._logicalChildren.indexOf(this);
+                    oldParent._logicalChildren.splice(indexOfElement, 1);
+                }
+
+                if (newParent != null) {
+                    if (newParent._logicalChildren == null)
+                        newParent._logicalChildren = new Array<UIElement>();
+                    newParent._logicalChildren.push(this);
+                }
+
                 this.onParentChanged(oldParent, newParent);
             }
         }
@@ -224,7 +241,7 @@ module layouts {
             this.setValue(UIElement.isVisibleProperty, value);
         }
         
-        static styleProperty = DepObject.registerProperty(UIElement.typeName, "cssStyle", "", FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender);
+        static styleProperty = DepObject.registerProperty(UIElement.typeName, "cssStyle", Consts.stringEmpty, FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender);
         get cssStyle(): string {
             return <string>this.getValue(UIElement.styleProperty);
         }
@@ -232,7 +249,7 @@ module layouts {
             this.setValue(UIElement.styleProperty, value);
         }
 
-        static classProperty = DepObject.registerProperty(UIElement.typeName, "cssClass", "", FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender);
+        static classProperty = DepObject.registerProperty(UIElement.typeName, "cssClass", Consts.stringEmpty, FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender);
         get cssClass(): string {
             return <string>this.getValue(UIElement.classProperty);
         }

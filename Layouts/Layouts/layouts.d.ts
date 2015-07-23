@@ -27,7 +27,12 @@ declare module layouts {
         name: string;
         defaultValue: any;
         options: any;
-        constructor(name: string, defaultValue?: any, options?: any);
+        converter: {
+            (value: any): any;
+        };
+        constructor(name: string, defaultValue?: any, options?: any, converter?: {
+            (value: any): any;
+        });
     }
 }
 declare module layouts {
@@ -39,9 +44,16 @@ declare module layouts {
     }
 }
 declare module layouts {
+    class Consts {
+        static stringEmpty: string;
+    }
+}
+declare module layouts {
     class DepObject {
         private static globalPropertyMap;
-        static registerProperty(typeName: string, name: string, defaultValue?: any, options?: any): DepProperty;
+        static registerProperty(typeName: string, name: string, defaultValue?: any, options?: any, converter?: {
+            (value: any): any;
+        }): DepProperty;
         static getProperty(typeName: string, name: string): DepProperty;
         static lookupProperty(obj: DepObject, name: string): DepProperty;
         protected localPropertyValueMap: {
@@ -51,15 +63,11 @@ declare module layouts {
         setValue(property: DepProperty, value: any): void;
         protected onPropertyChanged(property: DepProperty, value: any): void;
         private pcHandlers;
-        subscribePropertyChanges(handler: {
-            (depObject: DepObject, depProperty: DepProperty, value: any): void;
-        }): void;
-        unsubscribePropertyChanges(handler: {
-            (depObject: DepObject, depProperty: DepProperty, value: any): void;
-        }): void;
+        subscribePropertyChanges(observer: ISupportDependencyPropertyChange): void;
+        unsubscribePropertyChanges(observer: ISupportDependencyPropertyChange): void;
         private bindings;
         private pathBindings;
-        bind(property: DepProperty, propertyPath: string, source: DepObject): Binding;
+        bind(property: DepProperty, propertyPath: string, twoway: boolean, source: DepObject): void;
     }
 }
 declare module layouts {
@@ -120,6 +128,7 @@ declare module layouts {
         invalidateLayout(): void;
         private _parent;
         parent: UIElement;
+        private _logicalChildren;
         protected onParentChanged(oldParent: DepObject, newParent: DepObject): void;
         static isVisibleProperty: DepProperty;
         isVisible: boolean;
@@ -148,6 +157,7 @@ declare module layouts {
         right: number;
         bottom: number;
         constructor(left?: number, top?: number, right?: number, bottom?: number);
+        static fromString(v: string): Thickness;
     }
     class FrameworkElement extends UIElement {
         static typeName: string;
@@ -223,20 +233,29 @@ declare module layouts {
     }
 }
 declare module layouts {
-    class Binding {
-        target: DepObject;
-        targetProperty: DepProperty;
-        path: PropertyPath;
-        twoWay: boolean;
-        private source;
-        private sourceProperty;
-        constructor(target: DepObject, targetProperty: DepProperty, path: PropertyPath, twoWay?: boolean);
-        private onPathChanged(path);
-        private updateTarget();
-        private onSourcePropertyChanged(depObject, property, value);
+    class Command {
+        private executeHandler;
+        private canExecuteHandler;
+        constructor(executeHandler: {
+            (command: Command, parameter: any): void;
+        }, canExecuteHandler?: {
+            (command: Command, parameter: any): boolean;
+        });
+        canExecute(parameter: any): boolean;
+        execute(parameter: any): void;
     }
 }
 declare module layouts {
+    interface ISupportDependencyPropertyChange {
+        onChangeDependencyProperty(depObject: DepObject, depProperty: DepProperty, value: any): any;
+    }
+    interface ISupportPropertyChange {
+        onChangeProperty(propertyName: string, value: any): any;
+    }
+    interface INotifyPropertyChanged {
+        registerObserver(observer: ISupportPropertyChange): any;
+        unregisterObserver(observer: ISupportPropertyChange): any;
+    }
 }
 declare module layouts.controls {
     class CornerRadius {
@@ -281,6 +300,10 @@ declare module layouts.controls {
         padding: Thickness;
         static textProperty: DepProperty;
         text: string;
+        static commandProperty: DepProperty;
+        command: Command;
+        static commandParameterProperty: DepProperty;
+        commandParameter: any;
     }
 }
 declare module layouts.controls {
@@ -307,6 +330,12 @@ declare module layouts.controls {
     }
     class GridLength {
         constructor(value: number, type?: GridUnitType);
+        static parseString(value: string): {
+            length: GridLength;
+            min?: number;
+            max?: number;
+        }[];
+        static fromString(value: string): GridLength;
         private _value;
         value: number;
         private _type;
@@ -338,9 +367,11 @@ declare module layouts.controls {
         private _rows;
         rows: ObservableCollection<GridRow>;
         onRowsChanged(collection: ObservableCollection<GridRow>, added: GridRow[], removed: GridRow[]): void;
+        fromLmlRows(rows: string): void;
         private _columns;
         columns: ObservableCollection<GridColumn>;
         onColumnsChanged(collection: ObservableCollection<GridColumn>, added: GridColumn[], removed: GridColumn[]): void;
+        fromLmlColumns(columns: string): void;
         static rowProperty: DepProperty;
         static getRow(target: DepObject): number;
         static setRow(target: DepObject, value: number): void;
@@ -421,6 +452,19 @@ declare module layouts.controls {
         whiteSpace: string;
     }
 }
+declare module layouts.controls {
+    class TextBox extends FrameworkElement {
+        static typeName: string;
+        typeName: string;
+        private _pElement;
+        attachVisualOverride(elementContainer: HTMLElement): void;
+        onTextChanged(): void;
+        protected layoutOverride(): void;
+        protected measureOverride(constraint: Size): Size;
+        static textProperty: DepProperty;
+        text: string;
+    }
+}
 declare module layouts {
     interface INotifyCollectionChanged<T> {
         on(handler: {
@@ -444,10 +488,9 @@ declare module layouts {
         });
         Parse(lml: string): any;
         Load(lmlNode: Node): any;
-        LoadChildren(lmlNode: Node, parentPanel: controls.Panel): void;
         private static TrySetProperty(obj, propertyName, propertyNameSpace, value);
         private static TryCallMethod(obj, methodName, value);
-        private static FindObjectWithProperty(obj, propertyNames);
+        private static tryParseBinding(value);
     }
 }
 declare module layouts {
@@ -467,30 +510,5 @@ declare module layouts {
         off(handler: {
             (collection: ObservableCollection<T>, added: T[], removed: T[]): void;
         }): void;
-    }
-}
-declare module layouts {
-    class PropertyPath {
-        path: string;
-        name: string;
-        source: DepObject;
-        private next;
-        private prev;
-        sourceProperty: DepProperty;
-        constructor(path: string, source: DepObject);
-        private attachShource();
-        private detachSource();
-        private build();
-        private onPathChanged();
-        private pcHandlers;
-        subscribePathChanges(handler: {
-            (path: PropertyPath): void;
-        }): void;
-        unsubscribePathChanges(handler: {
-            (path: PropertyPath): void;
-        }): void;
-        getValue(): any;
-        setValue(value: any): void;
-        private onPropertyChanged(depObject, property, value);
     }
 }

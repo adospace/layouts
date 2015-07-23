@@ -19,7 +19,7 @@
   </PropertyGroup>
   <ItemGroup>
     <TypeScriptCompile Include="layouts\Application.ts" />
-    <TypeScriptCompile Include="layouts\Binding.ts" />
+    <TypeScriptCompile Include="layouts\Consts.ts" />
     <TypeScriptCompile Include="layouts\controls\Border.ts" />
     <TypeScriptCompile Include="layouts\controls\Button.ts" />
     <TypeScriptCompile Include="layouts\controls\Grid.ts" />
@@ -29,17 +29,18 @@
     <TypeScriptCompile Include="layouts\controls\Panel.ts" />
     <TypeScriptCompile Include="layouts\controls\Stack.ts" />
     <TypeScriptCompile Include="layouts\controls\TextBlock.ts" />
+    <TypeScriptCompile Include="layouts\controls\TextBox.ts" />
     <TypeScriptCompile Include="layouts\DepObject.ts" />
     <TypeScriptCompile Include="layouts\DepProperty.ts" />
     <TypeScriptCompile Include="layouts\Extensions.ts" />
     <TypeScriptCompile Include="layouts\FrameworkElement.ts" />
+    <TypeScriptCompile Include="layouts\Command.ts" />
     <TypeScriptCompile Include="layouts\INotifyCollectionChanged.ts" />
     <TypeScriptCompile Include="layouts\ISupport.ts" />
     <TypeScriptCompile Include="layouts\LayoutManager.ts" />
     <TypeScriptCompile Include="layouts\ObservableCollection.ts" />
     <TypeScriptCompile Include="layouts\LmlReader.ts" />
     <TypeScriptCompile Include="layouts\PropertyMap.ts" />
-    <TypeScriptCompile Include="layouts\PropertyPath.ts" />
     <TypeScriptCompile Include="layouts\UIElement.ts" />
     <TypeScriptCompile Include="layouts\linq.d.ts" />
   </ItemGroup>

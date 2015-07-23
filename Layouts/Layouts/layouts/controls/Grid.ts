@@ -18,6 +18,68 @@ module layouts.controls {
             this._type = type;
         }
 
+        static parseString(value: string): { length: GridLength, min?: number, max?: number }[]{
+            //parse a string in the form of:
+            // ([number],){0.1},[*|Auto|number],([number],){0.1} --> min*,[...],max*
+            // a string that define a series of row/col definition in the form of ([min len)*,(gridlen value),(max len])*
+            //ex:
+            //Auto [100,2*,200] [,Auto,2000]
+            //defines 3 row/col definition:
+            //1) auto row/column
+            //2) 2* row/column with min 100 pixel and max 200 pixel
+            //3) Auto row/olumn with max 2000 pixel
+
+            //TODO: use a regex instead
+
+            value = value.trim();
+            var tokens = value.split(" ");
+            return Enumerable.From(tokens).Select((token) => {
+                token = token.trim();
+                if (token.length == 0)
+                    return;
+                if (token[0] == '[') {
+                    //Case "[100,*,]" or "[,Auto,200]"
+                    if (token.length < 3 || token[token.length - 1] != ']')
+                        throw new Error("GridLength definition error");
+
+                    var subTokens = token.substr(1, token.length - 2).split(",");
+                    if (subTokens.length == 1)
+                        return {
+                            length: GridLength.fromString(subTokens[0])
+                        };
+                    else if (subTokens.length == 3) {
+                        var minSubToken = subTokens[0].trim();
+                        var min = minSubToken.length == 0 ? 0 : parseFloat(minSubToken);
+                        var maxSubToken = subTokens[2].trim();
+                        var max = maxSubToken.length == 0 ? +Infinity : parseFloat(maxSubToken);
+                        return {
+                            length: GridLength.fromString(subTokens[1]),
+                            min: min,
+                            max: max
+                        };
+                    }
+                    else
+                        throw new Error("GridLength definition error");
+                }
+                else {
+                    //case "*" or "Auto" or "12.3"
+                    return {
+                        length: GridLength.fromString(token)
+                    };
+                }
+            }).ToArray();
+        }
+
+        static fromString(value:string): GridLength {
+            if (value == "Auto")
+                return new GridLength(1, GridUnitType.Auto);
+            if (value.substr(value.length - 1, 1) == "*") {
+                var starLen = value.length == 1 ? 1 : parseFloat(value.substr(0, value.length - 1));
+                return new GridLength(starLen, GridUnitType.Star);
+            }
+            return new GridLength(parseFloat(value), GridUnitType.Pixel);
+        }
+
         private _value: number;
         get value(): number {
             return this._value;
@@ -200,7 +262,7 @@ module layouts.controls {
                 }
                 else if (columnDef.isFixed) {
                     columnDef.desWidth = columnDef.column.width.value;
-                    this.rowDefs[iColumn].elements.forEach((el) => el.availWidth = columnDef.desWidth);
+                    elements.forEach((el) => el.availWidth = columnDef.desWidth);
                 }
                 else { //isStar
                     elements.forEach((el) => el.measuredHeightFirstPass = true);//elements in this group can still be measured by the other dimension (width or height)
@@ -362,6 +424,14 @@ module layouts.controls {
         onRowsChanged(collection: ObservableCollection<GridRow>, added: GridRow[], removed: GridRow[]): void {
             super.invalidateMeasure();
         }
+        fromLmlRows(rows: string) {
+            var listOfRows = new Array<GridRow>();
+            GridLength.parseString(rows).forEach((rowDef) => {
+                listOfRows.push(new GridRow(rowDef.length, rowDef.min, rowDef.max));
+            });
+            this._rows = new ObservableCollection(listOfRows);
+            super.invalidateMeasure();
+        }
 
         //columns
         private _columns: ObservableCollection<GridColumn>;
@@ -376,9 +446,17 @@ module layouts.controls {
         onColumnsChanged(collection: ObservableCollection<GridColumn>, added: GridColumn[], removed: GridColumn[]): void {
             super.invalidateMeasure();
         }
+        fromLmlColumns(columns: string) {
+            var listOfColumns = new Array<GridColumn>();
+            GridLength.parseString(columns).forEach((columnDef) => {
+                listOfColumns.push(new GridColumn(columnDef.length, columnDef.min, columnDef.max));
+            });
+            this._columns = new ObservableCollection(listOfColumns);
+            super.invalidateMeasure();
+        }
 
         //Grid.Row property
-        static rowProperty = DepObject.registerProperty(Grid.typeName, "Grid#Row", 0, FrameworkPropertyMetadataOptions.AffectsMeasure);
+        static rowProperty = DepObject.registerProperty(Grid.typeName, "Grid#Row", 0, FrameworkPropertyMetadataOptions.AffectsMeasure, (v) => parseInt(v));
         static getRow(target: DepObject): number {
             return <number>target.getValue(Grid.rowProperty);
         }
@@ -387,7 +465,7 @@ module layouts.controls {
         }
 
         //Grid.Column property
-        static columnProperty = DepObject.registerProperty(Grid.typeName, "Grid#Column", 0, FrameworkPropertyMetadataOptions.AffectsMeasure);
+        static columnProperty = DepObject.registerProperty(Grid.typeName, "Grid#Column", 0, FrameworkPropertyMetadataOptions.AffectsMeasure, (v) => parseInt(v));
         static getColumn(target: DepObject): number {
             return <number>target.getValue(Grid.columnProperty);
         }
@@ -396,7 +474,7 @@ module layouts.controls {
         }
 
         //Grid.RowSpan property
-        static rowSpanProperty = DepObject.registerProperty(Grid.typeName, "Grid#RowSpan", 1, FrameworkPropertyMetadataOptions.AffectsMeasure);
+        static rowSpanProperty = DepObject.registerProperty(Grid.typeName, "Grid#RowSpan", 1, FrameworkPropertyMetadataOptions.AffectsMeasure, (v) => parseInt(v));
         static getRowSpan(target: DepObject): number {
             return <number>target.getValue(Grid.rowSpanProperty);
         }
@@ -405,7 +483,7 @@ module layouts.controls {
         }
 
         //Grid.ColumnSpan property
-        static columnSpanProperty = DepObject.registerProperty(Grid.typeName, "Grid#ColumnSpan", 1, FrameworkPropertyMetadataOptions.AffectsMeasure);
+        static columnSpanProperty = DepObject.registerProperty(Grid.typeName, "Grid#ColumnSpan", 1, FrameworkPropertyMetadataOptions.AffectsMeasure, (v) => parseInt(v));
         static getColumnSpan(target: DepObject): number {
             return <number>target.getValue(Grid.columnSpanProperty);
         }

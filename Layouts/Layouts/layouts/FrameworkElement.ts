@@ -5,7 +5,31 @@
 module layouts {
     export enum VerticalAlignment { Top, Center, Bottom, Stretch }
     export enum HorizontalAlignment { Left, Center, Right, Stretch }
-    export class Thickness { constructor(public left: number = 0, public top: number = 0, public right: number = 0, public bottom: number = 0) { } }
+    export class Thickness
+    {
+        constructor(public left: number = 0, public top: number = 0, public right: number = 0, public bottom: number = 0)
+        {
+        }
+
+        static fromString(v: string): Thickness {
+            var vTrim = v.trim();
+            var tokens = v.split(",");
+            if (tokens.length == 1) {
+                var sameLen = parseFloat(tokens[0]);
+                return new Thickness(sameLen, sameLen, sameLen, sameLen);
+            }
+            if (tokens.length == 2) {
+                var sameLeftRight = parseFloat(tokens[0]);
+                var sameTopBottom = parseFloat(tokens[1]);
+                return new Thickness(sameLeftRight, sameTopBottom, sameLeftRight, sameTopBottom);
+            }
+            if (tokens.length == 4) {
+                return new Thickness(parseFloat(tokens[0]), parseFloat(tokens[1]), parseFloat(tokens[2]), parseFloat(tokens[3]));
+            }
+
+            throw new Error("Thickness format error");
+        }
+    }
 
     class MinMax {
         maxHeight: number;
@@ -290,7 +314,7 @@ module layouts {
         }
 
         //minWidth property
-        static minWidthProperty = DepObject.registerProperty(FrameworkElement.typeName, "MinWidth", 0, FrameworkPropertyMetadataOptions.AffectsMeasure);
+        static minWidthProperty = DepObject.registerProperty(FrameworkElement.typeName, "MinWidth", 0, FrameworkPropertyMetadataOptions.AffectsMeasure, (v) => parseFloat(v));
         get minWidth(): number {
             return <number>this.getValue(FrameworkElement.minWidthProperty);
         }
@@ -299,7 +323,7 @@ module layouts {
         }
 
         //minHeight property
-        static minHeightProperty = DepObject.registerProperty(FrameworkElement.typeName, "MinHeight", 0, FrameworkPropertyMetadataOptions.AffectsMeasure);
+        static minHeightProperty = DepObject.registerProperty(FrameworkElement.typeName, "MinHeight", 0, FrameworkPropertyMetadataOptions.AffectsMeasure, (v) => parseFloat(v));
         get minHeight(): number {
             return <number>this.getValue(FrameworkElement.minHeightProperty);
         }
@@ -308,7 +332,7 @@ module layouts {
         }
 
         //maxWidth property
-        static maxWidthProperty = DepObject.registerProperty(FrameworkElement.typeName, "MaxWidth", Infinity, FrameworkPropertyMetadataOptions.AffectsMeasure);
+        static maxWidthProperty = DepObject.registerProperty(FrameworkElement.typeName, "MaxWidth", Infinity, FrameworkPropertyMetadataOptions.AffectsMeasure, (v) => parseFloat(v));
         get maxWidth(): number {
             return <number>this.getValue(FrameworkElement.maxWidthProperty);
         }
@@ -317,7 +341,7 @@ module layouts {
         }
 
         //maxHeight property
-        static maxHeightProperty = DepObject.registerProperty(FrameworkElement.typeName, "MaxHeight", Infinity, FrameworkPropertyMetadataOptions.AffectsMeasure);
+        static maxHeightProperty = DepObject.registerProperty(FrameworkElement.typeName, "MaxHeight", Infinity, FrameworkPropertyMetadataOptions.AffectsMeasure, (v)=>parseFloat(v));
         get maxHeight(): number {
             return <number>this.getValue(FrameworkElement.maxHeightProperty);
         }
@@ -326,7 +350,7 @@ module layouts {
         }
 
         //verticalAlignment property
-        static verticalAlignmentProperty = DepObject.registerProperty(FrameworkElement.typeName, "VerticalAlignment", VerticalAlignment.Stretch, FrameworkPropertyMetadataOptions.AffectsArrange);
+        static verticalAlignmentProperty = DepObject.registerProperty(FrameworkElement.typeName, "VerticalAlignment", VerticalAlignment.Stretch, FrameworkPropertyMetadataOptions.AffectsArrange, (v)=>VerticalAlignment[String(v)]);
         get verticalAlignment(): VerticalAlignment {
             return <VerticalAlignment>this.getValue(FrameworkElement.verticalAlignmentProperty);
         }
@@ -335,7 +359,7 @@ module layouts {
         }
 
         //horizontalAlignment property
-        static horizontalAlignmentProperty = DepObject.registerProperty(FrameworkElement.typeName, "HorizontalAlignment", HorizontalAlignment.Stretch, FrameworkPropertyMetadataOptions.AffectsArrange);
+        static horizontalAlignmentProperty = DepObject.registerProperty(FrameworkElement.typeName, "HorizontalAlignment", HorizontalAlignment.Stretch, FrameworkPropertyMetadataOptions.AffectsArrange, (v) => HorizontalAlignment[String(v)]);
         get horizontalAlignment(): HorizontalAlignment {
             return <HorizontalAlignment>this.getValue(FrameworkElement.horizontalAlignmentProperty);
         }
@@ -344,7 +368,7 @@ module layouts {
         }
 
         //margin property
-        static marginProperty = DepObject.registerProperty(FrameworkElement.typeName, "Margin", new Thickness(), FrameworkPropertyMetadataOptions.AffectsMeasure);
+        static marginProperty = DepObject.registerProperty(FrameworkElement.typeName, "Margin", new Thickness(), FrameworkPropertyMetadataOptions.AffectsMeasure, (v)=> Thickness.fromString(v));
         get margin(): Thickness {
             return <Thickness>this.getValue(FrameworkElement.marginProperty);
         }
@@ -362,7 +386,7 @@ module layouts {
         }
 
         //name property
-        static nameProperty = DepObject.registerProperty(FrameworkElement.typeName, "Name", "", FrameworkPropertyMetadataOptions.AffectsRender);
+        static nameProperty = DepObject.registerProperty(FrameworkElement.typeName, "Name", Consts.stringEmpty, FrameworkPropertyMetadataOptions.AffectsRender);
         get name(): string {
             return <string>this.getValue(FrameworkElement.nameProperty);
         }
