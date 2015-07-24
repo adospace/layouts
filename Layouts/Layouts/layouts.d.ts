@@ -126,9 +126,10 @@ declare module layouts {
         invalidateArrange(): void;
         private layoutInvalid;
         invalidateLayout(): void;
+        private _logicalChildren;
+        findElementByName(name: string): UIElement;
         private _parent;
         parent: UIElement;
-        private _logicalChildren;
         protected onParentChanged(oldParent: DepObject, newParent: DepObject): void;
         static isVisibleProperty: DepProperty;
         isVisible: boolean;
@@ -136,6 +137,8 @@ declare module layouts {
         cssStyle: string;
         static classProperty: DepProperty;
         cssClass: string;
+        static nameProperty: DepProperty;
+        name: string;
     }
 }
 declare module layouts {
@@ -198,8 +201,6 @@ declare module layouts {
         margin: Thickness;
         static dataContextProperty: DepProperty;
         dataContext: any;
-        static nameProperty: DepProperty;
-        name: string;
         static tagProperty: DepProperty;
         tag: any;
     }
@@ -225,10 +226,24 @@ declare module layouts.controls {
 }
 declare module layouts {
     class Application {
+        constructor();
         private static _current;
         static current: Application;
         private _page;
         page: layouts.controls.Page;
+    }
+}
+declare module layouts {
+    class Command {
+        private executeHandler;
+        private canExecuteHandler;
+        constructor(executeHandler: {
+            (command: Command, parameter: any): void;
+        }, canExecuteHandler?: {
+            (command: Command, parameter: any): boolean;
+        });
+        canExecute(parameter: any): boolean;
+        execute(parameter: any): void;
     }
 }
 declare module layouts {
@@ -269,19 +284,6 @@ declare module layouts.controls {
         background: string;
         static borderBrushProperty: DepProperty;
         borderBrush: string;
-    }
-}
-declare module layouts {
-    class Command {
-        private executeHandler;
-        private canExecuteHandler;
-        constructor(executeHandler: {
-            (command: Command, parameter: any): void;
-        }, canExecuteHandler?: {
-            (command: Command, parameter: any): boolean;
-        });
-        canExecute(parameter: any): boolean;
-        execute(parameter: any): void;
     }
 }
 declare module layouts.controls {
@@ -387,6 +389,18 @@ declare module layouts.controls {
     }
 }
 declare module layouts.controls {
+    class i extends FrameworkElement {
+        static typeName: string;
+        typeName: string;
+        private _pElement;
+        attachVisualOverride(elementContainer: HTMLElement): void;
+        protected layoutOverride(): void;
+        protected measureOverride(constraint: Size): Size;
+        static textProperty: DepProperty;
+        text: string;
+    }
+}
+declare module layouts.controls {
     enum Stretch {
         None = 0,
         Fill = 1,
@@ -477,6 +491,24 @@ declare module layouts {
     }
 }
 declare module layouts {
+    class LmlReader {
+        instanceLoader: InstanceLoader;
+        namespaceResolver: {
+            (xmlNs: string): string;
+        };
+        private static DefaultNamespace;
+        private static DefaultNamespaceResolver(xmlNs);
+        constructor(instanceLoader?: InstanceLoader, namespaceResolver?: {
+            (xmlNs: string): string;
+        });
+        Parse(lml: string): any;
+        Load(lmlNode: Node): any;
+        private static TrySetProperty(obj, propertyName, propertyNameSpace, value);
+        private static TryCallMethod(obj, methodName, value);
+        private static tryParseBinding(value);
+    }
+}
+declare module layouts {
     class ObservableCollection<T> implements INotifyCollectionChanged<T> {
         constructor(elements?: Array<T>);
         elements: T[];
@@ -493,23 +525,5 @@ declare module layouts {
         off(handler: {
             (collection: ObservableCollection<T>, added: T[], removed: T[]): void;
         }): void;
-    }
-}
-declare module layouts {
-    class LmlReader {
-        instanceLoader: InstanceLoader;
-        namespaceResolver: {
-            (xmlNs: string): string;
-        };
-        private static DefaultNamespace;
-        private static DefaultNamespaceResolver(xmlNs);
-        constructor(instanceLoader?: InstanceLoader, namespaceResolver?: {
-            (xmlNs: string): string;
-        });
-        Parse(lml: string): any;
-        Load(lmlNode: Node): any;
-        private static TrySetProperty(obj, propertyName, propertyNameSpace, value);
-        private static TryCallMethod(obj, methodName, value);
-        private static tryParseBinding(value);
     }
 }
