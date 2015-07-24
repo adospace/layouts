@@ -230,11 +230,23 @@ module layouts {
             if (this.next != null)
                 return this.next.getValue();
             else if (this.name == ".")
-                return { success: true, value: this.source.getValue(this.sourceProperty), source: this.source, property: null };
+                return {
+                    success: true,
+                    value: this.source,
+                    source: this.source,
+                    property: null
+                };
             else if (this.name != null && this.path.indexOf(".") == -1) //if path contains a dot but next is null binding is not connected
-                return { success: true, value: this.source.getValue(this.sourceProperty), source: this.source, property: this.sourceProperty };
+                return {
+                    success: true,
+                    value: this.sourceProperty != null ? this.source.getValue(this.sourceProperty) : this.source[this.name],
+                    source: this.source,
+                    property: this.sourceProperty
+                };
             else
-                return { success: false };
+                return {
+                    success: false
+                };
         }
 
         setValue(value: any) {

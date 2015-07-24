@@ -225,24 +225,10 @@ declare module layouts.controls {
 }
 declare module layouts {
     class Application {
-        constructor();
         private static _current;
         static current: Application;
         private _page;
         page: layouts.controls.Page;
-    }
-}
-declare module layouts {
-    class Command {
-        private executeHandler;
-        private canExecuteHandler;
-        constructor(executeHandler: {
-            (command: Command, parameter: any): void;
-        }, canExecuteHandler?: {
-            (command: Command, parameter: any): boolean;
-        });
-        canExecute(parameter: any): boolean;
-        execute(parameter: any): void;
     }
 }
 declare module layouts {
@@ -285,6 +271,19 @@ declare module layouts.controls {
         borderBrush: string;
     }
 }
+declare module layouts {
+    class Command {
+        private executeHandler;
+        private canExecuteHandler;
+        constructor(executeHandler: {
+            (command: Command, parameter: any): void;
+        }, canExecuteHandler?: {
+            (command: Command, parameter: any): boolean;
+        });
+        canExecute(parameter: any): boolean;
+        execute(parameter: any): void;
+    }
+}
 declare module layouts.controls {
     class Button extends FrameworkElement {
         static typeName: string;
@@ -293,6 +292,7 @@ declare module layouts.controls {
         child: UIElement;
         protected _buttonElement: HTMLButtonElement;
         attachVisualOverride(elementContainer: HTMLElement): void;
+        private onCLick();
         protected measureOverride(constraint: Size): Size;
         protected arrangeOverride(finalSize: Size): Size;
         protected layoutOverride(): void;
@@ -459,8 +459,9 @@ declare module layouts.controls {
         private _pElement;
         attachVisualOverride(elementContainer: HTMLElement): void;
         onTextChanged(): void;
-        protected layoutOverride(): void;
+        clientSize: Size;
         protected measureOverride(constraint: Size): Size;
+        protected layoutOverride(): void;
         static textProperty: DepProperty;
         text: string;
     }
@@ -473,24 +474,6 @@ declare module layouts {
         off(handler: {
             (collection: INotifyCollectionChanged<T>, added: T[], removed: T[]): void;
         }): any;
-    }
-}
-declare module layouts {
-    class LmlReader {
-        instanceLoader: InstanceLoader;
-        namespaceResolver: {
-            (xmlNs: string): string;
-        };
-        private static DefaultNamespace;
-        private static DefaultNamespaceResolver(xmlNs);
-        constructor(instanceLoader?: InstanceLoader, namespaceResolver?: {
-            (xmlNs: string): string;
-        });
-        Parse(lml: string): any;
-        Load(lmlNode: Node): any;
-        private static TrySetProperty(obj, propertyName, propertyNameSpace, value);
-        private static TryCallMethod(obj, methodName, value);
-        private static tryParseBinding(value);
     }
 }
 declare module layouts {
@@ -510,5 +493,23 @@ declare module layouts {
         off(handler: {
             (collection: ObservableCollection<T>, added: T[], removed: T[]): void;
         }): void;
+    }
+}
+declare module layouts {
+    class LmlReader {
+        instanceLoader: InstanceLoader;
+        namespaceResolver: {
+            (xmlNs: string): string;
+        };
+        private static DefaultNamespace;
+        private static DefaultNamespaceResolver(xmlNs);
+        constructor(instanceLoader?: InstanceLoader, namespaceResolver?: {
+            (xmlNs: string): string;
+        });
+        Parse(lml: string): any;
+        Load(lmlNode: Node): any;
+        private static TrySetProperty(obj, propertyName, propertyNameSpace, value);
+        private static TryCallMethod(obj, methodName, value);
+        private static tryParseBinding(value);
     }
 }

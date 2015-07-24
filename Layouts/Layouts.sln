@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Layouts", "Layouts\Layouts.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Layouts.TestApp", "Layouts.TestApp\Layouts.TestApp.csproj", "{10508A2D-D35A-49BA-A819-752F1438E203}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Layouts.PageEditor", "Layouts.PageEditor\Layouts.PageEditor.csproj", "{862EFCDF-B2D7-4347-98C2-5F4F17BBFB6A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{10508A2D-D35A-49BA-A819-752F1438E203}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{10508A2D-D35A-49BA-A819-752F1438E203}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{10508A2D-D35A-49BA-A819-752F1438E203}.Release|Any CPU.Build.0 = Release|Any CPU
+		{862EFCDF-B2D7-4347-98C2-5F4F17BBFB6A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{862EFCDF-B2D7-4347-98C2-5F4F17BBFB6A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{862EFCDF-B2D7-4347-98C2-5F4F17BBFB6A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{862EFCDF-B2D7-4347-98C2-5F4F17BBFB6A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

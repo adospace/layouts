@@ -32,7 +32,8 @@
         Load(lmlNode: Node): any {
 
             //resolve namespace to module/typename
-            var typeName = this.namespaceResolver(lmlNode.namespaceURI) + "." + lmlNode.localName;
+            var ns = this.namespaceResolver(lmlNode.namespaceURI);
+            var typeName = ns != Consts.stringEmpty ? ns + "." + lmlNode.localName : lmlNode.localName;
 
             //load object
             var containerObject = this.instanceLoader.getInstance(typeName);

@@ -1,7 +1,8 @@
 /// <reference path="..\DepProperty.ts" />
 /// <reference path="..\DepObject.ts" />
 /// <reference path="..\FrameworkElement.ts" /> 
-var __extends = this.__extends || function (d, b) {
+/// <reference path="..\ISupport.ts" /> 
+var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
     function __() { this.constructor = d; }
     __.prototype = b.prototype;
@@ -36,6 +37,13 @@ var layouts;
             function Border() {
                 _super.apply(this, arguments);
             }
+            Object.defineProperty(Border.prototype, "typeName", {
+                get: function () {
+                    return Border.typeName;
+                },
+                enumerable: true,
+                configurable: true
+            });
             Object.defineProperty(Border.prototype, "child", {
                 get: function () {
                     return this._child;
@@ -110,48 +118,49 @@ var layouts;
             };
             Object.defineProperty(Border.prototype, "borderThickness", {
                 get: function () {
-                    return _super.prototype.getValue.call(this, Border.borderThicknessProperty);
+                    return this.getValue(Border.borderThicknessProperty);
                 },
                 set: function (value) {
-                    _super.prototype.setValue.call(this, Border.borderThicknessProperty, value);
+                    this.setValue(Border.borderThicknessProperty, value);
                 },
                 enumerable: true,
                 configurable: true
             });
             Object.defineProperty(Border.prototype, "padding", {
                 get: function () {
-                    return _super.prototype.getValue.call(this, Border.paddingProperty);
+                    return this.getValue(Border.paddingProperty);
                 },
                 set: function (value) {
-                    _super.prototype.setValue.call(this, Border.paddingProperty, value);
+                    this.setValue(Border.paddingProperty, value);
                 },
                 enumerable: true,
                 configurable: true
             });
             Object.defineProperty(Border.prototype, "background", {
                 get: function () {
-                    return _super.prototype.getValue.call(this, Border.backgroundProperty);
+                    return this.getValue(Border.backgroundProperty);
                 },
                 set: function (value) {
-                    _super.prototype.setValue.call(this, Border.backgroundProperty, value);
+                    this.setValue(Border.backgroundProperty, value);
                 },
                 enumerable: true,
                 configurable: true
             });
             Object.defineProperty(Border.prototype, "borderBrush", {
                 get: function () {
-                    return _super.prototype.getValue.call(this, Border.borderBrushProperty);
+                    return this.getValue(Border.borderBrushProperty);
                 },
                 set: function (value) {
-                    _super.prototype.setValue.call(this, Border.borderBrushProperty, value);
+                    this.setValue(Border.borderBrushProperty, value);
                 },
                 enumerable: true,
                 configurable: true
             });
-            Border.borderThicknessProperty = (new Border()).registerProperty("BorderThickness", new layouts.Thickness(), 1 /* AffectsMeasure */ | 16 /* AffectsRender */);
-            Border.paddingProperty = (new Border()).registerProperty("Padding", new layouts.Thickness(), 1 /* AffectsMeasure */ | 16 /* AffectsRender */);
-            Border.backgroundProperty = (new Border()).registerProperty("Background", null, 16 /* AffectsRender */);
-            Border.borderBrushProperty = (new Border()).registerProperty("BorderBrush", null, 16 /* AffectsRender */);
+            Border.typeName = "layouts.controls.Border";
+            Border.borderThicknessProperty = layouts.DepObject.registerProperty(Border.typeName, "BorderThickness", new layouts.Thickness(), layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender);
+            Border.paddingProperty = layouts.DepObject.registerProperty(Border.typeName, "Padding", new layouts.Thickness(), layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender);
+            Border.backgroundProperty = layouts.DepObject.registerProperty(Border.typeName, "Background", null, layouts.FrameworkPropertyMetadataOptions.AffectsRender);
+            Border.borderBrushProperty = layouts.DepObject.registerProperty(Border.typeName, "BorderBrush", null, layouts.FrameworkPropertyMetadataOptions.AffectsRender);
             return Border;
         })(layouts.FrameworkElement);
         controls.Border = Border;

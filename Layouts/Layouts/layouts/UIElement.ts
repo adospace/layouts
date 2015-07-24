@@ -203,12 +203,28 @@ module layouts {
             }
         }
 
+        private _logicalChildren: Array<UIElement>;
+        findElementByName(name: string): UIElement {
+            if (name == this.name)
+                return this;
+
+            if (this._logicalChildren != null) {
+                for (var i = 0; i < this._logicalChildren.length; i++) {
+                    let child = this._logicalChildren[i];
+                    let foundElement = child.findElementByName(name);
+                    if (foundElement != null)
+                        return foundElement;
+                }
+            }
+
+            return null;
+        }
+
         private _parent: UIElement;
         get parent(): UIElement {
             return this._parent;
         }
 
-        private _logicalChildren: Array<UIElement>;
         set parent(newParent: UIElement) {
             if (this._parent != newParent) {
                 var oldParent = this._parent;
@@ -257,5 +273,13 @@ module layouts {
             this.setValue(UIElement.classProperty, value);
         }
 
+        //name property
+        static nameProperty = DepObject.registerProperty(UIElement.typeName, "Name", Consts.stringEmpty, FrameworkPropertyMetadataOptions.AffectsRender);
+        get name(): string {
+            return <string>this.getValue(UIElement.nameProperty);
+        }
+        set name(value: string) {
+            this.setValue(UIElement.nameProperty, value);
+        }
     }
 } 

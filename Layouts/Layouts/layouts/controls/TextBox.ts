@@ -28,11 +28,7 @@ module layouts.controls {
             this.text = this._pElement.value;
         }
 
-        protected layoutOverride() {
-            super.layoutOverride();
-
-        }
-
+        clientSize: Size;
 
         protected measureOverride(constraint: Size): Size {
             var text = this.text;
@@ -48,15 +44,28 @@ module layouts.controls {
             pElement.style.height = "auto";
             if (txtChanged) {
                 pElement.value = this.text;
-            }
-            mySize = new Size(pElement.offsetWidth, pElement.clientHeight);
+            }            
+            
+            //client size will maintain internal size of object
+            //base class FrameworkElement is going to use RenderSize to set
+            //style dimension of element
+            this.clientSize = new Size(pElement.clientWidth, pElement.clientHeight);
+            mySize = new Size(pElement.offsetWidth, pElement.offsetHeight);
 
             if (txtChanged && this.renderSize != null) {
-                pElement.style.width = this.renderSize.width.toString() + "px";
-                pElement.style.height = this.renderSize.height.toString() + "px";
+                pElement.style.width = this.clientSize.width.toString() + "px";
+                pElement.style.height = this.clientSize.height.toString() + "px";
             }
 
             return mySize;
+        }
+
+        protected layoutOverride() {
+            super.layoutOverride();
+
+            //set appropriate size using saved client size in measure pass
+            this._pElement.style.width = this.clientSize.width.toString() + "px";
+            this._pElement.style.height = this.clientSize.height.toString() + "px";
         }
 
         static textProperty = DepObject.registerProperty(TextBox.typeName, "Text", null, FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender, (v) => String(v));

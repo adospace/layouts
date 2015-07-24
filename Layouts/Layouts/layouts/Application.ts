@@ -4,15 +4,21 @@
 
 module layouts {
     export class Application {
-
-        constructor() {
+                
+        constructor()
+        {
+            if (Application._current != null)
+                throw new Error("Application already initialized");
             Application._current = this;
         }
-                
+
         //singleton application
         private static _current: Application;
         //get current application
         static get current(): Application {
+            if (Application._current == null)
+                Application._current = new Application();
+
             return Application._current;
         }
 

@@ -35,6 +35,8 @@ module layouts.controls {
 
             this._visual = this._buttonElement = document.createElement("button");
 
+            this._buttonElement.onclick = (ev) => this.onCLick();
+
             if (this._child != null) {
                 this._child.attachVisual(this._buttonElement);
             }
@@ -42,8 +44,14 @@ module layouts.controls {
             super.attachVisualOverride(elementContainer);
         }
 
+        private onCLick() {
+            if (this.command != null &&
+                this.command.canExecute(this.commandParameter))
+                this.command.execute(this.commandParameter);
+        }
+
         protected measureOverride(constraint: Size): Size {
-            this._buttonElement.disabled = this.command == null || this.command.canExecute(this.commandParameter);
+            this._buttonElement.disabled = this.command == null || !this.command.canExecute(this.commandParameter);
 
             var mySize = new Size();
 

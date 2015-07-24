@@ -385,15 +385,6 @@ module layouts {
             this.setValue(FrameworkElement.dataContextProperty, value);
         }
 
-        //name property
-        static nameProperty = DepObject.registerProperty(FrameworkElement.typeName, "Name", Consts.stringEmpty, FrameworkPropertyMetadataOptions.AffectsRender);
-        get name(): string {
-            return <string>this.getValue(FrameworkElement.nameProperty);
-        }
-        set name(value: string) {
-            this.setValue(FrameworkElement.nameProperty, value);
-        }
-
         //tag property
         static tagProperty = DepObject.registerProperty(FrameworkElement.typeName, "Tag");
         get tag(): any {

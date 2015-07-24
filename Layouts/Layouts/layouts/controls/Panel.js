@@ -1,7 +1,8 @@
 /// <reference path="..\DepProperty.ts" />
 /// <reference path="..\DepObject.ts" />
 /// <reference path="..\FrameworkElement.ts" /> 
-var __extends = this.__extends || function (d, b) {
+/// <reference path="..\ISupport.ts" /> 
+var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
     function __() { this.constructor = d; }
     __.prototype = b.prototype;
@@ -16,29 +17,64 @@ var layouts;
             function Panel() {
                 _super.apply(this, arguments);
             }
-            Object.defineProperty(Panel.prototype, "children", {
+            Object.defineProperty(Panel.prototype, "typeName", {
                 get: function () {
-                    if (this._children == null) {
-                        this._children = new layouts.ObservableCollection();
-                        var self = this;
-                        this._children.on(function (c, added, removed) {
-                            removed.forEach(function (el) {
-                                if (el.parent == self)
-                                    el.parent = null;
-                            });
-                            added.forEach(function (el) {
-                                el.parent = self;
-                                if (self._divElement != null)
-                                    el.attachVisual(self._divElement);
-                            });
-                            self.invalidateMeasure();
-                        });
-                    }
-                    return this._children;
+                    return Panel.typeName;
                 },
                 enumerable: true,
                 configurable: true
             });
+            Object.defineProperty(Panel.prototype, "children", {
+                get: function () {
+                    //if (this._children == null) {
+                    //    this._children = new ObservableCollection<UIElement>();
+                    //    this._children.on(this.childrenCollectionChanged);
+                    //}
+                    return this._children;
+                },
+                set: function (value) {
+                    var _this = this;
+                    if (value == this._children)
+                        return;
+                    if (this._children != null) {
+                        //reset parent on all children
+                        this._children.forEach(function (el) {
+                            if (el.parent == _this)
+                                el.parent = null;
+                        });
+                        //remove handler so that resource can be disposed
+                        this._children.off(this.childrenCollectionChanged);
+                    }
+                    this._children = value;
+                    //attach new children here
+                    this._children.forEach(function (el) {
+                        if (el.parent != null) {
+                            //if already child of a different parent throw error
+                            //in future investigate if it can be removed from container automatically
+                            throw new Error("Element already child of another element, please remove it first from previous container");
+                        }
+                        el.parent = _this;
+                        if (_this._divElement != null)
+                            el.attachVisual(_this._divElement);
+                    });
+                    this._children.on(this.childrenCollectionChanged);
+                },
+                enumerable: true,
+                configurable: true
+            });
+            Panel.prototype.childrenCollectionChanged = function (collection, added, removed) {
+                var _this = this;
+                removed.forEach(function (el) {
+                    if (el.parent == _this)
+                        el.parent = null;
+                });
+                added.forEach(function (el) {
+                    el.parent = _this;
+                    if (_this._divElement != null)
+                        el.attachVisual(_this._divElement);
+                });
+                this.invalidateMeasure();
+            };
             Panel.prototype.layoutOverride = function () {
                 _super.prototype.layoutOverride.call(this);
                 var background = this.background;
@@ -47,33 +83,34 @@ var layouts;
                 this._children.forEach(function (child) { return child.layout(); });
             };
             Panel.prototype.attachVisualOverride = function (elementContainer) {
+                var _this = this;
                 this._visual = this._divElement = document.createElement("div");
-                var self = this;
-                this._children.forEach(function (child) { return child.attachVisual(self._divElement); });
+                this._children.forEach(function (child) { return child.attachVisual(_this._divElement); });
                 _super.prototype.attachVisualOverride.call(this, elementContainer);
             };
             Object.defineProperty(Panel.prototype, "background", {
                 get: function () {
-                    return _super.prototype.getValue.call(this, Panel.backgroundProperty);
+                    return this.getValue(Panel.backgroundProperty);
                 },
                 set: function (value) {
-                    _super.prototype.setValue.call(this, Panel.backgroundProperty, value);
+                    this.setValue(Panel.backgroundProperty, value);
                 },
                 enumerable: true,
                 configurable: true
             });
             Object.defineProperty(Panel.prototype, "isItemsHost", {
                 get: function () {
-                    return _super.prototype.getValue.call(this, Panel.isItemsHostProperty);
+                    return this.getValue(Panel.isItemsHostProperty);
                 },
                 set: function (value) {
-                    _super.prototype.setValue.call(this, Panel.isItemsHostProperty, value);
+                    this.setValue(Panel.isItemsHostProperty, value);
                 },
                 enumerable: true,
                 configurable: true
             });
-            Panel.backgroundProperty = (new Panel()).registerProperty("Background", null, 16 /* AffectsRender */);
-            Panel.isItemsHostProperty = (new Panel()).registerProperty("IsItemsHost", false, 128 /* NotDataBindable */);
+            Panel.typeName = "layouts.controls.Panel";
+            Panel.backgroundProperty = layouts.DepObject.registerProperty(Panel.typeName, "Background", null, layouts.FrameworkPropertyMetadataOptions.AffectsRender);
+            Panel.isItemsHostProperty = layouts.DepObject.registerProperty(Panel.typeName, "IsItemsHost", false, layouts.FrameworkPropertyMetadataOptions.NotDataBindable);
             return Panel;
         })(layouts.FrameworkElement);
         controls.Panel = Panel;

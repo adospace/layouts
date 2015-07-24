@@ -24,6 +24,7 @@
     <TypeScriptCompile Include="layouts\controls\Button.ts" />
     <TypeScriptCompile Include="layouts\controls\Grid.ts" />
     <TypeScriptCompile Include="layouts\controls\Image.ts" />
+    <TypeScriptCompile Include="layouts\controls\i.ts" />
     <TypeScriptCompile Include="layouts\controls\ItemsControl.ts" />
     <TypeScriptCompile Include="layouts\controls\Page.ts" />
     <TypeScriptCompile Include="layouts\controls\Panel.ts" />
