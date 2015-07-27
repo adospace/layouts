@@ -64,23 +64,19 @@
                 containerObject[contentPropertyName] = this.Load(children.First());
             }
             else {
-                if (containerObject.hasProperty("children") || containerObject.hasProperty("items")) {
+
+                var collectionPropertyName = null;
+                if (containerObject.hasProperty("children"))
+                    collectionPropertyName = "children";
+                if (containerObject.hasProperty("items"))
+                    collectionPropertyName = "items";
+                if (containerObject.hasProperty("templates"))
+                    collectionPropertyName = "templates";
+
+                if (collectionPropertyName != null) {
                     //if object has a property called Children or Items
                     //load all children from children nodes and set property with resulting list
-                    var collectionPropertyName = containerObject.hasProperty("children") ? "children" : "items";
-                    //var childrenCollection = objectWithRightProperty[collectionPropertyName];
-
-                    //childrenCollection.add(this.Load(children.First()));
-
-                    //var listOfChildren = new Array<Object>();
-                    //for (var i = 0; i < children.length; i++) {
-                    //    var childNode = children[i];
-                    //    listOfChildren.push(this.Load(childNode));
-                    //};
-
-                    var listOfChildren = children.Select((childNode) => {
-                        return this.Load(childNode);
-                    }).ToArray();
+                    var listOfChildren = children.Select(childNode => this.Load(childNode)).ToArray();
 
                     containerObject[collectionPropertyName] = new ObservableCollection(listOfChildren);
                 }

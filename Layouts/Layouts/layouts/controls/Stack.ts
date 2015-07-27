@@ -43,6 +43,13 @@ module layouts.controls {
                 }
             });
 
+            if (this.virtualItemCount > this.children.count) {
+                if (orientation == Orientation.Horizontal)
+                    mySize.width += (mySize.width / this.children.count) * (this.virtualItemCount - this.children.count);
+                else
+                    mySize.height += (mySize.height / this.children.count) * (this.virtualItemCount - this.children.count);
+            }
+
             return mySize;
         }
 
@@ -50,6 +57,10 @@ module layouts.controls {
             var orientation = this.orientation;
             var rcChild = new Rect(0, 0, finalSize.width, finalSize.height);
             var previousChildSize = 0.0;
+
+            if (this.virtualOffset != null && 
+                this.virtualItemCount > this.children.count)
+                previousChildSize = (orientation == Orientation.Horizontal) ? this.virtualOffset.x : this.virtualOffset.y;
 
             this.children.forEach((child) => {
                 if (orientation == Orientation.Horizontal) {

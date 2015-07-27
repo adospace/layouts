@@ -38,6 +38,9 @@
     <TypeScriptCompile Include="..\Layouts\layouts\controls\Button.ts">
       <Link>layouts\controls\Button.ts</Link>
     </TypeScriptCompile>
+    <TypeScriptCompile Include="..\Layouts\layouts\controls\DataTemplate.ts">
+      <Link>layouts\controls\DataTemplate.ts</Link>
+    </TypeScriptCompile>
     <TypeScriptCompile Include="..\Layouts\layouts\controls\Grid.ts">
       <Link>layouts\controls\Grid.ts</Link>
     </TypeScriptCompile>

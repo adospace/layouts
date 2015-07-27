@@ -25,6 +25,14 @@ module layouts {
             return DepObject.globalPropertyMap[typeName].getProperty(name);
         }
 
+        ///Get the dependency property registered with this type of object (or null if property doesn't exist on object)
+        static getProperties(typeName: string): DepProperty[] {
+            if (DepObject.globalPropertyMap[typeName] == null)
+                return null;
+
+            return Enumerable. DepObject.globalPropertyMap[typeName];
+        }
+
         static lookupProperty(obj: DepObject, name: string): DepProperty {
             if (obj == null)
                 return null;
@@ -54,13 +62,14 @@ module layouts {
         setValue(property: DepProperty, value: any) {
             if (value != this.localPropertyValueMap[property.name]) {
                 var valueToSet = property.converter != null ? property.converter(value) : value;
+                var oldValue = this.localPropertyValueMap[property.name];
                 this.localPropertyValueMap[property.name] = valueToSet;
-                this.onPropertyChanged(property, valueToSet);
+                this.onPropertyChanged(property, valueToSet, oldValue);
             }
         }
 
         //Called when a value of a dependency is changed (manually or by a binding)
-        protected onPropertyChanged(property: DepProperty, value: any) {
+        protected onPropertyChanged(property: DepProperty, value: any, oldValue: any) {
             this.pcHandlers.forEach((h) => {
                 h.onChangeDependencyProperty(this, property, value);
             });
@@ -88,13 +97,37 @@ module layouts {
         }
 
         private bindings: Array<Binding> = new Array<Binding>();
-        private pathBindings: Array<PropertyPath> = new Array<PropertyPath>();
 
         //bind a property of this object to a source object thru a path
         bind(property: DepProperty, propertyPath: string, twoway: boolean, source: DepObject) {
             var newBinding = new Binding(this, property, propertyPath, source, twoway);
             this.bindings.push(newBinding);
         }
+
+
+        //support for cloning
+        //clone element
+        clone(): DepObject {
+            //NOTE: optimization required for example letting derived class
+            //instanciating the correct type without using InstanceLoader
+            var clonedInstance = this.createClone(this);
+            this.cloneOverride(clonedInstance);
+            return clonedInstance;
+        }
+
+        protected createClone(elementToClone: DepObject): DepObject {
+            var instanceLoader = new InstanceLoader(window);
+            return instanceLoader.getInstance(this["typeName"]);
+        }
+
+        protected cloneOverride(elementCloned: DepObject): void {
+            //assign dep properties to cloned instance
+            for (var depPropertyName in this.localPropertyValueMap) {
+                var depPropertyValue =  [depPropertyName];
+                this.setValue(depProperty, depPropertyValue);
+            }
+        }
+
     } 
 
     class Binding implements ISupportDependencyPropertyChange {
@@ -183,21 +216,23 @@ module layouts {
                     //first token of path is the name of property to look in source object
                     this.name = this.path.substring(0, dotIndex);
                     this.sourceProperty = DepObject.lookupProperty(this.source, this.name);
-                    if (this.sourceProperty != null) {
-                        //NOTE: this.source can be n UIElement(quite often) and it has custom getValue method that looks for parent values
-                        //for the same property given it has FrameworkPropertyMetadataOptions.Inherits as option defined for property
-                        //see UEelement.ts/getValue
-                        var sourcePropertyValue = this.source.getValue(this.sourceProperty);
-                        if (sourcePropertyValue instanceof DepObject) {
-                            var nextPath = this.path.substring(dotIndex + 1);
-                            if (this.next == null ||
-                                (this.next.path != nextPath || this.next.source != sourcePropertyValue))
-                                this.next = new PropertyPath(this.owner, this.path.substring(dotIndex + 1), sourcePropertyValue);
-                            else
-                                this.next.build();
-                        }
-                        else
-                            this.next = null;
+
+                    //NOTE: this.source can be n UIElement(quite often) and it has custom getValue method that looks for parent values
+                    //for the same property given it has FrameworkPropertyMetadataOptions.Inherits as option defined for property
+                    //see UEelement.ts/getValue
+                    var sourcePropertyValue = (this.sourceProperty != null) ?
+                        this.source.getValue(this.sourceProperty) : //if it's a dep property get value using DepObject hierarchy
+                        this.source[this.name];//otherwise try using normal property lookup method
+
+                    if (sourcePropertyValue != null) {
+                        //is source value is not null means I can go further in search...
+                        var nextPath = this.path.substring(dotIndex + 1);
+                        if (this.next == null ||
+                            this.next.path != nextPath ||
+                            this.next.source != sourcePropertyValue)
+                            this.next = new PropertyPath(this.owner, this.path.substring(dotIndex + 1), sourcePropertyValue);
+                        else if (this.next != null)
+                            this.next.build();
                     }
                     else
                         this.next = null;
@@ -263,7 +298,6 @@ module layouts {
                 this.owner.updateTarget();
             }
         }
-
     }
 
 }

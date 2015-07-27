@@ -61,13 +61,15 @@ declare module layouts {
         };
         getValue(property: DepProperty): any;
         setValue(property: DepProperty, value: any): void;
-        protected onPropertyChanged(property: DepProperty, value: any): void;
+        protected onPropertyChanged(property: DepProperty, value: any, oldValue: any): void;
         private pcHandlers;
         subscribePropertyChanges(observer: ISupportDependencyPropertyChange): void;
         unsubscribePropertyChanges(observer: ISupportDependencyPropertyChange): void;
         private bindings;
-        private pathBindings;
         bind(property: DepProperty, propertyPath: string, twoway: boolean, source: DepObject): void;
+        clone(): DepObject;
+        protected createClone(elementToClone: DepObject): DepObject;
+        protected cloneOverride(elementCloned: DepObject): void;
     }
 }
 declare module layouts {
@@ -118,7 +120,7 @@ declare module layouts {
         protected _visual: HTMLElement;
         attachVisual(elementContainer: HTMLElement): void;
         protected attachVisualOverride(elementContainer: HTMLElement): void;
-        protected onPropertyChanged(property: DepProperty, value: any): void;
+        protected onPropertyChanged(property: DepProperty, value: any, oldValue: any): void;
         getValue(property: DepProperty): any;
         private measureDirty;
         invalidateMeasure(): void;
@@ -130,6 +132,7 @@ declare module layouts {
         findElementByName(name: string): UIElement;
         private _parent;
         parent: UIElement;
+        private notifyInheritsPropertiesChange();
         protected onParentChanged(oldParent: DepObject, newParent: DepObject): void;
         static isVisibleProperty: DepProperty;
         isVisible: boolean;
@@ -309,6 +312,15 @@ declare module layouts.controls {
     }
 }
 declare module layouts.controls {
+    class DataTemplate extends DepObject {
+        static typeName: string;
+        typeName: string;
+        targetType: string;
+        private _child;
+        child: UIElement;
+    }
+}
+declare module layouts.controls {
     class Panel extends FrameworkElement {
         static typeName: string;
         typeName: string;
@@ -316,12 +328,12 @@ declare module layouts.controls {
         children: ObservableCollection<UIElement>;
         private childrenCollectionChanged(collection, added, removed);
         layoutOverride(): void;
+        virtualItemCount: number;
+        virtualOffset: Vector;
         protected _divElement: HTMLDivElement;
         attachVisualOverride(elementContainer: HTMLElement): void;
         static backgroundProperty: DepProperty;
         background: string;
-        static isItemsHostProperty: DepProperty;
-        isItemsHost: boolean;
     }
 }
 declare module layouts.controls {
@@ -430,12 +442,21 @@ declare module layouts.controls {
 }
 declare module layouts.controls {
     class ItemsControl extends FrameworkElement {
-        private _items;
-        items: Array<Object>;
-        private itemsCollectionChanged(collection, added, removed);
-        private _itemsSource;
-        ItemsSource: INotifyCollectionChanged<Object>;
-        private itemsSourceCollectionChanged(collection, added, removed);
+        static typeName: string;
+        typeName: string;
+        protected _elements: Array<UIElement>;
+        protected _divElement: HTMLDivElement;
+        attachVisualOverride(elementContainer: HTMLElement): void;
+        private _templates;
+        templates: ObservableCollection<DataTemplate>;
+        private templateCollectionChanged(collection, added, removed);
+        static itemsSourceProperty: DepProperty;
+        itemsSource: ObservableCollection<Object>;
+        static itemsPanelProperty: DepProperty;
+        itemsPanel: Panel;
+        protected onPropertyChanged(property: DepProperty, value: any, oldValue: any): void;
+        private getTemplateForItem(item);
+        private setupItems();
     }
 }
 declare module layouts.controls {

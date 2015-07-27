@@ -135,7 +135,7 @@ module layouts {
 
         }
 
-        protected onPropertyChanged(property: DepProperty, value: any) {
+        protected onPropertyChanged(property: DepProperty, value: any, oldValue: any) {
             var options = <FrameworkPropertyMetadataOptions>property.options;
             if ((options & FrameworkPropertyMetadataOptions.AffectsMeasure) != 0)
                 this.invalidateMeasure();
@@ -150,9 +150,9 @@ module layouts {
             else if ((options & FrameworkPropertyMetadataOptions.Inherits) != 0 && this._logicalChildren != null)
                 //foreach child notify property changing event, unfortunately
                 //there is not a more efficient way than walk logical tree down to leaves
-                this._logicalChildren.forEach((child) => child.onPropertyChanged(property, value));
+                this._logicalChildren.forEach((child) => child.onPropertyChanged(property, value, oldValue));
 
-            super.onPropertyChanged(property, value);
+            super.onPropertyChanged(property, value, oldValue);
         }
 
         getValue(property: DepProperty): any {
@@ -228,21 +228,44 @@ module layouts {
         set parent(newParent: UIElement) {
             if (this._parent != newParent) {
                 var oldParent = this._parent;
-                this._parent = newParent;
-
                 if (oldParent != null) {
                     var indexOfElement = oldParent._logicalChildren.indexOf(this);
                     oldParent._logicalChildren.splice(indexOfElement, 1);
                 }
 
+                this._parent = newParent;
+
                 if (newParent != null) {
                     if (newParent._logicalChildren == null)
                         newParent._logicalChildren = new Array<UIElement>();
                     newParent._logicalChildren.push(this);
+
                 }
+
+                this.notifyInheritsPropertiesChange();
 
                 this.onParentChanged(oldParent, newParent);
             }
+        }
+
+        private notifyInheritsPropertiesChange() {
+            for (let propertyName in this.localPropertyValueMap) {
+                var property = this.localPropertyValueMap[propertyName];
+                var options = <FrameworkPropertyMetadataOptions>property.options;
+                if (options != null &&
+                    (options & FrameworkPropertyMetadataOptions.Inherits) != 0) {
+                    //if my parent changed I need to notify any of children to update
+                    //any binding linked to my property that has FrameworkPropertyMetadataOptions.Inherits
+                    //option (most of cases dataContext)
+                    //there is not a real value change, only a notification to allow binding update
+                    //so value==oldValue
+                    var value = this.getValue(property);
+                    this._logicalChildren.forEach((child) => child.onPropertyChanged(property, value, value));
+                }
+            }
+
+            if (this._parent != null)
+                this._parent.notifyInheritsPropertiesChange();
         }
 
         protected onParentChanged(oldParent: DepObject, newParent: DepObject) {

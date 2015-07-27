@@ -1,8 +1,28 @@
-﻿
+﻿class TestViewModelItem extends layouts.DepObject {
+    static typeName: string = "TestViewModelItem";
+    get typeName(): string {
+        return TestViewModelItem.typeName;
+    }
+
+    constructor(public itemName: string) {
+        super();
+    }
+}
+
 class TestViewModel extends layouts.DepObject {
     static typeName: string = "TestViewModel";
     get typeName(): string {
         return TestViewModel.typeName;
+    }
+
+    constructor() {
+        super();
+        this.itemsCollection = new layouts.ObservableCollection<TestViewModelItem>(
+            [
+                new TestViewModelItem("item1"),
+                new TestViewModelItem("item2"),
+                new TestViewModelItem("item3"),
+            ]);
     }
 
     static nameProperty = layouts.DepObject.registerProperty(TestViewModel.typeName, "name", "test string");
@@ -31,6 +51,8 @@ class TestViewModel extends layouts.DepObject {
     onIncrement() {
         this.count++;
     }
+
+    itemsCollection: layouts.ObservableCollection<TestViewModelItem>;
 }
 
 
@@ -45,9 +67,17 @@ window.onload = () => {
 
     var lmlTest = `<?xml version="1.0" encoding="utf-8" ?>
 <Page Name="testPage">  
-  <Grid Rows="Auto" Columns="Auto 299" VerticalAlignment="Center" HorizontalAlignment="Center">
+  <Grid Rows="Auto Auto" Columns="Auto 299" VerticalAlignment="Center" HorizontalAlignment="Center">
+      <!--
       <TextBox Text="{count,twoway}"/>
       <Button Text="Increment" Command="{incrementCommand}" Grid.Column="1"/>
+      -->
+
+      <ItemsControl ItemsSource="{itemsCollection}" Grid.Row="1">
+        <DataTemplate>
+            <TextBlock Text="{itemName}"/>
+        </DataTemplate>
+      </ItemsControl>
   </Grid>
 </Page>`;
 

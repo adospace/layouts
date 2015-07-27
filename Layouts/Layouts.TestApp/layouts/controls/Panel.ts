@@ -38,21 +38,26 @@ module layouts.controls {
             }
 
             this._children = value;
-            //attach new children here
-            this._children.forEach(el=> {
 
-                if (el.parent != null) {
-                    //if already child of a different parent throw error
-                    //in future investigate if it can be removed from container automatically
-                    throw new Error("Element already child of another element, please remove it first from previous container");
-                }
-                
-                el.parent = this;
-                if (this._divElement != null)
-                    el.attachVisual(this._divElement);
-            });
+            if (this._children != null) {
+                //attach new children here
+                this._children.forEach(el=> {
 
-            this._children.on(this.childrenCollectionChanged);
+                    if (el.parent != null) {
+                        //if already child of a different parent throw error
+                        //in future investigate if it can be removed from container automatically
+                        throw new Error("Element already child of another element, please remove it first from previous container");
+                    }
+
+                    el.parent = this;
+                    if (this._divElement != null)
+                        el.attachVisual(this._divElement);
+                });
+
+                this._children.on(this.childrenCollectionChanged);
+            }
+
+            this.invalidateMeasure();
         }
 
         private childrenCollectionChanged(collection: ObservableCollection<UIElement>, added: UIElement[], removed: UIElement[]) {
@@ -79,10 +84,15 @@ module layouts.controls {
             this._children.forEach(child => child.layout());
         }
 
+        //virtual items
+        virtualItemCount: number = 0;
+        virtualOffset: Vector = null;
+
         protected _divElement: HTMLDivElement;
         attachVisualOverride(elementContainer: HTMLElement) {
             this._visual = this._divElement = document.createElement("div");
-            this._children.forEach(child => child.attachVisual(this._divElement));
+            if (this._children != null)
+                this._children.forEach(child => child.attachVisual(this._divElement));
             super.attachVisualOverride(elementContainer);
         }
        
@@ -94,12 +104,6 @@ module layouts.controls {
             this.setValue(Panel.backgroundProperty, value);
         }
 
-        static isItemsHostProperty = DepObject.registerProperty(Panel.typeName, "IsItemsHost", false, FrameworkPropertyMetadataOptions.NotDataBindable);
-        get isItemsHost(): boolean {
-            return <boolean>this.getValue(Panel.isItemsHostProperty);
-        }
-        set isItemsHost(value: boolean) {
-            this.setValue(Panel.isItemsHostProperty, value);
-        }
+        
     }
 } 

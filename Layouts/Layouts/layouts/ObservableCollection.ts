@@ -1,7 +1,7 @@
 ﻿module layouts {
     export class ObservableCollection<T> implements INotifyCollectionChanged<T> {
         constructor(elements?: Array<T>) {
-            this.elements = elements == null ? new Array<T>() : elements.slice();
+            this.elements = elements == null ? new Array<T>() : elements;
         }
 
         elements: T[];
@@ -15,7 +15,9 @@
             var iElement = this.elements.indexOf(element);
             if (iElement == -1) {
                 this.elements.push(element);
-                this.pcHandlers.forEach((h) => {
+                //make a copy of handlers list before invoke functions
+                //because this.pcHandlers could be modified by user code
+                this.pcHandlers.slice(0).forEach((h) => {
                     h(this, [element], []);
                 });
             }
@@ -25,7 +27,9 @@
             var iElement = this.elements.indexOf(element);
             if (iElement != -1) {
                 this.elements.splice(iElement, 1);
-                this.pcHandlers.forEach((h) => {
+                //make a copy of handlers list before invoke functions
+                //because this.pcHandlers could be modified by user code
+                this.pcHandlers.slice(0).forEach((h) => {
                     h(this, [], [element]);
                 });
             }
