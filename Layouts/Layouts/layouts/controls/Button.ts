@@ -46,8 +46,11 @@ module layouts.controls {
 
         private onCLick() {
             if (this.command != null &&
-                this.command.canExecute(this.commandParameter))
+                this.command.canExecute(this.commandParameter)) {
                 this.command.execute(this.commandParameter);
+
+                this._buttonElement.disabled = this.command == null || !this.command.canExecute(this.commandParameter);
+        }
         }
 
         protected measureOverride(constraint: Size): Size {
@@ -130,7 +133,13 @@ module layouts.controls {
                 this._child.layout();
         }
 
+        protected onDependencyPropertyChanged(property: DepProperty, value: any, oldValue: any) {
+            if (property == Button.commandProperty &&
+                this._buttonElement != null)
+                this._buttonElement.disabled = this.command == null || !this.command.canExecute(this.commandParameter);
 
+            super.onDependencyPropertyChanged(property, value, oldValue);
+        }
 
         //Dependency properties
 

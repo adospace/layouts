@@ -10,6 +10,11 @@ module layouts {
             return this.propertyMap[name];
         }
 
+        all(): DepProperty[]{
+            var keys = Object.keys(this.propertyMap);
+            return keys.map(v => this.propertyMap[v]);
+        }
+
         register(name: string, property: DepProperty) {
             if (this.propertyMap[name] != null)
                 throw new Error("property already registered");

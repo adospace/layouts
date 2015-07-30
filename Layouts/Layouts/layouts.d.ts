@@ -40,6 +40,7 @@ declare module layouts {
         constructor();
         private propertyMap;
         getProperty(name: string): DepProperty;
+        all(): DepProperty[];
         register(name: string, property: DepProperty): void;
     }
 }
@@ -55,6 +56,7 @@ declare module layouts {
             (value: any): any;
         }): DepProperty;
         static getProperty(typeName: string, name: string): DepProperty;
+        static getProperties(typeName: string): DepProperty[];
         static lookupProperty(obj: DepObject, name: string): DepProperty;
         protected localPropertyValueMap: {
             [propertyName: string]: any;
@@ -77,6 +79,7 @@ declare module layouts {
         width: number;
         height: number;
         constructor(width?: number, height?: number);
+        toRect(): Rect;
     }
     class Rect {
         x: number;
@@ -237,19 +240,6 @@ declare module layouts {
     }
 }
 declare module layouts {
-    class Command {
-        private executeHandler;
-        private canExecuteHandler;
-        constructor(executeHandler: {
-            (command: Command, parameter: any): void;
-        }, canExecuteHandler?: {
-            (command: Command, parameter: any): boolean;
-        });
-        canExecute(parameter: any): boolean;
-        execute(parameter: any): void;
-    }
-}
-declare module layouts {
     interface ISupportDependencyPropertyChange {
         onChangeDependencyProperty(depObject: DepObject, depProperty: DepProperty, value: any): any;
     }
@@ -259,6 +249,9 @@ declare module layouts {
     interface INotifyPropertyChanged {
         registerObserver(observer: ISupportPropertyChange): any;
         unregisterObserver(observer: ISupportPropertyChange): any;
+    }
+    interface ISupportCollectionChanged {
+        onCollectionChanged(collection: any, added: any[], removed: any[], startRemoveIndex: number): any;
     }
 }
 declare module layouts.controls {
@@ -289,6 +282,19 @@ declare module layouts.controls {
         borderBrush: string;
     }
 }
+declare module layouts {
+    class Command {
+        private executeHandler;
+        private canExecuteHandler;
+        constructor(executeHandler: {
+            (command: Command, parameter: any): void;
+        }, canExecuteHandler?: {
+            (command: Command, parameter: any): boolean;
+        });
+        canExecute(parameter: any): boolean;
+        execute(parameter: any): void;
+    }
+}
 declare module layouts.controls {
     class Button extends FrameworkElement {
         static typeName: string;
@@ -312,21 +318,12 @@ declare module layouts.controls {
     }
 }
 declare module layouts.controls {
-    class DataTemplate extends DepObject {
-        static typeName: string;
-        typeName: string;
-        targetType: string;
-        private _child;
-        child: UIElement;
-    }
-}
-declare module layouts.controls {
-    class Panel extends FrameworkElement {
+    class Panel extends FrameworkElement implements ISupportCollectionChanged {
         static typeName: string;
         typeName: string;
         private _children;
         children: ObservableCollection<UIElement>;
-        private childrenCollectionChanged(collection, added, removed);
+        onCollectionChanged(collection: any, added: Object[], removed: Object[], startRemoveIndex: number): void;
         layoutOverride(): void;
         virtualItemCount: number;
         virtualOffset: Vector;
@@ -370,7 +367,7 @@ declare module layouts.controls {
         maxWidth: number;
         constructor(width?: GridLength, minWidth?: number, maxWidth?: number);
     }
-    class Grid extends Panel {
+    class Grid extends Panel implements ISupportCollectionChanged {
         static typeName: string;
         typeName: string;
         private rowDefs;
@@ -380,12 +377,11 @@ declare module layouts.controls {
         protected arrangeOverride(finalSize: Size): Size;
         private _rows;
         rows: ObservableCollection<GridRow>;
-        onRowsChanged(collection: ObservableCollection<GridRow>, added: GridRow[], removed: GridRow[]): void;
         fromLmlRows(rows: string): void;
         private _columns;
         columns: ObservableCollection<GridColumn>;
-        onColumnsChanged(collection: ObservableCollection<GridColumn>, added: GridColumn[], removed: GridColumn[]): void;
         fromLmlColumns(columns: string): void;
+        onCollectionChanged(collection: any, added: Object[], removed: Object[], startRemoveIndex: number): void;
         static rowProperty: DepProperty;
         static getRow(target: DepObject): number;
         static setRow(target: DepObject, value: number): void;
@@ -398,18 +394,6 @@ declare module layouts.controls {
         static columnSpanProperty: DepProperty;
         static getColumnSpan(target: DepObject): number;
         static setColumnSpan(target: DepObject, value: number): void;
-    }
-}
-declare module layouts.controls {
-    class i extends FrameworkElement {
-        static typeName: string;
-        typeName: string;
-        private _pElement;
-        attachVisualOverride(elementContainer: HTMLElement): void;
-        protected layoutOverride(): void;
-        protected measureOverride(constraint: Size): Size;
-        static textProperty: DepProperty;
-        text: string;
     }
 }
 declare module layouts.controls {
@@ -441,15 +425,30 @@ declare module layouts.controls {
     }
 }
 declare module layouts.controls {
-    class ItemsControl extends FrameworkElement {
+    class i extends FrameworkElement {
+        static typeName: string;
+        typeName: string;
+        private _pElement;
+        attachVisualOverride(elementContainer: HTMLElement): void;
+        protected layoutOverride(): void;
+        protected measureOverride(constraint: Size): Size;
+        static textProperty: DepProperty;
+        text: string;
+    }
+}
+declare module layouts.controls {
+    class ItemsControl extends FrameworkElement implements ISupportCollectionChanged {
         static typeName: string;
         typeName: string;
         protected _elements: Array<UIElement>;
         protected _divElement: HTMLDivElement;
         attachVisualOverride(elementContainer: HTMLElement): void;
+        protected measureOverride(constraint: Size): Size;
+        protected arrangeOverride(finalSize: Size): Size;
+        protected layoutOverride(): void;
         private _templates;
         templates: ObservableCollection<DataTemplate>;
-        private templateCollectionChanged(collection, added, removed);
+        onCollectionChanged(collection: any, added: Object[], removed: Object[], startRemoveIndex: number): void;
         static itemsSourceProperty: DepProperty;
         itemsSource: ObservableCollection<Object>;
         static itemsPanelProperty: DepProperty;
@@ -501,14 +500,30 @@ declare module layouts.controls {
         text: string;
     }
 }
+declare module layouts.controls {
+    class DataTemplate extends DepObject {
+        static typeName: string;
+        typeName: string;
+        targetType: string;
+        private _child;
+        child: UIElement;
+    }
+}
 declare module layouts {
-    interface INotifyCollectionChanged<T> {
-        on(handler: {
-            (collection: INotifyCollectionChanged<T>, added: T[], removed: T[]): void;
-        }): any;
-        off(handler: {
-            (collection: INotifyCollectionChanged<T>, added: T[], removed: T[]): void;
-        }): any;
+}
+declare module layouts {
+    class ObservableCollection<T> {
+        constructor(elements?: Array<T>);
+        elements: T[];
+        toArray(): T[];
+        add(element: T): void;
+        remove(element: T): void;
+        at(index: number): T;
+        count: number;
+        forEach(action: (value: T, index: number, array: T[]) => void): void;
+        private pcHandlers;
+        onChangeNotify(handler: ISupportCollectionChanged): void;
+        offChangeNotify(handler: ISupportCollectionChanged): void;
     }
 }
 declare module layouts {
@@ -527,24 +542,5 @@ declare module layouts {
         private static TrySetProperty(obj, propertyName, propertyNameSpace, value);
         private static TryCallMethod(obj, methodName, value);
         private static tryParseBinding(value);
-    }
-}
-declare module layouts {
-    class ObservableCollection<T> implements INotifyCollectionChanged<T> {
-        constructor(elements?: Array<T>);
-        elements: T[];
-        toArray(): T[];
-        add(element: T): void;
-        remove(element: T): void;
-        at(index: number): T;
-        count: number;
-        forEach(action: (value: T, index: number, array: T[]) => void): void;
-        private pcHandlers;
-        on(handler: {
-            (collection: ObservableCollection<T>, added: T[], removed: T[]): void;
-        }): void;
-        off(handler: {
-            (collection: ObservableCollection<T>, added: T[], removed: T[]): void;
-        }): void;
     }
 }

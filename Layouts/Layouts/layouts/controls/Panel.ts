@@ -4,7 +4,7 @@
 /// <reference path="..\ISupport.ts" /> 
 
 module layouts.controls {
-    export class Panel extends FrameworkElement {
+    export class Panel extends FrameworkElement implements ISupportCollectionChanged {
         static typeName: string = "layouts.controls.Panel";
         get typeName(): string {
             return Panel.typeName;
@@ -34,7 +34,7 @@ module layouts.controls {
                 });
 
                 //remove handler so that resource can be disposed
-                this._children.off(this.childrenCollectionChanged);
+                this._children.offChangeNotify(this);
             }
 
             this._children = value;
@@ -54,21 +54,25 @@ module layouts.controls {
                         el.attachVisual(this._divElement);
                 });
 
-                this._children.on(this.childrenCollectionChanged);
+                this._children.onChangeNotify(this);
             }
 
             this.invalidateMeasure();
         }
 
-        private childrenCollectionChanged(collection: ObservableCollection<UIElement>, added: UIElement[], removed: UIElement[]) {
+        onCollectionChanged(collection: any, added: Object[], removed: Object[], startRemoveIndex: number) {
             removed.forEach(el=> {
-                if (el.parent == this)
-                    el.parent = null;
+                let element = <UIElement>el;
+                if (element.parent == this) {
+                    element.parent = null;
+                    element.attachVisual(null);
+                }
             });
             added.forEach(el=> {
-                el.parent = this;
+                let element = <UIElement>el;
+                element.parent = this;
                 if (this._divElement != null)
-                    el.attachVisual(this._divElement);
+                    element.attachVisual(this._divElement);
             });
 
             this.invalidateMeasure();

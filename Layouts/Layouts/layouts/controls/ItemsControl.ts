@@ -4,7 +4,7 @@
 /// <reference path="..\ISupport.ts" /> 
 
 module layouts.controls {
-    export class ItemsControl extends FrameworkElement {
+    export class ItemsControl extends FrameworkElement implements ISupportCollectionChanged {
         static typeName: string = "layouts.controls.ItemsControl";
         get typeName(): string {
             return ItemsControl.typeName;
@@ -24,12 +24,33 @@ module layouts.controls {
             if (itemsPanel == null)
                 this.itemsPanel = itemsPanel = new Stack();
 
-
             itemsPanel.attachVisual(this._divElement);
             
             super.attachVisualOverride(elementContainer);
         }
 
+        protected measureOverride(constraint: Size): Size {
+
+            if (this.itemsPanel != null) {
+                this.itemsPanel.measure(constraint);
+                return this.itemsPanel.desideredSize;
+            }
+
+            return new Size();
+        }
+
+        protected arrangeOverride(finalSize: Size): Size {
+            if (this.itemsPanel != null)
+                this.itemsPanel.arrange(finalSize.toRect());
+
+            return finalSize;
+        }
+
+        protected layoutOverride() {
+            super.layoutOverride();
+            if (this.itemsPanel != null)
+                this.itemsPanel.layout();
+        }
 
         //Templates collection
         private _templates: ObservableCollection<DataTemplate>;
@@ -42,7 +63,7 @@ module layouts.controls {
 
             if (this._templates != null) {
                 //remove handler so that resource can be disposed
-                this._templates.off(this.templateCollectionChanged);
+                this._templates.offChangeNotify(this);
             }
 
             this._templates = value;
@@ -51,15 +72,38 @@ module layouts.controls {
 
             });
 
-            this._templates.on(this.templateCollectionChanged);
+            this._templates.onChangeNotify(this);
         }
-        private templateCollectionChanged(collection: ObservableCollection<DataTemplate>, added: DataTemplate[], removed: DataTemplate[]) {
-            removed.forEach(el=> {
 
-            });
-            added.forEach(el=> {
+        onCollectionChanged(collection: any, added: Object[], removed: Object[], startRemoveIndex: number) {
 
-            });
+            if (collection == this._templates) {
+                //templates collection is changed
+                this.setupItems();
+            }
+            else if (collection == this.itemsSource) {
+                //some items were added/removed from itemssouurce
+
+                if (this.itemsPanel == null)
+                    return;
+
+                added.forEach(item=> {
+                    var templateForItem = this.getTemplateForItem(item);
+                    if (templateForItem == null) {
+                        throw new Error("Unable to find a valid template for item");
+                    }
+
+                    var newElement = <UIElement>templateForItem.child.clone();
+                    newElement.setValue(FrameworkElement.dataContextProperty, item);
+                    this.itemsPanel.children.add(newElement);
+                });
+
+                removed.forEach(item=> {
+                    this.itemsPanel.children.remove(
+                        this.itemsPanel.children.at(startRemoveIndex));
+                });
+
+            }
 
             this.invalidateMeasure();
         }
@@ -83,20 +127,25 @@ module layouts.controls {
         }
 
 
-        protected onPropertyChanged(property: DepProperty, value: any, oldValue: any) {
+        protected onDependencyPropertyChanged(property: DepProperty, value: any, oldValue: any) {
             if (property == ItemsControl.itemsSourceProperty) {
                 if (oldValue != null) {
-
+                    var oldItmesSource = <ObservableCollection<Object>>oldValue;
+                    oldItmesSource.offChangeNotify(this);
                 }
 
                 this.setupItems();
 
                 if (value != null) {
-
+                    var newItemsSource = <ObservableCollection<Object>>value;
+                    newItemsSource.onChangeNotify(this);
                 }
             }
+            else if (property == ItemsControl.itemsSourceProperty ||
+                property == ItemsControl.itemsPanelProperty)
+                this.setupItems();
 
-            super.onPropertyChanged(property, value, oldValue);
+            super.onDependencyPropertyChanged(property, value, oldValue);
         }
 
         private getTemplateForItem(item: any): DataTemplate {

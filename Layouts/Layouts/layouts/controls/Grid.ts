@@ -193,7 +193,7 @@ module layouts.controls {
         cellLeftOffset: number = 0;
     }
 
-    export class Grid extends Panel {
+    export class Grid extends Panel implements ISupportCollectionChanged {
         static typeName: string = "layouts.controls.Grid";
         get typeName(): string {
             return Grid.typeName;
@@ -416,13 +416,10 @@ module layouts.controls {
         get rows(): ObservableCollection<GridRow> {
             if (this._rows == null) {
                 this._rows = new ObservableCollection<GridRow>();
-                this._rows.on(this.onRowsChanged);
+                this._rows.onChangeNotify(this);
             }
 
             return this._rows;
-        }
-        onRowsChanged(collection: ObservableCollection<GridRow>, added: GridRow[], removed: GridRow[]): void {
-            super.invalidateMeasure();
         }
         fromLmlRows(rows: string) {
             var listOfRows = new Array<GridRow>();
@@ -438,13 +435,10 @@ module layouts.controls {
         get columns(): ObservableCollection<GridColumn> {
             if (this._columns == null) {
                 this._columns = new ObservableCollection<GridColumn>();
-                this._columns.on(this.onColumnsChanged);
+                this._columns.onChangeNotify(this);
             }
 
             return this._columns;
-        }
-        onColumnsChanged(collection: ObservableCollection<GridColumn>, added: GridColumn[], removed: GridColumn[]): void {
-            super.invalidateMeasure();
         }
         fromLmlColumns(columns: string) {
             var listOfColumns = new Array<GridColumn>();
@@ -452,6 +446,11 @@ module layouts.controls {
                 listOfColumns.push(new GridColumn(columnDef.length, columnDef.min, columnDef.max));
             });
             this._columns = new ObservableCollection(listOfColumns);
+            super.invalidateMeasure();
+        }
+
+
+        onCollectionChanged(collection: any, added: Object[], removed: Object[], startRemoveIndex: number) {
             super.invalidateMeasure();
         }
 

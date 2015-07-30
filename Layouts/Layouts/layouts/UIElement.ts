@@ -2,7 +2,14 @@
 /// <reference path="DepObject.ts" />
 
 module layouts {
-    export class Size { constructor(public width: number = 0, public height: number = 0) { } }
+    export class Size {
+        constructor(public width: number = 0, public height: number = 0) {
+        }
+
+        toRect(): Rect {
+            return new Rect(0, 0, this.width, this.height);
+        }
+    }
     export class Rect { constructor(public x: number = 0, public y: number = 0, public width: number = 0, public height: number = 0) { } get size(): Size { return new Size(this.width, this.height); } }
     export class Vector { constructor(public x: number = 0, public y: number = 0) { } }
 
@@ -116,18 +123,31 @@ module layouts {
 
         }
 
-        ///Attach page visual tree
+        ///Attach page visual tree (attach to null to remove it from DOM)
         protected _visual: HTMLElement;
         attachVisual(elementContainer: HTMLElement): void {
-            if (elementContainer != null &&
-                this._visual != null &&
-                this._visual.parentElement != null &&
-                this._visual.parentElement != elementContainer)
-                this._visual.parentElement.removeChild(this._visual);
 
-            if (this._visual == null) {
+            //1. if a visual is not yet create and we have a container
+            //try create it now
+            if (this._visual == null &&
+                elementContainer != null) 
                 this.attachVisualOverride(elementContainer);
-                elementContainer.appendChild(this._visual);
+
+            //2. if visual is still null give up
+            if (this._visual == null)
+                return;
+
+            //3. if visual is not under container...
+            if (elementContainer != this._visual.parentElement) {
+                
+                //4. remove visual from old container 
+                if (this._visual.parentElement != null)
+                    this._visual.parentElement.removeChild(this._visual);
+
+                //5. if container is valid (not null) add visual under it
+                //note container could be null in this case visual is just detached from DOM
+                if (elementContainer != null)
+                    elementContainer.appendChild(this._visual);
             }
         }
 
@@ -135,7 +155,7 @@ module layouts {
 
         }
 
-        protected onPropertyChanged(property: DepProperty, value: any, oldValue: any) {
+        protected onDependencyPropertyChanged(property: DepProperty, value: any, oldValue: any) {
             var options = <FrameworkPropertyMetadataOptions>property.options;
             if ((options & FrameworkPropertyMetadataOptions.AffectsMeasure) != 0)
                 this.invalidateMeasure();
@@ -150,9 +170,9 @@ module layouts {
             else if ((options & FrameworkPropertyMetadataOptions.Inherits) != 0 && this._logicalChildren != null)
                 //foreach child notify property changing event, unfortunately
                 //there is not a more efficient way than walk logical tree down to leaves
-                this._logicalChildren.forEach((child) => child.onPropertyChanged(property, value, oldValue));
+                this._logicalChildren.forEach((child) => child.onDependencyPropertyChanged(property, value, oldValue));
 
-            super.onPropertyChanged(property, value, oldValue);
+            super.onDependencyPropertyChanged(property, value, oldValue);
         }
 
         getValue(property: DepProperty): any {
@@ -260,7 +280,7 @@ module layouts {
                     //there is not a real value change, only a notification to allow binding update
                     //so value==oldValue
                     var value = this.getValue(property);
-                    this._logicalChildren.forEach((child) => child.onPropertyChanged(property, value, value));
+                    this._logicalChildren.forEach((child) => child.onDependencyPropertyChanged(property, value, value));
                 }
             }
 

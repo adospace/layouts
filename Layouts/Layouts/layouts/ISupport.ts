@@ -21,11 +21,15 @@
     }
 
     export interface ISupportPropertyChange {
-        onChangeProperty(propertyName: string, value: any);
+        onChangeProperty(source: any, propertyName: string, value: any);
     }
 
     export interface INotifyPropertyChanged {
         registerObserver(observer: ISupportPropertyChange);
         unregisterObserver(observer: ISupportPropertyChange);
+    }
+
+    export interface ISupportCollectionChanged {
+        onCollectionChanged(collection: any, added: any[], removed: any[], startRemoveIndex: number);
     }
 }

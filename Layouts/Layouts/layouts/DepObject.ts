@@ -25,12 +25,12 @@ module layouts {
             return DepObject.globalPropertyMap[typeName].getProperty(name);
         }
 
-        ///Get the dependency property registered with this type of object (or null if property doesn't exist on object)
+        ///Get all dependency properties registered with this type of object (or null if property doesn't exist on object)
         static getProperties(typeName: string): DepProperty[] {
             if (DepObject.globalPropertyMap[typeName] == null)
                 return null;
 
-            return Enumerable. DepObject.globalPropertyMap[typeName];
+            return DepObject.globalPropertyMap[typeName].all();
         }
 
         static lookupProperty(obj: DepObject, name: string): DepProperty {
@@ -64,13 +64,13 @@ module layouts {
                 var valueToSet = property.converter != null ? property.converter(value) : value;
                 var oldValue = this.localPropertyValueMap[property.name];
                 this.localPropertyValueMap[property.name] = valueToSet;
-                this.onPropertyChanged(property, valueToSet, oldValue);
+                this.onDependencyPropertyChanged(property, valueToSet, oldValue);
             }
         }
 
         //Called when a value of a dependency is changed (manually or by a binding)
-        protected onPropertyChanged(property: DepProperty, value: any, oldValue: any) {
-            this.pcHandlers.forEach((h) => {
+        protected onDependencyPropertyChanged(property: DepProperty, value: any, oldValue: any) {
+            this.dpcHandlers.forEach((h) => {
                 h.onChangeDependencyProperty(this, property, value);
             });
 
@@ -80,16 +80,39 @@ module layouts {
             });
         }
 
-        private pcHandlers: ISupportDependencyPropertyChange[] = [];
+        private dpcHandlers: ISupportDependencyPropertyChange[] = [];
+
+        //subscribe to dep property change events
+        subscribeDependencyPropertyChanges(observer: ISupportDependencyPropertyChange) {
+            if (this.dpcHandlers.indexOf(observer) == -1)
+                this.dpcHandlers.push(observer);
+        }
+
+        //unsubscribe from dep property change events
+        unsubscribeDependencyPropertyChanges(observer: ISupportDependencyPropertyChange) {
+            var index = this.dpcHandlers.indexOf(observer, 0);
+            if (index != -1) {
+                this.dpcHandlers.splice(index, 1);
+            }
+        }
+
+        //Called when a value of a plain property is changed
+        protected onPropertyChanged(propertyName: string, value: any, oldValue: any) {
+            this.pcHandlers.forEach((h) => {
+                h.onChangeProperty(this, propertyName, value);
+            });
+        }
+
+        private pcHandlers: ISupportPropertyChange[] = [];
 
         //subscribe to property change events
-        subscribePropertyChanges(observer: ISupportDependencyPropertyChange) {
+        subscribePropertyChanges(observer: ISupportPropertyChange) {
             if (this.pcHandlers.indexOf(observer) == -1)
                 this.pcHandlers.push(observer);
         }
 
         //unsubscribe from property change events
-        unsubscribePropertyChanges(observer: ISupportDependencyPropertyChange) {
+        unsubscribePropertyChanges(observer: ISupportPropertyChange) {
             var index = this.pcHandlers.indexOf(observer, 0);
             if (index != -1) {
                 this.pcHandlers.splice(index, 1);
@@ -122,10 +145,16 @@ module layouts {
 
         protected cloneOverride(elementCloned: DepObject): void {
             //assign dep properties to cloned instance
-            for (var depPropertyName in this.localPropertyValueMap) {
-                var depPropertyValue =  [depPropertyName];
-                this.setValue(depProperty, depPropertyValue);
-            }
+            DepObject.getProperties(this["typeName"]).forEach(depProperty => {
+                elementCloned.setValue(depProperty, this.getValue(depProperty));
+
+                this.bindings.forEach(binding => {
+                    if (binding.targetProperty == depProperty) {
+                        elementCloned.bind(depProperty, binding.path.path, binding.twoWay, elementCloned);
+                    }
+                });
+
+            });            
         }
 
     } 
@@ -148,7 +177,7 @@ module layouts {
             this.updateTarget();
 
             if (this.twoWay)
-                this.target.subscribePropertyChanges(this);
+                this.target.subscribeDependencyPropertyChanges(this);
         }
 
         updateTarget(): void {
@@ -172,7 +201,7 @@ module layouts {
         }
     }
 
-    class PropertyPath implements ISupportDependencyPropertyChange {
+    class PropertyPath implements ISupportDependencyPropertyChange, ISupportPropertyChange {
         owner: Binding;
         path: string;
         name: string;
@@ -191,10 +220,12 @@ module layouts {
 
         private attachShource(): void {
             this.source.subscribePropertyChanges(this);
+            this.source.subscribeDependencyPropertyChanges(this);
         }
 
         private detachSource(): void {
             this.source.unsubscribePropertyChanges(this);
+            this.source.unsubscribeDependencyPropertyChanges(this);
         }
 
         private build(): void {
@@ -298,6 +329,15 @@ module layouts {
                 this.owner.updateTarget();
             }
         }
+
+        onChangeProperty(source: any, propertyName: string, value: any) {
+            if (source == this.source &&
+                propertyName == this.name) {
+                this.build();
+                this.owner.updateTarget();
+            }
+        }
+
     }
 
 }

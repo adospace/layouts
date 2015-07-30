@@ -33,7 +33,7 @@ class TestViewModel extends layouts.DepObject {
         this.setValue(TestViewModel.nameProperty, value);
     }
 
-    static countProperty = layouts.DepObject.registerProperty(TestViewModel.typeName, "count", 0, (v) => parseInt(v));
+    static countProperty = layouts.DepObject.registerProperty(TestViewModel.typeName, "count", 3, (v) => parseInt(v));
     get count(): number {
         return <number>this.getValue(TestViewModel.countProperty);
     }
@@ -50,6 +50,21 @@ class TestViewModel extends layouts.DepObject {
 
     onIncrement() {
         this.count++;
+        this.itemsCollection.add(new TestViewModelItem("item" + this.count));
+        this.onPropertyChanged("decrementCommand", this._decrementCommand, this._decrementCommand);
+    }
+
+    private _decrementCommand: layouts.Command;
+    get decrementCommand(): layouts.Command {
+        if (this._decrementCommand == null)
+            this._decrementCommand = new layouts.Command((cmd, p) => this.onDecrement(), (cmd, p) => this.itemsCollection.count > 0);
+        return this._decrementCommand;
+    }
+
+    onDecrement() {
+        this.count--;
+        this.itemsCollection.remove(
+            this.itemsCollection.last());
     }
 
     itemsCollection: layouts.ObservableCollection<TestViewModelItem>;
@@ -67,13 +82,14 @@ window.onload = () => {
 
     var lmlTest = `<?xml version="1.0" encoding="utf-8" ?>
 <Page Name="testPage">  
-  <Grid Rows="Auto Auto" Columns="Auto 299" VerticalAlignment="Center" HorizontalAlignment="Center">
-      <!--
+  <Grid Rows="Auto Auto" Columns="Auto Auto Auto" VerticalAlignment="Center" HorizontalAlignment="Center">
+      
       <TextBox Text="{count,twoway}"/>
       <Button Text="Increment" Command="{incrementCommand}" Grid.Column="1"/>
-      -->
+      <Button Text="Decrement" Command="{decrementCommand}" Grid.Column="2"/>
+      
 
-      <ItemsControl ItemsSource="{itemsCollection}" Grid.Row="1">
+      <ItemsControl ItemsSource="{itemsCollection}" Grid.Row="1" Grid.ColumnSpan="3">
         <DataTemplate>
             <TextBlock Text="{itemName}"/>
         </DataTemplate>
