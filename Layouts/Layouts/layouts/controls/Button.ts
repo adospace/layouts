@@ -5,7 +5,7 @@
 /// <reference path="..\Command.ts" /> 
 
 module layouts.controls {
-    export class Button extends FrameworkElement {
+    export class Button extends FrameworkElement implements ISupportCommandCanExecuteChanged {
         static typeName: string = "layouts.controls.Button";
         get typeName(): string {
             return Button.typeName;
@@ -134,11 +134,19 @@ module layouts.controls {
         }
 
         protected onDependencyPropertyChanged(property: DepProperty, value: any, oldValue: any) {
-            if (property == Button.commandProperty &&
-                this._buttonElement != null)
-                this._buttonElement.disabled = this.command == null || !this.command.canExecute(this.commandParameter);
+            if (property == Button.commandProperty) {
+                if (oldValue != null)
+                    (<Command>oldValue).offCanExecuteChangeNotify(this);
+                if (value != null)
+                    (<Command>value).onCanExecuteChangeNotify(this);
+            }
 
             super.onDependencyPropertyChanged(property, value, oldValue);
+        }
+
+        onCommandCanExecuteChanged(command: Command) {
+            if (this._buttonElement != null)
+                this._buttonElement.disabled = this.command == null || !this.command.canExecute(this.commandParameter);
         }
 
         //Dependency properties

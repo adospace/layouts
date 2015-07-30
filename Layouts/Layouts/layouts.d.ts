@@ -63,10 +63,14 @@ declare module layouts {
         };
         getValue(property: DepProperty): any;
         setValue(property: DepProperty, value: any): void;
-        protected onPropertyChanged(property: DepProperty, value: any, oldValue: any): void;
+        protected onDependencyPropertyChanged(property: DepProperty, value: any, oldValue: any): void;
+        private dpcHandlers;
+        subscribeDependencyPropertyChanges(observer: ISupportDependencyPropertyChange): void;
+        unsubscribeDependencyPropertyChanges(observer: ISupportDependencyPropertyChange): void;
+        protected onPropertyChanged(propertyName: string, value: any, oldValue: any): void;
         private pcHandlers;
-        subscribePropertyChanges(observer: ISupportDependencyPropertyChange): void;
-        unsubscribePropertyChanges(observer: ISupportDependencyPropertyChange): void;
+        subscribePropertyChanges(observer: ISupportPropertyChange): void;
+        unsubscribePropertyChanges(observer: ISupportPropertyChange): void;
         private bindings;
         bind(property: DepProperty, propertyPath: string, twoway: boolean, source: DepObject): void;
         clone(): DepObject;
@@ -123,7 +127,7 @@ declare module layouts {
         protected _visual: HTMLElement;
         attachVisual(elementContainer: HTMLElement): void;
         protected attachVisualOverride(elementContainer: HTMLElement): void;
-        protected onPropertyChanged(property: DepProperty, value: any, oldValue: any): void;
+        protected onDependencyPropertyChanged(property: DepProperty, value: any, oldValue: any): void;
         getValue(property: DepProperty): any;
         private measureDirty;
         invalidateMeasure(): void;
@@ -244,7 +248,7 @@ declare module layouts {
         onChangeDependencyProperty(depObject: DepObject, depProperty: DepProperty, value: any): any;
     }
     interface ISupportPropertyChange {
-        onChangeProperty(propertyName: string, value: any): any;
+        onChangeProperty(source: any, propertyName: string, value: any): any;
     }
     interface INotifyPropertyChanged {
         registerObserver(observer: ISupportPropertyChange): any;
@@ -252,6 +256,9 @@ declare module layouts {
     }
     interface ISupportCollectionChanged {
         onCollectionChanged(collection: any, added: any[], removed: any[], startRemoveIndex: number): any;
+    }
+    interface ISupportCommandCanExecuteChanged {
+        onCommandCanExecuteChanged(command: Command): any;
     }
 }
 declare module layouts.controls {
@@ -293,10 +300,14 @@ declare module layouts {
         });
         canExecute(parameter: any): boolean;
         execute(parameter: any): void;
+        private handlers;
+        onCanExecuteChangeNotify(handler: ISupportCommandCanExecuteChanged): void;
+        offCanExecuteChangeNotify(handler: ISupportCommandCanExecuteChanged): void;
+        canExecuteChanged(): void;
     }
 }
 declare module layouts.controls {
-    class Button extends FrameworkElement {
+    class Button extends FrameworkElement implements ISupportCommandCanExecuteChanged {
         static typeName: string;
         typeName: string;
         private _child;
@@ -307,6 +318,8 @@ declare module layouts.controls {
         protected measureOverride(constraint: Size): Size;
         protected arrangeOverride(finalSize: Size): Size;
         protected layoutOverride(): void;
+        protected onDependencyPropertyChanged(property: DepProperty, value: any, oldValue: any): void;
+        onCommandCanExecuteChanged(command: Command): void;
         static paddingProperty: DepProperty;
         padding: Thickness;
         static textProperty: DepProperty;
@@ -453,7 +466,7 @@ declare module layouts.controls {
         itemsSource: ObservableCollection<Object>;
         static itemsPanelProperty: DepProperty;
         itemsPanel: Panel;
-        protected onPropertyChanged(property: DepProperty, value: any, oldValue: any): void;
+        protected onDependencyPropertyChanged(property: DepProperty, value: any, oldValue: any): void;
         private getTemplateForItem(item);
         private setupItems();
     }
@@ -519,6 +532,8 @@ declare module layouts {
         add(element: T): void;
         remove(element: T): void;
         at(index: number): T;
+        first(): T;
+        last(): T;
         count: number;
         forEach(action: (value: T, index: number, array: T[]) => void): void;
         private pcHandlers;

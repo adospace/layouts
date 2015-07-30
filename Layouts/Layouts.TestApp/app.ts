@@ -51,7 +51,7 @@ class TestViewModel extends layouts.DepObject {
     onIncrement() {
         this.count++;
         this.itemsCollection.add(new TestViewModelItem("item" + this.count));
-        this.onPropertyChanged("decrementCommand", this._decrementCommand, this._decrementCommand);
+        this.decrementCommand.canExecuteChanged();
     }
 
     private _decrementCommand: layouts.Command;
