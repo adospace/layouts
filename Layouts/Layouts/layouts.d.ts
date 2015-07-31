@@ -1,10 +1,12 @@
+declare module layouts {
+    class Ext {
+        static hasProperty(obj: any, propertyName: string): boolean;
+    }
+}
 interface String {
     format(...replacements: string[]): string;
     toUpperFirstLetter(): string;
     toLowerFirstLetter(): string;
-}
-interface Object {
-    hasProperty(propertyName: string): boolean;
 }
 interface Number {
     isEpsilon(): boolean;
@@ -25,7 +27,7 @@ declare module layouts {
 declare module layouts {
     class DepProperty {
         name: string;
-        defaultValue: any;
+        private _defaultValue;
         options: any;
         converter: {
             (value: any): any;
@@ -33,6 +35,9 @@ declare module layouts {
         constructor(name: string, defaultValue?: any, options?: any, converter?: {
             (value: any): any;
         });
+        private _defaultValueMap;
+        overrideDefaultValue(typeName: string, defaultValue: any): void;
+        getDefaultValue(depObject: DepObject): any;
     }
 }
 declare module layouts {
@@ -127,6 +132,8 @@ declare module layouts {
         protected _visual: HTMLElement;
         attachVisual(elementContainer: HTMLElement): void;
         protected attachVisualOverride(elementContainer: HTMLElement): void;
+        protected visualConnected(elementContainer: HTMLElement): void;
+        protected visualDisconnected(elementContainer: HTMLElement): void;
         protected onDependencyPropertyChanged(property: DepProperty, value: any, oldValue: any): void;
         getValue(property: DepProperty): any;
         private measureDirty;
@@ -176,7 +183,6 @@ declare module layouts {
         static typeName: string;
         typeName: string;
         private unclippedDesiredSize;
-        private needClipBounds;
         protected visualOffset: Vector;
         protected measureCore(availableSize: Size): Size;
         protected measureOverride(availableSize: Size): Size;
@@ -213,6 +219,10 @@ declare module layouts {
         dataContext: any;
         static tagProperty: DepProperty;
         tag: any;
+        static overflowXProperty: DepProperty;
+        overflowX: any;
+        static overflowYProperty: DepProperty;
+        overflowY: any;
     }
 }
 declare module layouts.controls {
@@ -328,6 +338,20 @@ declare module layouts.controls {
         command: Command;
         static commandParameterProperty: DepProperty;
         commandParameter: any;
+    }
+}
+declare module layouts.controls {
+    class ControlTemplate extends FrameworkElement {
+        static typeName: string;
+        typeName: string;
+        protected _container: HTMLElement;
+        attachVisualOverride(elementContainer: HTMLElement): void;
+        protected measureOverride(constraint: Size): Size;
+        protected arrangeOverride(finalSize: Size): Size;
+        protected layoutOverride(): void;
+        static contentProperty: DepProperty;
+        content: UIElement;
+        protected onDependencyPropertyChanged(property: DepProperty, value: any, oldValue: any): void;
     }
 }
 declare module layouts.controls {
@@ -479,6 +503,8 @@ declare module layouts.controls {
     class Stack extends Panel {
         static typeName: string;
         typeName: string;
+        private static _init;
+        private static initProperties();
         protected measureOverride(constraint: Size): Size;
         protected arrangeOverride(finalSize: Size): Size;
         static orientationProperty: DepProperty;
@@ -548,11 +574,11 @@ declare module layouts {
             (xmlNs: string): string;
         };
         private static DefaultNamespace;
-        private static DefaultNamespaceResolver(xmlNs);
         constructor(instanceLoader?: InstanceLoader, namespaceResolver?: {
             (xmlNs: string): string;
         });
         Parse(lml: string): any;
+        resolveNameSpace(xmlns: string): string;
         Load(lmlNode: Node): any;
         private static TrySetProperty(obj, propertyName, propertyNameSpace, value);
         private static TryCallMethod(obj, methodName, value);

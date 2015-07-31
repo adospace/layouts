@@ -3,23 +3,12 @@
     export class LmlReader {
 
         private static DefaultNamespace: string = "http://schemas.layouts.com/";
-        private static DefaultNamespaceResolver(xmlNs: string): string
-        {
-            if (xmlNs == null ||
-                xmlNs == LmlReader.DefaultNamespace)
-                return "layouts.controls";
-
-            throw new Error("Unable to resolve Xml Namespace");
-        }
 
         constructor(public instanceLoader?: InstanceLoader,
             public namespaceResolver?: { (xmlNs: string): string }) {
 
             if (this.instanceLoader == null)
                 this.instanceLoader = new InstanceLoader(window)
-
-            if (this.namespaceResolver == null)
-                this.namespaceResolver = LmlReader.DefaultNamespaceResolver;
         }
 
         Parse(lml: string): any {
@@ -29,11 +18,22 @@
             return this.Load(doc);
         }
 
+        resolveNameSpace(xmlns: string): string {
+            if (xmlns == null ||
+                xmlns == LmlReader.DefaultNamespace)
+                return "layouts.controls";
+
+            if (this.namespaceResolver != null)
+                return this.namespaceResolver(xmlns);
+
+            return null;
+        }
+
         Load(lmlNode: Node): any {
 
             //resolve namespace to module/typename
-            var ns = this.namespaceResolver(lmlNode.namespaceURI);
-            var typeName = ns != Consts.stringEmpty ? ns + "." + lmlNode.localName : lmlNode.localName;
+            var ns = this.resolveNameSpace(lmlNode.namespaceURI);
+            var typeName = ns != null ? ns + "." + lmlNode.localName : lmlNode.localName;
 
             //load object
             var containerObject = this.instanceLoader.getInstance(typeName);
@@ -46,7 +46,7 @@
                     //try use FromLml<property-name> if exists
                     //!!!this operation can be expensive!!!
                     if (!LmlReader.TryCallMethod(containerObject, "fromLml" + propertyName, att.value))
-                        LmlReader.TrySetProperty(containerObject, propertyName, this.namespaceResolver(att.namespaceURI), att.value);//if no property with right name is found go ahead
+                        LmlReader.TrySetProperty(containerObject, propertyName, this.resolveNameSpace(att.namespaceURI), att.value);//if no property with right name is found go ahead
                 }
             }
 
@@ -57,20 +57,20 @@
                 return containerObject;//no children
 
             //load children or content or items
-            if (containerObject.hasProperty("content") || containerObject.hasProperty("child")) {
+            if (Ext.hasProperty(containerObject, "content") || Ext.hasProperty(containerObject, "child")) {
                 //support direct content...try to set content of container object with first child
                 //skip any other children of lml node
-                var contentPropertyName = containerObject.hasProperty("content") ? "content" : "child";
+                var contentPropertyName = Ext.hasProperty(containerObject, "content") ? "content" : "child";
                 containerObject[contentPropertyName] = this.Load(children.First());
             }
             else {
 
                 var collectionPropertyName = null;
-                if (containerObject.hasProperty("children"))
+                if (Ext.hasProperty(containerObject, "children"))
                     collectionPropertyName = "children";
-                if (containerObject.hasProperty("items"))
+                if (Ext.hasProperty(containerObject, "items"))
                     collectionPropertyName = "items";
-                if (containerObject.hasProperty("templates"))
+                if (Ext.hasProperty(containerObject, "templates"))
                     collectionPropertyName = "templates";
 
                 if (collectionPropertyName != null) {
@@ -101,7 +101,7 @@
                 //for example if Grid.Row-> lloks for property Grid#Row in Grid type
                 var indexOfDot = propertyName.indexOf(".");
                 if (indexOfDot > -1) {
-                    typeName = propertyNameSpace + "." + propertyName.substr(0, indexOfDot);
+                    typeName = propertyNameSpace == null ? propertyName.substr(0, indexOfDot) : propertyNameSpace + "." + propertyName.substr(0, indexOfDot);
                     propertyName = propertyName.replace(".", "#");
                     depProperty = DepObject.getProperty(typeName, propertyName);
                 }

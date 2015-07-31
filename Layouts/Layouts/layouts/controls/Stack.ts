@@ -24,10 +24,20 @@ module layouts.controls {
             return Stack.typeName;
         }
 
+        private static _init = Stack.initProperties();
+        private static initProperties() {
+            FrameworkElement.overflowXProperty.overrideDefaultValue(Stack.typeName, "auto");
+            FrameworkElement.overflowYProperty.overrideDefaultValue(Stack.typeName, "auto");
+        }
+
+
 
         protected measureOverride(constraint: Size): Size {
             var mySize = new Size();
             var orientation = this.orientation;
+
+            if (this.children == null)
+                return mySize;
 
             this.children.forEach(child=>
             {
@@ -62,22 +72,24 @@ module layouts.controls {
                 this.virtualItemCount > this.children.count)
                 previousChildSize = (orientation == Orientation.Horizontal) ? this.virtualOffset.x : this.virtualOffset.y;
 
-            this.children.forEach((child) => {
-                if (orientation == Orientation.Horizontal) {
-                    rcChild.x += previousChildSize;
-                    previousChildSize = child.desideredSize.width;
-                    rcChild.width = previousChildSize;
-                    rcChild.height = Math.max(finalSize.height, child.desideredSize.height);
-                }
-                else {
-                    rcChild.y += previousChildSize;
-                    previousChildSize = child.desideredSize.height;
-                    rcChild.height = previousChildSize;
-                    rcChild.width = Math.max(finalSize.width, child.desideredSize.width);
-                }
+            if (this.children != null) {
+                this.children.forEach((child) => {
+                    if (orientation == Orientation.Horizontal) {
+                        rcChild.x += previousChildSize;
+                        previousChildSize = child.desideredSize.width;
+                        rcChild.width = previousChildSize;
+                        rcChild.height = Math.max(finalSize.height, child.desideredSize.height);
+                    }
+                    else {
+                        rcChild.y += previousChildSize;
+                        previousChildSize = child.desideredSize.height;
+                        rcChild.height = previousChildSize;
+                        rcChild.width = Math.max(finalSize.width, child.desideredSize.width);
+                    }
 
-                child.arrange(rcChild);
-            });
+                    child.arrange(rcChild);
+                });
+            }
 
             return finalSize;
         }

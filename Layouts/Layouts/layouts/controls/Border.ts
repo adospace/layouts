@@ -27,8 +27,10 @@ module layouts.controls {
         }
         set child(value: UIElement) {
             if (this._child != value) {
-                if (this._child != null && this._child.parent == this)
+                if (this._child != null && this._child.parent == this) {
                     this._child.parent = null;
+                    this._child.attachVisual(null);
+                }
                 this._child = value;
                 if (this._child != null) {
                     this._child.parent = this;

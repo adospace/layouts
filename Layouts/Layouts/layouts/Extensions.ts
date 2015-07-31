@@ -1,4 +1,14 @@
 ﻿
+module layouts {
+    export class Ext {
+        static hasProperty(obj: any, propertyName: string) : boolean {
+            var proto = obj.__proto__ || obj.constructor.prototype;
+            return (propertyName in obj) || (propertyName in proto);
+        }
+    }
+
+}
+
 interface String {
     format(...replacements: string[]): string;
     toUpperFirstLetter(): string;
@@ -29,14 +39,14 @@ if (!String.prototype.toLowerFirstLetter) {
     }
 }
 
-interface Object {
-    hasProperty(propertyName: string): boolean;
-}
+//interface Object {
+//    hasProperty(propertyName: string): boolean;
+//}
 
-Object.prototype.hasProperty = function (propertyName) {
-    var proto = this.__proto__ || this.constructor.prototype;
-    return (propertyName in this) || (propertyName in proto);
-}
+//Object.prototype.hasProperty = function (propertyName) {
+//    var proto = this.__proto__ || this.constructor.prototype;
+//    return (propertyName in this) || (propertyName in proto);
+//}
 
 interface Number {
     isEpsilon(): boolean;

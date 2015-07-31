@@ -154,7 +154,7 @@ module layouts.controls {
                 return null;
 
             let typeName: string = null
-            if (item.hasProperty("typeName"))
+            if (Ext.hasProperty(item, "typeName"))
                 typeName = item["typeName"];
 
             let defaultTemplate = Enumerable.From(this.templates.elements).FirstOrDefault(null, dt => dt.targetType == null);

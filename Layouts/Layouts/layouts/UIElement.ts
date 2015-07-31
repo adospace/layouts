@@ -141,19 +141,33 @@ module layouts {
             if (elementContainer != this._visual.parentElement) {
                 
                 //4. remove visual from old container 
-                if (this._visual.parentElement != null)
+                if (this._visual.parentElement != null) {
                     this._visual.parentElement.removeChild(this._visual);
+                    this.visualDisconnected(this._visual.parentElement);
+                }
 
                 //5. if container is valid (not null) add visual under it
                 //note container could be null in this case visual is just detached from DOM
-                if (elementContainer != null)
+                if (elementContainer != null) {
                     elementContainer.appendChild(this._visual);
+                    this.visualConnected(elementContainer);
+                }
             }
         }
 
         protected attachVisualOverride(elementContainer: HTMLElement): void {
 
         }
+
+        protected visualConnected(elementContainer: HTMLElement): void {
+
+        }
+
+        protected visualDisconnected(elementContainer: HTMLElement): void {
+
+        }
+
+
 
         protected onDependencyPropertyChanged(property: DepProperty, value: any, oldValue: any) {
             var options = <FrameworkPropertyMetadataOptions>property.options;
@@ -186,7 +200,7 @@ module layouts {
                 }
 
                 //get default
-                return property.defaultValue;
+                return property.getDefaultValue(this);
             }
 
             //there is a local value
@@ -308,7 +322,7 @@ module layouts {
             this.setValue(UIElement.styleProperty, value);
         }
 
-        static classProperty = DepObject.registerProperty(UIElement.typeName, "cssClass", Consts.stringEmpty, FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender);
+        static classProperty = DepObject.registerProperty(UIElement.typeName, "cssClass", null, FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender);
         get cssClass(): string {
             return <string>this.getValue(UIElement.classProperty);
         }

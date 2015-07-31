@@ -49,11 +49,11 @@ module layouts {
         }
 
         protected localPropertyValueMap: { [propertyName: string]: any; } = {};
-
         //Get property value for this object
         getValue(property: DepProperty): any {
-            if (this.localPropertyValueMap[property.name] == null)
-                return property.defaultValue;
+            if (this.localPropertyValueMap[property.name] == null) {
+                return property.getDefaultValue(this);
+            }
 
             return this.localPropertyValueMap[property.name];
         }

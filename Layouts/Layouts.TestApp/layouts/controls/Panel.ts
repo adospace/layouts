@@ -85,7 +85,8 @@ module layouts.controls {
             if (this._visual.style.background != background)
                 this._visual.style.background = background;
 
-            this._children.forEach(child => child.layout());
+            if (this._children != null)
+                this._children.forEach(child => child.layout());
         }
 
         //virtual items

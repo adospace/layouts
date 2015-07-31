@@ -87,6 +87,7 @@ module layouts.controls {
                     pElement.style.maxWidth = constraint.width + "px";
                 if (isFinite(constraint.height))
                     pElement.style.maxHeight = constraint.height + "px";
+
                 pElement.style.width = "auto";
                 pElement.style.height = "auto";
                 
@@ -95,7 +96,7 @@ module layouts.controls {
                 }
                 mySize = new Size(pElement.clientWidth, pElement.clientHeight);
 
-                if (txtChanged && this.renderSize != null) {
+                if (this.renderSize != null) {
                     pElement.style.width = this.renderSize.width.toString() + "px";
                     pElement.style.height = this.renderSize.height.toString() + "px";
                 }

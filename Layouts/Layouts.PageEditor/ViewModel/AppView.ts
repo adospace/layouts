@@ -19,12 +19,19 @@ class AppView {
 
     <!-- Left Side -->
     <Border Name="leftSide" Grid.Row="1">
-
+        <Grid Rows="Auto *">
+            <Button Text="New..." Command="{addCommand}" Margin="4"/>
+            <ItemsControl Grid.Row="1" ItemsSource="{items}" Margin="4,0,4,4">
+                <DataTemplate>
+                    <Button Text="{title}" Command="{selectCommand}" Margin="0,4"/>
+                </DataTemplate>                
+            </ItemsControl>
+        </Grid>
     </Border>
 
     <!-- Main Area -->
     <Border Name="mainArea" Grid.Row="1" Grid.Column="1">
-        
+        <ControlTemplate Content="{selected.view}"/>
     </Border>
 
   </Grid>

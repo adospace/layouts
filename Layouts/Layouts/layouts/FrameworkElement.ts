@@ -70,7 +70,7 @@ module layouts {
         }
 
         private unclippedDesiredSize: Size;
-        private needClipBounds: boolean;
+        //private needClipBounds: boolean;
         protected visualOffset: Vector = new Vector();
 
         protected measureCore(availableSize: Size): Size {
@@ -137,19 +137,19 @@ module layouts {
             arrangeSize.width = Math.max(0, arrangeSize.width - marginWidth);
             arrangeSize.height = Math.max(0, arrangeSize.height - marginHeight);
 
-            this.needClipBounds = false;
+            //this.needClipBounds = false;
 
-            if (arrangeSize.width.isCloseTo(this.unclippedDesiredSize.width) ||
-                arrangeSize.width < this.unclippedDesiredSize.width) {
-                this.needClipBounds = true;
-                arrangeSize.width = this.unclippedDesiredSize.width;
-            }
+            //if (arrangeSize.width.isCloseTo(this.unclippedDesiredSize.width) ||
+            //    arrangeSize.width < this.unclippedDesiredSize.width) {
+            //    this.needClipBounds = true;
+            //    arrangeSize.width = this.unclippedDesiredSize.width;
+            //}
 
-            if (arrangeSize.height.isCloseTo(this.unclippedDesiredSize.height) ||
-                arrangeSize.height < this.unclippedDesiredSize.height) {
-                this.needClipBounds = true;
-                arrangeSize.height = this.unclippedDesiredSize.height;
-            }
+            //if (arrangeSize.height.isCloseTo(this.unclippedDesiredSize.height) ||
+            //    arrangeSize.height < this.unclippedDesiredSize.height) {
+            //    this.needClipBounds = true;
+            //    arrangeSize.height = this.unclippedDesiredSize.height;
+            //}
 
             if (this.horizontalAlignment != HorizontalAlignment.Stretch) {
                 arrangeSize.width = this.unclippedDesiredSize.width;
@@ -161,19 +161,19 @@ module layouts {
 
             var mm = new MinMax(this);
 
-            var effectiveMaxWidth = Math.max(this.unclippedDesiredSize.width, mm.maxWidth);
-            if (effectiveMaxWidth.isCloseTo(arrangeSize.width) ||
-                effectiveMaxWidth < arrangeSize.width) {
-                this.needClipBounds = true;
-                arrangeSize.width = effectiveMaxWidth;
-            }
+            //var effectiveMaxWidth = Math.max(this.unclippedDesiredSize.width, mm.maxWidth);
+            //if (effectiveMaxWidth.isCloseTo(arrangeSize.width) ||
+            //    effectiveMaxWidth < arrangeSize.width) {
+            //    this.needClipBounds = true;
+            //    arrangeSize.width = effectiveMaxWidth;
+            //}
  
-            var effectiveMaxHeight = Math.max(this.unclippedDesiredSize.height, mm.maxHeight);
-            if (effectiveMaxHeight.isCloseTo(arrangeSize.height) ||
-                effectiveMaxHeight < arrangeSize.height) {
-                this.needClipBounds = true;
-                arrangeSize.height = effectiveMaxHeight;
-            }
+            //var effectiveMaxHeight = Math.max(this.unclippedDesiredSize.height, mm.maxHeight);
+            //if (effectiveMaxHeight.isCloseTo(arrangeSize.height) ||
+            //    effectiveMaxHeight < arrangeSize.height) {
+            //    this.needClipBounds = true;
+            //    arrangeSize.height = effectiveMaxHeight;
+            //}
 
             var oldRenderSize = this.renderSize;
             var innerInkSize = this.arrangeOverride(arrangeSize);
@@ -185,16 +185,16 @@ module layouts {
             var clippedInkSize = new Size(Math.min(innerInkSize.width, mm.maxWidth),
                 Math.min(innerInkSize.height, mm.maxHeight));
 
-            this.needClipBounds = this.needClipBounds ||
-                clippedInkSize.width.isCloseTo(innerInkSize.width) || clippedInkSize.width < innerInkSize.width ||
-                clippedInkSize.height.isCloseTo(innerInkSize.height) || clippedInkSize.height < innerInkSize.height;
+            //this.needClipBounds = this.needClipBounds ||
+            //    clippedInkSize.width.isCloseTo(innerInkSize.width) || clippedInkSize.width < innerInkSize.width ||
+            //    clippedInkSize.height.isCloseTo(innerInkSize.height) || clippedInkSize.height < innerInkSize.height;
 
             var clientSize = new Size(Math.max(0, finalRect.width - marginWidth),
                 Math.max(0, finalRect.height - marginHeight));
 
-            this.needClipBounds = this.needClipBounds ||
-                clientSize.width.isCloseTo(clippedInkSize.width) || clientSize.width < clippedInkSize.width ||
-            clientSize.height.isCloseTo(clippedInkSize.height) || clientSize.height < clippedInkSize.height;
+            //this.needClipBounds = this.needClipBounds ||
+            //    clientSize.width.isCloseTo(clippedInkSize.width) || clientSize.width < clippedInkSize.width ||
+            //clientSize.height.isCloseTo(clippedInkSize.height) || clientSize.height < clippedInkSize.height;
 
             var offset = this.computeAlignmentOffset(clientSize, clippedInkSize);
 
@@ -257,24 +257,31 @@ module layouts {
         protected layoutOverride() {
             super.layoutOverride();
 
-            var name = this.name;
-            if (this._visual.id != name)
-                this._visual.id = name;
-            var className = this.cssClass;
-            if (this._visual.className != className)
-                this._visual.className = className;
+            if (this._visual != null) {
+                var name = this.name;
+                if (this._visual.id != name && 
+                    name != null)
+                    this._visual.id = name;
+                var className = this.cssClass;
+                if (this._visual.className != className &&
+                    className != null)
+                    this._visual.className = className;
 
-            this._visual.style.cssText = this.cssStyle;
-            this._visual.style.position = "absolute";
-            this._visual.style.visibility = this.isVisible ? "visible" : "collapsed";
-            this._visual.style.top = this.visualOffset.y.toString() + "px";
-            this._visual.style.left = this.visualOffset.x.toString() + "px";
-            this._visual.style.width = this.renderSize.width.toString() + "px";
-            this._visual.style.height = this.renderSize.height.toString() + "px";
+                this._visual.style.cssText = this.cssStyle;
+                this._visual.style.position = "absolute";
+                this._visual.style.visibility = this.isVisible ? "visible" : "collapsed";
+                this._visual.style.overflowX = this.overflowX;
+                this._visual.style.overflowY = this.overflowY;
+                this._visual.style.top = this.visualOffset.y.toString() + "px";
+                this._visual.style.left = this.visualOffset.x.toString() + "px";
+                this._visual.style.width = this.renderSize.width.toString() + "px";
+                this._visual.style.height = this.renderSize.height.toString() + "px";
+            }
         }
 
         protected attachVisualOverride(elementContainer: HTMLElement): void {
-            this._visual.style.position = "absolute";
+            if (this._visual != null)
+                this._visual.style.position = "absolute";
         }
 
         //width property
@@ -392,6 +399,27 @@ module layouts {
         }
         set tag(value: any) {
             this.setValue(FrameworkElement.tagProperty, value);
+        }
+
+
+        //overflowX property -> visible|hidden|scroll|auto
+        //by default content is clipped so overflowX is set to hidden
+        static overflowXProperty = DepObject.registerProperty(FrameworkElement.typeName, "OverflowX", "hidden", FrameworkPropertyMetadataOptions.AffectsRender);
+        get overflowX(): any {
+            return <string>this.getValue(FrameworkElement.overflowXProperty);
+        }
+        set overflowX(value: any) {
+            this.setValue(FrameworkElement.overflowXProperty, value);
+        }
+
+        //overflowY property -> visible|hidden|scroll|auto
+        //by default content is clipped so overflowY is set to hidden
+        static overflowYProperty = DepObject.registerProperty(FrameworkElement.typeName, "OverflowY", "hidden", FrameworkPropertyMetadataOptions.AffectsRender);
+        get overflowY(): any {
+            return <string>this.getValue(FrameworkElement.overflowYProperty);
+        }
+        set overflowY(value: any) {
+            this.setValue(FrameworkElement.overflowYProperty, value);
         }
     }
        
