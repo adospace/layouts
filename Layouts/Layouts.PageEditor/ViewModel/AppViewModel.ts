@@ -34,10 +34,19 @@ class AppViewModel extends layouts.DepObject {
     onAddItem() {
         this._items.add(new CodeViewModel(this));
         this.selected = this._items.last();
-        this.selected.title = "New Code " + this._items.count;
+        this.selected.title = "Code " + this._items.count;
     }
 
+    loadSavedSamples() {
+        for (var i = 0; i < localStorage.length; i++) {
+            var sample = new CodeViewModel(this);
+            sample.title = "Code " + (i + 1);
+            sample.sourceCode = localStorage.getItem(sample.title);
+            this._items.add(sample);
+        }
 
+        this.selected = this._items.first();
+    }
 
 
 } 

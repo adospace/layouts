@@ -95,6 +95,45 @@
             return containerObject;
         }
 
+        static compareXml(nodeLeft: Node, nodeRight: Node): boolean {
+            if (nodeLeft == null && nodeRight == null)
+                return true;
+            if (nodeLeft.localName != nodeRight.localName ||
+                nodeLeft.namespaceURI != nodeRight.namespaceURI)
+                return false;
+            if (nodeLeft.attributes != null &&
+                nodeRight.attributes != null &&
+                nodeLeft.attributes.length != nodeRight.attributes.length)
+                return false;
+            for (var i = 0; i < nodeLeft.attributes.length; i++) {
+                var attLeft = nodeLeft.attributes[i];
+                var attRight = nodeRight.attributes[i];
+                if (attLeft.name != attRight.name ||
+                    attLeft.namespaceURI != attRight.namespaceURI ||
+                    attLeft.value != attRight.value)
+                    return false;
+            }
+
+            
+            var childrenLeft = Enumerable.From(nodeLeft.childNodes).Where(_=> _.nodeType == 1);
+            var childrenRight = Enumerable.From(nodeRight.childNodes).Where(_=> _.nodeType == 1);
+
+            if (childrenLeft.Count() != childrenRight.Count())
+                return false;
+
+            var arrayOfChildrenLeft = childrenLeft.ToArray();
+            var arrayOfChildrenRight = childrenRight.ToArray();
+
+            for (var i = 0; i < childrenLeft.Count(); i++) {
+                var childNodeLeft = arrayOfChildrenLeft[i];
+                var childNodeRight = arrayOfChildrenRight[i];
+                if (!XamlReader.compareXml(childNodeLeft, childNodeRight))
+                    return false;
+            }
+
+            return true;
+        }
+
         private static trySetProperty(obj: any, propertyName: string, propertyNameSpace: string, value: string): boolean {
             //walk up in class hierarchy to find a property with right name
             if (obj == null)

@@ -22,7 +22,10 @@ class AceView extends layouts.FrameworkElement {
                         this._changeTimer = new layouts.Timer((timer) => this.updateSourceProperty(), 1000);
 
                     this._changeTimer.start();
-                });
+            });
+
+            if (this.sourceCode != null)
+                this._editor.setValue(this.sourceCode);
         }
 
     }
@@ -31,9 +34,12 @@ class AceView extends layouts.FrameworkElement {
     onDocumentChange(): any {
     }
 
+    _reentrantFlag = false;
     updateSourceProperty() {
         this._changeTimer.stop();
+        this._reentrantFlag = true;
         this.sourceCode = this._editor.getValue()
+        this._reentrantFlag = false;
     }
 
     //sourceCode property
@@ -44,5 +50,15 @@ class AceView extends layouts.FrameworkElement {
     set sourceCode(value: string) {
         this.setValue(AceView.sourceCodeProperty, value);
     }
+
+    protected onDependencyPropertyChanged(property: layouts.DepProperty, value: any, oldValue: any) {
+        if (property == AceView.sourceCodeProperty &&
+            this._editor != null &&
+            !this._reentrantFlag)
+            this._editor.setValue(value);
+
+        super.onDependencyPropertyChanged(property, value, oldValue);
+    }
+
 
 }

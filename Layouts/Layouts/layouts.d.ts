@@ -252,6 +252,23 @@ declare module layouts {
     }
 }
 declare module layouts {
+    class Command {
+        private executeHandler;
+        private canExecuteHandler;
+        constructor(executeHandler: {
+            (command: Command, parameter: any): void;
+        }, canExecuteHandler?: {
+            (command: Command, parameter: any): boolean;
+        });
+        canExecute(parameter: any): boolean;
+        execute(parameter: any): void;
+        private handlers;
+        onCanExecuteChangeNotify(handler: ISupportCommandCanExecuteChanged): void;
+        offCanExecuteChangeNotify(handler: ISupportCommandCanExecuteChanged): void;
+        canExecuteChanged(): void;
+    }
+}
+declare module layouts {
     interface ISupportDependencyPropertyChange {
         onChangeDependencyProperty(depObject: DepObject, depProperty: DepProperty, value: any): any;
     }
@@ -297,23 +314,6 @@ declare module layouts.controls {
         borderBrush: string;
     }
 }
-declare module layouts {
-    class Command {
-        private executeHandler;
-        private canExecuteHandler;
-        constructor(executeHandler: {
-            (command: Command, parameter: any): void;
-        }, canExecuteHandler?: {
-            (command: Command, parameter: any): boolean;
-        });
-        canExecute(parameter: any): boolean;
-        execute(parameter: any): void;
-        private handlers;
-        onCanExecuteChangeNotify(handler: ISupportCommandCanExecuteChanged): void;
-        offCanExecuteChangeNotify(handler: ISupportCommandCanExecuteChanged): void;
-        canExecuteChanged(): void;
-    }
-}
 declare module layouts.controls {
     class Button extends FrameworkElement implements ISupportCommandCanExecuteChanged {
         static typeName: string;
@@ -336,6 +336,8 @@ declare module layouts.controls {
         command: Command;
         static commandParameterProperty: DepProperty;
         commandParameter: any;
+        static whiteSpaceProperty: DepProperty;
+        whiteSpace: string;
     }
 }
 declare module layouts.controls {
@@ -350,6 +352,18 @@ declare module layouts.controls {
         static contentProperty: DepProperty;
         content: UIElement;
         protected onDependencyPropertyChanged(property: DepProperty, value: any, oldValue: any): void;
+    }
+}
+declare module layouts.controls {
+    class DataTemplate extends DepObject {
+        static typeName: string;
+        typeName: string;
+        targetType: string;
+        private _innerXaml;
+        innerXaml: string;
+        private _xamlLoader;
+        xamlLoader: XamlReader;
+        createElement(): UIElement;
     }
 }
 declare module layouts.controls {
@@ -432,6 +446,18 @@ declare module layouts.controls {
     }
 }
 declare module layouts.controls {
+    class i extends FrameworkElement {
+        static typeName: string;
+        typeName: string;
+        private _pElement;
+        attachVisualOverride(elementContainer: HTMLElement): void;
+        protected layoutOverride(): void;
+        protected measureOverride(constraint: Size): Size;
+        static textProperty: DepProperty;
+        text: string;
+    }
+}
+declare module layouts.controls {
     enum Stretch {
         None = 0,
         Fill = 1,
@@ -457,18 +483,6 @@ declare module layouts.controls {
         stretch: Stretch;
         static stretchDirectionProperty: DepProperty;
         stretchDirection: StretchDirection;
-    }
-}
-declare module layouts.controls {
-    class i extends FrameworkElement {
-        static typeName: string;
-        typeName: string;
-        private _pElement;
-        attachVisualOverride(elementContainer: HTMLElement): void;
-        protected layoutOverride(): void;
-        protected measureOverride(constraint: Size): Size;
-        static textProperty: DepProperty;
-        text: string;
     }
 }
 declare module layouts.controls {
@@ -537,18 +551,6 @@ declare module layouts.controls {
         text: string;
     }
 }
-declare module layouts.controls {
-    class DataTemplate extends DepObject {
-        static typeName: string;
-        typeName: string;
-        targetType: string;
-        private _innerXaml;
-        innerXaml: string;
-        private _xamlLoader;
-        xamlLoader: XamlReader;
-        createElement(): UIElement;
-    }
-}
 declare module layouts {
 }
 declare module layouts {
@@ -569,6 +571,16 @@ declare module layouts {
     }
 }
 declare module layouts {
+    class Timer {
+        handler: (timer: Timer) => void;
+        millisecond: number;
+        constructor(handler: (timer: Timer) => void, millisecond: number);
+        private timerId;
+        start(): void;
+        stop(): void;
+    }
+}
+declare module layouts {
     class XamlReader {
         instanceLoader: InstanceLoader;
         namespaceResolver: {
@@ -580,19 +592,10 @@ declare module layouts {
         });
         Parse(lml: string): any;
         resolveNameSpace(xmlns: string): string;
-        Load(lmlNode: Node): any;
+        Load(xamlNode: Node): any;
+        static compareXml(nodeLeft: Node, nodeRight: Node): boolean;
         private static trySetProperty(obj, propertyName, propertyNameSpace, value);
         private static tryCallMethod(obj, methodName, value);
         private static tryParseBinding(value);
-    }
-}
-declare module layouts {
-    class Timer {
-        handler: (timer: Timer) => void;
-        millisecond: number;
-        constructor(handler: (timer: Timer) => void, millisecond: number);
-        private timerId;
-        start(): void;
-        stop(): void;
     }
 }

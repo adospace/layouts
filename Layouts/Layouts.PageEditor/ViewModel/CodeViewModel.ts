@@ -35,13 +35,19 @@ class CodeViewModel extends layouts.DepObject {
         }
     }
 
+    private _oldParsedDocument: HTMLElement;
     onSourceCodeChanged() {
         try {
             var parser = new DOMParser();
             var doc = parser.parseFromString(this.sourceCode, "text/xml").documentElement;
 
-            var loader = new layouts.XamlReader();
-            this.createdControl = loader.Load(doc);
+            if (this._oldParsedDocument == null ||
+                !layouts.XamlReader.compareXml(this._oldParsedDocument, doc)) {
+                this._oldParsedDocument = doc;
+                var loader = new layouts.XamlReader();
+                this.createdControl = loader.Load(doc);
+                localStorage.setItem(this.title, this.sourceCode);
+            }
         }
         catch (error)
         {

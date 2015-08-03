@@ -50,7 +50,7 @@ module layouts.controls {
                 this.command.execute(this.commandParameter);
 
                 this._buttonElement.disabled = this.command == null || !this.command.canExecute(this.commandParameter);
-        }
+            }
         }
 
         protected measureOverride(constraint: Size): Size {
@@ -90,11 +90,12 @@ module layouts.controls {
 
                 pElement.style.width = "auto";
                 pElement.style.height = "auto";
-                
+                pElement.style.whiteSpace = this.whiteSpace;
+       
                 if (txtChanged) {
                     pElement.innerHTML = this.text;
                 }
-                mySize = new Size(pElement.clientWidth, pElement.clientHeight);
+                mySize = new Size(pElement.offsetWidth, pElement.offsetHeight);
 
                 if (this.renderSize != null) {
                     pElement.style.width = this.renderSize.width.toString() + "px";
@@ -185,5 +186,12 @@ module layouts.controls {
             this.setValue(Button.commandParameterProperty, value);
         }
 
+        static whiteSpaceProperty = DepObject.registerProperty(Button.typeName, "WhiteSpace", "pre", FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender);
+        get whiteSpace(): string {
+            return <string>this.getValue(Button.whiteSpaceProperty);
+        }
+        set whiteSpace(value: string) {
+            this.setValue(Button.whiteSpaceProperty, value);
+        }
     }
 }

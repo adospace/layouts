@@ -147,7 +147,7 @@ module layouts.controls {
                     newItemsSource.onChangeNotify(this);
                 }
             }
-            else if (property == ItemsControl.itemsSourceProperty ||
+            else if (property == ItemsControl.itemsPanelProperty ||
                 property == ItemsControl.itemsPanelProperty)
                 this.setupItems();
 
@@ -202,6 +202,7 @@ module layouts.controls {
                 this.itemsPanel.children = new ObservableCollection<UIElement>(this._elements);
             }            
 
+            this.invalidateMeasure();
         }
 
 

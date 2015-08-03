@@ -116,6 +116,13 @@ module layouts {
         layout() {
             if (this.layoutInvalid) {
                 this.layoutOverride();
+                if (this._visual != null &&
+                    this._visual.hidden &&
+                    this.isVisible)
+                    //if visual is hidden here means that I just added it hidden to DOM
+                    //so restore it visible (see attachVisual() below)
+                    this._visual.style.visibility = "visible";
+
                 this.layoutInvalid = false;
             }
         }
@@ -149,6 +156,13 @@ module layouts {
                 //5. if container is valid (not null) add visual under it
                 //note container could be null in this case visual is just detached from DOM
                 if (elementContainer != null) {
+                    //before add the element to the DOM tree hide to avoid flickering
+                    //visual will be restore to visible after it's correctly positioned
+                    //see above layout()
+                    //NOTE: we use CSS visibility instead of hidden property because with former
+                    //element size is still valid 
+                    //http://stackoverflow.com/questions/2345784/jquery-get-height-of-hidden-element-in-jquery
+                    this._visual.style.visibility = "hidden";
                     elementContainer.appendChild(this._visual);
                     this.visualConnected(elementContainer);
                 }

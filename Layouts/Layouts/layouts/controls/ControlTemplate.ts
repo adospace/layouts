@@ -57,7 +57,6 @@ module layouts.controls {
             this.setValue(ControlTemplate.contentProperty, value);
         }
 
-
         protected onDependencyPropertyChanged(property: DepProperty, value: any, oldValue: any) {
             if (property == ControlTemplate.contentProperty) {
                 var oldChild = <UIElement>oldValue;

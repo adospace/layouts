@@ -209,10 +209,11 @@ module layouts.controls {
 
             var hSizeToContent = !isFinite(constraint.width);
             var vSizeToContent = !isFinite(constraint.height);
+            var childrenCount = this.children == null ? 0 : this.children.count;
 
             this.rowDefs = new Array<RowDef>(Math.max(this.rows.count, 1));
             this.columnDefs = new Array<ColumnDef>(Math.max(this.columns.count, 1));
-            this.elementDefs = new Array<ElementDef>(this.children.count);
+            this.elementDefs = new Array<ElementDef>(childrenCount);
             if (this._rows.count > 0)
                 this._rows.forEach((row, i) => this.rowDefs[i] = new RowDef(row, vSizeToContent));
             else
@@ -222,10 +223,10 @@ module layouts.controls {
             else
                 this.columnDefs[0] = new ColumnDef(new GridColumn(new GridLength(1, GridUnitType.Star)), hSizeToContent);
 
-            for (var iElement = 0; iElement < this.children.count; iElement++) {
+            for (var iElement = 0; iElement < childrenCount; iElement++) {
                 var child = this.children.at(iElement);
-                var elRow = Grid.getRow(child).minMax(0, this.rowDefs.length);
-                var elColumn = Grid.getColumn(child).minMax(0, this.columnDefs.length);
+                var elRow = Grid.getRow(child).minMax(0, this.rowDefs.length - 1);
+                var elColumn = Grid.getColumn(child).minMax(0, this.columnDefs.length - 1);
                 var elRowSpan = Grid.getRowSpan(child).minMax(1, this.rowDefs.length - elRow);
                 var elColumnSpan = Grid.getColumnSpan(child).minMax(1, this.columnDefs.length - elColumn);
 
