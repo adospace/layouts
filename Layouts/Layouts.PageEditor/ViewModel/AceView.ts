@@ -5,9 +5,6 @@ class AceView extends layouts.FrameworkElement {
         return AceView.typeName;
     }
 
-    static _counter: number = 0;
-    current: number;
-
     private _editor: AceAjax.Editor;
     protected _divElement: HTMLDivElement;
     attachVisualOverride(elementContainer: HTMLElement) {
@@ -19,24 +16,33 @@ class AceView extends layouts.FrameworkElement {
             this._editor = ace.edit(this._visual);
             this._editor.setTheme("ace/theme/clouds");
             this._editor.getSession().setMode("ace/mode/xml");
-            this._editor.setFontSize("16px");
+            this._editor.addEventListener("change", (ev) =>
+                {
+                    if (this._changeTimer == null)
+                        this._changeTimer = new layouts.Timer((timer) => this.updateSourceProperty(), 1000);
+
+                    this._changeTimer.start();
+                });
         }
 
-        this.current = AceView._counter++;
     }
 
-    //protected measureOverride(constraint: layouts.Size): layouts.Size {
-    //    var mySize = new layouts.Size(100,100);
+    _changeTimer: layouts.Timer = null;
+    onDocumentChange(): any {
+    }
 
+    updateSourceProperty() {
+        this._changeTimer.stop();
+        this.sourceCode = this._editor.getValue()
+    }
 
-
-    //    return mySize;
-    //}
-
-    //protected arrangeOverride(finalSize: layouts.Size): layouts.Size {
-
-    //    return finalSize;
-    //}
-
+    //sourceCode property
+    static sourceCodeProperty = layouts.DepObject.registerProperty(AceView.typeName, "SourceCode", null);
+    get sourceCode(): string {
+        return <string>this.getValue(AceView.sourceCodeProperty);
+    }
+    set sourceCode(value: string) {
+        this.setValue(AceView.sourceCodeProperty, value);
+    }
 
 }

@@ -44,6 +44,7 @@
     <TypeScriptCompile Include="layouts\ObservableCollection.ts" />
     <TypeScriptCompile Include="layouts\LmlReader.ts" />
     <TypeScriptCompile Include="layouts\PropertyMap.ts" />
+    <TypeScriptCompile Include="layouts\Timer.ts" />
     <TypeScriptCompile Include="layouts\UIElement.ts" />
     <TypeScriptCompile Include="layouts\linq.d.ts" />
   </ItemGroup>

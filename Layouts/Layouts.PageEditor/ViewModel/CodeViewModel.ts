@@ -31,6 +31,33 @@ class CodeViewModel extends layouts.DepObject {
             var oldValue = this._sourceCode;
             this._sourceCode = value;
             this.onPropertyChanged("sourceCode", value, oldValue);
+            this.onSourceCodeChanged();
+        }
+    }
+
+    onSourceCodeChanged() {
+        try {
+            var parser = new DOMParser();
+            var doc = parser.parseFromString(this.sourceCode, "text/xml").documentElement;
+
+            var loader = new layouts.LmlReader();
+            this.createdControl = loader.Load(doc);
+        }
+        catch (error)
+        {
+            return;
+        }
+    }
+
+    _createdControl: layouts.UIElement;
+    get createdControl(): layouts.UIElement {
+        return this._createdControl;
+    }
+    set createdControl(value: layouts.UIElement) {
+        if (this._createdControl != value) {
+            var oldValue = this._createdControl;
+            this._createdControl = value;
+            this.onPropertyChanged("createdControl", value, oldValue);
         }
     }
 

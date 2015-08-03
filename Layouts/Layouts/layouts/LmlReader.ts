@@ -12,7 +12,6 @@
         }
 
         Parse(lml: string): any {
-
             var parser = new DOMParser();
             var doc = parser.parseFromString(lml, "text/xml").documentElement;
             return this.Load(doc);

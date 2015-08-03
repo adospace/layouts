@@ -585,3 +585,13 @@ declare module layouts {
         private static tryParseBinding(value);
     }
 }
+declare module layouts {
+    class Timer {
+        handler: (timer: Timer) => void;
+        millisecond: number;
+        constructor(handler: (timer: Timer) => void, millisecond: number);
+        private timerId;
+        start(): void;
+        stop(): void;
+    }
+}

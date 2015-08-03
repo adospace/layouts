@@ -219,8 +219,10 @@ module layouts {
         }
 
         private attachShource(): void {
-            this.source.subscribePropertyChanges(this);
-            this.source.subscribeDependencyPropertyChanges(this);
+            if (this.sourceProperty == null)
+                this.source.subscribePropertyChanges(this);
+            else
+                this.source.subscribeDependencyPropertyChanges(this);
         }
 
         private detachSource(): void {
@@ -318,8 +320,12 @@ module layouts {
         setValue(value: any) {
             if (this.next != null)
                 this.next.setValue(value);
-            else if (this.name != null && this.path.indexOf(".") == -1)
-                this.source.setValue(this.sourceProperty, value);
+            else if (this.name != null && this.path.indexOf(".") == -1) {
+                if (this.sourceProperty != null)
+                    this.source.setValue(this.sourceProperty, value);
+                else
+                    this.source[this.name] = value;//try update source using default property lookup access
+            }
         }
 
         onChangeDependencyProperty(depObject: DepObject, depProperty: DepProperty, value: any) {
