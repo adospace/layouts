@@ -25,7 +25,7 @@ module layouts {
             return DepObject.globalPropertyMap[typeName].getProperty(name);
         }
 
-        ///Get all dependency properties registered with this type of object (or null if property doesn't exist on object)
+        ///Get only dependency properties registered with this type of object
         static getProperties(typeName: string): DepProperty[] {
             if (DepObject.globalPropertyMap[typeName] == null)
                 return null;
@@ -33,16 +33,34 @@ module layouts {
             return DepObject.globalPropertyMap[typeName].all();
         }
 
+        ///Iterate over all dependency properties registered with this type of object and its ancestors
+        static forAllProperties(obj: DepObject, callback: (depProperty: DepProperty) => void) {
+            if (obj == null)
+                throw new Error("obj == null");
+
+            var typeName = <string>obj["typeName"];
+            if (DepObject.globalPropertyMap[typeName] == null)
+                return;
+
+            DepObject.getProperties(typeName).forEach(_=> callback(_));
+
+            if (DepObject.globalPropertyMap[typeName] == null)
+                return;
+
+            if (obj["__proto__"] != null)
+                DepObject.forAllProperties(obj["__proto__"], callback);
+        }
+
         static lookupProperty(obj: DepObject, name: string): DepProperty {
             if (obj == null)
-                return null;
+                throw new Error("obj == null");
 
             var typeName = <string>obj["typeName"];
             if (DepObject.globalPropertyMap[typeName] == null)
                 return null;
 
             var property = DepObject.globalPropertyMap[typeName].getProperty(name);
-            if (property == null)
+            if (property == null && obj["__proto__"] != null)
                 return DepObject.lookupProperty(obj["__proto__"], name);
 
             return property;
@@ -128,34 +146,34 @@ module layouts {
         }
 
 
-        //support for cloning
-        //clone element
-        clone(): DepObject {
-            //NOTE: optimization required for example letting derived class
-            //instanciating the correct type without using InstanceLoader
-            var clonedInstance = this.createClone(this);
-            this.cloneOverride(clonedInstance);
-            return clonedInstance;
-        }
+        ////support for cloning
+        ////clone element
+        //clone(): DepObject {
+        //    //NOTE: optimization required for example letting derived class
+        //    //instanciating the correct type without using InstanceLoader
+        //    var clonedInstance = this.createClone(this);
+        //    this.cloneOverride(clonedInstance);
+        //    return clonedInstance;
+        //}
 
-        protected createClone(elementToClone: DepObject): DepObject {
-            var instanceLoader = new InstanceLoader(window);
-            return instanceLoader.getInstance(this["typeName"]);
-        }
+        //protected createClone(elementToClone: DepObject): DepObject {
+        //    var instanceLoader = new InstanceLoader(window);
+        //    return instanceLoader.getInstance(this["typeName"]);
+        //}
 
-        protected cloneOverride(elementCloned: DepObject): void {
-            //assign dep properties to cloned instance
-            DepObject.getProperties(this["typeName"]).forEach(depProperty => {
-                elementCloned.setValue(depProperty, this.getValue(depProperty));
+        //protected cloneOverride(elementCloned: DepObject): void {
+        //    //assign dep properties to cloned instance
+        //    DepObject.forAllProperties(this, depProperty => {
+        //        elementCloned.setValue(depProperty, this.getValue(depProperty));
 
-                this.bindings.forEach(binding => {
-                    if (binding.targetProperty == depProperty) {
-                        elementCloned.bind(depProperty, binding.path.path, binding.twoWay, elementCloned);
-                    }
-                });
+        //        this.bindings.forEach(binding => {
+        //            if (binding.targetProperty == depProperty) {
+        //                elementCloned.bind(depProperty, binding.path.path, binding.twoWay, elementCloned);
+        //            }
+        //        });
 
-            });            
-        }
+        //    });            
+        //}
 
     } 
 

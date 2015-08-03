@@ -16,6 +16,9 @@ var layouts;
             __extends(Panel, _super);
             function Panel() {
                 _super.apply(this, arguments);
+                //virtual items
+                this.virtualItemCount = 0;
+                this.virtualOffset = null;
             }
             Object.defineProperty(Panel.prototype, "typeName", {
                 get: function () {
@@ -43,35 +46,42 @@ var layouts;
                                 el.parent = null;
                         });
                         //remove handler so that resource can be disposed
-                        this._children.off(this.childrenCollectionChanged);
+                        this._children.offChangeNotify(this);
                     }
                     this._children = value;
-                    //attach new children here
-                    this._children.forEach(function (el) {
-                        if (el.parent != null) {
-                            //if already child of a different parent throw error
-                            //in future investigate if it can be removed from container automatically
-                            throw new Error("Element already child of another element, please remove it first from previous container");
-                        }
-                        el.parent = _this;
-                        if (_this._divElement != null)
-                            el.attachVisual(_this._divElement);
-                    });
-                    this._children.on(this.childrenCollectionChanged);
+                    if (this._children != null) {
+                        //attach new children here
+                        this._children.forEach(function (el) {
+                            if (el.parent != null) {
+                                //if already child of a different parent throw error
+                                //in future investigate if it can be removed from container automatically
+                                throw new Error("Element already child of another element, please remove it first from previous container");
+                            }
+                            el.parent = _this;
+                            if (_this._divElement != null)
+                                el.attachVisual(_this._divElement);
+                        });
+                        this._children.onChangeNotify(this);
+                    }
+                    this.invalidateMeasure();
                 },
                 enumerable: true,
                 configurable: true
             });
-            Panel.prototype.childrenCollectionChanged = function (collection, added, removed) {
+            Panel.prototype.onCollectionChanged = function (collection, added, removed, startRemoveIndex) {
                 var _this = this;
                 removed.forEach(function (el) {
-                    if (el.parent == _this)
-                        el.parent = null;
+                    var element = el;
+                    if (element.parent == _this) {
+                        element.parent = null;
+                        element.attachVisual(null);
+                    }
                 });
                 added.forEach(function (el) {
-                    el.parent = _this;
+                    var element = el;
+                    element.parent = _this;
                     if (_this._divElement != null)
-                        el.attachVisual(_this._divElement);
+                        element.attachVisual(_this._divElement);
                 });
                 this.invalidateMeasure();
             };
@@ -80,12 +90,14 @@ var layouts;
                 var background = this.background;
                 if (this._visual.style.background != background)
                     this._visual.style.background = background;
-                this._children.forEach(function (child) { return child.layout(); });
+                if (this._children != null)
+                    this._children.forEach(function (child) { return child.layout(); });
             };
             Panel.prototype.attachVisualOverride = function (elementContainer) {
                 var _this = this;
                 this._visual = this._divElement = document.createElement("div");
-                this._children.forEach(function (child) { return child.attachVisual(_this._divElement); });
+                if (this._children != null)
+                    this._children.forEach(function (child) { return child.attachVisual(_this._divElement); });
                 _super.prototype.attachVisualOverride.call(this, elementContainer);
             };
             Object.defineProperty(Panel.prototype, "background", {
@@ -98,19 +110,8 @@ var layouts;
                 enumerable: true,
                 configurable: true
             });
-            Object.defineProperty(Panel.prototype, "isItemsHost", {
-                get: function () {
-                    return this.getValue(Panel.isItemsHostProperty);
-                },
-                set: function (value) {
-                    this.setValue(Panel.isItemsHostProperty, value);
-                },
-                enumerable: true,
-                configurable: true
-            });
             Panel.typeName = "layouts.controls.Panel";
             Panel.backgroundProperty = layouts.DepObject.registerProperty(Panel.typeName, "Background", null, layouts.FrameworkPropertyMetadataOptions.AffectsRender);
-            Panel.isItemsHostProperty = layouts.DepObject.registerProperty(Panel.typeName, "IsItemsHost", false, layouts.FrameworkPropertyMetadataOptions.NotDataBindable);
             return Panel;
         })(layouts.FrameworkElement);
         controls.Panel = Panel;

@@ -10,6 +10,12 @@ module layouts.controls {
             return ItemsControl.typeName;
         }
 
+        private static _init = ItemsControl.initProperties();
+        private static initProperties() {
+            //FrameworkElement.overflowXProperty.overrideDefaultValue(ItemsControl.typeName, "auto");
+            FrameworkElement.overflowYProperty.overrideDefaultValue(ItemsControl.typeName, "auto");
+        }
+
         //list of items created
         //note that in general this list is not 1:1 with itemssource collection
         //for example the case when some sort of virtualization of items is applied
@@ -93,7 +99,7 @@ module layouts.controls {
                         throw new Error("Unable to find a valid template for item");
                     }
 
-                    var newElement = <UIElement>templateForItem.child.clone();
+                    var newElement = templateForItem.createElement();
                     newElement.setValue(FrameworkElement.dataContextProperty, item);
                     this.itemsPanel.children.add(newElement);
                 });
@@ -185,7 +191,7 @@ module layouts.controls {
                         throw new Error("Unable to find a valid template for item");
                     }
 
-                    var newElement = <UIElement>templateForItem.child.clone();
+                    var newElement = templateForItem.createElement();
                     newElement.setValue(FrameworkElement.dataContextProperty, item);
                     return newElement;
                 }).ToArray();

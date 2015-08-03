@@ -62,6 +62,7 @@ declare module layouts {
         }): DepProperty;
         static getProperty(typeName: string, name: string): DepProperty;
         static getProperties(typeName: string): DepProperty[];
+        static forAllProperties(obj: DepObject, callback: (depProperty: DepProperty) => void): void;
         static lookupProperty(obj: DepObject, name: string): DepProperty;
         protected localPropertyValueMap: {
             [propertyName: string]: any;
@@ -78,9 +79,6 @@ declare module layouts {
         unsubscribePropertyChanges(observer: ISupportPropertyChange): void;
         private bindings;
         bind(property: DepProperty, propertyPath: string, twoway: boolean, source: DepObject): void;
-        clone(): DepObject;
-        protected createClone(elementToClone: DepObject): DepObject;
-        protected cloneOverride(elementCloned: DepObject): void;
     }
 }
 declare module layouts {
@@ -477,6 +475,8 @@ declare module layouts.controls {
     class ItemsControl extends FrameworkElement implements ISupportCollectionChanged {
         static typeName: string;
         typeName: string;
+        private static _init;
+        private static initProperties();
         protected _elements: Array<UIElement>;
         protected _divElement: HTMLDivElement;
         attachVisualOverride(elementContainer: HTMLElement): void;
@@ -503,8 +503,6 @@ declare module layouts.controls {
     class Stack extends Panel {
         static typeName: string;
         typeName: string;
-        private static _init;
-        private static initProperties();
         protected measureOverride(constraint: Size): Size;
         protected arrangeOverride(finalSize: Size): Size;
         static orientationProperty: DepProperty;
@@ -544,8 +542,11 @@ declare module layouts.controls {
         static typeName: string;
         typeName: string;
         targetType: string;
-        private _child;
-        child: UIElement;
+        private _innerXaml;
+        innerXaml: string;
+        private _xamlLoader;
+        xamlLoader: XamlReader;
+        createElement(): UIElement;
     }
 }
 declare module layouts {
@@ -568,7 +569,7 @@ declare module layouts {
     }
 }
 declare module layouts {
-    class LmlReader {
+    class XamlReader {
         instanceLoader: InstanceLoader;
         namespaceResolver: {
             (xmlNs: string): string;
@@ -580,8 +581,8 @@ declare module layouts {
         Parse(lml: string): any;
         resolveNameSpace(xmlns: string): string;
         Load(lmlNode: Node): any;
-        private static TrySetProperty(obj, propertyName, propertyNameSpace, value);
-        private static TryCallMethod(obj, methodName, value);
+        private static trySetProperty(obj, propertyName, propertyNameSpace, value);
+        private static tryCallMethod(obj, methodName, value);
         private static tryParseBinding(value);
     }
 }

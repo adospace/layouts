@@ -40,7 +40,7 @@ class CodeViewModel extends layouts.DepObject {
             var parser = new DOMParser();
             var doc = parser.parseFromString(this.sourceCode, "text/xml").documentElement;
 
-            var loader = new layouts.LmlReader();
+            var loader = new layouts.XamlReader();
             this.createdControl = loader.Load(doc);
         }
         catch (error)

@@ -453,16 +453,13 @@ var layouts;
                 get: function () {
                     if (this._rows == null) {
                         this._rows = new layouts.ObservableCollection();
-                        this._rows.on(this.onRowsChanged);
+                        this._rows.onChangeNotify(this);
                     }
                     return this._rows;
                 },
                 enumerable: true,
                 configurable: true
             });
-            Grid.prototype.onRowsChanged = function (collection, added, removed) {
-                _super.prototype.invalidateMeasure.call(this);
-            };
             Grid.prototype.fromLmlRows = function (rows) {
                 var listOfRows = new Array();
                 GridLength.parseString(rows).forEach(function (rowDef) {
@@ -475,22 +472,22 @@ var layouts;
                 get: function () {
                     if (this._columns == null) {
                         this._columns = new layouts.ObservableCollection();
-                        this._columns.on(this.onColumnsChanged);
+                        this._columns.onChangeNotify(this);
                     }
                     return this._columns;
                 },
                 enumerable: true,
                 configurable: true
             });
-            Grid.prototype.onColumnsChanged = function (collection, added, removed) {
-                _super.prototype.invalidateMeasure.call(this);
-            };
             Grid.prototype.fromLmlColumns = function (columns) {
                 var listOfColumns = new Array();
                 GridLength.parseString(columns).forEach(function (columnDef) {
                     listOfColumns.push(new GridColumn(columnDef.length, columnDef.min, columnDef.max));
                 });
                 this._columns = new layouts.ObservableCollection(listOfColumns);
+                _super.prototype.invalidateMeasure.call(this);
+            };
+            Grid.prototype.onCollectionChanged = function (collection, added, removed, startRemoveIndex) {
                 _super.prototype.invalidateMeasure.call(this);
             };
             Grid.getRow = function (target) {

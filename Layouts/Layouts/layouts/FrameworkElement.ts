@@ -139,17 +139,17 @@ module layouts {
 
             //this.needClipBounds = false;
 
-            //if (arrangeSize.width.isCloseTo(this.unclippedDesiredSize.width) ||
-            //    arrangeSize.width < this.unclippedDesiredSize.width) {
-            //    this.needClipBounds = true;
-            //    arrangeSize.width = this.unclippedDesiredSize.width;
-            //}
+            if (arrangeSize.width.isCloseTo(this.unclippedDesiredSize.width) ||
+                arrangeSize.width < this.unclippedDesiredSize.width) {
+                //this.needClipBounds = true;
+                arrangeSize.width = this.unclippedDesiredSize.width;
+            }
 
-            //if (arrangeSize.height.isCloseTo(this.unclippedDesiredSize.height) ||
-            //    arrangeSize.height < this.unclippedDesiredSize.height) {
-            //    this.needClipBounds = true;
-            //    arrangeSize.height = this.unclippedDesiredSize.height;
-            //}
+            if (arrangeSize.height.isCloseTo(this.unclippedDesiredSize.height) ||
+                arrangeSize.height < this.unclippedDesiredSize.height) {
+                //this.needClipBounds = true;
+                arrangeSize.height = this.unclippedDesiredSize.height;
+            }
 
             if (this.horizontalAlignment != HorizontalAlignment.Stretch) {
                 arrangeSize.width = this.unclippedDesiredSize.width;
@@ -161,19 +161,19 @@ module layouts {
 
             var mm = new MinMax(this);
 
-            //var effectiveMaxWidth = Math.max(this.unclippedDesiredSize.width, mm.maxWidth);
-            //if (effectiveMaxWidth.isCloseTo(arrangeSize.width) ||
-            //    effectiveMaxWidth < arrangeSize.width) {
-            //    this.needClipBounds = true;
-            //    arrangeSize.width = effectiveMaxWidth;
-            //}
+            var effectiveMaxWidth = Math.max(this.unclippedDesiredSize.width, mm.maxWidth);
+            if (effectiveMaxWidth.isCloseTo(arrangeSize.width) ||
+                effectiveMaxWidth < arrangeSize.width) {
+                //this.needClipBounds = true;
+                arrangeSize.width = effectiveMaxWidth;
+            }
  
-            //var effectiveMaxHeight = Math.max(this.unclippedDesiredSize.height, mm.maxHeight);
-            //if (effectiveMaxHeight.isCloseTo(arrangeSize.height) ||
-            //    effectiveMaxHeight < arrangeSize.height) {
-            //    this.needClipBounds = true;
-            //    arrangeSize.height = effectiveMaxHeight;
-            //}
+            var effectiveMaxHeight = Math.max(this.unclippedDesiredSize.height, mm.maxHeight);
+            if (effectiveMaxHeight.isCloseTo(arrangeSize.height) ||
+                effectiveMaxHeight < arrangeSize.height) {
+                //this.needClipBounds = true;
+                arrangeSize.height = effectiveMaxHeight;
+            }
 
             var oldRenderSize = this.renderSize;
             var innerInkSize = this.arrangeOverride(arrangeSize);

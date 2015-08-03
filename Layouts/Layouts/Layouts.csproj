@@ -16,6 +16,7 @@
     <IISExpressAnonymousAuthentication />
     <IISExpressWindowsAuthentication />
     <IISExpressUseClassicPipelineMode />
+    <UseGlobalApplicationHostFile />
   </PropertyGroup>
   <ItemGroup>
     <TypeScriptCompile Include="layouts\Application.ts" />
@@ -42,13 +43,18 @@
     <TypeScriptCompile Include="layouts\ISupport.ts" />
     <TypeScriptCompile Include="layouts\LayoutManager.ts" />
     <TypeScriptCompile Include="layouts\ObservableCollection.ts" />
-    <TypeScriptCompile Include="layouts\LmlReader.ts" />
+    <TypeScriptCompile Include="layouts\XamlReader.ts" />
     <TypeScriptCompile Include="layouts\PropertyMap.ts" />
     <TypeScriptCompile Include="layouts\Timer.ts" />
     <TypeScriptCompile Include="layouts\UIElement.ts" />
     <TypeScriptCompile Include="layouts\linq.d.ts" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Content Include="packages.config" />
+    <None Include="Scripts\linq-vsdoc.js" />
+    <Content Include="Scripts\linq.js" />
+    <Content Include="Scripts\linq.min.js" />
+  </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">12.0</VisualStudioVersion>
   </PropertyGroup>

@@ -1,6 +1,6 @@
 ﻿module layouts {
 
-    export class LmlReader {
+    export class XamlReader {
 
         private static DefaultNamespace: string = "http://schemas.layouts.com/";
 
@@ -19,7 +19,7 @@
 
         resolveNameSpace(xmlns: string): string {
             if (xmlns == null ||
-                xmlns == LmlReader.DefaultNamespace)
+                xmlns == XamlReader.DefaultNamespace)
                 return "layouts.controls";
 
             if (this.namespaceResolver != null)
@@ -28,29 +28,40 @@
             return null;
         }
 
-        Load(lmlNode: Node): any {
+        Load(xamlNode: Node): any {
 
             //resolve namespace to module/typename
-            var ns = this.resolveNameSpace(lmlNode.namespaceURI);
-            var typeName = ns != null ? ns + "." + lmlNode.localName : lmlNode.localName;
+            var ns = this.resolveNameSpace(xamlNode.namespaceURI);
+            var typeName = ns != null ? ns + "." + xamlNode.localName : xamlNode.localName;
 
             //load object
             var containerObject = this.instanceLoader.getInstance(typeName);
+
+            if (containerObject == null)
+                throw new Error("Unable to create instance of '{0}'".format(typeName));
             
             //load properties objects defined by xml attributes
-            if (lmlNode.attributes != null) {
-                for (var i = 0; i < lmlNode.attributes.length; i++) {
-                    var att = lmlNode.attributes[i];
+            if (xamlNode.attributes != null) {
+                for (var i = 0; i < xamlNode.attributes.length; i++) {
+                    var att = xamlNode.attributes[i];
                     var propertyName = att.localName;
                     //try use FromLml<property-name> if exists
                     //!!!this operation can be expensive!!!
-                    if (!LmlReader.TryCallMethod(containerObject, "fromLml" + propertyName, att.value))
-                        LmlReader.TrySetProperty(containerObject, propertyName, this.resolveNameSpace(att.namespaceURI), att.value);//if no property with right name is found go ahead
+                    if (!XamlReader.tryCallMethod(containerObject, "fromLml" + propertyName, att.value))
+                        XamlReader.trySetProperty(containerObject, propertyName, this.resolveNameSpace(att.namespaceURI), att.value);//if no property with right name is found go ahead
                 }
             }
 
+            var children = Enumerable.From(xamlNode.childNodes).Where(_=> _.nodeType == 1);
 
-            var children = Enumerable.From(lmlNode.childNodes).Where(_=> _.nodeType == 1);
+            if (containerObject["typeName"] == "layouts.controls.DataTemplate") {
+                if (children.Count() == 0)
+                    throw new Error("DataTemplate without child!");
+                containerObject["innerXaml"] = (new XMLSerializer()).serializeToString(children.ToArray()[0]);
+                containerObject["xamlLoader"] = this;
+                return containerObject;
+            }
+
             
             if (children.Count() == 0)
                 return containerObject;//no children
@@ -84,7 +95,7 @@
             return containerObject;
         }
 
-        private static TrySetProperty(obj: any, propertyName: string, propertyNameSpace: string, value: string): boolean {
+        private static trySetProperty(obj: any, propertyName: string, propertyNameSpace: string, value: string): boolean {
             //walk up in class hierarchy to find a property with right name
             if (obj == null)
                 return false;
@@ -110,7 +121,7 @@
                 if (depProperty != null) {
                     //ok we have a depProperty and a depObject
                     //test if value is actually a Binding object
-                    var bingingDef = LmlReader.tryParseBinding(value);
+                    var bingingDef = XamlReader.tryParseBinding(value);
                     if (bingingDef != null) {
                         //here I should check the source of binding (not yet implemented)
                         //by default if source == DataContext binding just connect to
@@ -126,7 +137,7 @@
                     return true;
                 }
                 else
-                    return LmlReader.TrySetProperty(obj["__proto__"], propertyName, propertyNameSpace, value);
+                    return XamlReader.trySetProperty(obj["__proto__"], propertyName, propertyNameSpace, value);
 
             }
 
@@ -138,7 +149,7 @@
             return false;
         }
 
-        private static TryCallMethod(obj: any, methodName: string, value: any): boolean {
+        private static tryCallMethod(obj: any, methodName: string, value: any): boolean {
             //walk up in class hierarchy to find a property with right name
             if (obj == null)
                 return false;
@@ -150,7 +161,6 @@
 
             return false;
         }
-
 
         private static tryParseBinding(value: string): { path: string, twoway: boolean } {
             var bindingValue = value.trim();

@@ -16,6 +16,7 @@
     <IISExpressAnonymousAuthentication />
     <IISExpressWindowsAuthentication />
     <IISExpressUseClassicPipelineMode />
+    <UseGlobalApplicationHostFile />
   </PropertyGroup>
   <ItemGroup>
     <Content Include="app.css" />
@@ -398,9 +399,6 @@
     <TypeScriptCompile Include="..\Layouts\layouts\linq.d.ts">
       <Link>layouts\linq.d.ts</Link>
     </TypeScriptCompile>
-    <TypeScriptCompile Include="..\Layouts\layouts\LmlReader.ts">
-      <Link>layouts\LmlReader.ts</Link>
-    </TypeScriptCompile>
     <TypeScriptCompile Include="..\Layouts\layouts\ObservableCollection.ts">
       <Link>layouts\ObservableCollection.ts</Link>
     </TypeScriptCompile>
@@ -412,6 +410,9 @@
     </TypeScriptCompile>
     <TypeScriptCompile Include="..\Layouts\layouts\UIElement.ts">
       <Link>layouts\UIElement.ts</Link>
+    </TypeScriptCompile>
+    <TypeScriptCompile Include="..\Layouts\layouts\XamlReader.ts">
+      <Link>layouts\XamlReader.ts</Link>
     </TypeScriptCompile>
     <TypeScriptCompile Include="app.ts" />
     <TypeScriptCompile Include="Scripts\typings\ace\ace.d.ts" />

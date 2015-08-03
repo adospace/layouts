@@ -10,7 +10,7 @@ class CodeView {
 
     <!-- Run Area -->
     <Border Name="runAread" Grid.Column="1">
-        <ContentTemplate Content="{createdControl}"/>
+        <ControlTemplate Content="{createdControl}"/>
     </Border>
 
   </Grid>
@@ -19,7 +19,7 @@ class CodeView {
 
 
     static getView(): layouts.controls.Border {
-        let loader = new layouts.LmlReader();
+        let loader = new layouts.XamlReader();
         loader.namespaceResolver = (ns) => {
             if (ns == "Layouts.PageEditor")
                 return null;//means empty namespace (AceView is in global/empty namespace)

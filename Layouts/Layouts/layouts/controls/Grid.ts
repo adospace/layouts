@@ -344,7 +344,7 @@ module layouts.controls {
                     return;
 
                 var elements = rowDef.elements;
-                //if should size to content horizontally star rows are treat just like auto rows (same apply to columns of course)
+                //if size to content horizontally, star rows are treat just like auto rows (same apply to columns of course)
                 if (!vSizeToContent) {
                     var availHeight = vRowMultiplier * rowDef.row.height.value;
                     rowDef.desHeight = availHeight;

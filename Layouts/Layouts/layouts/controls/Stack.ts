@@ -24,14 +24,7 @@ module layouts.controls {
             return Stack.typeName;
         }
 
-        private static _init = Stack.initProperties();
-        private static initProperties() {
-            FrameworkElement.overflowXProperty.overrideDefaultValue(Stack.typeName, "auto");
-            FrameworkElement.overflowYProperty.overrideDefaultValue(Stack.typeName, "auto");
-        }
-
-
-
+        
         protected measureOverride(constraint: Size): Size {
             var mySize = new Size();
             var orientation = this.orientation;
@@ -65,33 +58,40 @@ module layouts.controls {
 
         protected arrangeOverride(finalSize: Size): Size {
             var orientation = this.orientation;
-            var rcChild = new Rect(0, 0, finalSize.width, finalSize.height);
-            var previousChildSize = 0.0;
-
-            if (this.virtualOffset != null && 
-                this.virtualItemCount > this.children.count)
-                previousChildSize = (orientation == Orientation.Horizontal) ? this.virtualOffset.x : this.virtualOffset.y;
+            var posChild = new Vector();
+            var childrenSize = new Size();
 
             if (this.children != null) {
                 this.children.forEach((child) => {
+                    var sizeChild = new Size();
                     if (orientation == Orientation.Horizontal) {
-                        rcChild.x += previousChildSize;
-                        previousChildSize = child.desideredSize.width;
-                        rcChild.width = previousChildSize;
-                        rcChild.height = Math.max(finalSize.height, child.desideredSize.height);
+                        sizeChild.width = child.desideredSize.width;
+                        sizeChild.height = Math.max(finalSize.height, child.desideredSize.height);
                     }
                     else {
-                        rcChild.y += previousChildSize;
-                        previousChildSize = child.desideredSize.height;
-                        rcChild.height = previousChildSize;
-                        rcChild.width = Math.max(finalSize.width, child.desideredSize.width);
+                        sizeChild.height = child.desideredSize.height;
+                        sizeChild.width = Math.max(finalSize.width, child.desideredSize.width);
                     }
 
-                    child.arrange(rcChild);
+                    child.arrange(new Rect(posChild.x, posChild.y, sizeChild.width, sizeChild.height));
+
+                    if (orientation == Orientation.Horizontal) {
+                        posChild.x += sizeChild.width;
+                        childrenSize.width += sizeChild.width;
+                        childrenSize.height = Math.max(childrenSize.height, sizeChild.height);
+                    }
+                    else {
+                        posChild.y += sizeChild.height;
+                        childrenSize.width = Math.max(childrenSize.width, sizeChild.width);
+                        childrenSize.height += sizeChild.height;
+                    }
                 });
             }
 
-            return finalSize;
+            if (orientation == Orientation.Horizontal)
+                return new Size(Math.max(finalSize.width, childrenSize.width), finalSize.height);
+            else
+                return new Size(finalSize.width, Math.max(finalSize.height, childrenSize.height));
         }
 
         static orientationProperty = DepObject.registerProperty(Stack.typeName, "Orientation", Orientation.Vertical, FrameworkPropertyMetadataOptions.AffectsMeasure);

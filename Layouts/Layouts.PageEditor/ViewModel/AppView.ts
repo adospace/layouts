@@ -23,7 +23,7 @@ class AppView {
             <Button Text="New..." Command="{addCommand}" Margin="4"/>
             <ItemsControl Grid.Row="1" ItemsSource="{items}" Margin="4,0,4,4">
                 <DataTemplate>
-                    <Button Text="{title}" Command="{selectCommand}" Margin="0,4"/>
+                    <Button Text="{title}" Command="{selectCommand}" Margin="4"/>
                 </DataTemplate>                
             </ItemsControl>
         </Grid>
@@ -41,7 +41,7 @@ class AppView {
 
     static getMainPage(): layouts.controls.Page {
         if (AppView._page == null) {
-            let loader = new layouts.LmlReader();
+            let loader = new layouts.XamlReader();
             AppView._page = loader.Parse(AppView.PAGE_DEFINITION);
         }
 

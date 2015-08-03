@@ -3,11 +3,11 @@
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.Default.props" Condition="Exists('$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.Default.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <ProjectGuid>{10508A2D-D35A-49BA-A819-752F1438E203}</ProjectGuid>
+    <ProjectGuid>{A3450D99-44F1-4737-ABFE-79F6E732B82B}</ProjectGuid>
     <ProjectTypeGuids>{349c5851-65df-11da-9384-00065b846f21};{fae04ec0-301f-11d3-bf4b-00c04f79efbc}</ProjectTypeGuids>
     <OutputType>Library</OutputType>
     <OutputPath>bin</OutputPath>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <DebugType>full</DebugType>
     <DebugSymbols>true</DebugSymbols>
     <TypeScriptToolsVersion>1.5</TypeScriptToolsVersion>
@@ -19,25 +19,35 @@
     <UseGlobalApplicationHostFile />
   </PropertyGroup>
   <ItemGroup>
+    <Service Include="{4A0DDDB5-7A95-4FBF-97CC-616D07737A77}" />
+  </ItemGroup>
+  <ItemGroup>
     <Content Include="app.css" />
     <Content Include="index.html" />
     <Content Include="packages.config" />
     <None Include="Scripts\linq-vsdoc.js" />
     <Content Include="Scripts\linq.js" />
     <Content Include="Scripts\linq.min.js" />
-    <Content Include="web.config">
-      <SubType>Designer</SubType>
-    </Content>
+    <Content Include="web.config" />
   </ItemGroup>
   <ItemGroup>
     <TypeScriptCompile Include="..\Layouts\layouts\Application.ts">
       <Link>layouts\Application.ts</Link>
+    </TypeScriptCompile>
+    <TypeScriptCompile Include="..\Layouts\layouts\Command.ts">
+      <Link>layouts\Command.ts</Link>
+    </TypeScriptCompile>
+    <TypeScriptCompile Include="..\Layouts\layouts\Consts.ts">
+      <Link>layouts\Consts.ts</Link>
     </TypeScriptCompile>
     <TypeScriptCompile Include="..\Layouts\layouts\controls\Border.ts">
       <Link>layouts\controls\Border.ts</Link>
     </TypeScriptCompile>
     <TypeScriptCompile Include="..\Layouts\layouts\controls\Button.ts">
       <Link>layouts\controls\Button.ts</Link>
+    </TypeScriptCompile>
+    <TypeScriptCompile Include="..\Layouts\layouts\controls\ControlTemplate.ts">
+      <Link>layouts\controls\ControlTemplate.ts</Link>
     </TypeScriptCompile>
     <TypeScriptCompile Include="..\Layouts\layouts\controls\DataTemplate.ts">
       <Link>layouts\controls\DataTemplate.ts</Link>
@@ -96,6 +106,9 @@
     <TypeScriptCompile Include="..\Layouts\layouts\PropertyMap.ts">
       <Link>layouts\PropertyMap.ts</Link>
     </TypeScriptCompile>
+    <TypeScriptCompile Include="..\Layouts\layouts\Timer.ts">
+      <Link>layouts\Timer.ts</Link>
+    </TypeScriptCompile>
     <TypeScriptCompile Include="..\Layouts\layouts\UIElement.ts">
       <Link>layouts\UIElement.ts</Link>
     </TypeScriptCompile>
@@ -105,7 +118,6 @@
     <TypeScriptCompile Include="app.ts" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="README.md" />
     <None Include="web.Debug.config">
       <DependentUpon>web.config</DependentUpon>
     </None>
@@ -113,20 +125,13 @@
       <DependentUpon>web.config</DependentUpon>
     </None>
   </ItemGroup>
-  <ItemGroup />
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">12.0</VisualStudioVersion>
   </PropertyGroup>
   <PropertyGroup>
-    <RootNamespace>Layouts.TestApp</RootNamespace>
+    <RootNamespace>Layouts.Sample1</RootNamespace>
   </PropertyGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
-  <Target Name="CopyLinkedFiles" BeforeTargets="Build">
-    <ItemGroup>
-      <LinkedItem Include="@(TypeScriptCompile)" Condition="%(TypeScriptCompile.Link) != ''" />
-    </ItemGroup>
-    <Copy SourceFiles="@(LinkedItem)" DestinationFiles="%(LinkedItem.Link)" />
-  </Target>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\WebApplications\Microsoft.WebApplication.targets" Condition="Exists('$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\WebApplications\Microsoft.WebApplication.targets')" />
   <ProjectExtensions>
     <VisualStudio>
@@ -134,9 +139,9 @@
         <WebProjectProperties>
           <UseIIS>True</UseIIS>
           <AutoAssignPort>True</AutoAssignPort>
-          <DevelopmentServerPort>61243</DevelopmentServerPort>
+          <DevelopmentServerPort>50516</DevelopmentServerPort>
           <DevelopmentServerVPath>/</DevelopmentServerVPath>
-          <IISUrl>http://localhost:61243/</IISUrl>
+          <IISUrl>http://localhost:50516/</IISUrl>
           <NTLMAuthentication>False</NTLMAuthentication>
           <UseCustomServer>False</UseCustomServer>
           <CustomServerUrl>
@@ -150,8 +155,15 @@
     <TypeScriptRemoveComments>false</TypeScriptRemoveComments>
     <TypeScriptSourceMap>true</TypeScriptSourceMap>
     <TypeScriptTarget>ES5</TypeScriptTarget>
-    <TypeScriptOutFile>Layouts.TestApp.js</TypeScriptOutFile>
-    <TypeScriptGeneratesDeclarations>True</TypeScriptGeneratesDeclarations>
+    <TypeScriptCompileOnSaveEnabled>True</TypeScriptCompileOnSaveEnabled>
+    <TypeScriptNoImplicitAny>False</TypeScriptNoImplicitAny>
+    <TypeScriptModuleKind>None</TypeScriptModuleKind>
+    <TypeScriptOutFile>Layouts.Sample1.js</TypeScriptOutFile>
+    <TypeScriptOutDir />
+    <TypeScriptGeneratesDeclarations>False</TypeScriptGeneratesDeclarations>
+    <TypeScriptNoEmitOnError>True</TypeScriptNoEmitOnError>
+    <TypeScriptMapRoot />
+    <TypeScriptSourceRoot />
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)' == 'Release'">
     <TypeScriptRemoveComments>true</TypeScriptRemoveComments>

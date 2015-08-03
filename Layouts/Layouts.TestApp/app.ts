@@ -74,7 +74,7 @@ class TestViewModel extends layouts.DepObject {
 
 window.onload = () => {
     var app = new layouts.Application();
-    var lmlReader = new layouts.LmlReader();
+    var lmlReader = new layouts.XamlReader();
 
     //app.page = new TypeScriptUI.testDialog();
     //var testPage = new layouts.controls.Page();

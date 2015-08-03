@@ -9,15 +9,20 @@
         ///if null it means it's a generic template utilizzable for any object of any type
         targetType: string = null;
 
-        ///returns the root of the visual tree that represents the template
-        private _child: UIElement;
-        get child(): UIElement {
-            return this._child;
-        }
-        set child(value: UIElement) {
-            this._child = value;
+
+        private _innerXaml: string;
+        set innerXaml(value: string) {
+            this._innerXaml = value;
         }
 
+        private _xamlLoader: XamlReader;
+        set xamlLoader(loader: XamlReader) {
+            this._xamlLoader = loader;
+        }
+
+        createElement(): UIElement {
+            return this._xamlLoader.Parse(this._innerXaml);
+        }
     }
 
 
