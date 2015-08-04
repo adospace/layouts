@@ -24,6 +24,14 @@ module layouts.controls {
             return Stack.typeName;
         }
 
+        protected _divElement: HTMLDivElement;
+        attachVisualOverride(elementContainer: HTMLElement) {
+            this._visual = this._divElement = document.createElement("div");
+            if (this.children != null)
+                this.children.forEach(child => child.attachVisual(this._divElement));
+            super.attachVisualOverride(elementContainer);
+        }
+
         
         protected measureOverride(constraint: Size): Size {
             var mySize = new Size();

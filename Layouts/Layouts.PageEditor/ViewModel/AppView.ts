@@ -8,17 +8,17 @@ class AppView {
 <Page>  
   <Grid Rows="48 *" Columns="250 *">
     <!-- Header -->
-    <Border Name="header" Grid.Column="1">
+    <Border id="header" Grid.Column="1">
         
     </Border>
 
     <!-- Logo Area -->
-    <Border Name="logo" >
+    <Border id="logo" >
         <TextBlock Text="Layouts Page Editor" VerticalAlignment="Center" HorizontalAlignment="Center"/>
     </Border>
 
     <!-- Left Side -->
-    <Border Name="leftSide" Grid.Row="1">
+    <Border id="leftSide" Grid.Row="1">
         <Grid Rows="Auto *">
             <Button Text="New..." Command="{addCommand}" Margin="4"/>
             <ItemsControl Grid.Row="1" ItemsSource="{items}" Margin="4,0,4,4">
@@ -30,7 +30,7 @@ class AppView {
     </Border>
 
     <!-- Main Area -->
-    <Border Name="mainArea" Grid.Row="1" Grid.Column="1">
+    <Border id="mainArea" Grid.Row="1" Grid.Column="1">
         <ControlTemplate Content="{selected.view}"/>
     </Border>
 

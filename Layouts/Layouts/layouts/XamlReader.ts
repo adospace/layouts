@@ -61,7 +61,10 @@
                 containerObject["xamlLoader"] = this;
                 return containerObject;
             }
-
+            if (containerObject["typeName"] == "layouts.controls.div") {
+                containerObject["innerXaml"] = (new XMLSerializer()).serializeToString(children.ToArray()[0]);
+                return containerObject;
+            }
             
             if (children.Count() == 0)
                 return containerObject;//no children

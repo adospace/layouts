@@ -360,6 +360,9 @@
     <TypeScriptCompile Include="..\Layouts\layouts\controls\ItemsControl.ts">
       <Link>layouts\controls\ItemsControl.ts</Link>
     </TypeScriptCompile>
+    <TypeScriptCompile Include="..\Layouts\layouts\controls\NativeElements.ts">
+      <Link>layouts\controls\NativeElements.ts</Link>
+    </TypeScriptCompile>
     <TypeScriptCompile Include="..\Layouts\layouts\controls\Page.ts">
       <Link>layouts\controls\Page.ts</Link>
     </TypeScriptCompile>

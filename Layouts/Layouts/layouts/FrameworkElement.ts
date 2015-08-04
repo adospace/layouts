@@ -258,15 +258,6 @@ module layouts {
             super.layoutOverride();
 
             if (this._visual != null) {
-                var name = this.name;
-                if (this._visual.id != name && 
-                    name != null)
-                    this._visual.id = name;
-                var className = this.cssClass;
-                if (this._visual.className != className &&
-                    className != null)
-                    this._visual.className = className;
-
                 this._visual.style.cssText = this.cssStyle;
                 this._visual.style.position = "absolute";
                 this._visual.style.visibility = this.isVisible ? "visible" : "collapsed";
@@ -280,8 +271,28 @@ module layouts {
         }
 
         protected attachVisualOverride(elementContainer: HTMLElement): void {
-            if (this._visual != null)
+            if (this._visual != null) {
+                var name = this.id;
+                if (this._visual.id != name &&
+                    name != null)
+                    this._visual.id = name;
+                var className = this.cssClass;
+                if (this._visual.className != className &&
+                    className != null) {
+                    this._visual.className = className;
+                    //setting a css class could cause the element to resize
+                    //this.invalidateMeasure();
+                }
+                
+                //apply extended properties to html element
+                this._extendedProperties.forEach(ep=> {
+                    this._visual.style[ep.name] = ep.value;
+                });
+
                 this._visual.style.position = "absolute";
+            }
+
+            
         }
 
         //width property

@@ -3,17 +3,17 @@
 /// <reference path="..\FrameworkElement.ts" /> 
 
 module layouts.controls {
-    export class i extends FrameworkElement {
-        static typeName: string = "layouts.controls.i";
+    export class TextBlock extends FrameworkElement {
+        static typeName: string = "layouts.controls.TextBlock";
         get typeName(): string {
-            return i.typeName;
+            return TextBlock.typeName;
         }
 
 
-        private _pElement: HTMLPhraseElement;
+        private _pElement: HTMLParagraphElement;
         attachVisualOverride(elementContainer: HTMLElement) {
 
-            this._visual = this._pElement = document.createElement("i");
+            this._visual = this._pElement = document.createElement("p");
 
             super.attachVisualOverride(elementContainer);
         }
@@ -21,6 +21,7 @@ module layouts.controls {
         protected layoutOverride() {
             super.layoutOverride();
 
+            this._pElement.style.whiteSpace = this.whiteSpace;
         }
 
 
@@ -36,6 +37,7 @@ module layouts.controls {
                 pElement.style.maxHeight = constraint.height + "px";
             pElement.style.width = "auto";
             pElement.style.height = "auto";
+            pElement.style.whiteSpace = this.whiteSpace;
             if (txtChanged) {
                 pElement.innerHTML = this.text;
             }
@@ -49,6 +51,8 @@ module layouts.controls {
             return mySize;
         }
 
+
+
         static textProperty = DepObject.registerProperty(TextBlock.typeName, "Text", null, FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender, (v) => String(v));
         get text(): string {
             return <string>this.getValue(TextBlock.textProperty);
@@ -57,5 +61,15 @@ module layouts.controls {
             this.setValue(TextBlock.textProperty, value);
         }
 
+
+        static whiteSpaceProperty = DepObject.registerProperty(TextBlock.typeName, "WhiteSpace", "pre", FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender);
+        get whiteSpace(): string {
+            return <string>this.getValue(TextBlock.whiteSpaceProperty);
+        }
+        set whiteSpace(value: string) {
+            this.setValue(TextBlock.whiteSpaceProperty, value);
+        }
+
+
     }
-} 
+}

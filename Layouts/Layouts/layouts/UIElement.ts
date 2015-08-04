@@ -47,6 +47,11 @@ module layouts {
         BindsTwoWayByDefault = 0x100,
     }
 
+    export class ExtendedProperty {
+        constructor(public name: string, public value: string) {
+        }
+    }
+
     export class UIElement extends DepObject {
 
         static typeName: string = "layouts.UIElement";
@@ -253,7 +258,7 @@ module layouts {
 
         private _logicalChildren: Array<UIElement>;
         findElementByName(name: string): UIElement {
-            if (name == this.name)
+            if (name == this.id)
                 return this;
 
             if (this._logicalChildren != null) {
@@ -299,7 +304,7 @@ module layouts {
         private notifyInheritsPropertiesChange() {
             for (let propertyName in this.localPropertyValueMap) {
                 var property = this.localPropertyValueMap[propertyName];
-                var options = <FrameworkPropertyMetadataOptions>property.options;
+                var options = property == null ? null : <FrameworkPropertyMetadataOptions>property.options;
                 if (options != null &&
                     (options & FrameworkPropertyMetadataOptions.Inherits) != 0) {
                     //if my parent changed I need to notify any of children to update
@@ -320,6 +325,14 @@ module layouts {
 
         }
 
+        //extended properties are key-value items that loader was unable to assign to element
+        //because they didn't not correspond to any property (dependency or native) exposed by element
+        protected _extendedProperties: ExtendedProperty[] = [];
+        addExtentedProperty(name: string, value: string) {
+            this._extendedProperties.push(new ExtendedProperty(name, value));
+        }
+        
+
         static isVisibleProperty = DepObject.registerProperty(UIElement.typeName, "IsVisible", true, FrameworkPropertyMetadataOptions.AffectsParentMeasure | FrameworkPropertyMetadataOptions.AffectsRender);
         get isVisible(): boolean {
             return <boolean>this.getValue(UIElement.isVisibleProperty);
@@ -336,7 +349,7 @@ module layouts {
             this.setValue(UIElement.styleProperty, value);
         }
 
-        static classProperty = DepObject.registerProperty(UIElement.typeName, "cssClass", null, FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender);
+        static classProperty = DepObject.registerProperty(UIElement.typeName, "class", null, FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender);
         get cssClass(): string {
             return <string>this.getValue(UIElement.classProperty);
         }
@@ -345,12 +358,12 @@ module layouts {
         }
 
         //name property
-        static nameProperty = DepObject.registerProperty(UIElement.typeName, "Name", Consts.stringEmpty, FrameworkPropertyMetadataOptions.AffectsRender);
-        get name(): string {
-            return <string>this.getValue(UIElement.nameProperty);
+        static idProperty = DepObject.registerProperty(UIElement.typeName, "id", Consts.stringEmpty, FrameworkPropertyMetadataOptions.AffectsRender);
+        get id(): string {
+            return <string>this.getValue(UIElement.idProperty);
         }
-        set name(value: string) {
-            this.setValue(UIElement.nameProperty, value);
+        set id(value: string) {
+            this.setValue(UIElement.idProperty, value);
         }
     }
 } 

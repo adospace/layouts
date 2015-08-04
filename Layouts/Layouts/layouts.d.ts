@@ -113,6 +113,11 @@ declare module layouts {
         NotDataBindable = 128,
         BindsTwoWayByDefault = 256,
     }
+    class ExtendedProperty {
+        name: string;
+        value: string;
+        constructor(name: string, value: string);
+    }
     class UIElement extends DepObject {
         static typeName: string;
         typeName: string;
@@ -146,14 +151,16 @@ declare module layouts {
         parent: UIElement;
         private notifyInheritsPropertiesChange();
         protected onParentChanged(oldParent: DepObject, newParent: DepObject): void;
+        protected _extendedProperties: ExtendedProperty[];
+        addExtentedProperty(name: string, value: string): void;
         static isVisibleProperty: DepProperty;
         isVisible: boolean;
         static styleProperty: DepProperty;
         cssStyle: string;
         static classProperty: DepProperty;
         cssClass: string;
-        static nameProperty: DepProperty;
-        name: string;
+        static idProperty: DepProperty;
+        id: string;
     }
 }
 declare module layouts {
@@ -376,8 +383,6 @@ declare module layouts.controls {
         layoutOverride(): void;
         virtualItemCount: number;
         virtualOffset: Vector;
-        protected _divElement: HTMLDivElement;
-        attachVisualOverride(elementContainer: HTMLElement): void;
         static backgroundProperty: DepProperty;
         background: string;
     }
@@ -419,6 +424,8 @@ declare module layouts.controls {
     class Grid extends Panel implements ISupportCollectionChanged {
         static typeName: string;
         typeName: string;
+        protected _divElement: HTMLDivElement;
+        attachVisualOverride(elementContainer: HTMLElement): void;
         private rowDefs;
         private columnDefs;
         private elementDefs;
@@ -443,18 +450,6 @@ declare module layouts.controls {
         static columnSpanProperty: DepProperty;
         static getColumnSpan(target: DepObject): number;
         static setColumnSpan(target: DepObject, value: number): void;
-    }
-}
-declare module layouts.controls {
-    class i extends FrameworkElement {
-        static typeName: string;
-        typeName: string;
-        private _pElement;
-        attachVisualOverride(elementContainer: HTMLElement): void;
-        protected layoutOverride(): void;
-        protected measureOverride(constraint: Size): Size;
-        static textProperty: DepProperty;
-        text: string;
     }
 }
 declare module layouts.controls {
@@ -510,6 +505,16 @@ declare module layouts.controls {
     }
 }
 declare module layouts.controls {
+    class div extends FrameworkElement {
+        static typeName: string;
+        typeName: string;
+        attachVisualOverride(elementContainer: HTMLElement): void;
+        private _innerXaml;
+        innerXaml: string;
+        protected measureOverride(constraint: Size): Size;
+    }
+}
+declare module layouts.controls {
     enum Orientation {
         Horizontal = 0,
         Vertical = 1,
@@ -517,6 +522,8 @@ declare module layouts.controls {
     class Stack extends Panel {
         static typeName: string;
         typeName: string;
+        protected _divElement: HTMLDivElement;
+        attachVisualOverride(elementContainer: HTMLElement): void;
         protected measureOverride(constraint: Size): Size;
         protected arrangeOverride(finalSize: Size): Size;
         static orientationProperty: DepProperty;

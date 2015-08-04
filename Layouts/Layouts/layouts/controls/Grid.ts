@@ -199,6 +199,13 @@ module layouts.controls {
             return Grid.typeName;
         }
 
+        protected _divElement: HTMLDivElement;
+        attachVisualOverride(elementContainer: HTMLElement) {
+            this._visual = this._divElement = document.createElement("div");
+            if (this.children != null)
+                this.children.forEach(child => child.attachVisual(this._divElement));
+            super.attachVisualOverride(elementContainer);
+        }
 
         private rowDefs: RowDef[];
         private columnDefs: ColumnDef[];

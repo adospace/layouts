@@ -50,8 +50,8 @@ module layouts.controls {
                     }
 
                     el.parent = this;
-                    if (this._divElement != null)
-                        el.attachVisual(this._divElement);
+                    if (this._visual != null)
+                        el.attachVisual(this._visual);
                 });
 
                 this._children.onChangeNotify(this);
@@ -71,8 +71,8 @@ module layouts.controls {
             added.forEach(el=> {
                 let element = <UIElement>el;
                 element.parent = this;
-                if (this._divElement != null)
-                    element.attachVisual(this._divElement);
+                if (this._visual != null)
+                    element.attachVisual(this._visual);
             });
 
             this.invalidateMeasure();
@@ -93,14 +93,7 @@ module layouts.controls {
         virtualItemCount: number = 0;
         virtualOffset: Vector = null;
 
-        protected _divElement: HTMLDivElement;
-        attachVisualOverride(elementContainer: HTMLElement) {
-            this._visual = this._divElement = document.createElement("div");
-            if (this._children != null)
-                this._children.forEach(child => child.attachVisual(this._divElement));
-            super.attachVisualOverride(elementContainer);
-        }
-       
+      
         static backgroundProperty = DepObject.registerProperty(Panel.typeName, "Background", null, FrameworkPropertyMetadataOptions.AffectsRender);
         get background(): string {
             return <string>this.getValue(Panel.backgroundProperty);

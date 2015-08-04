@@ -56,10 +56,7 @@ module layouts {
                 throw new Error("obj == null");
 
             var typeName = <string>obj["typeName"];
-            if (DepObject.globalPropertyMap[typeName] == null)
-                return null;
-
-            var property = DepObject.globalPropertyMap[typeName].getProperty(name);
+            var property = DepObject.globalPropertyMap[typeName] == null ? null : DepObject.globalPropertyMap[typeName].getProperty(name);
             if (property == null && obj["__proto__"] != null)
                 return DepObject.lookupProperty(obj["__proto__"], name);
 

@@ -51,8 +51,6 @@ module layouts.controls {
             return mySize;
         }
 
-
-
         static textProperty = DepObject.registerProperty(TextBlock.typeName, "Text", null, FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender, (v) => String(v));
         get text(): string {
             return <string>this.getValue(TextBlock.textProperty);
@@ -61,7 +59,6 @@ module layouts.controls {
             this.setValue(TextBlock.textProperty, value);
         }
 
-
         static whiteSpaceProperty = DepObject.registerProperty(TextBlock.typeName, "WhiteSpace", "pre", FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender);
         get whiteSpace(): string {
             return <string>this.getValue(TextBlock.whiteSpaceProperty);
@@ -69,7 +66,5 @@ module layouts.controls {
         set whiteSpace(value: string) {
             this.setValue(TextBlock.whiteSpaceProperty, value);
         }
-
-
     }
 }
