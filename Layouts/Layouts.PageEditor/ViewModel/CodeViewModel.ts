@@ -10,7 +10,7 @@ class CodeViewModel extends layouts.DepObject {
         super();
     }
 
-    _title: string;
+    private _title: string;
     get title(): string {
         return this._title;
     }
@@ -22,7 +22,7 @@ class CodeViewModel extends layouts.DepObject {
         }
     }
 
-    _sourceCode: string;
+    private _sourceCode: string;
     get sourceCode(): string {
         return this._sourceCode;
     }
@@ -55,7 +55,7 @@ class CodeViewModel extends layouts.DepObject {
         }
     }
 
-    _createdControl: layouts.UIElement;
+    private _createdControl: layouts.UIElement;
     get createdControl(): layouts.UIElement {
         return this._createdControl;
     }
@@ -67,7 +67,7 @@ class CodeViewModel extends layouts.DepObject {
         }
     }
 
-    _view: layouts.controls.Border;
+    private _view: layouts.controls.Border;
     get view(): layouts.controls.Border {
         if (this._view == null) {
             this._view = CodeView.getView();

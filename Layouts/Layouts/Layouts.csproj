@@ -23,7 +23,9 @@
     <TypeScriptCompile Include="layouts\Consts.ts" />
     <TypeScriptCompile Include="layouts\controls\Border.ts" />
     <TypeScriptCompile Include="layouts\controls\Button.ts" />
+    <TypeScriptCompile Include="layouts\controls\ContentTemplate.ts" />
     <TypeScriptCompile Include="layouts\controls\ControlTemplate.ts" />
+    <TypeScriptCompile Include="layouts\controls\Frame.ts" />
     <TypeScriptCompile Include="layouts\controls\Grid.ts" />
     <TypeScriptCompile Include="layouts\controls\Image.ts" />
     <TypeScriptCompile Include="layouts\controls\NativeElements.ts" />
@@ -34,6 +36,7 @@
     <TypeScriptCompile Include="layouts\controls\TextBlock.ts" />
     <TypeScriptCompile Include="layouts\controls\TextBox.ts" />
     <TypeScriptCompile Include="layouts\controls\DataTemplate.ts" />
+    <TypeScriptCompile Include="layouts\controls\UserControl.ts" />
     <TypeScriptCompile Include="layouts\DepObject.ts" />
     <TypeScriptCompile Include="layouts\DepProperty.ts" />
     <TypeScriptCompile Include="layouts\Extensions.ts" />

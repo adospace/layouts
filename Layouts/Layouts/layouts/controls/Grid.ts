@@ -217,16 +217,18 @@ module layouts.controls {
             var hSizeToContent = !isFinite(constraint.width);
             var vSizeToContent = !isFinite(constraint.height);
             var childrenCount = this.children == null ? 0 : this.children.count;
+            var rows = this.getRows();
+            var columns = this.getColumns();
 
-            this.rowDefs = new Array<RowDef>(Math.max(this.rows.count, 1));
+            this.rowDefs = new Array<RowDef>(Math.max(rows.count, 1));
             this.columnDefs = new Array<ColumnDef>(Math.max(this.columns.count, 1));
             this.elementDefs = new Array<ElementDef>(childrenCount);
-            if (this._rows.count > 0)
-                this._rows.forEach((row, i) => this.rowDefs[i] = new RowDef(row, vSizeToContent));
+            if (rows.count > 0)
+                rows.forEach((row, i) => this.rowDefs[i] = new RowDef(row, vSizeToContent));
             else
                 this.rowDefs[0] = new RowDef(new GridRow(new GridLength(1, GridUnitType.Star)), vSizeToContent);
-            if (this._columns.count > 0)
-                this._columns.forEach((column, i) => this.columnDefs[i] = new ColumnDef(column, hSizeToContent));
+            if (columns.count > 0)
+                columns.forEach((column, i) => this.columnDefs[i] = new ColumnDef(column, hSizeToContent));
             else
                 this.columnDefs[0] = new ColumnDef(new GridColumn(new GridLength(1, GridUnitType.Star)), hSizeToContent);
 
@@ -415,46 +417,59 @@ module layouts.controls {
             return finalSize;
         }   
 
-
-
         ///Dependency properties
 
         //rows
-        private _rows: ObservableCollection<GridRow>;
+        static rowsProperty = DepObject.registerProperty(Grid.typeName, "Rows", null, FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender, (v) => (typeof v == "string" || v instanceof String) ? Grid.rowsFromString(v) : v);
         get rows(): ObservableCollection<GridRow> {
-            if (this._rows == null) {
-                this._rows = new ObservableCollection<GridRow>();
-                this._rows.onChangeNotify(this);
+            return <ObservableCollection<GridRow>>this.getValue(Grid.rowsProperty);
+        }
+        set rows(value: ObservableCollection<GridRow>) {
+            this.setValue(Grid.rowsProperty, value);
+        }
+
+        getRows(): ObservableCollection<GridRow> {
+            var rows = this.rows;
+            if (rows == null) {
+                this.rows = rows = new ObservableCollection<GridRow>();
+                rows.onChangeNotify(this);
             }
 
-            return this._rows;
+            return rows;
         }
-        fromLmlRows(rows: string) {
+
+        private static rowsFromString(rows: string): ObservableCollection<GridRow> {
             var listOfRows = new Array<GridRow>();
             GridLength.parseString(rows).forEach((rowDef) => {
                 listOfRows.push(new GridRow(rowDef.length, rowDef.min, rowDef.max));
             });
-            this._rows = new ObservableCollection(listOfRows);
-            super.invalidateMeasure();
+            return new ObservableCollection(listOfRows);
         }
 
         //columns
-        private _columns: ObservableCollection<GridColumn>;
+        static columnsProperty = DepObject.registerProperty(Grid.typeName, "Columns", null, FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender, (v) => (typeof v == "string" || v instanceof String) ? Grid.columnsFromString(v) : v);
         get columns(): ObservableCollection<GridColumn> {
-            if (this._columns == null) {
-                this._columns = new ObservableCollection<GridColumn>();
-                this._columns.onChangeNotify(this);
+            return <ObservableCollection<GridColumn>>this.getValue(Grid.columnsProperty);
+        }
+        set columns(value: ObservableCollection<GridColumn>) {
+            this.setValue(Grid.columnsProperty, value);
+        }
+
+        getColumns(): ObservableCollection<GridColumn> {
+            var columns = this.columns;
+            if (columns == null) {
+                this.columns = columns = new ObservableCollection<GridColumn>();
+                columns.onChangeNotify(this);
             }
 
-            return this._columns;
+            return columns;
         }
-        fromLmlColumns(columns: string) {
+        private static columnsFromString(columns: string) : ObservableCollection<GridColumn> {
             var listOfColumns = new Array<GridColumn>();
             GridLength.parseString(columns).forEach((columnDef) => {
                 listOfColumns.push(new GridColumn(columnDef.length, columnDef.min, columnDef.max));
             });
-            this._columns = new ObservableCollection(listOfColumns);
-            super.invalidateMeasure();
+            return new ObservableCollection(listOfColumns);
         }
 
 

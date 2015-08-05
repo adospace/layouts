@@ -19,7 +19,7 @@ module layouts.controls {
         //list of items created
         //note that in general this list is not 1:1 with itemssource collection
         //for example the case when some sort of virtualization of items is applied
-        protected _elements: Array<UIElement> = new Array<UIElement>();
+        protected _elements: Array<UIElement> = null;
 
         protected _divElement: HTMLDivElement;
         attachVisualOverride(elementContainer: HTMLElement) {
@@ -27,8 +27,10 @@ module layouts.controls {
             this._visual = this._divElement = document.createElement("div");
 
             let itemsPanel = this.itemsPanel;
-            if (itemsPanel == null)
+            if (itemsPanel == null) {
                 this.itemsPanel = itemsPanel = new Stack();
+                itemsPanel.parent = this;
+            }
 
             itemsPanel.attachVisual(this._divElement);
             
@@ -147,8 +149,14 @@ module layouts.controls {
                     newItemsSource.onChangeNotify(this);
                 }
             }
-            else if (property == ItemsControl.itemsPanelProperty ||
-                property == ItemsControl.itemsPanelProperty)
+            else if (property == ItemsControl.itemsPanelProperty) {
+                if (oldValue != null && (<UIElement>oldValue).parent == this)
+                    (<UIElement>oldValue).parent = null;
+                if (value != null)
+                    (<UIElement>value).parent = this;
+
+            }
+            else if (property == ItemsControl.itemsPanelProperty)
                 this.setupItems();
 
             super.onDependencyPropertyChanged(property, value, oldValue);
@@ -199,6 +207,9 @@ module layouts.controls {
 
 
             if (this._elements != null) {
+                if (this.itemsPanel == null)
+                    this.itemsPanel = new Stack();
+
                 this.itemsPanel.children = new ObservableCollection<UIElement>(this._elements);
             }            
 

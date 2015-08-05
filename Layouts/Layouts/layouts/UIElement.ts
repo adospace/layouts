@@ -52,7 +52,7 @@ module layouts {
         }
     }
 
-    export class UIElement extends DepObject {
+    export class UIElement extends DepObject implements ISupportCommandCanExecuteChanged  {
 
         static typeName: string = "layouts.UIElement";
         get typeName(): string {
@@ -80,6 +80,12 @@ module layouts {
 
             this.previousAvailableSize = availableSize;
             this.desideredSize = this.measureCore(availableSize);
+            if (isNaN(this.desideredSize.width) ||
+                !isFinite(this.desideredSize.width) ||
+                isNaN(this.desideredSize.height) ||
+                !isFinite(this.desideredSize.height))
+                throw new Error("measure pass must return valid size");
+
             this.measureDirty = false;
         }
         protected measureCore(availableSize: Size): Size {
@@ -118,8 +124,10 @@ module layouts {
         }
 
         ///Render Pass
-        layout() {
+        private _relativeOffset: Vector = null;
+        layout(relativeOffset: Vector = null) {
             if (this.layoutInvalid) {
+                this._relativeOffset = relativeOffset;
                 this.layoutOverride();
                 if (this._visual != null &&
                     this._visual.hidden &&
@@ -132,7 +140,13 @@ module layouts {
             }
         }
         protected layoutOverride() {
+            if (this._visual != null) {
+                if (this._relativeOffset != null) {
+                    this._visual.style.marginTop = this._relativeOffset.y.toString() + "px";
+                    this._visual.style.marginLeft = this._relativeOffset.x.toString() + "px";
+                }
 
+            }
         }
 
         ///Attach page visual tree (attach to null to remove it from DOM)
@@ -175,7 +189,25 @@ module layouts {
         }
 
         protected attachVisualOverride(elementContainer: HTMLElement): void {
+            if (this._visual != null) {
+                //apply extended properties to html element
+                this._extendedProperties.forEach(ep=> {
+                    this._visual.style[ep.name] = ep.value;
+                });
 
+                this._visual.hidden = !this.isVisible;
+                if (this.command != null)
+                    this._visual.onclick = (ev) => this.onClick(ev);
+            }
+        }
+
+        onClick(ev: MouseEvent) {
+            var command = this.command;
+            var commandParameter = this.commandParameter;
+            if (command != null && command.canExecute(commandParameter)) {
+                command.execute(commandParameter);
+                this.onCommandCanExecuteChanged(command);
+            }
         }
 
         protected visualConnected(elementContainer: HTMLElement): void {
@@ -189,23 +221,45 @@ module layouts {
 
 
         protected onDependencyPropertyChanged(property: DepProperty, value: any, oldValue: any) {
+            //probably this checks as well as relative properties are to be moved down to FrameworkElement
+            if (property == UIElement.commandProperty) {
+                if (oldValue != null) {
+                    (<Command>oldValue).offCanExecuteChangeNotify(this);
+                    if (this._visual != null)
+                        this._visual.onclick = null;
+                }
+                if (value != null) {
+                    (<Command>value).onCanExecuteChangeNotify(this);
+                    if (this._visual != null)
+                        this._visual.onclick = (ev) => this.onClick(ev);
+                }
+            }
+            else if (property == UIElement.isVisibleProperty) {
+                if (this._visual != null)
+                    this._visual.hidden = !this.isVisible;
+            }
+
+
             var options = <FrameworkPropertyMetadataOptions>property.options;
             if ((options & FrameworkPropertyMetadataOptions.AffectsMeasure) != 0)
                 this.invalidateMeasure();
-            else if ((options & FrameworkPropertyMetadataOptions.AffectsArrange) != 0)
+            if ((options & FrameworkPropertyMetadataOptions.AffectsArrange) != 0)
                 this.invalidateArrange();
-            else if ((options & FrameworkPropertyMetadataOptions.AffectsParentMeasure) != 0 && this._parent != null)
+            if ((options & FrameworkPropertyMetadataOptions.AffectsParentMeasure) != 0 && this._parent != null)
                 this._parent.invalidateMeasure();
-            else if ((options & FrameworkPropertyMetadataOptions.AffectsParentArrange) != 0 && this._parent != null)
+            if ((options & FrameworkPropertyMetadataOptions.AffectsParentArrange) != 0 && this._parent != null)
                 this._parent.invalidateArrange();
-            else if ((options & FrameworkPropertyMetadataOptions.AffectsRender) != 0)
+            if ((options & FrameworkPropertyMetadataOptions.AffectsRender) != 0)
                 this.invalidateLayout();
-            else if ((options & FrameworkPropertyMetadataOptions.Inherits) != 0 && this._logicalChildren != null)
+            if ((options & FrameworkPropertyMetadataOptions.Inherits) != 0 && this._logicalChildren != null)
                 //foreach child notify property changing event, unfortunately
                 //there is not a more efficient way than walk logical tree down to leaves
                 this._logicalChildren.forEach((child) => child.onDependencyPropertyChanged(property, value, oldValue));
 
             super.onDependencyPropertyChanged(property, value, oldValue);
+        }
+
+        onCommandCanExecuteChanged(command: Command) {
         }
 
         getValue(property: DepProperty): any {
@@ -232,9 +286,10 @@ module layouts {
                 this.measureDirty = true;
                 this.arrangeDirty = true;
                 this.layoutInvalid = true;
-                if (this._parent != null)
-                    this._parent.invalidateMeasure();
             }
+
+            if (this._parent != null)
+                this._parent.invalidateMeasure();
         }
 
         private arrangeDirty: boolean = true;
@@ -333,7 +388,7 @@ module layouts {
         }
         
 
-        static isVisibleProperty = DepObject.registerProperty(UIElement.typeName, "IsVisible", true, FrameworkPropertyMetadataOptions.AffectsParentMeasure | FrameworkPropertyMetadataOptions.AffectsRender);
+        static isVisibleProperty = DepObject.registerProperty(UIElement.typeName, "IsVisible", true, FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender);
         get isVisible(): boolean {
             return <boolean>this.getValue(UIElement.isVisibleProperty);
         }
@@ -365,5 +420,23 @@ module layouts {
         set id(value: string) {
             this.setValue(UIElement.idProperty, value);
         }
+
+
+        static commandProperty = DepObject.registerProperty(UIElement.typeName, "Command", null, FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender);
+        get command(): Command {
+            return <Command>this.getValue(UIElement.commandProperty);
+        }
+        set command(value: Command) {
+            this.setValue(UIElement.commandProperty, value);
+        }
+
+        static commandParameterProperty = DepObject.registerProperty(UIElement.typeName, "CommandParameter", null, FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender);
+        get commandParameter(): any {
+            return this.getValue(UIElement.commandParameterProperty);
+        }
+        set commandParameter(value: any) {
+            this.setValue(UIElement.commandParameterProperty, value);
+        }
+
     }
 } 

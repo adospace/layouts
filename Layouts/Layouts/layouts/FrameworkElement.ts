@@ -178,6 +178,9 @@ module layouts {
             var oldRenderSize = this.renderSize;
             var innerInkSize = this.arrangeOverride(arrangeSize);
 
+            if (innerInkSize == null)
+                throw new Error("arrangeOverride() can't return null");
+
             this.renderSize = innerInkSize;
             this.setActualWidth(innerInkSize.width);
             this.setActualHeight(innerInkSize.height);
@@ -255,22 +258,29 @@ module layouts {
         }
 
         protected layoutOverride() {
+            //if (this._visual != null)
+            //    this._visual.style.cssText = this.cssStyle;
+
             super.layoutOverride();
 
             if (this._visual != null) {
-                this._visual.style.cssText = this.cssStyle;
                 this._visual.style.position = "absolute";
                 this._visual.style.visibility = this.isVisible ? "visible" : "collapsed";
                 this._visual.style.overflowX = this.overflowX;
                 this._visual.style.overflowY = this.overflowY;
                 this._visual.style.top = this.visualOffset.y.toString() + "px";
                 this._visual.style.left = this.visualOffset.x.toString() + "px";
-                this._visual.style.width = this.renderSize.width.toString() + "px";
-                this._visual.style.height = this.renderSize.height.toString() + "px";
+                if (this.renderSize != null) {
+                    //when an element starts hidden renderSize is not available
+                    this._visual.style.width = this.renderSize.width.toString() + "px";
+                    this._visual.style.height = this.renderSize.height.toString() + "px";
+                }
             }
         }
 
         protected attachVisualOverride(elementContainer: HTMLElement): void {
+            super.attachVisualOverride(elementContainer);
+
             if (this._visual != null) {
                 var name = this.id;
                 if (this._visual.id != name &&
@@ -283,14 +293,10 @@ module layouts {
                     //setting a css class could cause the element to resize
                     //this.invalidateMeasure();
                 }
-                
-                //apply extended properties to html element
-                this._extendedProperties.forEach(ep=> {
-                    this._visual.style[ep.name] = ep.value;
-                });
 
                 this._visual.style.position = "absolute";
             }
+
 
             
         }

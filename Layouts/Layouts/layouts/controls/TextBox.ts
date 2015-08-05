@@ -52,7 +52,7 @@ module layouts.controls {
             this.clientSize = new Size(pElement.clientWidth, pElement.clientHeight);
             mySize = new Size(pElement.offsetWidth, pElement.offsetHeight);
 
-            if (txtChanged && this.renderSize != null) {
+            if (txtChanged) {
                 pElement.style.width = this.clientSize.width.toString() + "px";
                 pElement.style.height = this.clientSize.height.toString() + "px";
             }

@@ -45,27 +45,23 @@
                 for (var i = 0; i < xamlNode.attributes.length; i++) {
                     var att = xamlNode.attributes[i];
                     var propertyName = att.localName;
-                    //try use FromLml<property-name> if exists
-                    //!!!this operation can be expensive!!!
-                    if (!XamlReader.tryCallMethod(containerObject, "fromLml" + propertyName, att.value))
-                        XamlReader.trySetProperty(containerObject, propertyName, this.resolveNameSpace(att.namespaceURI), att.value);//if no property with right name is found go ahead
+
+                    if (!XamlReader.trySetProperty(containerObject, propertyName, this.resolveNameSpace(att.namespaceURI), att.value))
+                        if (containerObject["addExtentedProperty"] != null)
+                            containerObject["addExtentedProperty"](propertyName, att.value);//if no property with right name put it in extented properties collection
                 }
             }
 
             var children = Enumerable.From(xamlNode.childNodes).Where(_=> _.nodeType == 1);
 
-            if (containerObject["typeName"] == "layouts.controls.DataTemplate") {
-                if (children.Count() == 0)
-                    throw new Error("DataTemplate without child!");
-                containerObject["innerXaml"] = (new XMLSerializer()).serializeToString(children.ToArray()[0]);
-                containerObject["xamlLoader"] = this;
+            if (containerObject["setInnerXaml"] != null) {
+                if (children.Count() > 0)
+                    containerObject["setInnerXaml"]((new XMLSerializer()).serializeToString(children.ToArray()[0]));
+                if (containerObject["setXamlLoader"] != null)
+                    containerObject["setXamlLoader"](this);
                 return containerObject;
             }
-            if (containerObject["typeName"] == "layouts.controls.div") {
-                containerObject["innerXaml"] = (new XMLSerializer()).serializeToString(children.ToArray()[0]);
-                return containerObject;
-            }
-            
+
             if (children.Count() == 0)
                 return containerObject;//no children
 

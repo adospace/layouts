@@ -28,11 +28,11 @@
             return null;
         }
 
-        Load(lmlNode: Node): any {
+        Load(xamlNode: Node): any {
 
             //resolve namespace to module/typename
-            var ns = this.resolveNameSpace(lmlNode.namespaceURI);
-            var typeName = ns != null ? ns + "." + lmlNode.localName : lmlNode.localName;
+            var ns = this.resolveNameSpace(xamlNode.namespaceURI);
+            var typeName = ns != null ? ns + "." + xamlNode.localName : xamlNode.localName;
 
             //load object
             var containerObject = this.instanceLoader.getInstance(typeName);
@@ -41,20 +41,29 @@
                 throw new Error("Unable to create instance of '{0}'".format(typeName));
             
             //load properties objects defined by xml attributes
-            if (lmlNode.attributes != null) {
-                for (var i = 0; i < lmlNode.attributes.length; i++) {
-                    var att = lmlNode.attributes[i];
+            if (xamlNode.attributes != null) {
+                for (var i = 0; i < xamlNode.attributes.length; i++) {
+                    var att = xamlNode.attributes[i];
                     var propertyName = att.localName;
                     //try use FromLml<property-name> if exists
                     //!!!this operation can be expensive!!!
-                    if (!XamlReader.TryCallMethod(containerObject, "fromLml" + propertyName, att.value))
-                        XamlReader.TrySetProperty(containerObject, propertyName, this.resolveNameSpace(att.namespaceURI), att.value);//if no property with right name is found go ahead
+                    if (!XamlReader.tryCallMethod(containerObject, "fromLml" + propertyName, att.value))
+                        if (!XamlReader.trySetProperty(containerObject, propertyName, this.resolveNameSpace(att.namespaceURI), att.value))
+                            if (containerObject["addExtentedProperty"] != null)
+                                containerObject["addExtentedProperty"](propertyName, att.value);//if no property with right name put it in extented properties collection
                 }
             }
 
+            var children = Enumerable.From(xamlNode.childNodes).Where(_=> _.nodeType == 1);
 
-            var children = Enumerable.From(lmlNode.childNodes).Where(_=> _.nodeType == 1);
-            
+            if (containerObject["setInnerXaml"] != null) {
+                if (children.Count() > 0)
+                    containerObject["setInnerXaml"]((new XMLSerializer()).serializeToString(children.ToArray()[0]));
+                if (containerObject["setXamlLoader"] != null)
+                    containerObject["setXamlLoader"](this);
+                return containerObject;
+            }
+
             if (children.Count() == 0)
                 return containerObject;//no children
 
@@ -87,7 +96,46 @@
             return containerObject;
         }
 
-        private static TrySetProperty(obj: any, propertyName: string, propertyNameSpace: string, value: string): boolean {
+        static compareXml(nodeLeft: Node, nodeRight: Node): boolean {
+            if (nodeLeft == null && nodeRight == null)
+                return true;
+            if (nodeLeft.localName != nodeRight.localName ||
+                nodeLeft.namespaceURI != nodeRight.namespaceURI)
+                return false;
+            if (nodeLeft.attributes != null &&
+                nodeRight.attributes != null &&
+                nodeLeft.attributes.length != nodeRight.attributes.length)
+                return false;
+            for (var i = 0; i < nodeLeft.attributes.length; i++) {
+                var attLeft = nodeLeft.attributes[i];
+                var attRight = nodeRight.attributes[i];
+                if (attLeft.name != attRight.name ||
+                    attLeft.namespaceURI != attRight.namespaceURI ||
+                    attLeft.value != attRight.value)
+                    return false;
+            }
+
+            
+            var childrenLeft = Enumerable.From(nodeLeft.childNodes).Where(_=> _.nodeType == 1);
+            var childrenRight = Enumerable.From(nodeRight.childNodes).Where(_=> _.nodeType == 1);
+
+            if (childrenLeft.Count() != childrenRight.Count())
+                return false;
+
+            var arrayOfChildrenLeft = childrenLeft.ToArray();
+            var arrayOfChildrenRight = childrenRight.ToArray();
+
+            for (var i = 0; i < childrenLeft.Count(); i++) {
+                var childNodeLeft = arrayOfChildrenLeft[i];
+                var childNodeRight = arrayOfChildrenRight[i];
+                if (!XamlReader.compareXml(childNodeLeft, childNodeRight))
+                    return false;
+            }
+
+            return true;
+        }
+
+        private static trySetProperty(obj: any, propertyName: string, propertyNameSpace: string, value: string): boolean {
             //walk up in class hierarchy to find a property with right name
             if (obj == null)
                 return false;
@@ -129,7 +177,7 @@
                     return true;
                 }
                 else
-                    return XamlReader.TrySetProperty(obj["__proto__"], propertyName, propertyNameSpace, value);
+                    return XamlReader.trySetProperty(obj["__proto__"], propertyName, propertyNameSpace, value);
 
             }
 
@@ -141,7 +189,7 @@
             return false;
         }
 
-        private static TryCallMethod(obj: any, methodName: string, value: any): boolean {
+        private static tryCallMethod(obj: any, methodName: string, value: any): boolean {
             //walk up in class hierarchy to find a property with right name
             if (obj == null)
                 return false;
@@ -153,7 +201,6 @@
 
             return false;
         }
-
 
         private static tryParseBinding(value: string): { path: string, twoway: boolean } {
             var bindingValue = value.trim();

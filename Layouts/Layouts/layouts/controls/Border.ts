@@ -121,7 +121,7 @@ module layouts.controls {
                 this._child.layout();
         }
 
-        static borderThicknessProperty = DepObject.registerProperty(Border.typeName, "BorderThickness", new Thickness(), FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender);
+        static borderThicknessProperty = DepObject.registerProperty(Border.typeName, "BorderThickness", new Thickness(), FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender, (v) => (typeof v == "string" || v instanceof String) ? Thickness.fromString(v) : v);
         get borderThickness(): Thickness {
             return <Thickness>this.getValue(Border.borderThicknessProperty);
         }
@@ -129,7 +129,7 @@ module layouts.controls {
             this.setValue(Border.borderThicknessProperty, value);
         }
 
-        static paddingProperty = DepObject.registerProperty(Border.typeName, "Padding", new Thickness(), FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender);
+        static paddingProperty = DepObject.registerProperty(Border.typeName, "Padding", new Thickness(), FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender, (v) => (typeof v == "string" || v instanceof String) ? Thickness.fromString(v) : v);
         get padding(): Thickness {
             return <Thickness>this.getValue(Border.paddingProperty);
         }
@@ -152,5 +152,6 @@ module layouts.controls {
         set borderBrush(value: string) {
             this.setValue(Border.borderBrushProperty, value);
         }
+
     }
 }

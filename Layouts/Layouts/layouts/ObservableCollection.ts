@@ -13,7 +13,10 @@ module layouts {
             return this.elements;
         }
 
-        add(element: T) {
+        add(element: T): T {
+            if (element == null)
+                throw new Error("element null");
+
             var iElement = this.elements.indexOf(element);
             if (iElement == -1) {
                 this.elements.push(element);
@@ -22,10 +25,17 @@ module layouts {
                 this.pcHandlers.slice(0).forEach((h) => {
                     h.onCollectionChanged(this, [element], [], 0);
                 });
+
+                return element;
             }
+
+            return this.elements[iElement];
         }
 
         remove(element: T) {
+            if (element == null)
+                throw new Error("element null");
+
             var iElement = this.elements.indexOf(element);
             if (iElement != -1) {
                 this.elements.splice(iElement, 1);

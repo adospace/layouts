@@ -19,7 +19,7 @@ module layouts.controls {
         }
 
         private _innerXaml: string;
-        set innerXaml(value: string) {
+        setInnerXaml(value: string) {
             this._innerXaml = value;
         }
 
