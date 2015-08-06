@@ -19,8 +19,12 @@ class AppViewModel extends layouts.DepObject {
     }
     set selectedArticle(value: ArticleViewModel) {
         if (this._selectedArticle != value) {
-            var oldValue = this._selectedCategory;
+            var oldValue = this._selectedArticle;
+            if (oldValue != null)
+                oldValue.isSelected = false;
             this._selectedArticle = value;
+            if (value != null)
+                value.isSelected = true;
             this.onPropertyChanged("selectedArticle", value, oldValue);
         }
     }

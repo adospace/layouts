@@ -7,11 +7,14 @@ class TabView extends layouts.controls.UserControl {
 
     public static get PAGE_DEFINITION(): string {
         return `<?xml version="1.0" encoding="utf-8" ?>
-<Grid Rows="45 *">
-    <ItemsControl ItemsSource="{articles}" Margin="0,4">
+<Grid Rows="Auto *">
+    <ItemsControl id="mainAreaHeader" ItemsSource="{articles}">
+        <ItemsControl.ItemsPanel>
+            <Stack Orientation="Horizontal"/>
+        </ItemsControl.ItemsPanel>
         <DataTemplate>
-            <Border class="article" Command="{openArticleCommand}" Padding="4">
-                <TextBlock Text="{title}" VerticalAlignment="Center"/>
+            <Border class="{isSelected,oneway,self,ArticleClassConverter}" Command="{openArticleCommand}" Margin="0,2">
+                <TextBlock Text="{title}" VerticalAlignment="Center" Margin="8"/>
             </Border>
         </DataTemplate>
     </ItemsControl>

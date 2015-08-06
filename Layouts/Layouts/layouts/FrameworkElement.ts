@@ -281,24 +281,6 @@ module layouts {
         protected attachVisualOverride(elementContainer: HTMLElement): void {
             super.attachVisualOverride(elementContainer);
 
-            if (this._visual != null) {
-                var name = this.id;
-                if (this._visual.id != name &&
-                    name != null)
-                    this._visual.id = name;
-                var className = this.cssClass;
-                if (this._visual.className != className &&
-                    className != null) {
-                    this._visual.className = className;
-                    //setting a css class could cause the element to resize
-                    //this.invalidateMeasure();
-                }
-
-                this._visual.style.position = "absolute";
-            }
-
-
-            
         }
 
         //width property
@@ -374,7 +356,7 @@ module layouts {
         }
 
         //verticalAlignment property
-        static verticalAlignmentProperty = DepObject.registerProperty(FrameworkElement.typeName, "VerticalAlignment", VerticalAlignment.Stretch, FrameworkPropertyMetadataOptions.AffectsArrange, (v)=>VerticalAlignment[String(v)]);
+        static verticalAlignmentProperty = DepObject.registerProperty(FrameworkElement.typeName, "VerticalAlignment", VerticalAlignment.Stretch, FrameworkPropertyMetadataOptions.AffectsArrange, (v)=> VerticalAlignment[String(v)]);
         get verticalAlignment(): VerticalAlignment {
             return <VerticalAlignment>this.getValue(FrameworkElement.verticalAlignmentProperty);
         }

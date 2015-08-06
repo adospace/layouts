@@ -1,6 +1,7 @@
 ﻿/// <reference path="DepProperty.ts" />
 /// <reference path="PropertyMap.ts" />
 /// <reference path="Consts.ts" />
+/// <reference path="IConverter.ts" />
 
 module layouts {
     export class DepObject {
@@ -8,7 +9,7 @@ module layouts {
         private static globalPropertyMap: { [typeName: string]: PropertyMap; } = {};
 
         ///Register a dependency property for the object
-        static registerProperty(typeName: string, name: string, defaultValue?: any, options?: any, converter?: { (value: any): any }): DepProperty {
+        static registerProperty(typeName: string, name: string, defaultValue?: any, options?: any, converter?: { (value: string): any }): DepProperty {
             if (DepObject.globalPropertyMap[typeName] == null)
                 DepObject.globalPropertyMap[typeName] = new PropertyMap();
 
@@ -76,7 +77,7 @@ module layouts {
         //set property value to this object
         setValue(property: DepProperty, value: any) {
             if (value != this.localPropertyValueMap[property.name]) {
-                var valueToSet = property.converter != null ? property.converter(value) : value;
+                var valueToSet = property.converter != null && Ext.isString(value) ? property.converter(value) : value;
                 var oldValue = this.localPropertyValueMap[property.name];
                 this.localPropertyValueMap[property.name] = valueToSet;
                 this.onDependencyPropertyChanged(property, valueToSet, oldValue);
@@ -137,8 +138,8 @@ module layouts {
         private bindings: Array<Binding> = new Array<Binding>();
 
         //bind a property of this object to a source object thru a path
-        bind(property: DepProperty, propertyPath: string, twoway: boolean, source: DepObject) {
-            var newBinding = new Binding(this, property, propertyPath, source, twoway);
+        bind(property: DepProperty, propertyPath: string, twoway: boolean, source: DepObject, converter: IConverter) {
+            var newBinding = new Binding(this, property, propertyPath, source, twoway, converter);
             this.bindings.push(newBinding);
         }
 
@@ -179,15 +180,17 @@ module layouts {
         targetProperty: DepProperty;
         path: PropertyPath;
         twoWay: boolean = false;
+        converter: IConverter = null
 
         private source: DepObject;
         private sourceProperty: DepProperty;
 
-        constructor(target: DepObject, targetProperty: DepProperty, propertyPath:string, source: DepObject, twoWay: boolean = false) {
+        constructor(target: DepObject, targetProperty: DepProperty, propertyPath: string, source: DepObject, twoWay: boolean = false, converter: IConverter = null) {
             this.target = target;
             this.targetProperty = targetProperty;
             this.path = new PropertyPath(this, propertyPath, source);
             this.twoWay = twoWay;
+            this.converter = converter;
 
             this.updateTarget();
 
@@ -201,7 +204,7 @@ module layouts {
             if (retValue.success) {
                 this.source = retValue.source;
                 this.sourceProperty = retValue.sourceProperty;
-                this.target.setValue(this.targetProperty, retValue.value);//update target
+                this.target.setValue(this.targetProperty, this.converter != null ? this.converter.convert(retValue.value, null) : retValue.value);//update target
             }
         }
 
@@ -211,7 +214,7 @@ module layouts {
                 this.twoWay) {
                 //if target property value is changed than update source
                 //(twoway mode on)
-                this.path.setValue(value);
+                this.path.setValue(this.converter != null ? this.converter.convertBack(value, null) : value);
             }
         }
     }

@@ -1,4 +1,6 @@
-﻿module layouts {
+﻿
+
+module layouts {
 
     //export interface ISupportContent {
     //    content: any;   
@@ -15,7 +17,10 @@
     //export interface ISupportItems {
     //    items: any[];
     //}
-
+    //export interface IConverter {
+    //    convert(fromValue: any, context: any): any;
+    //}
+   
     export interface ISupportDependencyPropertyChange {
         onChangeDependencyProperty(depObject: DepObject, depProperty: DepProperty, value: any);
     }
@@ -32,7 +37,6 @@
     export interface ISupportCollectionChanged {
         onCollectionChanged(collection: any, added: any[], removed: any[], startRemoveIndex: number);
     }
-
 
     export interface ISupportCommandCanExecuteChanged {
         onCommandCanExecuteChanged(command: Command);

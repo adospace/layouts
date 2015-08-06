@@ -42,6 +42,11 @@ p {
     cursor:pointer;
 }
 
+#leftSide .categoryAddArticle:hover {
+    background-color: #353F4B;
+    cursor:pointer;
+}
+
 #leftSide .article {
     background-color: #46A1BF;
 }
@@ -49,8 +54,8 @@ p {
 #leftSide .article:hover {
     background-color: rgb( 40, 44, 47 );
     cursor:pointer;
-
 }
+
 
 #logo {
     background-color: #222C38;
@@ -61,11 +66,37 @@ p {
 }
 
 #mainArea {
-    
+    background-color: #E7ECEA;    
 }
 
 #mainArea  p {
-    color: #2C3033;
+    color: #7B7E81;
+}
+
+#mainAreaHeader {
+    background-color: #DEE3E1;
+}
+
+#mainArea .article {
+    background-color: #DEE3E1;
+    border-style: solid;
+    border-color: #D4D9D7;
+    border-width:1px;
+}
+
+#mainArea .article:hover {
+    background-color: #E7ECEA;
+    cursor:pointer;
+}
+
+
+#mainArea .articleSelected {
+    background-color: #E7ECEA;
+    border-bottom: 2px solid #4BADD0;
+}
+
+#mainArea .articleSelected:hover {
+    cursor:pointer;
 }
 
 

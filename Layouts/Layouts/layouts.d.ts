@@ -1,6 +1,7 @@
 declare module layouts {
     class Ext {
         static hasProperty(obj: any, propertyName: string): boolean;
+        static isString(obj: any): boolean;
     }
 }
 interface String {
@@ -30,10 +31,10 @@ declare module layouts {
         private _defaultValue;
         options: any;
         converter: {
-            (value: any): any;
+            (value: string): any;
         };
         constructor(name: string, defaultValue?: any, options?: any, converter?: {
-            (value: any): any;
+            (value: string): any;
         });
         private _defaultValueMap;
         overrideDefaultValue(typeName: string, defaultValue: any): void;
@@ -55,10 +56,16 @@ declare module layouts {
     }
 }
 declare module layouts {
+    interface IConverter {
+        convert(fromValue: any, context: any): any;
+        convertBack(fromValue: any, context: any): any;
+    }
+}
+declare module layouts {
     class DepObject {
         private static globalPropertyMap;
         static registerProperty(typeName: string, name: string, defaultValue?: any, options?: any, converter?: {
-            (value: any): any;
+            (value: string): any;
         }): DepProperty;
         static getProperty(typeName: string, name: string): DepProperty;
         static getProperties(typeName: string): DepProperty[];
@@ -78,7 +85,7 @@ declare module layouts {
         subscribePropertyChanges(observer: ISupportPropertyChange): void;
         unsubscribePropertyChanges(observer: ISupportPropertyChange): void;
         private bindings;
-        bind(property: DepProperty, propertyPath: string, twoway: boolean, source: DepObject): void;
+        bind(property: DepProperty, propertyPath: string, twoway: boolean, source: DepObject, converter: IConverter): void;
     }
 }
 declare module layouts {
@@ -402,6 +409,8 @@ declare module layouts.controls {
     class Panel extends FrameworkElement implements ISupportCollectionChanged {
         static typeName: string;
         typeName: string;
+        protected _divElement: HTMLDivElement;
+        attachVisualOverride(elementContainer: HTMLElement): void;
         private _children;
         children: ObservableCollection<UIElement>;
         onCollectionChanged(collection: any, added: Object[], removed: Object[], startRemoveIndex: number): void;
@@ -449,8 +458,6 @@ declare module layouts.controls {
     class Grid extends Panel implements ISupportCollectionChanged {
         static typeName: string;
         typeName: string;
-        protected _divElement: HTMLDivElement;
-        attachVisualOverride(elementContainer: HTMLElement): void;
         private rowDefs;
         private columnDefs;
         private elementDefs;
@@ -549,8 +556,6 @@ declare module layouts.controls {
     class Stack extends Panel {
         static typeName: string;
         typeName: string;
-        protected _divElement: HTMLDivElement;
-        attachVisualOverride(elementContainer: HTMLElement): void;
         protected measureOverride(constraint: Size): Size;
         protected arrangeOverride(finalSize: Size): Size;
         static orientationProperty: DepProperty;
@@ -643,7 +648,7 @@ declare module layouts {
         resolveNameSpace(xmlns: string): string;
         Load(xamlNode: Node): any;
         static compareXml(nodeLeft: Node, nodeRight: Node): boolean;
-        private static trySetProperty(obj, propertyName, propertyNameSpace, value);
+        private trySetProperty(obj, propertyName, propertyNameSpace, value);
         private static tryCallMethod(obj, methodName, value);
         private static tryParseBinding(value);
     }

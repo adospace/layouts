@@ -19,6 +19,10 @@
   </PropertyGroup>
   <ItemGroup>
     <Content Include="app.css" />
+    <Content Include="Images\Delete Sign-32.png" />
+    <Content Include="Images\Menu-32.png" />
+    <Content Include="Images\Plus Math-32.png" />
+    <Content Include="Images\Search-32.png" />
     <Content Include="index.html" />
     <Content Include="packages.config" />
     <None Include="Scripts\linq-vsdoc.js" />
@@ -128,6 +132,7 @@
     <TypeScriptCompile Include="ViewModel\AppViewModel.ts" />
     <TypeScriptCompile Include="ViewModel\ArticleViewModel.ts" />
     <TypeScriptCompile Include="ViewModel\CategoryViewModel.ts" />
+    <TypeScriptCompile Include="ViewModel\Converters\ArticleClassConverter.ts" />
     <TypeScriptCompile Include="ViewModel\TabView.ts" />
     <TypeScriptCompile Include="ViewModel\TreeView.ts" />
   </ItemGroup>

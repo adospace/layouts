@@ -10,15 +10,17 @@ module layouts.controls {
             return Panel.typeName;
         }
 
+        protected _divElement: HTMLDivElement;
+        attachVisualOverride(elementContainer: HTMLElement) {
+            this._visual = this._divElement = document.createElement("div");
+            if (this.children != null)
+                this.children.forEach(child => child.attachVisual(this._divElement));
+            super.attachVisualOverride(elementContainer);
+        }
 
         private _children: ObservableCollection<UIElement>;
 
         get children(): ObservableCollection<UIElement>{
-            //if (this._children == null) {
-            //    this._children = new ObservableCollection<UIElement>();
-            //    this._children.on(this.childrenCollectionChanged);
-            //}
-
             return this._children;
         }
 

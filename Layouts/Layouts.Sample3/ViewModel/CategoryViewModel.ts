@@ -46,4 +46,14 @@ class CategoryViewModel extends layouts.DepObject {
         this.isExpanded = !this.isExpanded;
     }
     
+    private _addArticleCommand: layouts.Command;
+    get addArticleCommand(): layouts.Command {
+        if (this._addArticleCommand == null)
+            this._addArticleCommand = new layouts.Command((cmd, p) => this.onAddArticle(), (cmd, p) => true);
+        return this._addArticleCommand;
+    }
+
+    onAddArticle() {
+        
+    }
 } 

@@ -10,8 +10,11 @@ class TreeView extends layouts.controls.UserControl {
 <ItemsControl ItemsSource="{categories}" Margin="0,4">
     <DataTemplate>
         <Stack>
-            <Border class="category" Height="35" Command="{expandCommand}">
-                <TextBlock Text="{title}" VerticalAlignment="Center" Margin="4,0,0,0"/>
+            <Border class="category" Height="32" Command="{expandCommand}">
+                <Grid Columns="* Auto">
+                    <TextBlock Text="{title}" VerticalAlignment="Center" Margin="4,0,0,0"/>
+                    <Image class="categoryAddArticle" Source="Images/Plus Math-32.png" Grid.Column="1" Command="{addArticleCommand}"/>
+                </Grid>
             </Border>
             <ItemsControl ItemsSource="{articles}" IsVisible="{isExpanded}">
                 <DataTemplate>

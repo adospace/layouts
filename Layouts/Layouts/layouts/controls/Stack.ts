@@ -24,14 +24,6 @@ module layouts.controls {
             return Stack.typeName;
         }
 
-        protected _divElement: HTMLDivElement;
-        attachVisualOverride(elementContainer: HTMLElement) {
-            this._visual = this._divElement = document.createElement("div");
-            if (this.children != null)
-                this.children.forEach(child => child.attachVisual(this._divElement));
-            super.attachVisualOverride(elementContainer);
-        }
-
         
         protected measureOverride(constraint: Size): Size {
             var mySize = new Size();
@@ -102,7 +94,7 @@ module layouts.controls {
                 return new Size(finalSize.width, Math.max(finalSize.height, childrenSize.height));
         }
 
-        static orientationProperty = DepObject.registerProperty(Stack.typeName, "Orientation", Orientation.Vertical, FrameworkPropertyMetadataOptions.AffectsMeasure);
+        static orientationProperty = DepObject.registerProperty(Stack.typeName, "Orientation", Orientation.Vertical, FrameworkPropertyMetadataOptions.AffectsMeasure, (v) => Orientation[String(v)]);
         get orientation(): Orientation {
             return <Orientation>this.getValue(Stack.orientationProperty);
         }

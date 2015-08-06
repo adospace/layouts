@@ -199,14 +199,6 @@ module layouts.controls {
             return Grid.typeName;
         }
 
-        protected _divElement: HTMLDivElement;
-        attachVisualOverride(elementContainer: HTMLElement) {
-            this._visual = this._divElement = document.createElement("div");
-            if (this.children != null)
-                this.children.forEach(child => child.attachVisual(this._divElement));
-            super.attachVisualOverride(elementContainer);
-        }
-
         private rowDefs: RowDef[];
         private columnDefs: ColumnDef[];
         private elementDefs: ElementDef[]; 
@@ -420,7 +412,7 @@ module layouts.controls {
         ///Dependency properties
 
         //rows
-        static rowsProperty = DepObject.registerProperty(Grid.typeName, "Rows", null, FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender, (v) => (typeof v == "string" || v instanceof String) ? Grid.rowsFromString(v) : v);
+        static rowsProperty = DepObject.registerProperty(Grid.typeName, "Rows", null, FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender, (v) => Grid.rowsFromString(v));
         get rows(): ObservableCollection<GridRow> {
             return <ObservableCollection<GridRow>>this.getValue(Grid.rowsProperty);
         }
@@ -447,7 +439,7 @@ module layouts.controls {
         }
 
         //columns
-        static columnsProperty = DepObject.registerProperty(Grid.typeName, "Columns", null, FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender, (v) => (typeof v == "string" || v instanceof String) ? Grid.columnsFromString(v) : v);
+        static columnsProperty = DepObject.registerProperty(Grid.typeName, "Columns", null, FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender, (v) => Grid.columnsFromString(v));
         get columns(): ObservableCollection<GridColumn> {
             return <ObservableCollection<GridColumn>>this.getValue(Grid.columnsProperty);
         }

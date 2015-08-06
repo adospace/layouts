@@ -42,6 +42,7 @@
     <TypeScriptCompile Include="layouts\Extensions.ts" />
     <TypeScriptCompile Include="layouts\FrameworkElement.ts" />
     <TypeScriptCompile Include="layouts\Command.ts" />
+    <TypeScriptCompile Include="layouts\IConverter.ts" />
     <TypeScriptCompile Include="layouts\INotifyCollectionChanged.ts" />
     <TypeScriptCompile Include="layouts\ISupport.ts" />
     <TypeScriptCompile Include="layouts\LayoutManager.ts" />

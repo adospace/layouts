@@ -25,6 +25,18 @@ class ArticleViewModel extends layouts.DepObject {
         return layouts.Application.current.page.dataContext;
     }
 
+    private _isSelected: boolean = false;
+    get isSelected(): boolean {
+        return this._isSelected;
+    }
+    set isSelected(value: boolean) {
+        if (this._isSelected != value) {
+            var oldValue = this._isSelected;
+            this._isSelected = value;
+            this.onPropertyChanged("isSelected", value, oldValue);
+        }
+    }
+
 
     private _openArticleCommand: layouts.Command;
     get openArticleCommand(): layouts.Command {

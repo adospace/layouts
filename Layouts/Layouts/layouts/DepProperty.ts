@@ -3,8 +3,8 @@
         name: string;
         private _defaultValue: any;
         options: any;
-        converter: { (value: any): any }
-        constructor(name: string, defaultValue: any = null, options: any = null, converter: { (value: any): any } = null ) {
+        converter: { (value: string): any }
+        constructor(name: string, defaultValue: any = null, options: any = null, converter: { (value: string): any } = null ) {
             this.name = name;
             this._defaultValue = defaultValue;
             this.options = options;

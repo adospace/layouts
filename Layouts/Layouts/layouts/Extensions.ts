@@ -5,6 +5,10 @@ module layouts {
             var proto = obj.__proto__ || obj.constructor.prototype;
             return (propertyName in obj) || (propertyName in proto);
         }
+
+        static isString(obj: any): boolean {
+            return (typeof obj == "string" || obj instanceof String)
+        }
     }
 
 }

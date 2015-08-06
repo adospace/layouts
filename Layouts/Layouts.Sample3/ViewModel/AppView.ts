@@ -14,13 +14,12 @@ class AppView {
 
     <!-- Logo Area -->
     <Border id="logo" >
-        <TextBlock Text="Sample Dashboard" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+        <Image Source="Images/Menu-32.png" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="4"/>
     </Border>
 
     <!-- Left Side -->
     <Border id="leftSide" Grid.Row="1">
         <Grid Rows="Auto *">
-            <Button Text="New" Command="{addCommand}" Margin="4"/>
             <localViews:TreeView Grid.Row="1" />
         </Grid>
     </Border>

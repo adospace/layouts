@@ -198,6 +198,18 @@ module layouts {
                 this._visual.hidden = !this.isVisible;
                 if (this.command != null)
                     this._visual.onclick = (ev) => this.onClick(ev);
+
+                var name = this.id;
+                if (this._visual.id != name &&
+                    name != null)
+                    this._visual.id = name;
+                var className = this.cssClass;
+                if (this._visual.className != className &&
+                    className != null) {
+                    this._visual.className = className;
+                }
+
+                this._visual.style.position = "absolute";
             }
         }
 
@@ -238,7 +250,13 @@ module layouts {
                 if (this._visual != null)
                     this._visual.hidden = !this.isVisible;
             }
-
+            else if (property == UIElement.classProperty) {
+                var className = this.cssClass;
+                if (this._visual != null && this._visual.className != className &&
+                    className != null) {
+                    this._visual.className = className;
+                }
+            }
 
             var options = <FrameworkPropertyMetadataOptions>property.options;
             if ((options & FrameworkPropertyMetadataOptions.AffectsMeasure) != 0)
