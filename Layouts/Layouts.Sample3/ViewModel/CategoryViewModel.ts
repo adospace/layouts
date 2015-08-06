@@ -54,6 +54,8 @@ class CategoryViewModel extends layouts.DepObject {
     }
 
     onAddArticle() {
-        
+        var dlg = new AddArticleDialogView();
+        dlg.dataContext = new AddArticleDialogViewModel(dlg, this);
+        layouts.LayoutManager.showDialog(dlg);
     }
 } 

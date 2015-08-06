@@ -179,7 +179,11 @@ module layouts {
                         //by default if source == DataContext binding just connect to
                         //"DataContext." + original path and source is depObject itself
                         var converter: IConverter = bingingDef.converter == null ? null : this.instanceLoader.getInstance(bingingDef.converter);
-                        depObject.bind(depProperty, "DataContext." + bingingDef.path, bingingDef.twoway, depObject, converter);
+                        //at moment we'll support only 2 modes:
+                        //1) default -> connect to DataContext
+                        //2) self -> connect to object itself
+                        var bindingPath = bingingDef.source == "self" ? bingingDef.path : "DataContext." + bingingDef.path;
+                        depObject.bind(depProperty, bindingPath, bingingDef.twoway, depObject, converter);
                     }
                     else
                         depObject.setValue(depProperty, value);

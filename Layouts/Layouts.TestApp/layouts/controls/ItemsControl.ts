@@ -27,13 +27,11 @@ module layouts.controls {
             this._visual = this._divElement = document.createElement("div");
 
             let itemsPanel = this.itemsPanel;
-            if (itemsPanel == null) {
+            if (itemsPanel == null)
                 this.itemsPanel = itemsPanel = new Stack();
-                itemsPanel.parent = this;
-            }
 
-            itemsPanel.attachVisual(this._divElement);
-            
+            itemsPanel.attachVisual(this._visual);
+
             super.attachVisualOverride(elementContainer);
         }
 
@@ -75,12 +73,14 @@ module layouts.controls {
             }
 
             this._templates = value;
-            //attach new children here
-            this._templates.forEach(el=> {
+  
+            if (this._templates != null) {
+                this._templates.forEach(el=> {
+                    //to do: re-apply templates to children
+                });
 
-            });
-
-            this._templates.onChangeNotify(this);
+                this._templates.onChangeNotify(this);
+            }
         }
 
         onCollectionChanged(collection: any, added: Object[], removed: Object[], startRemoveIndex: number) {
@@ -150,10 +150,19 @@ module layouts.controls {
                 }
             }
             else if (property == ItemsControl.itemsPanelProperty) {
-                if (oldValue != null && (<UIElement>oldValue).parent == this)
-                    (<UIElement>oldValue).parent = null;
-                if (value != null)
-                    (<UIElement>value).parent = this;
+                var oldPanel = (<Panel>oldValue);
+                if (oldPanel != null && oldPanel.parent == this) {
+                    oldPanel.children = null;
+                    oldPanel.parent = null;
+                    oldPanel.attachVisual(null);
+                }
+
+                var newPanel = (<Panel>value);
+                if (newPanel != null) {
+                    newPanel.parent = this;
+                    if (this._visual != null)
+                        newPanel.attachVisual(this._visual);
+                }
 
             }
             else if (property == ItemsControl.itemsPanelProperty)
@@ -207,8 +216,12 @@ module layouts.controls {
 
 
             if (this._elements != null) {
-                if (this.itemsPanel == null)
+                if (this.itemsPanel == null) {
                     this.itemsPanel = new Stack();
+                    this.itemsPanel.parent = this;
+                    if (this._visual != null)
+                        this.itemsPanel.attachVisual(this._visual);
+                }
 
                 this.itemsPanel.children = new ObservableCollection<UIElement>(this._elements);
             }            

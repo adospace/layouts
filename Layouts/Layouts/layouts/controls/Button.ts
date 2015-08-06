@@ -39,6 +39,8 @@ module layouts.controls {
                 this._child.attachVisual(this._buttonElement);
             }
 
+            this._buttonElement.onclick = (ev) => this.onClick(ev);
+
             super.attachVisualOverride(elementContainer);
         }
 

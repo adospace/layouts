@@ -365,7 +365,6 @@ module layouts {
                     if (newParent._logicalChildren == null)
                         newParent._logicalChildren = new Array<UIElement>();
                     newParent._logicalChildren.push(this);
-
                 }
 
                 this.notifyInheritsPropertiesChange();

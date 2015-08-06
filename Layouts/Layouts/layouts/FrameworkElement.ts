@@ -5,6 +5,12 @@
 module layouts {
     export enum VerticalAlignment { Top, Center, Bottom, Stretch }
     export enum HorizontalAlignment { Left, Center, Right, Stretch }
+    export enum SizeToContent {
+        None = 0,
+        Both = 1,
+        Vertical = 2,
+        Horizontal = 3
+    }
     export class Thickness
     {
         constructor(public left: number = 0, public top: number = 0, public right: number = 0, public bottom: number = 0)

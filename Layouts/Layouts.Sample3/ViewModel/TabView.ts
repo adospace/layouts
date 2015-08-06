@@ -13,7 +13,7 @@ class TabView extends layouts.controls.UserControl {
             <Stack Orientation="Horizontal"/>
         </ItemsControl.ItemsPanel>
         <DataTemplate>
-            <Border class="{isSelected,oneway,self,ArticleClassConverter}" Command="{openArticleCommand}" Margin="0,2">
+            <Border class="{isSelected,oneway,detaContext,ArticleClassConverter}" Command="{openArticleCommand}" Margin="0,2">
                 <TextBlock Text="{title}" VerticalAlignment="Center" Margin="8"/>
             </Border>
         </DataTemplate>

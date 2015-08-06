@@ -12,6 +12,11 @@ body {
     margin:0px; 
 }
 
+input {
+    font-family: 'Segoe UI', sans-serif;
+    font-size:larger;
+}
+
 p {
     -webkit-touch-callout: none;
     -webkit-user-select: none;
@@ -19,6 +24,30 @@ p {
     -moz-user-select: none;
     -ms-user-select: none;
     user-select: none;
+}
+
+.buttonPrimary {
+    background-color: #2086BF;
+    color: white;
+    border-width: 0px;
+    cursor:pointer;
+}
+
+.buttonSecondary {
+    background-color: #D9D9D9;
+    color: black;
+    border-width: 0px;
+    cursor:pointer;
+}
+
+.textBox {
+    border: 1px solid #D9D9D9;
+}
+.textBox:focus {
+    border: 1px solid black;
+}
+.textBox:hover {
+    border: 1px solid black;
 }
 
 #header {
@@ -56,6 +85,10 @@ p {
     cursor:pointer;
 }
 
+#leftSideLogo {
+    background-color: #222C38;
+}
+
 
 #logo {
     background-color: #222C38;
@@ -64,6 +97,12 @@ p {
 #logo p {
     color: #A8B9C3;    
 }
+
+.headerButton:hover {
+    background-color: #222C38;
+    cursor:pointer;
+}
+
 
 #mainArea {
     background-color: #E7ECEA;    
@@ -99,5 +138,19 @@ p {
     cursor:pointer;
 }
 
+.dialog {
+    -webkit-box-shadow: 0px 0px 10px 0px rgba(40, 44, 47,0.5);
+    -moz-box-shadow: 0px 0px 10px 0px rgba(40, 44, 47,0.5);
+    box-shadow: 0px 0px 10px 0px rgba(40, 44, 47,0.5);
+    border: 1px solid #D4D9D7;
+    background-color: white;
+}
 
+.dialogContent {
+    background-color: #E7ECEA;
+}
 
+.dialogHeaderCloseButton:hover {
+    background-color: #DEE3E1;
+    cursor:pointer;
+}

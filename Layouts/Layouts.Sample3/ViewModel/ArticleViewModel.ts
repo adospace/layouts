@@ -38,15 +38,15 @@ class ArticleViewModel extends layouts.DepObject {
     }
 
 
+    get url(): string {
+        return "https://en.wikipedia.org/wiki/" + this.title.replace(/ /g, "_");
+    }
+
     private _openArticleCommand: layouts.Command;
     get openArticleCommand(): layouts.Command {
         if (this._openArticleCommand == null)
             this._openArticleCommand = new layouts.Command((cmd, p) => this.onOpenArticle(p), (cmd, p) => true);
         return this._openArticleCommand;
-    }
-
-    get url(): string {
-        return "https://en.wikipedia.org/wiki/" + this.title.replace(/ /g, "_");
     }
 
     onOpenArticle(article: ArticleViewModel) {

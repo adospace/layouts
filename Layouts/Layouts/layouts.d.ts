@@ -20,12 +20,6 @@ declare class InstanceLoader {
     getInstance(name: string, ...args: any[]): any;
 }
 declare module layouts {
-    class LayoutManager {
-        static requestLayoutUpdate(): void;
-        static updateLayout(): void;
-    }
-}
-declare module layouts {
     class DepProperty {
         name: string;
         private _defaultValue;
@@ -190,6 +184,12 @@ declare module layouts {
         Right = 2,
         Stretch = 3,
     }
+    enum SizeToContent {
+        None = 0,
+        Both = 1,
+        Vertical = 2,
+        Horizontal = 3,
+    }
     class Thickness {
         left: number;
         top: number;
@@ -245,12 +245,32 @@ declare module layouts {
     }
 }
 declare module layouts.controls {
-    enum SizeToContent {
-        None = 0,
-        Both = 1,
-        Vertical = 2,
-        Horizontal = 3,
+    class Dialog extends FrameworkElement {
+        static typeName: string;
+        typeName: string;
+        private static _init;
+        private static initProperties();
+        constructor();
+        private _child;
+        child: UIElement;
+        protected initializeComponent(): UIElement;
+        protected layoutOverride(): void;
+        protected measureOverride(constraint: Size): Size;
+        protected arrangeOverride(finalSize: Size): Size;
+        static sizeToContentProperty: DepProperty;
+        sizeToContent: SizeToContent;
     }
+}
+declare module layouts {
+    class LayoutManager {
+        static requestLayoutUpdate(): void;
+        static updateLayout(): void;
+        private static dialogs;
+        static showDialog(dialog: layouts.controls.Dialog): void;
+        static closeDialog(dialog: layouts.controls.Dialog): void;
+    }
+}
+declare module layouts.controls {
     class Page extends FrameworkElement {
         static typeName: string;
         typeName: string;
@@ -361,6 +381,42 @@ declare module layouts.controls {
     }
 }
 declare module layouts.controls {
+    class Panel extends FrameworkElement implements ISupportCollectionChanged {
+        static typeName: string;
+        typeName: string;
+        protected _divElement: HTMLDivElement;
+        attachVisualOverride(elementContainer: HTMLElement): void;
+        private _children;
+        children: ObservableCollection<UIElement>;
+        onCollectionChanged(collection: any, added: Object[], removed: Object[], startRemoveIndex: number): void;
+        layoutOverride(): void;
+        virtualItemCount: number;
+        virtualOffset: Vector;
+        static backgroundProperty: DepProperty;
+        background: string;
+    }
+}
+declare module layouts.controls {
+    class Canvas extends Panel {
+        static typeName: string;
+        typeName: string;
+        protected measureOverride(constraint: Size): Size;
+        protected arrangeOverride(finalSize: Size): Size;
+        static leftProperty: DepProperty;
+        static getLeft(target: DepObject): number;
+        static setLeft(target: DepObject, value: number): void;
+        static topProperty: DepProperty;
+        static getTop(target: DepObject): number;
+        static setTop(target: DepObject, value: number): void;
+        static rightProperty: DepProperty;
+        static getRight(target: DepObject): number;
+        static setRight(target: DepObject, value: number): void;
+        static bottomProperty: DepProperty;
+        static getBottom(target: DepObject): number;
+        static setBottom(target: DepObject, value: number): void;
+    }
+}
+declare module layouts.controls {
     class ContentTemplate extends FrameworkElement {
         static typeName: string;
         typeName: string;
@@ -403,22 +459,6 @@ declare module layouts.controls {
         protected measureOverride(constraint: Size): Size;
         static sourceProperty: DepProperty;
         Source: string;
-    }
-}
-declare module layouts.controls {
-    class Panel extends FrameworkElement implements ISupportCollectionChanged {
-        static typeName: string;
-        typeName: string;
-        protected _divElement: HTMLDivElement;
-        attachVisualOverride(elementContainer: HTMLElement): void;
-        private _children;
-        children: ObservableCollection<UIElement>;
-        onCollectionChanged(collection: any, added: Object[], removed: Object[], startRemoveIndex: number): void;
-        layoutOverride(): void;
-        virtualItemCount: number;
-        virtualOffset: Vector;
-        static backgroundProperty: DepProperty;
-        background: string;
     }
 }
 declare module layouts.controls {
@@ -583,11 +623,13 @@ declare module layouts.controls {
         private _pElement;
         attachVisualOverride(elementContainer: HTMLElement): void;
         onTextChanged(): void;
-        clientSize: Size;
+        clientSizeOffset: Size;
         protected measureOverride(constraint: Size): Size;
         protected layoutOverride(): void;
         static textProperty: DepProperty;
         text: string;
+        static placeholderProperty: any;
+        placeholder: string;
     }
 }
 declare module layouts.controls {

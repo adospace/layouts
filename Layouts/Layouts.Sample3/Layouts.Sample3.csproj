@@ -128,6 +128,8 @@
       <Link>layouts\XamlReader.ts</Link>
     </TypeScriptCompile>
     <TypeScriptCompile Include="app.ts" />
+    <TypeScriptCompile Include="ViewModel\AddArticleDialogView.ts" />
+    <TypeScriptCompile Include="ViewModel\AddArticleDialogViewModel.ts" />
     <TypeScriptCompile Include="ViewModel\AppView.ts" />
     <TypeScriptCompile Include="ViewModel\AppViewModel.ts" />
     <TypeScriptCompile Include="ViewModel\ArticleViewModel.ts" />

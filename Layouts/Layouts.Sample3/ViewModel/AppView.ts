@@ -6,29 +6,25 @@ class AppView {
     public static get PAGE_DEFINITION(): string {
         return `<?xml version="1.0" encoding="utf-8" ?>
 <Page xmlns:localViews="Layouts.Sample3">  
-  <Grid Rows="48 *" Columns="250 *">
+  <Grid Rows="48 *" Columns="Auto *">
+    <Border id="leftSideLogo" IsVisible="{isMenuVisible}"/>
+
     <!-- Header -->
     <Border id="header" Grid.Column="1">
-        
-    </Border>
-
-    <!-- Logo Area -->
-    <Border id="logo" >
-        <Image Source="Images/Menu-32.png" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="4"/>
+        <!-- Logo Area -->
+        <Image Command="{toggleMenuCommand}" class="headerButton" Source="Images/Menu-32.png" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="4"/>
     </Border>
 
     <!-- Left Side -->
-    <Border id="leftSide" Grid.Row="1">
-        <Grid Rows="Auto *">
-            <localViews:TreeView Grid.Row="1" />
-        </Grid>
+    <Border id="leftSide" IsVisible="{isMenuVisible}" Grid.Row="1" Width="250">
+        <localViews:TreeView />
     </Border>
+
 
     <!-- Main Area -->
-    <Border id="mainArea" Grid.Row="1" Grid.Column="1">
+    <Border id="mainArea" Grid.Column="1" Grid.Row="1">
         <localViews:TabView/>
     </Border>
-
   </Grid>
 </Page>`;
     }

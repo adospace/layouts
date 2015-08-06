@@ -4,11 +4,21 @@
 
 module layouts.controls {
 
-
-    export class Page extends FrameworkElement {
-        static typeName: string = "layouts.controls.Page";
+    export class Dialog extends FrameworkElement {
+        static typeName: string = "layouts.controls.Dialog";
         get typeName(): string{
-            return Page.typeName;
+            return Dialog.typeName;
+        }
+
+        private static _init = Dialog.initProperties();
+        private static initProperties() {
+            FrameworkElement.horizontalAlignmentProperty.overrideDefaultValue(Dialog.typeName, "Center");
+            FrameworkElement.verticalAlignmentProperty.overrideDefaultValue(Dialog.typeName, "Center");
+        }
+
+        constructor() {
+            super();
+            this.child = this.initializeComponent();
         }
 
         private _child: UIElement;
@@ -30,6 +40,9 @@ module layouts.controls {
             }
         }
 
+        protected initializeComponent(): UIElement {
+            return null;
+        }
 
         protected layoutOverride() {
             if (this._child != null)
@@ -59,12 +72,12 @@ module layouts.controls {
 
 
         //SizeToContent property
-        static sizeToContentProperty = DepObject.registerProperty(Page.typeName, "SizeToContent", SizeToContent.None, FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender);
+        static sizeToContentProperty = DepObject.registerProperty(Dialog.typeName, "SizeToContent", SizeToContent.None, FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender);
         get sizeToContent(): SizeToContent {
-            return <SizeToContent>this.getValue(Page.sizeToContentProperty);
+            return <SizeToContent>this.getValue(Dialog.sizeToContentProperty);
         }
         set sizeToContent(value: SizeToContent) {
-            this.setValue(Page.sizeToContentProperty, value);
+            this.setValue(Dialog.sizeToContentProperty, value);
         }
 
 

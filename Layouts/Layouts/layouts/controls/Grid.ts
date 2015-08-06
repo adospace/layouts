@@ -113,7 +113,7 @@ module layouts.controls {
     }
 
     class RowDef {
-        constructor(public row: GridRow, vSizeToContent: boolean) {
+        constructor(public row: GridRow, public index: number, vSizeToContent: boolean) {
             this._isAuto = this.row.height.isAuto || (vSizeToContent && this.row.height.isStar);
             this._isStar = this.row.height.isStar && !vSizeToContent;
             this._isFixed = this.row.height.isFixed;
@@ -145,7 +145,7 @@ module layouts.controls {
         elements: ElementDef[] = [];
     }
     class ColumnDef {
-        constructor(public column: GridColumn, hSizeToContent: boolean) {
+        constructor(public column: GridColumn, public index: number, hSizeToContent: boolean) {
             this._isAuto = this.column.width.isAuto || (hSizeToContent && this.column.width.isStar);
             this._isStar = this.column.width.isStar && !hSizeToContent;
             this._isFixed = this.column.width.isFixed;
@@ -182,9 +182,51 @@ module layouts.controls {
             public column: number,
             public rowSpan: number,
             public columnSpan: number) {
+
+            this._availWidth = new Array<number>(columnSpan);
+            for (var i = 0; i < this._availWidth.length; i++)
+                this._availWidth[i] = Infinity;
+
+            this._availHeight = new Array<number>(rowSpan);
+            for (var i = 0; i < this._availHeight.length; i++)
+                this._availHeight[i] = Infinity;
         }
-        availWidth: number = Infinity;
-        availHeight: number = Infinity;
+
+        private _availWidth: Array<number>;
+        getAvailWidth(column: number): number {
+            return this._availWidth[column - this.column];
+        }
+        getAllAvailWidth(): number {
+            let sum = 0;
+            for (var i = 0; i < this._availWidth.length; i++) {
+                if (!isFinite(this._availWidth[i]))
+                    return Infinity;
+                sum += this._availWidth[i];
+            }
+            return sum;
+        }
+        setAvailWidth(column: number, value: number) {
+            this._availWidth[column - this.column] = value;
+        }
+
+        private _availHeight: Array<number>;
+        getAvailHeight(row: number): number {
+            return this._availHeight[row - this.row];
+        }
+        getAllAvailHeight(): number {
+            let sum = 0;
+            for (var i = 0; i < this._availHeight.length; i++) {
+                if (!isFinite(this._availHeight[i]))
+                    return Infinity;
+                sum += this._availHeight[i];
+            }
+            return sum;
+        }
+        setAvailHeight(row: number, value: number) {
+            this._availHeight[row - this.row] = value;
+        }
+
+
         desWidth: number = NaN;
         desHeight: number = NaN;
         measuredWidthFirstPass: boolean;
@@ -216,13 +258,13 @@ module layouts.controls {
             this.columnDefs = new Array<ColumnDef>(Math.max(this.columns.count, 1));
             this.elementDefs = new Array<ElementDef>(childrenCount);
             if (rows.count > 0)
-                rows.forEach((row, i) => this.rowDefs[i] = new RowDef(row, vSizeToContent));
+                rows.forEach((row, i) => this.rowDefs[i] = new RowDef(row, i, vSizeToContent));
             else
-                this.rowDefs[0] = new RowDef(new GridRow(new GridLength(1, GridUnitType.Star)), vSizeToContent);
+                this.rowDefs[0] = new RowDef(new GridRow(new GridLength(1, GridUnitType.Star)), 0, vSizeToContent);
             if (columns.count > 0)
-                columns.forEach((column, i) => this.columnDefs[i] = new ColumnDef(column, hSizeToContent));
+                columns.forEach((column, i) => this.columnDefs[i] = new ColumnDef(column, i, hSizeToContent));
             else
-                this.columnDefs[0] = new ColumnDef(new GridColumn(new GridLength(1, GridUnitType.Star)), hSizeToContent);
+                this.columnDefs[0] = new ColumnDef(new GridColumn(new GridLength(1, GridUnitType.Star)), 0, hSizeToContent);
 
             for (var iElement = 0; iElement < childrenCount; iElement++) {
                 var child = this.children.at(iElement);
@@ -233,10 +275,12 @@ module layouts.controls {
 
                 this.elementDefs[iElement] = new ElementDef(child, elRow, elColumn, elRowSpan, elColumnSpan);
 
-                if (elRowSpan == 1)
-                    this.rowDefs[elRow].elements.push(this.elementDefs[iElement]);
-                if (elColumnSpan == 1)
-                    this.columnDefs[elColumn].elements.push(this.elementDefs[iElement]);
+                //if (elRowSpan == 1)
+                for (var row = elRow; row < elRow + elRowSpan; row++)
+                    this.rowDefs[row].elements.push(this.elementDefs[iElement]);
+                //if (elColumnSpan == 1)
+                for (var col = elColumn; col < elColumn + elColumnSpan; col++)
+                    this.columnDefs[col].elements.push(this.elementDefs[iElement]);
             }
 
             //measure children full contained auto and fixed size in any row/column (exclude only children that are fully contained in star w/h cells)
@@ -245,11 +289,11 @@ module layouts.controls {
                 var elements = rowDef.elements;
 
                 if (rowDef.isAuto) {
-                    elements.forEach((el) => el.availHeight = Infinity);
+                    elements.forEach((el) => el.setAvailHeight(iRow, Infinity));
                 }
                 else if (rowDef.isFixed) {
                     rowDef.desHeight = rowDef.row.height.value;
-                    elements.forEach((el) => el.availHeight = rowDef.desHeight);
+                    elements.forEach((el) => el.setAvailHeight(iRow, rowDef.desHeight));
                 }
                 else { //isStar
                     elements.forEach((el) => el.measuredWidthFirstPass = true);//elements in this group can still be measured by the other dimension (width or height)
@@ -260,11 +304,11 @@ module layouts.controls {
                 var elements = columnDef.elements;
 
                 if (columnDef.isAuto) {
-                    elements.forEach((el) => el.availWidth = +Infinity);
+                    elements.forEach((el) => el.setAvailWidth(iColumn, Infinity));
                 }
                 else if (columnDef.isFixed) {
                     columnDef.desWidth = columnDef.column.width.value;
-                    elements.forEach((el) => el.availWidth = columnDef.desWidth);
+                    elements.forEach((el) => el.setAvailWidth(iColumn, columnDef.desWidth));
                 }
                 else { //isStar
                     elements.forEach((el) => el.measuredHeightFirstPass = true);//elements in this group can still be measured by the other dimension (width or height)
@@ -273,7 +317,7 @@ module layouts.controls {
             this.elementDefs.forEach((el) => {
                 if (!el.measuredHeightFirstPass ||
                     !el.measuredWidthFirstPass) {
-                    el.element.measure(new Size(el.availWidth, el.availHeight));
+                    el.element.measure(new Size(el.getAllAvailWidth(), el.getAllAvailHeight()));
                     if (isNaN(el.desWidth))
                         el.desWidth = el.element.desideredSize.width;
                     if (isNaN(el.desHeight))
@@ -293,50 +337,7 @@ module layouts.controls {
                     columnDef.elements.forEach((el) => columnDef.desWidth = Math.max(columnDef.desWidth, el.element.desideredSize.width));
             });
 
-            //than adjust width and height to fit children that spans over columns or rows containing auto rows or auto columns
-            for (var iElement = 0; iElement < this.elementDefs.length; iElement++) {
-                var elementDef = this.elementDefs[iElement];
-                if (elementDef.rowSpan > 1) {
-                    var concatHeight = 0; this.elementDefs.slice(elementDef.row, elementDef.row + elementDef.rowSpan).forEach((el) => concatHeight += el.desHeight);
-                    if (concatHeight < elementDef.desHeight) {
-                        var diff = elementDef.desHeight - concatHeight;
-                        var autoRows = this.rowDefs.filter(r=> r.isAuto);
-                        if (autoRows.length > 0) {
-                            autoRows.forEach(c=> c.desHeight += diff / autoRows.length);
-                        }
-                        else {
-                            var starRows = this.rowDefs.filter(r=> r.isStar);
-                            if (starRows.length > 0) {
-                                starRows.forEach(c=> c.desHeight += diff / autoColumns.length);
-                            }
-                        }
-                    }
-                    else if (concatHeight > elementDef.desHeight) {
-                        elementDef.cellTopOffset = (concatHeight - elementDef.desHeight) / 2;
-                    }
-                }
-                if (elementDef.columnSpan > 1) {
-                    var concatWidth = 0; this.elementDefs.slice(elementDef.column, elementDef.column + elementDef.columnSpan).forEach((el) => concatWidth += el.desWidth);
-                    if (concatWidth < elementDef.desWidth) {
-                        var diff = elementDef.desWidth - concatWidth;
-                        var autoColumns = this.columnDefs.filter(c=> c.isAuto);
-                        if (autoColumns.length > 0) {
-                            autoColumns.forEach(c=> c.desWidth += diff / autoColumns.length);
-                        }
-                        else {
-                            var starColumns = this.columnDefs.filter(c=> c.isStar);
-                            if (starColumns.length > 0) {
-                                starColumns.forEach(c=> c.desWidth += diff / autoColumns.length);
-                            }
-                        }                    
-                    }
-                    else if (concatWidth > elementDef.desWidth) {
-                        elementDef.cellLeftOffset = (concatWidth - elementDef.desWidth) / 2;
-                    }
-                }
-            }
-
-            //now measure any full contained star size row/column
+            //now measure any fully contained star size row/column
             var elementToMeasure: ElementDef[] = [];
             var notStarRowsHeight = 0; this.rowDefs.forEach((r) => notStarRowsHeight += r.desHeight);
             var sumRowStars = 0; this.rowDefs.forEach(r => { if (r.isStar) sumRowStars += r.row.height.value; });
@@ -350,7 +351,7 @@ module layouts.controls {
                 if (!vSizeToContent) {
                     var availHeight = vRowMultiplier * rowDef.row.height.value;
                     rowDef.desHeight = availHeight;
-                    elements.forEach((el) => { el.availHeight = availHeight; el.measuredHeightFirstPass = false });
+                    elements.forEach((el) => { el.setAvailHeight(rowDef.index, availHeight); el.measuredHeightFirstPass = false });
                 }
 
                 elementToMeasure.push.apply(elementToMeasure, elements);                
@@ -367,7 +368,7 @@ module layouts.controls {
                 if (!hSizeToContent) {
                     var availWidth = vColumnMultiplier * columnDef.column.width.value;
                     columnDef.desWidth = availWidth;
-                    elements.forEach((el) => { el.availWidth = availWidth; el.measuredWidthFirstPass = false });
+                    elements.forEach((el) => { el.setAvailWidth(columnDef.index, availWidth); el.measuredWidthFirstPass = false });
                 }
 
                 elementToMeasure.push.apply(elementToMeasure, elements);
@@ -375,13 +376,56 @@ module layouts.controls {
             elementToMeasure.forEach(e => {
                 if (!e.measuredHeightFirstPass ||
                     !e.measuredWidthFirstPass) {
-                    e.element.measure(new Size(e.availWidth, e.availHeight));
+                    e.element.measure(new Size(e.getAllAvailWidth(), e.getAllAvailHeight()));
                     e.desWidth = e.element.desideredSize.width;
                     e.desHeight = e.element.desideredSize.height;
                     e.measuredWidthFirstPass = true;
                     e.measuredHeightFirstPass = true;
                 }
             });
+
+            //than adjust width and height to fit children that spans over columns or rows containing auto rows or auto columns
+            //for (var iElement = 0; iElement < this.elementDefs.length; iElement++) {
+            //    var elementDef = this.elementDefs[iElement];
+            //    if (elementDef.rowSpan > 1) {
+            //        var concatHeight = 0; this.elementDefs.slice(elementDef.row, elementDef.row + elementDef.rowSpan).forEach((el) => concatHeight += el.desHeight);
+            //        if (concatHeight < elementDef.desHeight) {
+            //            var diff = elementDef.desHeight - concatHeight;
+            //            var autoRows = this.rowDefs.filter(r=> r.isAuto);
+            //            if (autoRows.length > 0) {
+            //                autoRows.forEach(c=> c.desHeight += diff / autoRows.length);
+            //            }
+            //            else {
+            //                var starRows = this.rowDefs.filter(r=> r.isStar);
+            //                if (starRows.length > 0) {
+            //                    starRows.forEach(c=> c.desHeight += diff / autoColumns.length);
+            //                }
+            //            }
+            //        }
+            //        else if (concatHeight > elementDef.desHeight) {
+            //            elementDef.cellTopOffset = (concatHeight - elementDef.desHeight) / 2;
+            //        }
+            //    }
+            //    if (elementDef.columnSpan > 1) {
+            //        var concatWidth = 0; this.elementDefs.slice(elementDef.column, elementDef.column + elementDef.columnSpan).forEach((el) => concatWidth += el.desWidth);
+            //        if (concatWidth < elementDef.desWidth) {
+            //            var diff = elementDef.desWidth - concatWidth;
+            //            var autoColumns = this.columnDefs.filter(c=> c.isAuto);
+            //            if (autoColumns.length > 0) {
+            //                autoColumns.forEach(c=> c.desWidth += diff / autoColumns.length);
+            //            }
+            //            else {
+            //                var starColumns = this.columnDefs.filter(c=> c.isStar);
+            //                if (starColumns.length > 0) {
+            //                    starColumns.forEach(c=> c.desWidth += diff / autoColumns.length);
+            //                }
+            //            }                    
+            //        }
+            //        else if (concatWidth > elementDef.desWidth) {
+            //            elementDef.cellLeftOffset = (concatWidth - elementDef.desWidth) / 2;
+            //        }
+            //    }
+            //}
 
 
             //finally sum up the desidered size

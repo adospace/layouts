@@ -6,14 +6,14 @@ class AppViewModel extends layouts.DepObject {
     }
 
     //open articles in main area
-    _articles: layouts.ObservableCollection<ArticleViewModel> = new layouts.ObservableCollection<ArticleViewModel>();
+    private _articles: layouts.ObservableCollection<ArticleViewModel> = new layouts.ObservableCollection<ArticleViewModel>();
 
     get articles(): layouts.ObservableCollection<ArticleViewModel> {
         return this._articles;
     }
 
     //currently open article in main area
-    _selectedArticle: ArticleViewModel;
+    private _selectedArticle: ArticleViewModel;
     get selectedArticle(): ArticleViewModel {
         return this._selectedArticle;
     }
@@ -30,14 +30,14 @@ class AppViewModel extends layouts.DepObject {
     }
 
     //list of all categories
-    _categories: layouts.ObservableCollection<CategoryViewModel> = new layouts.ObservableCollection<CategoryViewModel>();
+    private _categories: layouts.ObservableCollection<CategoryViewModel> = new layouts.ObservableCollection<CategoryViewModel>();
 
     get categories(): layouts.ObservableCollection<CategoryViewModel> {
         return this._categories;
     }
 
     //selected category in side bar menu
-    _selectedCategory: CategoryViewModel;
+    private _selectedCategory: CategoryViewModel;
     get selectedCategory(): CategoryViewModel {
         return this._selectedCategory;
     }
@@ -53,6 +53,29 @@ class AppViewModel extends layouts.DepObject {
         if (this._articles.elements.indexOf(article) == -1)
             this._articles.add(article);
         this.selectedArticle = article;
+    }
+    
+    private _toggleMenuCommand: layouts.Command;
+    get toggleMenuCommand(): layouts.Command {
+        if (this._toggleMenuCommand == null)
+            this._toggleMenuCommand = new layouts.Command((cmd, p) => this.ontoggleMenu(), (cmd, p) => true);
+        return this._toggleMenuCommand;
+    }
+
+    ontoggleMenu() {
+        this.isMenuVisible = !this.isMenuVisible;
+    }
+
+    private _isMenuVisible: boolean = true;
+    get isMenuVisible(): boolean {
+        return this._isMenuVisible;
+    }
+    set isMenuVisible(value: boolean) {
+        if (this._isMenuVisible != value) {
+            var oldValue = this._isMenuVisible;
+            this._isMenuVisible = value;
+            this.onPropertyChanged("isMenuVisible", value, oldValue);
+        }
     }
 
     //loadSavedSamples() {

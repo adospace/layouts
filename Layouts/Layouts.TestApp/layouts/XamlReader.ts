@@ -1,4 +1,6 @@
-﻿module layouts {
+﻿/// <reference path="IConverter.ts" />
+
+module layouts {
 
     export class XamlReader {
 
@@ -43,18 +45,28 @@
             //load properties objects defined by xml attributes
             if (xamlNode.attributes != null) {
                 for (var i = 0; i < xamlNode.attributes.length; i++) {
-                    var att = xamlNode.attributes[i];
-                    var propertyName = att.localName;
-                    //try use FromLml<property-name> if exists
-                    //!!!this operation can be expensive!!!
-                    if (!XamlReader.tryCallMethod(containerObject, "fromLml" + propertyName, att.value))
-                        if (!XamlReader.trySetProperty(containerObject, propertyName, this.resolveNameSpace(att.namespaceURI), att.value))
-                            if (containerObject["addExtentedProperty"] != null)
-                                containerObject["addExtentedProperty"](propertyName, att.value);//if no property with right name put it in extented properties collection
+                    let att = xamlNode.attributes[i];
+                    let propertyName = att.localName;
+
+                    if (!this.trySetProperty(containerObject, propertyName, this.resolveNameSpace(att.namespaceURI), att.value))
+                        if (containerObject["addExtentedProperty"] != null)
+                            containerObject["addExtentedProperty"](propertyName, att.value);//if no property with right name put it in extented properties collection
                 }
             }
 
-            var children = Enumerable.From(xamlNode.childNodes).Where(_=> _.nodeType == 1);
+            var childrenProperties = Enumerable.From(xamlNode.childNodes).Where(_=> _.nodeType == 1 && _.localName.indexOf(".") > -1);
+
+            childrenProperties.ForEach(childNode => {
+                var indexOfDot = childNode.localName.indexOf(".");
+                if (childNode.localName.substr(0, indexOfDot) == xamlNode.localName) {
+                    let propertyName = childNode.localName.substr(indexOfDot + 1);
+                    let childOfChild = Enumerable.From(childNode.childNodes).FirstOrDefault(null, _=> _.nodeType == 1);
+                    let valueToSet = childOfChild == null ? null : this.Load(childOfChild);
+                    this.trySetProperty(containerObject, propertyName, this.resolveNameSpace(childNode.namespaceURI), valueToSet);
+                }
+            });
+
+            var children = Enumerable.From(xamlNode.childNodes).Where(_=> _.nodeType == 1 && _.localName.indexOf(".") == -1);
 
             if (containerObject["setInnerXaml"] != null) {
                 if (children.Count() > 0)
@@ -135,7 +147,7 @@
             return true;
         }
 
-        private static trySetProperty(obj: any, propertyName: string, propertyNameSpace: string, value: string): boolean {
+        private trySetProperty(obj: any, propertyName: string, propertyNameSpace: string, value: string): boolean {
             //walk up in class hierarchy to find a property with right name
             if (obj == null)
                 return false;
@@ -161,12 +173,17 @@
                 if (depProperty != null) {
                     //ok we have a depProperty and a depObject
                     //test if value is actually a Binding object
-                    var bingingDef = XamlReader.tryParseBinding(value);
+                    var bingingDef = Ext.isString(value) ? XamlReader.tryParseBinding(value) : null;
                     if (bingingDef != null) {
                         //here I should check the source of binding (not yet implemented)
                         //by default if source == DataContext binding just connect to
                         //"DataContext." + original path and source is depObject itself
-                        depObject.bind(depProperty, "DataContext." + bingingDef.path, bingingDef.twoway, depObject);
+                        var converter: IConverter = bingingDef.converter == null ? null : this.instanceLoader.getInstance(bingingDef.converter);
+                        //at moment we'll support only 2 modes:
+                        //1) default -> connect to DataContext
+                        //2) self -> connect to object itself
+                        var bindingPath = bingingDef.source == "self" ? bingingDef.path : "DataContext." + bingingDef.path;
+                        depObject.bind(depProperty, bindingPath, bingingDef.twoway, depObject, converter);
                     }
                     else
                         depObject.setValue(depProperty, value);
@@ -177,7 +194,7 @@
                     return true;
                 }
                 else
-                    return XamlReader.trySetProperty(obj["__proto__"], propertyName, propertyNameSpace, value);
+                    return this.trySetProperty(obj["__proto__"], propertyName, propertyNameSpace, value);
 
             }
 
@@ -202,18 +219,19 @@
             return false;
         }
 
-        private static tryParseBinding(value: string): { path: string, twoway: boolean } {
-            var bindingValue = value.trim();
+        private static tryParseBinding(value: string): { path: string, twoway: boolean, source: string, converter: string; } {
+
+            var bindingValue =  value.trim();
             if (bindingValue.length >= 3 && //again here maybe better a regex
                 bindingValue[0] == '{' &&
                 bindingValue[bindingValue.length-1] == '}') {
 
                 var tokens = bindingValue.substr(1, bindingValue.length-2).split(",");
                 var path = tokens[0]; //ex. '.' or 'Name'
-                var twoway = tokens.length > 1 ? (tokens[1] == "twoway" || tokens[1] == "<>") : false;
+                var twoway = tokens.length > 1 ? (tokens[1] == "twoway") : false;
                 var source = tokens.length > 2 ? tokens[2] : null; //todo convert to source=>self, element etc
-
-                return { path: path, twoway: twoway };
+                var converter = tokens.length > 3 ? tokens[3] : null; //converter (typename)to use when updating the target
+                return { path: path, twoway: twoway, source: source, converter: converter };
             }
 
             return null;
