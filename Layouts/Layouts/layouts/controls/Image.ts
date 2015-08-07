@@ -69,7 +69,10 @@ module layouts.controls {
         attachVisualOverride(elementContainer: HTMLElement) {
             this._visual = this._imgElement = document.createElement("img");
 
-            this._imgElement.onload = (ev) => this.invalidateMeasure();
+            this._imgElement.onload = (ev) => {
+                this._imgElement.onload = null;
+                this.invalidateMeasure();
+            }
 
             super.attachVisualOverride(elementContainer);
         }

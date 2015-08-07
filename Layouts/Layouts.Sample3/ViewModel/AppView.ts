@@ -5,12 +5,12 @@ class AppView {
 
     public static get PAGE_DEFINITION(): string {
         return `<?xml version="1.0" encoding="utf-8" ?>
-<Page xmlns:localViews="Layouts.Sample3">  
+<Page xmlns:localViews="Layouts.Sample3">
   <Grid Rows="48 *" Columns="Auto *">
     <Border id="leftSideLogo" IsVisible="{isMenuVisible}"/>
 
     <!-- Header -->
-    <Border id="header" Grid.Column="1">
+    <Border id="header" Grid.ColumnSpan="2">
         <!-- Logo Area -->
         <Image Command="{toggleMenuCommand}" class="headerButton" Source="Images/Menu-32.png" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="4"/>
     </Border>
@@ -28,6 +28,7 @@ class AppView {
   </Grid>
 </Page>`;
     }
+
 
 
     static getMainPage(): layouts.controls.Page {

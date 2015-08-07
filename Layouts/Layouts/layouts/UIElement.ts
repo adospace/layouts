@@ -69,6 +69,7 @@ module layouts {
 
             if (!this.isVisible) {
                 this.desideredSize = new Size();
+                this.measureDirty = false;
                 return;
             }
 
@@ -219,6 +220,7 @@ module layouts {
             if (command != null && command.canExecute(commandParameter)) {
                 command.execute(commandParameter);
                 this.onCommandCanExecuteChanged(command);
+                ev.stopPropagation();
             }
         }
 
@@ -304,10 +306,9 @@ module layouts {
                 this.measureDirty = true;
                 this.arrangeDirty = true;
                 this.layoutInvalid = true;
+                if (this._parent != null)
+                    this._parent.invalidateMeasure();
             }
-
-            if (this._parent != null)
-                this._parent.invalidateMeasure();
         }
 
         private arrangeDirty: boolean = true;
@@ -365,6 +366,8 @@ module layouts {
                     if (newParent._logicalChildren == null)
                         newParent._logicalChildren = new Array<UIElement>();
                     newParent._logicalChildren.push(this);
+                    if (this.measureDirty)
+                        this._parent.invalidateMeasure();
                 }
 
                 this.notifyInheritsPropertiesChange();

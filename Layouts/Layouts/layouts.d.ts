@@ -526,6 +526,11 @@ declare module layouts.controls {
         static setColumnSpan(target: DepObject, value: number): void;
     }
 }
+declare module layouts {
+    interface IComparer {
+        compare(x: any, y: any): number;
+    }
+}
 declare module layouts.controls {
     enum Stretch {
         None = 0,

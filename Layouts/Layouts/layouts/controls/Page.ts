@@ -30,7 +30,6 @@ module layouts.controls {
             }
         }
 
-
         protected layoutOverride() {
             if (this._child != null)
                 this._child.layout();

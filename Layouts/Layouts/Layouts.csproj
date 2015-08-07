@@ -28,6 +28,7 @@
     <TypeScriptCompile Include="layouts\controls\ControlTemplate.ts" />
     <TypeScriptCompile Include="layouts\controls\Frame.ts" />
     <TypeScriptCompile Include="layouts\controls\Grid.ts" />
+    <TypeScriptCompile Include="layouts\controls\Grid2.ts" />
     <TypeScriptCompile Include="layouts\controls\Image.ts" />
     <TypeScriptCompile Include="layouts\controls\NativeElements.ts" />
     <TypeScriptCompile Include="layouts\controls\ItemsControl.ts" />
@@ -44,6 +45,7 @@
     <TypeScriptCompile Include="layouts\Extensions.ts" />
     <TypeScriptCompile Include="layouts\FrameworkElement.ts" />
     <TypeScriptCompile Include="layouts\Command.ts" />
+    <TypeScriptCompile Include="layouts\IComparer.ts" />
     <TypeScriptCompile Include="layouts\IConverter.ts" />
     <TypeScriptCompile Include="layouts\INotifyCollectionChanged.ts" />
     <TypeScriptCompile Include="layouts\ISupport.ts" />

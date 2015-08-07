@@ -127,17 +127,25 @@ module layouts.controls {
             this._desHeight = newValue.minMax(this.row.minHeight, this.row.maxHeight)
         }
 
-        _isAuto: boolean;
+        private _finalHeight: number = 0;
+        get finalHeight(): number {
+            return this._finalHeight;
+        }
+        set finalHeight(newValue: number) {
+            this._finalHeight = newValue.minMax(this.row.minHeight, this.row.maxHeight)
+        }
+
+        private _isAuto: boolean;
         get isAuto(): boolean {
             return this._isAuto;
         }
 
-        _isStar: boolean;
+        private _isStar: boolean;
         get isStar(): boolean {
             return this._isStar;
         }
 
-        _isFixed: boolean;
+        private _isFixed: boolean;
         get isFixed(): boolean {
             return this._isFixed;
         }
@@ -159,17 +167,25 @@ module layouts.controls {
             this._desWidth = newValue.minMax(this.column.minWidth, this.column.maxWidth)
         }
 
-        _isAuto: boolean;
+        private _finalWidth: number = 0;
+        get finalWidth(): number {
+            return this._finalWidth;
+        }
+        set finalWidth(newValue: number) {
+            this._finalWidth = newValue.minMax(this.column.minWidth, this.column.maxWidth)
+        }
+
+        private _isAuto: boolean;
         get isAuto(): boolean {
             return this._isAuto;
         }
 
-        _isStar: boolean;
+        private _isStar: boolean;
         get isStar(): boolean {
             return this._isStar;
         }
 
-        _isFixed: boolean;
+        private _isFixed: boolean;
         get isFixed(): boolean {
             return this._isFixed;
         }
@@ -275,12 +291,14 @@ module layouts.controls {
 
                 this.elementDefs[iElement] = new ElementDef(child, elRow, elColumn, elRowSpan, elColumnSpan);
 
-                //if (elRowSpan == 1)
-                for (var row = elRow; row < elRow + elRowSpan; row++)
-                    this.rowDefs[row].elements.push(this.elementDefs[iElement]);
-                //if (elColumnSpan == 1)
-                for (var col = elColumn; col < elColumn + elColumnSpan; col++)
-                    this.columnDefs[col].elements.push(this.elementDefs[iElement]);
+                if (elRowSpan == 1) {
+                    for (var row = elRow; row < elRow + elRowSpan; row++)
+                        this.rowDefs[row].elements.push(this.elementDefs[iElement]);
+                }
+                if (elColumnSpan == 1) {
+                    for (var col = elColumn; col < elColumn + elColumnSpan; col++)
+                        this.columnDefs[col].elements.push(this.elementDefs[iElement]);
+                }
             }
 
             //measure children full contained auto and fixed size in any row/column (exclude only children that are fully contained in star w/h cells)
@@ -385,47 +403,58 @@ module layouts.controls {
             });
 
             //than adjust width and height to fit children that spans over columns or rows containing auto rows or auto columns
-            //for (var iElement = 0; iElement < this.elementDefs.length; iElement++) {
-            //    var elementDef = this.elementDefs[iElement];
-            //    if (elementDef.rowSpan > 1) {
-            //        var concatHeight = 0; this.elementDefs.slice(elementDef.row, elementDef.row + elementDef.rowSpan).forEach((el) => concatHeight += el.desHeight);
-            //        if (concatHeight < elementDef.desHeight) {
-            //            var diff = elementDef.desHeight - concatHeight;
-            //            var autoRows = this.rowDefs.filter(r=> r.isAuto);
-            //            if (autoRows.length > 0) {
-            //                autoRows.forEach(c=> c.desHeight += diff / autoRows.length);
-            //            }
-            //            else {
-            //                var starRows = this.rowDefs.filter(r=> r.isStar);
-            //                if (starRows.length > 0) {
-            //                    starRows.forEach(c=> c.desHeight += diff / autoColumns.length);
-            //                }
-            //            }
-            //        }
-            //        else if (concatHeight > elementDef.desHeight) {
-            //            elementDef.cellTopOffset = (concatHeight - elementDef.desHeight) / 2;
-            //        }
-            //    }
-            //    if (elementDef.columnSpan > 1) {
-            //        var concatWidth = 0; this.elementDefs.slice(elementDef.column, elementDef.column + elementDef.columnSpan).forEach((el) => concatWidth += el.desWidth);
-            //        if (concatWidth < elementDef.desWidth) {
-            //            var diff = elementDef.desWidth - concatWidth;
-            //            var autoColumns = this.columnDefs.filter(c=> c.isAuto);
-            //            if (autoColumns.length > 0) {
-            //                autoColumns.forEach(c=> c.desWidth += diff / autoColumns.length);
-            //            }
-            //            else {
-            //                var starColumns = this.columnDefs.filter(c=> c.isStar);
-            //                if (starColumns.length > 0) {
-            //                    starColumns.forEach(c=> c.desWidth += diff / autoColumns.length);
-            //                }
-            //            }                    
-            //        }
-            //        else if (concatWidth > elementDef.desWidth) {
-            //            elementDef.cellLeftOffset = (concatWidth - elementDef.desWidth) / 2;
-            //        }
-            //    }
-            //}
+            for (var iElement = 0; iElement < this.elementDefs.length; iElement++) {
+                var elementDef = this.elementDefs[iElement];
+                if (elementDef.rowSpan > 1) {
+                    if (this.rowDefs
+                        .slice(elementDef.row, elementDef.row + elementDef.rowSpan)
+                        .every((v, i, a) => v.isAuto || v.isFixed)) {
+                        var concatHeight = 0;
+                        this.rowDefs.slice(elementDef.row, elementDef.row + elementDef.rowSpan).forEach((el) => concatHeight += el.desHeight);
+
+                        if (concatHeight < elementDef.desHeight) {
+                            var diff = elementDef.desHeight - concatHeight;
+                            var autoRows = this.rowDefs.filter(r=> r.isAuto);
+                            if (autoRows.length > 0) {
+                                autoRows.forEach(c=> c.desHeight += diff / autoRows.length);
+                            }
+                            else {
+                                var starRows = this.rowDefs.filter(r=> r.isStar);
+                                if (starRows.length > 0) {
+                                    starRows.forEach(c=> c.desHeight += diff / autoColumns.length);
+                                }
+                            }
+                        }
+                        else if (concatHeight > elementDef.desHeight) {
+                            elementDef.cellTopOffset = (concatHeight - elementDef.desHeight) / 2;
+                        }
+                    }
+                }
+                if (elementDef.columnSpan > 1) {
+                    if (this.columnDefs
+                        .slice(elementDef.column, elementDef.column + elementDef.columnSpan)
+                        .every((v, i, a) => v.isAuto || v.isFixed)) {
+                        var concatWidth = 0;
+                        this.columnDefs.slice(elementDef.column, elementDef.column + elementDef.columnSpan).forEach((el) => concatWidth += el.desWidth);
+                        if (concatWidth < elementDef.desWidth) {
+                            var diff = elementDef.desWidth - concatWidth;
+                            var autoColumns = this.columnDefs.filter(c=> c.isAuto);
+                            if (autoColumns.length > 0) {
+                                autoColumns.forEach(c=> c.desWidth += diff / autoColumns.length);
+                            }
+                            else {
+                                var starColumns = this.columnDefs.filter(c=> c.isStar);
+                                if (starColumns.length > 0) {
+                                    starColumns.forEach(c=> c.desWidth += diff / autoColumns.length);
+                                }
+                            }
+                        }
+                        else if (concatWidth > elementDef.desWidth) {
+                            elementDef.cellLeftOffset = (concatWidth - elementDef.desWidth) / 2;
+                        }
+                    }
+                }
+            }
 
 
             //finally sum up the desidered size
@@ -435,20 +464,53 @@ module layouts.controls {
         }
 
         protected arrangeOverride(finalSize: Size): Size {
+            //if finalSize != this.desideredSize we have to
+            //to correct row/column with star values to take extra space or viceversa
+            //remove space no more available from measure pass
+            var xDiff = finalSize.width - this.desideredSize.width;
+            var yDiff = finalSize.height - this.desideredSize.height;
+
+            //rd.isStar/cd.isStar take in count also sizeToContent stuff
+            //we need here only to know if column is star or not
+            //this why we are using rd.row.height.isStar or cd.column.width.isStar
+            var starRowCount = 0;
+            this.rowDefs.forEach(rd=> {
+                if (rd.row.height.isStar)
+                    starRowCount++;
+            });
+            var starColumnCount = 0;
+            this.columnDefs.forEach(cd=> {
+                if (cd.column.width.isStar)
+                    starColumnCount++;
+            });
+
+            this.rowDefs.forEach(rd=> {
+                //rd.isStar takes in count also sizeToContent stuff
+                //we need here only to know if column is star or not
+                if (rd.row.height.isStar)
+                    rd.finalHeight = rd.desHeight + yDiff / starRowCount;
+                else
+                    rd.finalHeight = rd.desHeight;
+            });
+
+            this.columnDefs.forEach(cd=> {
+                if (cd.column.width.isStar)
+                    cd.finalWidth = cd.desWidth + xDiff / starColumnCount;
+                else
+                    cd.finalWidth = cd.desWidth;
+            });
 
             this.elementDefs.forEach(el => {
-                var finalLeft = 0; this.columnDefs.slice(0, el.column).forEach(c => finalLeft += c.desWidth);
-                var finalWidth = 0; this.columnDefs.slice(el.column, el.column + el.columnSpan).forEach(c => finalWidth += c.desWidth);
-                finalWidth -= (el.cellLeftOffset * 2);
+                let finalLeft = 0; this.columnDefs.slice(0, el.column).forEach(c => finalLeft += c.finalWidth );
+                let finalWidth = 0; this.columnDefs.slice(el.column, el.column + el.columnSpan).forEach(c => finalWidth += c.finalWidth );
+                finalWidth -= (el.cellLeftOffset * 2) ;
 
-                var finalTop = 0; this.rowDefs.slice(0, el.row).forEach(c => finalTop += c.desHeight);
-                var finalHeight = 0; this.rowDefs.slice(el.row, el.row + el.rowSpan).forEach(r => finalHeight += r.desHeight);
-                finalHeight += (el.cellTopOffset * 2);
+                let finalTop = 0; this.rowDefs.slice(0, el.row).forEach(c => finalTop += c.finalHeight );
+                let finalHeight = 0; this.rowDefs.slice(el.row, el.row + el.rowSpan).forEach(r => finalHeight += r.finalHeight );
+                finalHeight += (el.cellTopOffset * 2) ;
 
                 el.element.arrange(new Rect(finalLeft + el.cellLeftOffset, finalTop + el.cellTopOffset, finalWidth, finalHeight));
             });
-
-
 
             return finalSize;
         }   
