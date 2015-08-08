@@ -52,4 +52,19 @@ class ArticleViewModel extends layouts.DepObject {
     onOpenArticle(article: ArticleViewModel) {
         this.appViewModel.openArticle(this);
     }
+
+
+    private _closeArticleCommand: layouts.Command;
+    get closeArticleCommand(): layouts.Command {
+        if (this._closeArticleCommand == null)
+            this._closeArticleCommand = new layouts.Command((cmd, p) => this.onCloseArticle(p), (cmd, p) => true);
+        return this._closeArticleCommand;
+    }
+
+    onCloseArticle(article: ArticleViewModel) {
+        this.appViewModel.closeArticle(this);
+    }
+
+
+
 }  

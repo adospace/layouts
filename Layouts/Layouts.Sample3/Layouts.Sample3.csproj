@@ -25,6 +25,7 @@
     <Content Include="Images\Search-32.png" />
     <Content Include="index.html" />
     <Content Include="packages.config" />
+    <None Include="Sample3.pubxml" />
     <None Include="Scripts\linq-vsdoc.js" />
     <Content Include="Scripts\linq.js" />
     <Content Include="Scripts\linq.min.js" />
@@ -179,8 +180,9 @@
     <TypeScriptOutFile>Layouts.Sample3.js</TypeScriptOutFile>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)' == 'Release'">
-    <TypeScriptRemoveComments>true</TypeScriptRemoveComments>
+    <TypeScriptRemoveComments>True</TypeScriptRemoveComments>
     <TypeScriptSourceMap>false</TypeScriptSourceMap>
+    <TypeScriptOutFile>Layouts.Sample3.js</TypeScriptOutFile>
   </PropertyGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.targets" Condition="Exists('$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.targets')" />
 </Project>

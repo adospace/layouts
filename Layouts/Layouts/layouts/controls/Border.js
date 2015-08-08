@@ -75,23 +75,17 @@ var layouts;
             };
             Border.prototype.measureOverride = function (constraint) {
                 var mySize = new layouts.Size();
-                // Compute the chrome size added by the various elements
                 var border = new layouts.Size(this.borderThickness.left + this.borderThickness.right, this.borderThickness.top + this.borderThickness.bottom);
                 var padding = new layouts.Size(this.padding.left + this.padding.right, this.padding.top + this.padding.bottom);
-                //If we have a child
                 if (this._child != null) {
-                    // Combine into total decorating size
                     var combined = new layouts.Size(border.width + padding.width, border.height + padding.height);
-                    // Remove size of border only from child's reference size.
                     var childConstraint = new layouts.Size(Math.max(0.0, constraint.width - combined.width), Math.max(0.0, constraint.height - combined.height));
                     this._child.measure(childConstraint);
                     var childSize = this._child.desideredSize;
-                    // Now use the returned size to drive our size, by adding back the margins, etc.
                     mySize.width = childSize.width + combined.width;
                     mySize.height = childSize.height + combined.height;
                 }
                 else {
-                    // Combine into total decorating size
                     mySize = new layouts.Size(border.width + padding.width, border.height + padding.height);
                 }
                 return mySize;
@@ -101,7 +95,6 @@ var layouts;
                 var boundRect = new layouts.Rect(0, 0, finalSize.width, finalSize.height);
                 var innerRect = new layouts.Rect(boundRect.x + borders.left, boundRect.y + borders.top, Math.max(0.0, boundRect.width - borders.left - borders.right), Math.max(0.0, boundRect.height - borders.top - borders.bottom));
                 var borderBrush = this.borderBrush;
-                //  arrange child
                 var child = this._child;
                 var padding = this.padding;
                 if (child != null) {
@@ -159,8 +152,8 @@ var layouts;
                 configurable: true
             });
             Border.typeName = "layouts.controls.Border";
-            Border.borderThicknessProperty = layouts.DepObject.registerProperty(Border.typeName, "BorderThickness", new layouts.Thickness(), layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender);
-            Border.paddingProperty = layouts.DepObject.registerProperty(Border.typeName, "Padding", new layouts.Thickness(), layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender);
+            Border.borderThicknessProperty = layouts.DepObject.registerProperty(Border.typeName, "BorderThickness", new layouts.Thickness(), layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender, function (v) { return layouts.Thickness.fromString(v); });
+            Border.paddingProperty = layouts.DepObject.registerProperty(Border.typeName, "Padding", new layouts.Thickness(), layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender, function (v) { return layouts.Thickness.fromString(v); });
             Border.backgroundProperty = layouts.DepObject.registerProperty(Border.typeName, "Background", null, layouts.FrameworkPropertyMetadataOptions.AffectsRender);
             Border.borderBrushProperty = layouts.DepObject.registerProperty(Border.typeName, "BorderBrush", null, layouts.FrameworkPropertyMetadataOptions.AffectsRender);
             return Border;
@@ -168,4 +161,3 @@ var layouts;
         controls.Border = Border;
     })(controls = layouts.controls || (layouts.controls = {}));
 })(layouts || (layouts = {}));
-//# sourceMappingURL=Border.js.map

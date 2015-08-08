@@ -50,11 +50,22 @@ class AppViewModel extends layouts.DepObject {
     }
 
     openArticle(article: ArticleViewModel) {
-        if (this._articles.elements.indexOf(article) == -1)
-            this._articles.add(article);
+        if (article != null) {
+            if (this._articles.elements.indexOf(article) == -1)
+                this._articles.add(article);
+        }
         this.selectedArticle = article;
     }
-    
+
+    closeArticle(article: ArticleViewModel) {
+        var indexOfArticle = this._articles.elements.indexOf(article);
+        this._articles.remove(article);
+        if (indexOfArticle == this._articles.count)
+            indexOfArticle--;
+
+        this.openArticle(indexOfArticle == -1 ? null : this._articles.at(indexOfArticle));
+    }
+        
     private _toggleMenuCommand: layouts.Command;
     get toggleMenuCommand(): layouts.Command {
         if (this._toggleMenuCommand == null)

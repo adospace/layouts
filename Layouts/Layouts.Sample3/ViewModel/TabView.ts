@@ -13,9 +13,10 @@ class TabView extends layouts.controls.UserControl {
             <Stack Orientation="Horizontal"/>
         </ItemsControl.ItemsPanel>
         <DataTemplate>
-            <Border class="{isSelected,oneway,detaContext,ArticleClassConverter}" Command="{openArticleCommand}" Margin="0,2">
+            <Grid Columns="* Auto" class="{isSelected,oneway,detaContext,ArticleClassConverter}" Command="{openArticleCommand}" Margin="0,2">
                 <TextBlock Text="{title}" VerticalAlignment="Center" Margin="8"/>
-            </Border>
+                <Image Source="Images/Delete Sign-32.png" Grid.Column="1" IsVisible="{isSelected}" Command="{closeArticleCommand}" Margin="4,8,8,8"/>
+            </Grid>
         </DataTemplate>
     </ItemsControl>
     <ContentTemplate Content="{selectedArticle}" Grid.Row="1">

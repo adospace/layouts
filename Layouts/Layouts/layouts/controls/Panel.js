@@ -16,7 +16,6 @@ var layouts;
             __extends(Panel, _super);
             function Panel() {
                 _super.apply(this, arguments);
-                //virtual items
                 this.virtualItemCount = 0;
                 this.virtualOffset = null;
             }
@@ -27,12 +26,15 @@ var layouts;
                 enumerable: true,
                 configurable: true
             });
+            Panel.prototype.attachVisualOverride = function (elementContainer) {
+                var _this = this;
+                this._visual = this._divElement = document.createElement("div");
+                if (this.children != null)
+                    this.children.forEach(function (child) { return child.attachVisual(_this._divElement); });
+                _super.prototype.attachVisualOverride.call(this, elementContainer);
+            };
             Object.defineProperty(Panel.prototype, "children", {
                 get: function () {
-                    //if (this._children == null) {
-                    //    this._children = new ObservableCollection<UIElement>();
-                    //    this._children.on(this.childrenCollectionChanged);
-                    //}
                     return this._children;
                 },
                 set: function (value) {
@@ -40,26 +42,21 @@ var layouts;
                     if (value == this._children)
                         return;
                     if (this._children != null) {
-                        //reset parent on all children
                         this._children.forEach(function (el) {
                             if (el.parent == _this)
                                 el.parent = null;
                         });
-                        //remove handler so that resource can be disposed
                         this._children.offChangeNotify(this);
                     }
                     this._children = value;
                     if (this._children != null) {
-                        //attach new children here
                         this._children.forEach(function (el) {
                             if (el.parent != null) {
-                                //if already child of a different parent throw error
-                                //in future investigate if it can be removed from container automatically
                                 throw new Error("Element already child of another element, please remove it first from previous container");
                             }
                             el.parent = _this;
-                            if (_this._divElement != null)
-                                el.attachVisual(_this._divElement);
+                            if (_this._visual != null)
+                                el.attachVisual(_this._visual);
                         });
                         this._children.onChangeNotify(this);
                     }
@@ -80,8 +77,8 @@ var layouts;
                 added.forEach(function (el) {
                     var element = el;
                     element.parent = _this;
-                    if (_this._divElement != null)
-                        element.attachVisual(_this._divElement);
+                    if (_this._visual != null)
+                        element.attachVisual(_this._visual);
                 });
                 this.invalidateMeasure();
             };
@@ -92,13 +89,6 @@ var layouts;
                     this._visual.style.background = background;
                 if (this._children != null)
                     this._children.forEach(function (child) { return child.layout(); });
-            };
-            Panel.prototype.attachVisualOverride = function (elementContainer) {
-                var _this = this;
-                this._visual = this._divElement = document.createElement("div");
-                if (this._children != null)
-                    this._children.forEach(function (child) { return child.attachVisual(_this._divElement); });
-                _super.prototype.attachVisualOverride.call(this, elementContainer);
             };
             Object.defineProperty(Panel.prototype, "background", {
                 get: function () {
@@ -117,4 +107,3 @@ var layouts;
         controls.Panel = Panel;
     })(controls = layouts.controls || (layouts.controls = {}));
 })(layouts || (layouts = {}));
-//# sourceMappingURL=Panel.js.map
