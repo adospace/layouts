@@ -77,7 +77,7 @@ module layouts {
 
         private unclippedDesiredSize: Size;
         //private needClipBounds: boolean;
-        protected visualOffset: Vector = new Vector();
+        protected visualOffset: Vector = null;
 
         protected measureCore(availableSize: Size): Size {
             var margin = this.margin;
@@ -211,10 +211,11 @@ module layouts {
             offset.y += finalRect.y + margin.top;
 
             var oldOffset = this.visualOffset;
-            if (!oldOffset.x.isCloseTo(offset.x) ||
-                !oldOffset.y.isCloseTo(offset.y)) {
+            if (oldOffset == null ||
+                (!oldOffset.x.isCloseTo(offset.x) || !oldOffset.y.isCloseTo(offset.y))
+                )
                 this.visualOffset = offset;
-            }
+            
         }
 
         private computeAlignmentOffset(clientSize: Size, inkSize: Size) : Vector {
@@ -274,8 +275,10 @@ module layouts {
                 this._visual.style.visibility = this.isVisible ? "visible" : "collapsed";
                 this._visual.style.overflowX = this.overflowX;
                 this._visual.style.overflowY = this.overflowY;
-                this._visual.style.top = this.visualOffset.y.toString() + "px";
-                this._visual.style.left = this.visualOffset.x.toString() + "px";
+                if (this.visualOffset != null) {
+                    this._visual.style.top = this.visualOffset.y.toString() + "px";
+                    this._visual.style.left = this.visualOffset.x.toString() + "px";
+                }
                 if (this.renderSize != null) {
                     //when an element starts hidden renderSize is not available
                     this._visual.style.width = this.renderSize.width.toString() + "px";

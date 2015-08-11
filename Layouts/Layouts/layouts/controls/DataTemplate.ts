@@ -21,7 +21,11 @@
         }
 
         createElement(): UIElement {
-            return this._xamlLoader.Parse(this._innerXaml);
+            var reader = this._xamlLoader;
+            if (reader == null)
+                reader = new XamlReader();
+
+            return reader.Parse(this._innerXaml);
         }
     }
 

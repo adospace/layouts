@@ -237,14 +237,17 @@ module layouts {
         }
 
         private attachShource(): void {
-            if (this.sourceProperty == null)
-                this.source.subscribePropertyChanges(this);
+            if (this.sourceProperty == null) {
+                if (this.source.subscribePropertyChanges != null)
+                    this.source.subscribePropertyChanges(this);
+            }
             else
                 this.source.subscribeDependencyPropertyChanges(this);
         }
 
         private detachSource(): void {
-            this.source.unsubscribePropertyChanges(this);
+            if (this.source.unsubscribePropertyChanges != null)
+                this.source.unsubscribePropertyChanges(this);
             this.source.unsubscribeDependencyPropertyChanges(this);
         }
 

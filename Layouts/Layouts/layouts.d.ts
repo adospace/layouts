@@ -135,7 +135,7 @@ declare module layouts {
         layout(relativeOffset?: Vector): void;
         protected layoutOverride(): void;
         protected _visual: HTMLElement;
-        attachVisual(elementContainer: HTMLElement): void;
+        attachVisual(elementContainer: HTMLElement, showImmediately?: boolean): void;
         protected attachVisualOverride(elementContainer: HTMLElement): void;
         onClick(ev: MouseEvent): void;
         protected visualConnected(elementContainer: HTMLElement): void;

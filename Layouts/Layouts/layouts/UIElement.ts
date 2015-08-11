@@ -152,7 +152,7 @@ module layouts {
 
         ///Attach page visual tree (attach to null to remove it from DOM)
         protected _visual: HTMLElement;
-        attachVisual(elementContainer: HTMLElement): void {
+        attachVisual(elementContainer: HTMLElement, showImmediately:boolean = false): void {
 
             //1. if a visual is not yet create and we have a container
             //try create it now
@@ -182,7 +182,9 @@ module layouts {
                     //NOTE: we use CSS visibility instead of hidden property because with former
                     //element size is still valid 
                     //http://stackoverflow.com/questions/2345784/jquery-get-height-of-hidden-element-in-jquery
-                    this._visual.style.visibility = "hidden";
+                    if (!showImmediately)
+                        this._visual.style.visibility = "hidden";
+                    
                     elementContainer.appendChild(this._visual);
                     this.visualConnected(elementContainer);
                 }
@@ -231,8 +233,6 @@ module layouts {
         protected visualDisconnected(elementContainer: HTMLElement): void {
 
         }
-
-
 
         protected onDependencyPropertyChanged(property: DepProperty, value: any, oldValue: any) {
             //probably this checks as well as relative properties are to be moved down to FrameworkElement
