@@ -1,4 +1,6 @@
-﻿
+﻿/// <reference path="..\Scripts\typings\jquery.dataTables\jquery.dataTables-1.9.4.d.ts" /> 
+
+
 module layouts.controls {
     export class GridViewColumn extends DepObject {
         static typeName: string = "app.GridViewColumn";
@@ -50,15 +52,7 @@ module layouts.controls {
 
         //cell template property
         private _cellTemplate: DataTemplate;
-        //private static _defaultCellTemplate: DataTemplate;
         get cellTemplate(): DataTemplate {
-            //if (this._cellTemplate == null) {
-            //    if (GridViewColumn._defaultCellTemplate == null) {
-            //        GridViewColumn._defaultCellTemplate = new DataTemplate();
-            //        GridViewColumn._defaultCellTemplate.setInnerXaml("<TextBlock Text='{{0}}'/>".format(this.name));
-            //    }
-            //    return GridViewColumn._defaultCellTemplate;
-            //}
             return this._cellTemplate;
         }
         set cellTemplate(value: DataTemplate) {
@@ -70,50 +64,16 @@ module layouts.controls {
         }
     }
 
-    class GridViewHeader extends DepObject {
-        static typeName: string = "app.GridViewHeader";
-        get typeName(): string {
-            return GridViewHeader.typeName;
-        }
-
-        constructor(public column: GridViewColumn, public element: HTMLDivElement) {
-            super();
-        }
-
-    }
-
     export class GridView extends FrameworkElement implements ISupportCollectionChanged {
         static typeName: string = "app.GridView";
         get typeName(): string {
             return GridView.typeName;
         }
 
-        private _divElement: HTMLDivElement;
-        private _header: Stack;
-        private _tableElement: HTMLTableElement;
-        private _tableContainerElement: HTMLDivElement;
-        private _footer: Stack;
 
         attachVisualOverride(elementContainer: HTMLElement) {
             //this is the div that will contain the table
-            this._visual = this._divElement = document.createElement("div");
-
-            //this is the header columns stack
-            this._header = new Stack();
-            this._header.orientation = Orientation.Horizontal;
-            this._header.parent = this;
-            this._header.attachVisual(this._visual);
-
-            //this is the container of table element
-            this._tableContainerElement = document.createElement("div");
-            this._tableContainerElement.style.overflow = "auto";
-            this._tableContainerElement.style.position = "absolute";
-            this._visual.appendChild(this._tableContainerElement);
-
-            //this is the footer element
-            this._footer = new Stack();
-            this._footer.parent = this;
-            this._footer.attachVisual(this._visual);
+            this._visual = this._tableContainer = document.createElement("div");
 
             super.attachVisualOverride(elementContainer);
         }
@@ -122,44 +82,61 @@ module layouts.controls {
 
         }
    
-        private _headers: UIElement[] = [];
+        private _tableContainer: HTMLDivElement;
+        private _tableElement: HTMLTableElement;
+        private _tableHeader: HTMLTableSectionElement;
+        private _tableHeaderRow: HTMLTableRowElement;
+        private _dataTable: DataTables.DataTable;
+
         private _customCells: UIElement[] = [];
         setupTable() {
             if (this.rowsSource == null || this.rowsSource.count == 0 ||
                 this.columns == null || this.columns.count == 0)
                 return;
 
-            //setup headers
-            var columnHeaderTemplate = this.headerTemplate;
-            if (columnHeaderTemplate == null) {
-                columnHeaderTemplate = new DataTemplate();
-                columnHeaderTemplate.setInnerXaml("<TextBlock Text='{title}'/>");
+            //clear table
+            if (this._tableElement != null) {
+                this._tableContainer.removeChild(this._tableElement);
+                this._tableElement = null;
             }
-            this._headers = [];
-            this.columns.forEach(c=> {
-                var headerTemplate = c.headerTemplate == null ? columnHeaderTemplate : c.headerTemplate;
-                var columnHeader = headerTemplate.createElement();
-                columnHeader.setValue(FrameworkElement.dataContextProperty, c);
-                this._headers.push(columnHeader);
-            });
 
-            this._header.children = new ObservableCollection<UIElement>(this._headers);
+            this._tableElement = document.createElement("table");
+            this._tableElement.className = "display nowrap";
+            this._tableElement.cellSpacing = "0";
+            //this._tableElement.width = "100%";
 
             //setup table
-            //this is the table itself
-            if (this._tableElement != null) {
-                this._tableContainerElement.removeChild(this._tableElement);
-            }
-            this._tableElement = document.createElement("table");
-            this._tableContainerElement.appendChild(this._tableElement);
-            
+
+            //setup headers
+            var columnHeaderTemplate = this.headerTemplate;
+            this._tableHeader = document.createElement("thead");
+            this._tableHeaderRow = document.createElement("tr");
+
+            this.columns.forEach(c=> {
+                let headerCell = document.createElement("th");
+                var headerTemplate = c.headerTemplate == null ? columnHeaderTemplate : c.headerTemplate;
+                if (headerTemplate != null) {
+                    var columnHeader = headerTemplate.createElement();
+                    columnHeader.setValue(FrameworkElement.dataContextProperty, c);
+                    columnHeader.parent = this;
+                    columnHeader.attachVisual(headerCell);
+                }
+                else {
+                    headerCell.innerHTML = c.title;
+                }
+                this._tableHeaderRow.appendChild(headerCell);
+            });
+
+            this._tableHeader.appendChild(this._tableHeaderRow);
+            this._tableElement.appendChild(this._tableHeader);
+
+          
             //the body
             var tbody = document.createElement("tbody");
             this._customCells = [];
             var rowHeight = this.rowHeight;
             this.rowsSource.forEach(row=> {
                 let trow = document.createElement("tr");
-                trow.style.height = rowHeight + "px";
                 this.columns.forEach(c=> {
                     let td = document.createElement("td");
                     let cellTemplate = c.cellTemplate;
@@ -179,51 +156,30 @@ module layouts.controls {
             });
             this._tableElement.appendChild(tbody);
 
-            //footer todo
+            this._tableContainer.appendChild(this._tableElement);
+
+
+            this._dataTable = $(this._tableElement).dataTable({ scrollX: true});
+            
         }
 
         protected measureOverride(constraint: Size): Size {
-            
-            this._header.measure(new Size(Infinity, Infinity));
-            this._footer.measure(new Size(Infinity, Infinity));
 
-            if (this._customCells != null)
-                this._customCells.forEach(cc=> cc.measure(constraint));//todo measure with column settinsg (auto/fixed/star)
-
-            return new Size(this._header.desideredSize.width, this._header.desideredSize.height);
+            return new Size();
         }
 
         protected arrangeOverride(finalSize: Size): Size {
 
-            this._header.arrange(new Rect(0, 0, finalSize.width, Math.min(finalSize.height, this._header.desideredSize.height)));
-
-            var tableHeight = Math.max(0, finalSize.height - this._header.actualHeight);
-
-            this._tableContainerElement.style.top = this._header.actualHeight + "px";
-            this._tableContainerElement.style.width = finalSize.width + "px";
-            this._tableContainerElement.style.height = finalSize.height + "px";
-
             if (this._tableElement != null) {
-                this._tableElement.style.height = (this.rowsSource != null ? this.rowsSource.count * this.rowHeight : 0) + "px";
-                this._tableElement.style.width = this._header.desideredSize.width + "px";
+                this._tableContainer.style.height = finalSize.height + "px";
+                this._tableContainer.style.width = finalSize.width + "px";
             }
-
-            var footerMaxHeight = Math.max(0, finalSize.height - this._header.actualHeight - tableHeight);
-            this._footer.arrange(new Rect(0, this._header.actualHeight + tableHeight, Math.min(footerMaxHeight, this._footer.desideredSize.height)));
 
             return finalSize;
         }
 
         layoutOverride() {
             super.layoutOverride();
-
-            if (this._header != null)
-                this._header.layout();
-
-            if (this._footer != null)
-                this._footer.layout();
-
-            this._customCells.forEach(_=> _.layout());
         }
 
         protected onDependencyPropertyChanged(property: DepProperty, value: any, oldValue: any) {
