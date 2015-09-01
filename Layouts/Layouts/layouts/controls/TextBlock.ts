@@ -26,7 +26,7 @@ module layouts.controls {
 
 
         protected measureOverride(constraint: Size): Size {
-            var text = this.text;
+            var text = this.format != null ? this.format.format(this.text) : this.text;
             var mySize = new Size();
             var pElement = this._pElement;
             var txtChanged = (pElement.innerText != text);
@@ -39,7 +39,7 @@ module layouts.controls {
             pElement.style.height = "auto";
             pElement.style.whiteSpace = this.whiteSpace;
             if (txtChanged) {
-                pElement.innerHTML = this.text;
+                pElement.innerHTML = text;
             }
             mySize = new Size(pElement.clientWidth, pElement.clientHeight);
 
@@ -66,5 +66,15 @@ module layouts.controls {
         set whiteSpace(value: string) {
             this.setValue(TextBlock.whiteSpaceProperty, value);
         }
+
+        static formatProperty = DepObject.registerProperty(TextBlock.typeName, "Format", null, FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender, (v) => String(v));
+        get format(): string {
+            return <string>this.getValue(TextBlock.formatProperty);
+        }
+        set format(value: string) {
+            this.setValue(TextBlock.formatProperty, value);
+        }
+
+
     }
 }

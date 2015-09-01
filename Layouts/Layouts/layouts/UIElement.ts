@@ -378,7 +378,7 @@ module layouts {
 
         private notifyInheritsPropertiesChange() {
             for (let propertyName in this.localPropertyValueMap) {
-                var property = this.localPropertyValueMap[propertyName];
+                var property = DepObject.lookupProperty(this, propertyName);
                 var options = property == null ? null : <FrameworkPropertyMetadataOptions>property.options;
                 if (options != null &&
                     (options & FrameworkPropertyMetadataOptions.Inherits) != 0) {

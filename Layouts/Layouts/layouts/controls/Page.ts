@@ -3,6 +3,13 @@
 /// <reference path="..\FrameworkElement.ts" /> 
 
 module layouts.controls {
+    export class NavigationContext {
+        constructor(public previousPage: Page, public previousUri: string, public nextPage: Page, public nextUri: string, public queryString: {}) {
+
+        }
+
+        public cancel: boolean = false;
+    }
 
 
     export class Page extends FrameworkElement {
@@ -64,6 +71,16 @@ module layouts.controls {
         }
         set sizeToContent(value: SizeToContent) {
             this.setValue(Page.sizeToContentProperty, value);
+        }
+
+        //navigation system
+
+        //if cachePage is true navigation system reuse already loaded page
+        public cachePage: boolean = false;
+
+        //onNavigate method is called also for reused/cached pages
+        public onNavigate(context: NavigationContext) {
+
         }
 
 

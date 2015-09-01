@@ -15,7 +15,7 @@ module layouts.controls {
 
             this._visual = this._pElement = document.createElement("input");
 
-            this._pElement.type = "text";
+            this._pElement.type = this.type;
             this._pElement.oninput = (ev) => this.onTextChanged();
             this._pElement.onchange = (ev) => this.onTextChanged();
             this._pElement.onkeypress = (ev) => this.onTextChanged();
@@ -77,7 +77,7 @@ module layouts.controls {
             this.setValue(TextBox.textProperty, value);
         }
 
-        static placeholderProperty = DepObject.registerProperty(TextBox.placeholderProperty, "Placeholder", null, FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender);
+        static placeholderProperty = DepObject.registerProperty(TextBox.typeName, "Placeholder", null, FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender);
         get placeholder(): string {
             return <string>this.getValue(TextBox.placeholderProperty);
         }
@@ -85,5 +85,12 @@ module layouts.controls {
             this.setValue(TextBox.placeholderProperty, value);
         }
 
+        static typeProperty = DepObject.registerProperty(TextBox.typeName, "Type", "text", FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender);
+        get type(): string {
+            return <string>this.getValue(TextBox.typeProperty);
+        }
+        set type(value: string) {
+            this.setValue(TextBox.typeProperty, value);
+        }
     }
 } 
