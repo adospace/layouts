@@ -14,6 +14,8 @@ class SampleRecordModel {
                 columns.forEach(c=> {
                     var gridColumn = new layouts.controls.GridViewColumn();
                     gridColumn.name = c;
+                    if (c == "Name")
+                        gridColumn.width = new layouts.controls.GridLength(0, layouts.controls.GridUnitType.Auto);
                     gridColumns.add(gridColumn);
                 });
                 gridView.columns = gridColumns;                

@@ -47,18 +47,9 @@ module layouts.controls {
             }
         }
 
-
         //cell template property
         private _cellTemplate: DataTemplate;
-        //private static _defaultCellTemplate: DataTemplate;
         get cellTemplate(): DataTemplate {
-            //if (this._cellTemplate == null) {
-            //    if (GridViewColumn._defaultCellTemplate == null) {
-            //        GridViewColumn._defaultCellTemplate = new DataTemplate();
-            //        GridViewColumn._defaultCellTemplate.setInnerXaml("<TextBlock Text='{{0}}'/>".format(this.name));
-            //    }
-            //    return GridViewColumn._defaultCellTemplate;
-            //}
             return this._cellTemplate;
         }
         set cellTemplate(value: DataTemplate) {
@@ -68,19 +59,157 @@ module layouts.controls {
                 this.onPropertyChanged("cellTemplate", value, oldValue);
             }
         }
+
+        //width property
+        private _width: GridLength = new GridLength(1, GridUnitType.Star);
+        get width(): GridLength {
+            return this._width;
+        }
+        set width(value: GridLength) {
+            if (this._width != value) {
+                var oldValue = this._width;
+                this._width = value;
+                this.onPropertyChanged("width", value, oldValue);
+            }
+        }
+
     }
 
-    class GridViewHeader extends DepObject {
+    class GridViewColumnHeader extends DepObject {
+        static typeName: string = "app.GridViewColumnHeader";
+        get typeName(): string {
+            return GridViewColumnHeader.typeName;
+        }
+
+        constructor(public header: GridViewHeader, public column: GridViewColumn, public element: UIElement) {
+            super();
+        }
+
+        computedColumnWidth: number = NaN;
+    }
+
+    class GridViewHeader extends FrameworkElement implements ISupportCollectionChanged {
         static typeName: string = "app.GridViewHeader";
         get typeName(): string {
             return GridViewHeader.typeName;
         }
 
-        constructor(public column: GridViewColumn, public element: HTMLDivElement) {
-            super();
+        private _gridView: GridView;
+        private _headers: GridViewColumnHeader[] = [];
+        get headers(): GridViewColumnHeader[] {
+            return this._headers;
         }
 
-    }
+        constructor(gridView: GridView) {
+            super();
+
+            this._gridView = gridView;
+        }
+
+        setupHeader() {
+            var columnHeaderTemplate = this._gridView.headerTemplate;
+            if (columnHeaderTemplate == null) {
+                columnHeaderTemplate = new DataTemplate();
+                columnHeaderTemplate.setInnerXaml("<TextBlock Text='{title}'/>");
+            }
+            this._gridView.columns.forEach(c=> {
+                var headerTemplate = c.headerTemplate == null ? columnHeaderTemplate : c.headerTemplate;
+                var columnHeader = headerTemplate.createElement();
+                columnHeader.setValue(FrameworkElement.dataContextProperty, c);
+                this._headers.push(new GridViewColumnHeader(this,  c, columnHeader));
+            });
+
+            this._headers.forEach(h=> {
+                h.element.parent = this;
+                h.element.attachVisual(this._visual);
+            });
+        }
+
+        attachVisualOverride(elementContainer: HTMLElement) {
+            //this is the div that will contain the table
+            this._visual = document.createElement("div");
+
+
+            super.attachVisualOverride(elementContainer);
+        }
+
+        protected measureOverride(constraint: Size): Size {
+            var desiredHeight = 0;
+            var totalWidthOfAutoAndFixedColumns = 0;
+            var sumOfStars = 0;
+            this._headers.forEach(h => {
+                if (h.column.width.isFixed)
+                    h.element.measure(new Size(h.column.width.value, Infinity));
+                else if (h.column.width.isAuto || !isFinite(constraint.width)) {
+                    
+                    h.element.measure(new Size(h.computedColumnWidth, Infinity));
+
+                }
+                else if (h.column.width.isStar)
+                    sumOfStars += h.column.width.value;
+
+                totalWidthOfAutoAndFixedColumns += h.element.desideredSize.width;
+                desiredHeight = Math.max(desiredHeight, h.element.desideredSize.height);
+            });
+
+            var totalWidth = totalWidthOfAutoAndFixedColumns;
+            if (isFinite(constraint.width)) {
+                this._headers.forEach(h => {
+                    if (h.column.width.isStar) {
+                        h.element.measure(new Size(Math.max(0, h.column.width.value / sumOfStars * (constraint.width - totalWidthOfAutoAndFixedColumns)), Infinity));
+                        totalWidth += h.element.desideredSize.width;
+                        desiredHeight = Math.max(desiredHeight, h.element.desideredSize.height);
+                    }
+                });
+            }
+
+            return new Size(totalWidth, desiredHeight);
+        }
+
+        protected arrangeOverride(finalSize: Size): Size {
+            var totalWidthOfAutoAndFixedColumns = 0;
+            var sumOfStars = 0;
+
+            this._headers.forEach(h => {
+                if (h.column.width.isFixed)
+                    totalWidthOfAutoAndFixedColumns += h.column.width.value;
+                else if (h.column.width.isAuto)
+                    totalWidthOfAutoAndFixedColumns += h.computedColumnWidth;
+                else if (h.column.width.isStar)
+                    sumOfStars += h.column.width.value;
+            });
+
+
+
+            var totalWidth = totalWidthOfAutoAndFixedColumns;
+            var leftOffset = 0;
+            this._headers.forEach(h => {
+                if (h.column.width.isFixed) {
+                    h.element.arrange(new Rect(leftOffset, 0, h.column.width.value, finalSize.height));
+                }
+                else if (h.column.width.isAuto) {
+                    h.element.arrange(new Rect(leftOffset, 0, h.computedColumnWidth, finalSize.height));
+                }
+                else if (h.column.width.isStar) {
+                    h.element.arrange(new Rect(leftOffset, 0, Math.max(0, h.column.width.value / sumOfStars * (finalSize.width - totalWidthOfAutoAndFixedColumns)), finalSize.width));
+                }
+
+                leftOffset += h.element.renderSize.width;
+            });
+
+            return finalSize;
+        }
+
+        layoutOverride() {
+            super.layoutOverride();
+
+            this._headers.forEach(h=> h.element.layout());
+        }
+
+
+        onCollectionChanged(collection: any, added: any[], removed: any[], startRemoveIndex: number)
+        { }
+   }
 
     export class GridView extends FrameworkElement implements ISupportCollectionChanged {
         static typeName: string = "app.GridView";
@@ -89,18 +218,18 @@ module layouts.controls {
         }
 
         private _divElement: HTMLDivElement;
-        private _header: Stack;
+        private _header: GridViewHeader;
         private _tableElement: HTMLTableElement;
         private _tableContainerElement: HTMLDivElement;
-        private _footer: Stack;
-
+        private _tableFirstRowElement: HTMLTableRowElement;
+        private _tableTHead: HTMLTableHeaderCellElement;
+        
         attachVisualOverride(elementContainer: HTMLElement) {
             //this is the div that will contain the table
             this._visual = this._divElement = document.createElement("div");
 
             //this is the header columns stack
-            this._header = new Stack();
-            this._header.orientation = Orientation.Horizontal;
+            this._header = new GridViewHeader(this);
             this._header.parent = this;
             this._header.attachVisual(this._visual);
 
@@ -110,11 +239,6 @@ module layouts.controls {
             this._tableContainerElement.style.position = "absolute";
             this._visual.appendChild(this._tableContainerElement);
 
-            //this is the footer element
-            this._footer = new Stack();
-            this._footer.parent = this;
-            this._footer.attachVisual(this._visual);
-
             super.attachVisualOverride(elementContainer);
         }
 
@@ -122,7 +246,6 @@ module layouts.controls {
 
         }
    
-        private _headers: UIElement[] = [];
         private _customCells: UIElement[] = [];
         setupTable() {
             if (this.rowsSource == null || this.rowsSource.count == 0 ||
@@ -130,20 +253,7 @@ module layouts.controls {
                 return;
 
             //setup headers
-            var columnHeaderTemplate = this.headerTemplate;
-            if (columnHeaderTemplate == null) {
-                columnHeaderTemplate = new DataTemplate();
-                columnHeaderTemplate.setInnerXaml("<TextBlock Text='{title}'/>");
-            }
-            this._headers = [];
-            this.columns.forEach(c=> {
-                var headerTemplate = c.headerTemplate == null ? columnHeaderTemplate : c.headerTemplate;
-                var columnHeader = headerTemplate.createElement();
-                columnHeader.setValue(FrameworkElement.dataContextProperty, c);
-                this._headers.push(columnHeader);
-            });
-
-            this._header.children = new ObservableCollection<UIElement>(this._headers);
+            this._header.setupHeader();
 
             //setup table
             //this is the table itself
@@ -151,7 +261,19 @@ module layouts.controls {
                 this._tableContainerElement.removeChild(this._tableElement);
             }
             this._tableElement = document.createElement("table");
+            this._tableElement.style.tableLayout = "fixed";
             this._tableContainerElement.appendChild(this._tableElement);
+
+            //thead
+            var thead = this._tableElement.createTHead();
+            this._tableFirstRowElement = document.createElement("tr");
+            this.columns.forEach(c=> {
+                let th = document.createElement("th");
+                this._tableFirstRowElement.appendChild(th);
+            });
+            thead.appendChild(this._tableFirstRowElement);
+            this._tableElement.appendChild(thead);
+
             
             //the body
             var tbody = document.createElement("tbody");
@@ -160,6 +282,7 @@ module layouts.controls {
             this.rowsSource.forEach(row=> {
                 let trow = document.createElement("tr");
                 trow.style.height = rowHeight + "px";
+                trow.style.whiteSpace = "pre";
                 this.columns.forEach(c=> {
                     let td = document.createElement("td");
                     let cellTemplate = c.cellTemplate;
@@ -178,14 +301,21 @@ module layouts.controls {
                 tbody.appendChild(trow);
             });
             this._tableElement.appendChild(tbody);
-
-            //footer todo
         }
 
         protected measureOverride(constraint: Size): Size {
             
+            if (this.columns != null && this._tableFirstRowElement != null) {
+                this.columns.forEach((c,i) => {
+                    if (c.width.isAuto) {
+                        this._header.headers[i].computedColumnWidth =
+                            this._tableFirstRowElement.cells[i].clientWidth;
+                    }
+                });
+            }
+
+
             this._header.measure(new Size(Infinity, Infinity));
-            this._footer.measure(new Size(Infinity, Infinity));
 
             if (this._customCells != null)
                 this._customCells.forEach(cc=> cc.measure(constraint));//todo measure with column settinsg (auto/fixed/star)
@@ -201,7 +331,15 @@ module layouts.controls {
 
             this._tableContainerElement.style.top = this._header.actualHeight + "px";
             this._tableContainerElement.style.width = finalSize.width + "px";
-            this._tableContainerElement.style.height = finalSize.height + "px";
+            this._tableContainerElement.style.height = (finalSize.height - this._header.actualHeight) + "px";
+
+            if (this._tableFirstRowElement != null && this.columns != null) {
+                for (var i = 0; i < this._tableFirstRowElement.children.length; i++) {
+                    var child = <HTMLTableHeaderCellElement>this._tableFirstRowElement.children[i];
+                    if (!this.columns.at(i).width.isAuto)
+                        child.style.width = this._header.headers[i].element.renderSize.width + "px";                    
+                }   
+            }
 
             if (this._tableElement != null) {
                 this._tableElement.style.height = (this.rowsSource != null ? this.rowsSource.count * this.rowHeight : 0) + "px";
@@ -209,7 +347,6 @@ module layouts.controls {
             }
 
             var footerMaxHeight = Math.max(0, finalSize.height - this._header.actualHeight - tableHeight);
-            this._footer.arrange(new Rect(0, this._header.actualHeight + tableHeight, Math.min(footerMaxHeight, this._footer.desideredSize.height)));
 
             return finalSize;
         }
@@ -219,9 +356,6 @@ module layouts.controls {
 
             if (this._header != null)
                 this._header.layout();
-
-            if (this._footer != null)
-                this._footer.layout();
 
             this._customCells.forEach(_=> _.layout());
         }
