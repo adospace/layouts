@@ -271,6 +271,14 @@ declare module layouts {
     }
 }
 declare module layouts.controls {
+    class NavigationContext {
+        previousPage: Page;
+        previousUri: string;
+        nextPage: Page;
+        nextUri: string;
+        queryString: {};
+        constructor(previousPage: Page, previousUri: string, nextPage: Page, nextUri: string, queryString: {});
+    }
     class Page extends FrameworkElement {
         static typeName: string;
         typeName: string;
@@ -281,15 +289,36 @@ declare module layouts.controls {
         protected arrangeOverride(finalSize: Size): Size;
         static sizeToContentProperty: DepProperty;
         sizeToContent: SizeToContent;
+        cachePage: boolean;
+        onNavigate(context: NavigationContext): void;
     }
 }
 declare module layouts {
+    class UriMapping {
+        uri: string;
+        mapping: string;
+        constructor(uri: string, mapping: string);
+        private static _rxMapping;
+        private _compiled;
+        private _compiledUri;
+        private _queryStringTokens;
+        compile(): void;
+        test(uri: string): boolean;
+        resolve(uriToResolve: string): {};
+    }
     class Application {
         constructor();
         private static _current;
         static current: Application;
         private _page;
         page: layouts.controls.Page;
+        private _mappings;
+        mappings: UriMapping[];
+        map(uri: string, mappedUri: string): UriMapping;
+        private _navigationStack;
+        private _currentNavigationitem;
+        navigate(uri: string, loader?: InstanceLoader): boolean;
+        private hashChanged(hash);
     }
 }
 declare module layouts {
@@ -526,11 +555,6 @@ declare module layouts.controls {
         static setColumnSpan(target: DepObject, value: number): void;
     }
 }
-declare module layouts {
-    interface IComparer {
-        compare(x: any, y: any): number;
-    }
-}
 declare module layouts.controls {
     enum Stretch {
         None = 0,
@@ -635,6 +659,8 @@ declare module layouts.controls {
         text: string;
         static placeholderProperty: any;
         placeholder: string;
+        static typeProperty: any;
+        type: string;
     }
 }
 declare module layouts.controls {
@@ -660,6 +686,11 @@ declare module layouts.controls {
         protected measureOverride(constraint: Size): Size;
         protected arrangeOverride(finalSize: Size): Size;
         protected layoutOverride(): void;
+    }
+}
+declare module layouts {
+    interface IComparer {
+        compare(x: any, y: any): number;
     }
 }
 declare module layouts {

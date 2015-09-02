@@ -12,8 +12,11 @@ var layouts;
     var controls;
     (function (controls) {
         (function (GridUnitType) {
+            /// The value indicates that content should be calculated without constraints. 
             GridUnitType[GridUnitType["Auto"] = 0] = "Auto";
+            /// The value is expressed as a pixel.
             GridUnitType[GridUnitType["Pixel"] = 1] = "Pixel";
+            /// The value is expressed as a weighted proportion of available space.
             GridUnitType[GridUnitType["Star"] = 2] = "Star";
         })(controls.GridUnitType || (controls.GridUnitType = {}));
         var GridUnitType = controls.GridUnitType;
@@ -33,6 +36,7 @@ var layouts;
                 //1) auto row/column
                 //2) 2* row/column with min 100 pixel and max 200 pixel
                 //3) Auto row/olumn with max 2000 pixel
+                //TODO: use a regex instead
                 value = value.trim();
                 var tokens = value.split(" ");
                 return Enumerable.From(tokens).Select(function (token) {
@@ -40,6 +44,7 @@ var layouts;
                     if (token.length == 0)
                         return;
                     if (token[0] == '[') {
+                        //Case "[100,*,]" or "[,Auto,200]"
                         if (token.length < 3 || token[token.length - 1] != ']')
                             throw new Error("GridLength definition error");
                         var subTokens = token.substr(1, token.length - 2).split(",");
@@ -62,6 +67,7 @@ var layouts;
                             throw new Error("GridLength definition error");
                     }
                     else {
+                        //case "*" or "Auto" or "12.3"
                         return {
                             length: GridLength.fromString(token)
                         };
@@ -346,6 +352,7 @@ var layouts;
                             this.columnDefs[col].elements.push(this.elementDefs[iElement]);
                     }
                 }
+                //measure children full contained auto and fixed size in any row/column (exclude only children that are fully contained in star w/h cells)
                 for (var iRow = 0; iRow < this.rowDefs.length; iRow++) {
                     var rowDef = this.rowDefs[iRow];
                     var elements = rowDef.elements;
@@ -357,7 +364,7 @@ var layouts;
                         elements.forEach(function (el) { return el.setAvailHeight(iRow, rowDef.desHeight); });
                     }
                     else {
-                        elements.forEach(function (el) { return el.measuredWidthFirstPass = true; });
+                        elements.forEach(function (el) { return el.measuredWidthFirstPass = true; }); //elements in this group can still be measured by the other dimension (width or height)
                     }
                 }
                 for (var iColumn = 0; iColumn < this.columnDefs.length; iColumn++) {
@@ -371,7 +378,7 @@ var layouts;
                         elements.forEach(function (el) { return el.setAvailWidth(iColumn, columnDef.desWidth); });
                     }
                     else {
-                        elements.forEach(function (el) { return el.measuredHeightFirstPass = true; });
+                        elements.forEach(function (el) { return el.measuredHeightFirstPass = true; }); //elements in this group can still be measured by the other dimension (width or height)
                     }
                 }
                 this.elementDefs.forEach(function (el) {
@@ -385,6 +392,7 @@ var layouts;
                     }
                     el.measuredWidthFirstPass = el.measuredHeightFirstPass = true;
                 });
+                //than get max of any auto/fixed measured row/column
                 this.rowDefs.forEach(function (rowDef) {
                     if (!rowDef.isStar)
                         rowDef.elements.forEach(function (el) { return rowDef.desHeight = Math.max(rowDef.desHeight, el.element.desideredSize.height); });
@@ -393,6 +401,7 @@ var layouts;
                     if (!columnDef.isStar)
                         columnDef.elements.forEach(function (el) { return columnDef.desWidth = Math.max(columnDef.desWidth, el.element.desideredSize.width); });
                 });
+                //now measure any fully contained star size row/column
                 var elementToMeasure = [];
                 var notStarRowsHeight = 0;
                 this.rowDefs.forEach(function (r) { return notStarRowsHeight += r.desHeight; });
@@ -404,6 +413,7 @@ var layouts;
                     if (!rowDef.isStar)
                         return;
                     var elements = rowDef.elements;
+                    //if size to content horizontally, star rows are treat just like auto rows (same apply to columns of course)
                     if (!vSizeToContent) {
                         var availHeight = vRowMultiplier * rowDef.row.height.value;
                         rowDef.desHeight = availHeight;
@@ -438,6 +448,7 @@ var layouts;
                         e.measuredHeightFirstPass = true;
                     }
                 });
+                //than adjust width and height to fit children that spans over columns or rows containing auto rows or auto columns
                 for (var iElement = 0; iElement < this.elementDefs.length; iElement++) {
                     var elementDef = this.elementDefs[iElement];
                     if (elementDef.rowSpan > 1) {
@@ -489,14 +500,21 @@ var layouts;
                         }
                     }
                 }
+                //finally sum up the desidered size
                 this.rowDefs.forEach(function (r) { return desideredSize.height += r.desHeight; });
                 this.columnDefs.forEach(function (c) { return desideredSize.width += c.desWidth; });
                 return desideredSize;
             };
             Grid.prototype.arrangeOverride = function (finalSize) {
                 var _this = this;
+                //if finalSize != this.desideredSize we have to
+                //to correct row/column with star values to take extra space or viceversa
+                //remove space no more available from measure pass
                 var xDiff = finalSize.width - this.desideredSize.width;
                 var yDiff = finalSize.height - this.desideredSize.height;
+                //rd.isStar/cd.isStar take in count also sizeToContent stuff
+                //we need here only to know if column is star or not
+                //this why we are using rd.row.height.isStar or cd.column.width.isStar
                 var starRowCount = 0;
                 this.rowDefs.forEach(function (rd) {
                     if (rd.row.height.isStar)
@@ -508,6 +526,8 @@ var layouts;
                         starColumnCount++;
                 });
                 this.rowDefs.forEach(function (rd) {
+                    //rd.isStar takes in count also sizeToContent stuff
+                    //we need here only to know if column is star or not
                     if (rd.row.height.isStar)
                         rd.finalHeight = rd.desHeight + yDiff / starRowCount;
                     else
@@ -612,14 +632,22 @@ var layouts;
                 target.setValue(Grid.columnSpanProperty, value);
             };
             Grid.typeName = "layouts.controls.Grid";
+            ///Dependency properties
+            //rows
             Grid.rowsProperty = layouts.DepObject.registerProperty(Grid.typeName, "Rows", null, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender, function (v) { return Grid.rowsFromString(v); });
+            //columns
             Grid.columnsProperty = layouts.DepObject.registerProperty(Grid.typeName, "Columns", null, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender, function (v) { return Grid.columnsFromString(v); });
+            //Grid.Row property
             Grid.rowProperty = layouts.DepObject.registerProperty(Grid.typeName, "Grid#Row", 0, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure, function (v) { return parseInt(v); });
+            //Grid.Column property
             Grid.columnProperty = layouts.DepObject.registerProperty(Grid.typeName, "Grid#Column", 0, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure, function (v) { return parseInt(v); });
+            //Grid.RowSpan property
             Grid.rowSpanProperty = layouts.DepObject.registerProperty(Grid.typeName, "Grid#RowSpan", 1, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure, function (v) { return parseInt(v); });
+            //Grid.ColumnSpan property
             Grid.columnSpanProperty = layouts.DepObject.registerProperty(Grid.typeName, "Grid#ColumnSpan", 1, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure, function (v) { return parseInt(v); });
             return Grid;
         })(controls.Panel);
         controls.Grid = Grid;
     })(controls = layouts.controls || (layouts.controls = {}));
 })(layouts || (layouts = {}));
+//# sourceMappingURL=Grid.js.map

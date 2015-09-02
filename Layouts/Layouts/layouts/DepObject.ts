@@ -142,37 +142,6 @@ module layouts {
             var newBinding = new Binding(this, property, propertyPath, source, twoway, converter);
             this.bindings.push(newBinding);
         }
-
-
-        ////support for cloning
-        ////clone element
-        //clone(): DepObject {
-        //    //NOTE: optimization required for example letting derived class
-        //    //instanciating the correct type without using InstanceLoader
-        //    var clonedInstance = this.createClone(this);
-        //    this.cloneOverride(clonedInstance);
-        //    return clonedInstance;
-        //}
-
-        //protected createClone(elementToClone: DepObject): DepObject {
-        //    var instanceLoader = new InstanceLoader(window);
-        //    return instanceLoader.getInstance(this["typeName"]);
-        //}
-
-        //protected cloneOverride(elementCloned: DepObject): void {
-        //    //assign dep properties to cloned instance
-        //    DepObject.forAllProperties(this, depProperty => {
-        //        elementCloned.setValue(depProperty, this.getValue(depProperty));
-
-        //        this.bindings.forEach(binding => {
-        //            if (binding.targetProperty == depProperty) {
-        //                elementCloned.bind(depProperty, binding.path.path, binding.twoWay, elementCloned);
-        //            }
-        //        });
-
-        //    });            
-        //}
-
     } 
 
     class Binding implements ISupportDependencyPropertyChange {
