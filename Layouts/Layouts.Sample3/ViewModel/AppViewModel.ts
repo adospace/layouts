@@ -30,9 +30,9 @@ class AppViewModel extends layouts.DepObject {
     }
 
     //list of all categories
-    private _categories: layouts.ObservableCollection<CategoryViewModel> = new layouts.ObservableCollection<CategoryViewModel>();
+    private _categories = new Array<CategoryViewModel>();
 
-    get categories(): layouts.ObservableCollection<CategoryViewModel> {
+    get categories(): Array<CategoryViewModel> {
         return this._categories;
     }
 

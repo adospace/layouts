@@ -28,9 +28,7 @@ class AppView {
   </Grid>
 </Page>`;
     }
-
-
-
+    
     static getMainPage(): layouts.controls.Page {
         if (AppView._page == null) {
             let loader = new layouts.XamlReader();

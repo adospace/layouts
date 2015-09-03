@@ -9,6 +9,7 @@ module layouts.controls {
         }
 
         public cancel: boolean = false;
+        public returnUri: string = null;
     }
 
 
@@ -18,36 +19,33 @@ module layouts.controls {
             return Page.typeName;
         }
 
-        private _child: UIElement;
-        get child(): UIElement {
-            return this._child;
-        }
-        set child(value: UIElement) {
-            if (this._child != value) {
-                if (this._child != null && this._child.parent == this) {
-                    this._child.attachVisual(null);
-                    this._child.parent = null;
-                }
-                this._child = value;
-                if (this._child != null) {
-                    this._child.parent = this;
-                    this._child.attachVisual(document.body);
-                }
-                this.invalidateMeasure();
+        protected _container: HTMLElement;
+        attachVisualOverride(elementContainer: HTMLElement) {
+
+            this._container = elementContainer;
+
+            var child = this.child;
+            if (child != null) {
+                child.parent = this;
+                child.attachVisual(this._container);
             }
+
+            super.attachVisualOverride(elementContainer);
         }
 
         protected layoutOverride() {
-            if (this._child != null)
-                this._child.layout();
+            var child = this.child;
+            if (child != null)
+                child.layout();
         }
 
         protected measureOverride(constraint: Size): Size {
             var mySize = new Size();
 
-            if (this._child != null) {
-                this._child.measure(constraint);
-                return this._child.desideredSize;
+            var child = this.child;
+            if (child != null) {
+                child.measure(constraint);
+                return child.desideredSize;
             }
 
             return mySize;
@@ -55,7 +53,7 @@ module layouts.controls {
 
         protected arrangeOverride(finalSize: Size): Size {
             //  arrange child
-            var child = this._child;
+            var child = this.child;
             if (child != null) {
                 child.arrange(new Rect(0, 0, finalSize.width, finalSize.height));
             }
@@ -63,6 +61,33 @@ module layouts.controls {
             return finalSize;
         }   
 
+        static childProperty = DepObject.registerProperty(Page.typeName, "Child", null, FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender);
+        get child(): UIElement {
+            return <UIElement>this.getValue(Page.childProperty);
+        }
+        set child(value: UIElement) {
+            this.setValue(Page.childProperty, value);
+        }
+
+        protected onDependencyPropertyChanged(property: DepProperty, value: any, oldValue: any) {
+            if (property == Page.childProperty) {
+                var oldChild = <UIElement>oldValue;
+                if (oldChild != null && oldChild.parent == this) {
+                    oldChild.parent = null;
+                    oldChild.attachVisual(null);
+                }
+
+                var newChild = <UIElement>value;
+                if (newChild != null) {
+                    newChild.parent = this;
+                    if (this._container != null)
+                        newChild.attachVisual(this._container);
+                }
+            }
+
+            super.onDependencyPropertyChanged(property, value, oldValue);
+        }
+    
 
         //SizeToContent property
         static sizeToContentProperty = DepObject.registerProperty(Page.typeName, "SizeToContent", SizeToContent.None, FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender);

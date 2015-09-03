@@ -154,11 +154,17 @@ module layouts {
         protected _visual: HTMLElement;
         attachVisual(elementContainer: HTMLElement, showImmediately:boolean = false): void {
 
-            //1. if a visual is not yet create and we have a container
+            //1. if a visual is not yet created and we have a container
             //try create it now
             if (this._visual == null &&
                 elementContainer != null) 
                 this.attachVisualOverride(elementContainer);
+
+            //1.b if a visual doesn't exists but parent set container to null
+            //call attachVisualOverride and let derived class handle the case (i.e. Page)
+            if (this._visual == null &&
+                elementContainer == null)
+                this.attachVisualOverride(null);
 
             //2. if visual is still null give up
             if (this._visual == null)
@@ -169,15 +175,16 @@ module layouts {
                 
                 //4. remove visual from old container 
                 if (this._visual.parentElement != null) {
-                    this._visual.parentElement.removeChild(this._visual);
-                    this.visualDisconnected(this._visual.parentElement);
+                    var parentElement = this._visual.parentElement;
+                    parentElement.removeChild(this._visual);
+                    this.visualDisconnected(parentElement);
                 }
 
                 //5. if container is valid (not null) add visual under it
                 //note container could be null in this case visual is just detached from DOM
                 if (elementContainer != null) {
                     //before add the element to the DOM tree hide to avoid flickering
-                    //visual will be restore to visible after it's correctly positioned
+                    //visual will be restored to visible after it's correctly positioned
                     //see above layout()
                     //NOTE: we use CSS visibility instead of hidden property because with former
                     //element size is still valid 

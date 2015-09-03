@@ -210,14 +210,17 @@ module layouts {
                 if (this.source.subscribePropertyChanges != null)
                     this.source.subscribePropertyChanges(this);
             }
-            else
+            //if source is not a depObject I can't subscribe/unsubscribe to its property changes
+            else if (this.source["unsubscribeDependencyPropertyChanges"] != null)
                 this.source.subscribeDependencyPropertyChanges(this);
         }
 
         private detachSource(): void {
             if (this.source.unsubscribePropertyChanges != null)
                 this.source.unsubscribePropertyChanges(this);
-            this.source.unsubscribeDependencyPropertyChanges(this);
+            //if source is not a depObject I can't subscribe/unsubscribe to its property changes
+            if (this.source["unsubscribeDependencyPropertyChanges"] != null)
+                this.source.unsubscribeDependencyPropertyChanges(this);
         }
 
         private build(): void {

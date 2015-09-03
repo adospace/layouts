@@ -120,9 +120,14 @@ module layouts {
         set page(page: layouts.controls.Page) {
             if (this._page != page) {
                 if (this._page != null)
-                    this._page.child = null;
+                    this._page.attachVisual(null);
 
                 this._page = page;
+
+                if (this._page != null)
+                    this._page.attachVisual(document.body);
+
+
                 LayoutManager.requestLayoutUpdate();
             }
         }
@@ -148,6 +153,7 @@ module layouts {
 
         private _navigationStack: NavigationItem[] = new Array<NavigationItem>();
         private _currentNavigationitem: NavigationItem;
+        private _returnUri: string;
 
         public onBeforeNavigate: (ctx: controls.NavigationContext) => void;
         public onAfterNavigate: (ctx: controls.NavigationContext) => void;
@@ -196,12 +202,18 @@ module layouts {
                     uri,
                     queryString
                     );
+                navContext.returnUri = this._returnUri;
 
                 if (this.onBeforeNavigate != null) {
+                    var nextUri = navContext.nextUri;
                     this.onBeforeNavigate(navContext);
                     if (navContext.cancel) {
-                        if (window.location.hash != "#" + previousUri)
+                        if (previousUri != null &&
+                            window.location.hash != "#" + previousUri)
                             window.location.hash = "#" + previousUri;
+                        this._returnUri = navContext.returnUri;
+                        if (nextUri != navContext.nextUri)
+                            this.navigate(navContext.nextUri);
                         return false;
                     }
                 }

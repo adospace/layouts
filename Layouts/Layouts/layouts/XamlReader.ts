@@ -179,6 +179,9 @@ module layouts {
                         //by default if source == DataContext binding just connect to
                         //"DataContext." + original path and source is depObject itself
                         var converter: IConverter = bingingDef.converter == null ? null : this.instanceLoader.getInstance(bingingDef.converter);
+                        if (converter == null &&
+                            bingingDef.converter != null)
+                            throw new Error("Unable to create converter from '{0}'".format(bingingDef.converter));
                         //at moment we'll support only 2 modes:
                         //1) default -> connect to DataContext
                         //2) self -> connect to object itself

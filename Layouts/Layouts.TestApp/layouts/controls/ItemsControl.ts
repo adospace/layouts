@@ -118,10 +118,10 @@ module layouts.controls {
 
         //itemsSource property
         static itemsSourceProperty = DepObject.registerProperty(ItemsControl.typeName, "ItemsSource", null, FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender);
-        get itemsSource(): ObservableCollection<Object> {
-            return <ObservableCollection<Object>>this.getValue(ItemsControl.itemsSourceProperty);
+        get itemsSource(): any {
+            return <any>this.getValue(ItemsControl.itemsSourceProperty);
         }
-        set itemsSource(value: ObservableCollection<Object>) {
+        set itemsSource(value: any) {
             this.setValue(ItemsControl.itemsSourceProperty, value);
         }
 
@@ -137,14 +137,14 @@ module layouts.controls {
 
         protected onDependencyPropertyChanged(property: DepProperty, value: any, oldValue: any) {
             if (property == ItemsControl.itemsSourceProperty) {
-                if (oldValue != null) {
+                if (oldValue != null && oldValue["onChangeNotify"] != null) {
                     var oldItmesSource = <ObservableCollection<Object>>oldValue;
                     oldItmesSource.offChangeNotify(this);
                 }
 
                 this.setupItems();
 
-                if (value != null) {
+                if (value != null && value["onChangeNotify"] != null) {
                     var newItemsSource = <ObservableCollection<Object>>value;
                     newItemsSource.onChangeNotify(this);
                 }
@@ -200,8 +200,18 @@ module layouts.controls {
 
             var itemsSource = this.itemsSource;
             if (itemsSource != null) {
+
+                var elements : any[] = null;
+                if (Object.prototype.toString.call(itemsSource) == '[object Array]')
+                    elements = <any[]>itemsSource;
+                else
+                    elements = <any[]>itemsSource["elements"];
+
+                if (elements == null)
+                    throw new Error("Unable to get list of elements from itemsSource");
+
                 this._elements =
-                Enumerable.From(itemsSource.elements).Select(item=> {
+                Enumerable.From(elements).Select(item=> {
 
                     var templateForItem = this.getTemplateForItem(item);
                     if (templateForItem == null) {

@@ -278,15 +278,20 @@ declare module layouts.controls {
         nextUri: string;
         queryString: {};
         constructor(previousPage: Page, previousUri: string, nextPage: Page, nextUri: string, queryString: {});
+        cancel: boolean;
+        returnUri: string;
     }
     class Page extends FrameworkElement {
         static typeName: string;
         typeName: string;
-        private _child;
-        child: UIElement;
+        protected _container: HTMLElement;
+        attachVisualOverride(elementContainer: HTMLElement): void;
         protected layoutOverride(): void;
         protected measureOverride(constraint: Size): Size;
         protected arrangeOverride(finalSize: Size): Size;
+        static childProperty: DepProperty;
+        child: UIElement;
+        protected onDependencyPropertyChanged(property: DepProperty, value: any, oldValue: any): void;
         static sizeToContentProperty: DepProperty;
         sizeToContent: SizeToContent;
         cachePage: boolean;
@@ -296,8 +301,9 @@ declare module layouts.controls {
 declare module layouts {
     class UriMapping {
         uri: string;
-        mapping: string;
         constructor(uri: string, mapping: string);
+        private _mapping;
+        mapping: string;
         private static _rxMapping;
         private _compiled;
         private _compiledUri;
@@ -317,6 +323,9 @@ declare module layouts {
         map(uri: string, mappedUri: string): UriMapping;
         private _navigationStack;
         private _currentNavigationitem;
+        private _returnUri;
+        onBeforeNavigate: (ctx: controls.NavigationContext) => void;
+        onAfterNavigate: (ctx: controls.NavigationContext) => void;
         navigate(uri: string, loader?: InstanceLoader): boolean;
         private hashChanged(hash);
     }
@@ -609,7 +618,7 @@ declare module layouts.controls {
         templates: ObservableCollection<DataTemplate>;
         onCollectionChanged(collection: any, added: Object[], removed: Object[], startRemoveIndex: number): void;
         static itemsSourceProperty: DepProperty;
-        itemsSource: ObservableCollection<Object>;
+        itemsSource: any;
         static itemsPanelProperty: DepProperty;
         itemsPanel: Panel;
         protected onDependencyPropertyChanged(property: DepProperty, value: any, oldValue: any): void;
@@ -643,6 +652,8 @@ declare module layouts.controls {
         text: string;
         static whiteSpaceProperty: DepProperty;
         whiteSpace: string;
+        static formatProperty: DepProperty;
+        format: string;
     }
 }
 declare module layouts.controls {
@@ -657,9 +668,9 @@ declare module layouts.controls {
         protected layoutOverride(): void;
         static textProperty: DepProperty;
         text: string;
-        static placeholderProperty: any;
+        static placeholderProperty: DepProperty;
         placeholder: string;
-        static typeProperty: any;
+        static typeProperty: DepProperty;
         type: string;
     }
 }
