@@ -161,13 +161,13 @@ module layouts.controls {
             this.setValue(Button.textProperty, value);
         }
 
-        static commandProperty = DepObject.registerProperty(Button.typeName, "Command", null, FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender);
-        get command(): Command {
-            return <Command>this.getValue(Button.commandProperty);
-        }
-        set command(value: Command) {
-            this.setValue(Button.commandProperty, value);
-        }
+        //static commandProperty = DepObject.registerProperty(Button.typeName, "Command", null, FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender);
+        //get command(): Command {
+        //    return <Command>this.getValue(Button.commandProperty);
+        //}
+        //set command(value: Command) {
+        //    this.setValue(Button.commandProperty, value);
+        //}
 
         static commandParameterProperty = DepObject.registerProperty(Button.typeName, "commandParameter", null, FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender);
         get commandParameter(): any {

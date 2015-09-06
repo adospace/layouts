@@ -23,6 +23,7 @@ class TestViewModel extends layouts.DepObject {
                 new TestViewModelItem("item2"),
                 new TestViewModelItem("item3"),
             ]);
+        this._currentItem = this.itemsCollection[0]
     }
 
     static nameProperty = layouts.DepObject.registerProperty(TestViewModel.typeName, "name", "test string");
@@ -68,6 +69,11 @@ class TestViewModel extends layouts.DepObject {
     }
 
     itemsCollection: layouts.ObservableCollection<TestViewModelItem>;
+
+    private _currentItem: TestViewModelItem;
+    get currentItem(): TestViewModelItem {
+        return this._currentItem;
+    }
 }
 
 
@@ -79,22 +85,29 @@ window.onload = () => {
     //app.page = new TypeScriptUI.testDialog();
     //var testPage = new layouts.controls.Page();
     //testPage.sizeToContent = layouts.controls.SizeToContent.Both;
+    /*
+        <Grid Rows="Auto Auto" Columns="Auto Auto Auto" VerticalAlignment="Center" HorizontalAlignment="Center">
+      
+              <TextBox Text="{count,twoway}"/>
+              <Button Text="Increment" Command="{incrementCommand}" Grid.Column="1"/>
+              <Button Text="Decrement" Command="{decrementCommand}" Grid.Column="2"/>
+      
+
+              <ItemsControl ItemsSource="{itemsCollection}" Grid.Row="1" Grid.ColumnSpan="3">
+                <DataTemplate>
+                    <TextBlock Text="{itemName}"/>
+                </DataTemplate>
+              </ItemsControl>
+          </Grid>    
+    */
 
     var lmlTest = `<?xml version="1.0" encoding="utf-8" ?>
 <Page Name="testPage">  
-  <Grid Rows="Auto Auto" Columns="Auto Auto Auto" VerticalAlignment="Center" HorizontalAlignment="Center">
-      
-      <TextBox Text="{count,twoway}"/>
-      <Button Text="Increment" Command="{incrementCommand}" Grid.Column="1"/>
-      <Button Text="Decrement" Command="{decrementCommand}" Grid.Column="2"/>
-      
-
-      <ItemsControl ItemsSource="{itemsCollection}" Grid.Row="1" Grid.ColumnSpan="3">
+    <ItemsControl ItemsSource="{itemsCollection}" Grid.Row="1" Grid.ColumnSpan="3">
         <DataTemplate>
-            <TextBlock Text="{itemName}"/>
+            <TextBlock Text="{.}"/>
         </DataTemplate>
-      </ItemsControl>
-  </Grid>
+    </ItemsControl>
 </Page>`;
 
     app.page = lmlReader.Parse(lmlTest);

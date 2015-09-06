@@ -39,14 +39,18 @@ module layouts.controls {
                 if (this._innerXaml != null &&
                     this._xamlLoader != null) {
                     this._child = child = this._xamlLoader.Parse(this._innerXaml);
-                    child.parent = this;
-                    child.attachVisual(this._container);
                 }
             }
 
             if (content != null &&
                 child != null) {
                 child.setValue(FrameworkElement.dataContextProperty, content);
+                //NOTE: Set datacontext before attach element to DOM
+                //If it's attached without datacontext, bindings will target parent datacontext (ie my datacontext)
+                //and when the correct datacontext is attached again to content, bindings will re-target to 
+                //new context
+                child.parent = this;
+                child.attachVisual(this._container);
             }
 
             if (content == null &&

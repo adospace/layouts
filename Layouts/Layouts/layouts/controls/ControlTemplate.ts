@@ -46,7 +46,7 @@ module layouts.controls {
             super.layoutOverride();
             var child = this.content;
             if (child != null) 
-                child.layout();
+                child.layout(this.visualOffset);
         }
 
         static contentProperty = DepObject.registerProperty(ControlTemplate.typeName, "Content", null, FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender);

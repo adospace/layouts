@@ -394,8 +394,10 @@ module layouts {
                     //option (most of cases dataContext)
                     //there is not a real value change, only a notification to allow binding update
                     //so value==oldValue
-                    var value = this.getValue(property);
-                    this._logicalChildren.forEach((child) => child.onDependencyPropertyChanged(property, value, value));
+                    if (this._logicalChildren != null) {
+                        var value = this.getValue(property);
+                        this._logicalChildren.forEach((child) => child.onDependencyPropertyChanged(property, value, value));
+                    }
                 }
             }
 

@@ -175,6 +175,15 @@ module layouts {
                 this.sourceProperty = retValue.sourceProperty;
                 this.target.setValue(this.targetProperty, this.converter != null ? this.converter.convert(retValue.value, null) : retValue.value);//update target
             }
+            else if (this.source != null) {
+                //if source is not null and retValue.success is false
+                //means that something in binding to original source has broken
+                //I need to reset the source and update target property to its default value
+                var valueToSet = this.targetProperty.getDefaultValue(this.target);
+                this.target.setValue(this.targetProperty, this.converter != null ? this.converter.convert(valueToSet, null) : valueToSet)
+                this.source = null;
+                this.sourceProperty = null;
+            }
         }
 
         onChangeDependencyProperty(depObject: DepObject, depProperty: DepProperty, value: any) {

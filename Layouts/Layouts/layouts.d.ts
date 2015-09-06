@@ -410,8 +410,6 @@ declare module layouts.controls {
         padding: Thickness;
         static textProperty: DepProperty;
         text: string;
-        static commandProperty: DepProperty;
-        command: Command;
         static commandParameterProperty: DepProperty;
         commandParameter: any;
         static whiteSpaceProperty: DepProperty;

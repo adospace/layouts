@@ -65,8 +65,10 @@ module layouts.controls {
             super.layoutOverride();
 
             //set appropriate size using saved client size in measure pass
-            this._pElement.style.width = (this.renderSize.width - this.clientSizeOffset.width) + "px";
-            this._pElement.style.height = (this.renderSize.height - this.clientSizeOffset.height) + "px";
+            if (this.renderSize != null) {
+                this._pElement.style.width = (this.renderSize.width - this.clientSizeOffset.width) + "px";
+                this._pElement.style.height = (this.renderSize.height - this.clientSizeOffset.height) + "px";
+            }
         }
 
         static textProperty = DepObject.registerProperty(TextBox.typeName, "Text", null, FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender);
