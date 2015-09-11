@@ -142,6 +142,8 @@ module layouts {
             var newBinding = new Binding(this, property, propertyPath, source, twoway, converter);
             this.bindings.push(newBinding);
         }
+
+        static logBindingTraceToConsole: boolean = false;
     } 
 
     class Binding implements ISupportDependencyPropertyChange {
@@ -269,8 +271,9 @@ module layouts {
                         else if (this.next != null)
                             this.next.build();
                     }
-                    else
+                    else {
                         this.next = null;
+                    }
                 }
                 else {
                     this.name = this.path;
@@ -306,13 +309,18 @@ module layouts {
                     source: this.source,
                     property: null
                 };
-            else if (this.name != null && this.path.indexOf(".") == -1) //if path contains a dot but next is null binding is not connected
+            else if (this.name != null && this.path.indexOf(".") == -1) { //if path contains a dot but next is null binding is not connected
+                if (DepObject.logBindingTraceToConsole) 
+                    if (this.sourceProperty == null && (!(this.name in this.source)))
+                        console.log("[Bindings] Unable to find property '{0}' on type '{1}'".format(this.name, this.source["typeName"]));
+                
                 return {
                     success: true,
                     value: this.sourceProperty != null ? this.source.getValue(this.sourceProperty) : this.source[this.name],
                     source: this.source,
                     property: this.sourceProperty
                 };
+            }
             else
                 return {
                     success: false

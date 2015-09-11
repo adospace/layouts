@@ -10,8 +10,23 @@ module layouts {
             return new Rect(0, 0, this.width, this.height);
         }
     }
-    export class Rect { constructor(public x: number = 0, public y: number = 0, public width: number = 0, public height: number = 0) { } get size(): Size { return new Size(this.width, this.height); } }
-    export class Vector { constructor(public x: number = 0, public y: number = 0) { } }
+    export class Rect {
+        constructor(public x: number = 0, public y: number = 0, public width: number = 0, public height: number = 0) {
+        }
+        get size(): Size {
+            return new Size(this.width, this.height);
+        }
+    }
+    export class Vector {
+        constructor(public x: number = 0, public y: number = 0) {
+        }
+        get isEmpty(): boolean {
+            return this.x == 0 && this.x == 0;
+        }
+        add(other: Vector): Vector {
+            return new Vector(this.x + other.x, this.y + other.y);
+        }
+    }
 
     export enum FrameworkPropertyMetadataOptions {
         /// No flags
@@ -125,10 +140,10 @@ module layouts {
         }
 
         ///Render Pass
-        private _relativeOffset: Vector = null;
+        protected relativeOffset: Vector = null;
         layout(relativeOffset: Vector = null) {
             if (this.layoutInvalid) {
-                this._relativeOffset = relativeOffset;
+                this.relativeOffset = relativeOffset;
                 this.layoutOverride();
                 if (this._visual != null &&
                     this._visual.hidden &&
@@ -142,9 +157,9 @@ module layouts {
         }
         protected layoutOverride() {
             if (this._visual != null) {
-                if (this._relativeOffset != null) {
-                    this._visual.style.marginTop = this._relativeOffset.y.toString() + "px";
-                    this._visual.style.marginLeft = this._relativeOffset.x.toString() + "px";
+                if (this.relativeOffset != null) {
+                    this._visual.style.marginTop = this.relativeOffset.y.toString() + "px";
+                    this._visual.style.marginLeft = this.relativeOffset.x.toString() + "px";
                 }
 
             }
@@ -414,8 +429,7 @@ module layouts {
         protected _extendedProperties: ExtendedProperty[] = [];
         addExtentedProperty(name: string, value: string) {
             this._extendedProperties.push(new ExtendedProperty(name, value));
-        }
-        
+        }        
 
         static isVisibleProperty = DepObject.registerProperty(UIElement.typeName, "IsVisible", true, FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender);
         get isVisible(): boolean {

@@ -133,13 +133,18 @@ module layouts.controls {
                 if (value != null)
                     (<Command>value).onCanExecuteChangeNotify(this);
             }
+            else if (property == Button.isEnabledProperty) {
+                this._buttonElement.disabled = !<boolean>value;
+            }
 
             super.onDependencyPropertyChanged(property, value, oldValue);
         }
 
         onCommandCanExecuteChanged(command: Command) {
-            if (this._buttonElement != null)
-                this._buttonElement.disabled = this.command == null || !this.command.canExecute(this.commandParameter);
+            if (this._buttonElement != null) {
+                this.isEnabled = this.command != null && this.command.canExecute(this.commandParameter);
+                this._buttonElement.disabled = !this.isEnabled;
+            }
         }
 
         //Dependency properties
@@ -161,14 +166,6 @@ module layouts.controls {
             this.setValue(Button.textProperty, value);
         }
 
-        //static commandProperty = DepObject.registerProperty(Button.typeName, "Command", null, FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender);
-        //get command(): Command {
-        //    return <Command>this.getValue(Button.commandProperty);
-        //}
-        //set command(value: Command) {
-        //    this.setValue(Button.commandProperty, value);
-        //}
-
         static commandParameterProperty = DepObject.registerProperty(Button.typeName, "commandParameter", null, FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender);
         get commandParameter(): any {
             return this.getValue(Button.commandParameterProperty);
@@ -184,5 +181,14 @@ module layouts.controls {
         set whiteSpace(value: string) {
             this.setValue(Button.whiteSpaceProperty, value);
         }
+
+        static isEnabledProperty = DepObject.registerProperty(Button.typeName, "IsEnabled", true, FrameworkPropertyMetadataOptions.AffectsRender);
+        get isEnabled(): boolean {
+            return <boolean>this.getValue(Button.isEnabledProperty);
+        }
+        set isEnabled(value: boolean) {
+            this.setValue(Button.isEnabledProperty, value);
+        }
+
     }
 }

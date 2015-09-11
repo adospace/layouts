@@ -16,5 +16,5 @@ window.onload = () => {
         }
     };
 
-    app.navigate("/page1/pippo");
+    app.navigate();//"/page1/pippo");
 };

@@ -158,7 +158,14 @@ module layouts {
         public onBeforeNavigate: (ctx: controls.NavigationContext) => void;
         public onAfterNavigate: (ctx: controls.NavigationContext) => void;
 
-        public navigate(uri: string, loader?: InstanceLoader): boolean {
+        public navigate(uri?: string, loader?: InstanceLoader): boolean {
+            if (uri == null) {
+                uri = window.location.hash.length > 0 ?
+                    window.location.hash.slice(1) : null;
+                if (uri == null)
+                    return false;
+            }
+
             if (this._currentNavigationitem != null &&
                 this._currentNavigationitem.uri == uri)
                 return true;
