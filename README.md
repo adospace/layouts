@@ -6,6 +6,8 @@ Layouts can be an ideal start for those applications that need to be ported from
 
 * [Getting Started](gettingstarted.md)
 * [Hello World](helloworld.md)
+* [UI Elements](uielements.md)
+* [Panels](panels.md)
 
 
 
