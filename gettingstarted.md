@@ -25,12 +25,14 @@ Above style sheet just set some basic layout settings that are required to make 
 <html lang="en">
 <head>
     <meta charset="utf-8" />
-    <title>Layouts Hello World</title>
+    <title>Layouts Sample</title>
     <link rel="stylesheet" href="app.css" type="text/css" />
-    <script src="linq.js" type="text/javascript"></script>
-    <script src="App.js" type="text/javascript"></script>
+    <script src="linq.min.js" type="text/javascript"></script>
+    <script src="layouts.js" type="text/javascript"></script>
+    <script src="app.js" type="text/javascript"></script>
 </head>
 <body>
 </body>
 </html>
 ```
+You're now ready to write a *layouts* application.
