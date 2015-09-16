@@ -80,6 +80,7 @@ declare module layouts {
         unsubscribePropertyChanges(observer: ISupportPropertyChange): void;
         private bindings;
         bind(property: DepProperty, propertyPath: string, twoway: boolean, source: DepObject, converter: IConverter): void;
+        static logBindingTraceToConsole: boolean;
     }
 }
 declare module layouts {
@@ -101,6 +102,8 @@ declare module layouts {
         x: number;
         y: number;
         constructor(x?: number, y?: number);
+        isEmpty: boolean;
+        add(other: Vector): Vector;
     }
     enum FrameworkPropertyMetadataOptions {
         None = 0,
@@ -131,7 +134,7 @@ declare module layouts {
         private previousFinalRect;
         arrange(finalRect: Rect): void;
         protected arrangeCore(finalRect: Rect): void;
-        private _relativeOffset;
+        protected relativeOffset: Vector;
         layout(relativeOffset?: Vector): void;
         protected layoutOverride(): void;
         protected _visual: HTMLElement;
@@ -326,7 +329,7 @@ declare module layouts {
         private _returnUri;
         onBeforeNavigate: (ctx: controls.NavigationContext) => void;
         onAfterNavigate: (ctx: controls.NavigationContext) => void;
-        navigate(uri: string, loader?: InstanceLoader): boolean;
+        navigate(uri?: string, loader?: InstanceLoader): boolean;
         private hashChanged(hash);
     }
 }
@@ -378,9 +381,13 @@ declare module layouts.controls {
 }
 declare module layouts {
     class Command {
-        private executeHandler;
-        private canExecuteHandler;
-        constructor(executeHandler: {
+        executeHandler: {
+            (command: Command, parameter: any): void;
+        };
+        canExecuteHandler: {
+            (command: Command, parameter: any): boolean;
+        };
+        constructor(executeHandler?: {
             (command: Command, parameter: any): void;
         }, canExecuteHandler?: {
             (command: Command, parameter: any): boolean;
@@ -414,6 +421,8 @@ declare module layouts.controls {
         commandParameter: any;
         static whiteSpaceProperty: DepProperty;
         whiteSpace: string;
+        static isEnabledProperty: DepProperty;
+        isEnabled: boolean;
     }
 }
 declare module layouts.controls {

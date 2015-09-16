@@ -1,14 +1,12 @@
 ﻿module layouts {
     export class Command {
-        private executeHandler: { (command: Command, parameter: any): void }
-        private canExecuteHandler: { (command: Command, parameter: any): boolean }
-
-        constructor(executeHandler: { (command: Command, parameter: any): void }, canExecuteHandler?: { (command: Command, parameter: any): boolean }) {
-            this.executeHandler = executeHandler;
-            this.canExecuteHandler = canExecuteHandler;
+        constructor(public executeHandler?: { (command: Command, parameter: any): void }, public canExecuteHandler?: { (command: Command, parameter: any): boolean }) {
         }
 
         canExecute(parameter: any): boolean {
+            if (this.executeHandler == null)
+                return false;
+
             if (this.canExecuteHandler != null)
                 return this.canExecuteHandler(this, parameter);
 

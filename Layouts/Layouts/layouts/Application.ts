@@ -17,7 +17,7 @@ module layouts {
             this._mapping = value.replace(re, '.');
         }
 
-        private static _rxMapping: RegExp = new RegExp("\{([\w\d_$]+)\}", "gi");
+        private static _rxMapping: RegExp = new RegExp("\{([\w\d_&$]+)\}", "gi");
 
         private _compiled: boolean = false;
         private _compiledUri: RegExp;
@@ -29,7 +29,7 @@ module layouts {
                 ///compile in:
                 ///   \/Product\/([\w\d_$]+)\/([\w\d_$]+)\/([\w\d_$]+)
                 //var re = /\{([\w\d_$]+)\}/gi;
-                var re = new RegExp("\\{([\\w\\d_$]+)\\}", "gi");
+                var re = new RegExp("\\{([\\w\\d_&$]+)\\}", "gi");
                 var s = this.uri;
                 var m;
                 var rx = this.uri.split("/").join("\\/");
@@ -38,7 +38,7 @@ module layouts {
                     m = re.exec(s);
                     if (m) {
                         //console.log(m[0], m[1]);
-                        rx = rx.replace(m[0], "([\\w\\d_$]+)");
+                        rx = rx.replace(m[0], "([\\w\\d_&$]+)");
                         this._queryStringTokens.push(m[1]);
                     }
                 } while (m);
@@ -158,7 +158,12 @@ module layouts {
         public onBeforeNavigate: (ctx: controls.NavigationContext) => void;
         public onAfterNavigate: (ctx: controls.NavigationContext) => void;
 
-        public navigate(uri: string, loader?: InstanceLoader): boolean {
+        public navigate(uri?: string, loader?: InstanceLoader): boolean {
+            if (uri == null) {
+                uri = window.location.hash.length > 0 ?
+                    window.location.hash.slice(1) : Consts.stringEmpty;
+            }
+
             if (this._currentNavigationitem != null &&
                 this._currentNavigationitem.uri == uri)
                 return true;
