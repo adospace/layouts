@@ -1,9 +1,9 @@
 ## panels
 
-I developped *layouts* because I so missed the lack of a powerful element container in HTML. I'm not an expert of HTML so I don't want to dive into but in a moment you'll understand what I mean.
+I developped *layouts* because I so missed the lack of a powerful element container in HTML. I'm not an expert of HTML so I don't want to dive into it but in a moment you'll understand what I mean.
 
 Take for example we want to build a login page: the classic page with username, password boxes and a sign in button.
-This the xaml I would write:
+This is the xaml I would write:
 ```xml
 <?xml version="1.0" encoding="utf-8" ?>
 <Page>
