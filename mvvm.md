@@ -124,7 +124,7 @@ export class LoginViewModel extends layouts.DepObject {
   </Stack>
 </Page>
 ```
-So now when user types some text in username and password our viewmodel is promptly notified and we'll have the _username and _password fields always updated with the view.
+So now when user types some text in username and password boxes our viewmodel is promptly notified and we'll have the _username and _password fields always updated with the view.
 
 ### command
 
