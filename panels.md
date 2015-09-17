@@ -120,10 +120,10 @@ For example:
         <TextBlock Text="MY HEADER" VerticalAlignment="Center" HorizontalAlignment="Center"/>
     </Border>
     <Border Background="Yellow" Grid.Row="1" Grid.Column="1">
-        <TextBlock Text="CELL 0 1" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+        <TextBlock Text="MAIN AREA" VerticalAlignment="Center" HorizontalAlignment="Center"/>
     </Border>
     <Border Background="Green" Grid.Row="1">
-        <TextBlock Text="CELL 1 1" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+        <TextBlock Text="LEFT SIDE" VerticalAlignment="Center" HorizontalAlignment="Center"/>
     </Border>
 </Grid>
 ```
