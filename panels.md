@@ -79,7 +79,7 @@ Now change it a bit to make center columns double sized the other too.
     ....omitted....
 </Grid>
 ```
-Let's poke aroung Grid panel with Rows and Columns attributes and see the resulting effect. Below another example:
+Let's poke around with Grid panel with Rows and Columns attributes and see the resulting effect. Below another example:
 ```xml
 <Grid Rows="* 0.5*" Columns="* 2* *">
     ....omitted....
@@ -87,4 +87,46 @@ Let's poke aroung Grid panel with Rows and Columns attributes and see the result
 ```
 
 #### Fixed rows/columns
+Rows and/or Column can also be set to a fixed value in pixels. Fixed values are common in HTML, much less in WPF/SL and so *layouts*. Fixing a row/column size prevents Grid to adapt children to browser window size changes.
+
+This is an example using fixed columns and rows
+```xml
+<Grid Rows="25 *" Columns="150 * 10">
+    ....omitted....
+</Grid>
+```
+To test xaml configurations you could use a tool I built for that purpose called Layouts Page Editor. You'll find it *layouts* code. 
+
+#### Auto rows/columns
+Setting a row or column to Auto we're telling Grid to reserve enough space for children that occupy that row or column. In other word row/column auto size to its content. This feature is propbably the most important of Grid because let you abstract from children phisical sizes.
+
+For example in last sample above we've set last column to fixed width 10px: you see that text contained in left size cells is truncated.
+
+Let's change it to:
+```xml
+<Grid Rows="25 *" Columns="150 * Auto">
+    ....omitted....
+</Grid>
+```
+You should see that Grid now gives enough space to cells in order to show completely contained text.
+
+#### Span over rows/columns
+Another great feature you'll find useful in Grid is the ability to span children over more than one row or column.
+
+For example:
+```xml
+<Grid Rows="45 *" Columns="150 *">
+    <Border Background="Red" Grid.ColumnSpan="2">
+        <TextBlock Text="MY HEADER" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+    </Border>
+    <Border Background="Yellow" Grid.Row="1" Grid.Column="1">
+        <TextBlock Text="CELL 0 1" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+    </Border>
+    <Border Background="Green" Grid.Row="1">
+        <TextBlock Text="CELL 1 1" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+    </Border>
+</Grid>
+```
+
+I'll suggest you to make more tests exploring panels functionalities and also combining them to make more complex layouts.
 
