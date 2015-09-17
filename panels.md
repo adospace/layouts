@@ -38,12 +38,53 @@ A row height or a column width can be specified as fixed value, as a "star" valu
 - Star values specify that row/column has a width relative to other row/column with star height/width and should divide with them available space. Ok seems complicated but it's not and you'll see in a moment.
 - Auto sized rows/columns is the most powerfull value you can set. It means that row/column should be auto-sized with its content, or better whould be tall/large enough to completely contains elements that occupy that row/column. This too seems complex but with an example you'll get the point.
 
-So for example this Grid is composed of 3 rows and 2 columns:
+#### star rows/columns
+For example this Grid is composed of 3 rows and 2 columns, all star values:
 ```xml
-<?xml version="1.0" encoding="utf-8" ?>
-<Grid Rows="* * *" Columns="* *">
+<Grid Rows="* *" Columns="* * *">
 </Grid>
 ```
-As you notice 
+Grid will divide its width in 3 same-width columns and 2 same-height rows. Now if you put inside the grid some elements with text and colors just recognize each cell you should see a colored matrix of 2x3 cells. 
 
+As you notice each child of grid specify which portion of the grid it wants occupy using Grid.Row and Grid.Column attributes. There is big difference between these properties and for example Background property. The latter is a simple property (called dependency property as we'll see later) that set a property of the object itself. The former are called "attached" properties because are actually defined by an object (in this case Grid) but are applied to other (in this case Border) and makes sense only in contest of defining object.
+
+Dependency properties are concept familiar to WPF/Silverlight developers, *layouts* just make uses of that paradigms and their added value will be clearer when we'll see Bindings.
+```xml
+<Grid Rows="* *" Columns="* * *">
+    <Border Background="Red" Grid.Row="0" Grid.Column="0">
+        <TextBlock Text="CELL 0 0" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+    </Border>
+    <Border Background="Yellow" Grid.Row="0" Grid.Column="1">
+        <TextBlock Text="CELL 0 1" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+    </Border>
+    <Border Background="Blue" Grid.Row="0" Grid.Column="2">
+        <TextBlock Text="CELL 1 0" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+    </Border>
+    <Border Background="Green" Grid.Row="1" Grid.Column="0">
+        <TextBlock Text="CELL 1 1" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+    </Border>
+    <Border Background="Aqua" Grid.Row="1" Grid.Column="1">
+        <TextBlock Text="CELL 2 0" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+    </Border>
+    <Border Background="Pink" Grid.Row="1" Grid.Column="2">
+        <TextBlock Text="CELL 2 1" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+    </Border>
+</Grid>
+```
+Ok if you put above xaml in hello world project and run you should see a colored matrix 2x3.
+
+Now change it a bit to make center columns double sized the other too.
+```xml
+<Grid Rows="* *" Columns="* 2* *">
+    ....omitted....
+</Grid>
+```
+Let's poke aroung Grid panel with Rows and Columns attributes and see the resulting effect. Below another example:
+```xml
+<Grid Rows="* 0.5*" Columns="* 2* *">
+    ....omitted....
+</Grid>
+```
+
+#### Fixed rows/columns
 
