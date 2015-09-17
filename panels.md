@@ -30,7 +30,7 @@ Everytime *layouts* need to place elements on screen need to measure them and th
 Stack is a panel that arranges its children like a stack. It has a property called Orientation that describe how children are stacked. Stack is fast and easy to use and will be together with Grid panel your first panel choice.
 
 ### grid
-Grid is a panell that arranges its children according to a grid layout. Grid is the most powerful builtin panel you can find in layouts but it's also slower that stack so use it only we you need. When you define a Grid you need to specify how many rows and columns it has. By default a Grid is composed of one row and one column. Foreach row/column you should also need to specify its height/width.
+Grid is a panel that arranges its children according to a grid layout. Grid is the most powerful builtin panel you can find in *layouts* but it's also slower that stack so use it only we you need. When you define a Grid you need to specify how many rows and columns it has. By default a Grid is composed of one row and one column. Foreach row/column you should also need to specify its height/width.
 
 A row height or a column width can be specified as fixed value, as a "star" value or as special value "auto":
 
