@@ -126,6 +126,8 @@ export class LoginViewModel extends layouts.DepObject {
 ```
 So now when user types some text in username and password our viewmodel is promptly notified and we'll have the _username and _password fields always updated with the view.
 
+### command
+
 Last step is to respond to user click to SignIn button. In MVVM this is solved elegantly with the Command pattern, and of course *layouts* fully support it. Command is a special object that let you respond to events of the view in the viewmodel maintening the viewmodel completely separated by view implementation.
 
 This is the command definition:
@@ -171,3 +173,57 @@ Button is now fully working:
 - Button calls Command.canExecute that in turn calls the canLogin() method of the viewmodel when it needs to know its state (enabled or enabled).
 
 Maybe you're thinking how button knows WHEN it needs to call Command.canExecute. In the snippet below I'll show you the complete viewmodel and you should notice that now set accessors of properties username and password have also a call to _loginCommand.canExecuteChanged(). This call allows the command to notify its observers that something in the canExecute logic may be changed. In fact if you see the canLogin method you'll find that username and password are tested to not be empty.
+```javascript
+export class LoginViewModel extends layouts.DepObject {
+    ///typeName section
+    
+    private _username: string;
+    get username(): string {
+        return this._username;
+    }
+    set username(value: string) {
+        if (this._username != value) {
+            var oldValue = this._username;
+            this._username = value;
+            this.onPropertyChanged("username", value, oldValue);
+            this._loginCommand.canExecuteChanged();
+        }
+    }
+
+    private _password: string;
+    get password(): string {
+        return this._password;
+    }
+    set password(value: string) {
+        if (this._password != value) {
+            var oldValue = this._password;
+            this._password = value;
+            this.onPropertyChanged("password", value, oldValue);
+            this._loginCommand.canExecuteChanged();
+        }
+    }
+    
+    private _loginCommand: layouts.Command;
+    get loginCommand(): layouts.Command {
+        if (this._loginCommand == null)
+            this._loginCommand = new layouts.Command((cmd, p) => this.onLogin(), (cmd, p) => this.canLogin());
+        return this._loginCommand;
+    }
+
+    onLogin() {
+        if (this._username == "test" &&
+            this._password == "test") {
+            alert("Logged in!");
+        }
+        else
+            alert("Unable to login!");
+    }
+
+    canLogin(): boolean {
+        return this._username != null && this._username.trim().length > 0 &&
+            this._password != null && this._password.trim().length > 0;
+    }
+    
+}
+```
+Binding is the foundation of the MVVM model and *layouts* encourages its extensive use. 
