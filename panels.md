@@ -86,7 +86,7 @@ Let's poke around with Grid panel with Rows and Columns attributes and see the r
 </Grid>
 ```
 
-#### Fixed rows/columns
+#### fixed rows/columns
 Rows and/or Column can also be set to a fixed value in pixels. Fixed values are common in HTML, much less in WPF/SL and so *layouts*. Fixing a row/column size prevents Grid to adapt children to browser window size changes.
 
 This is an example using fixed columns and rows
@@ -97,7 +97,7 @@ This is an example using fixed columns and rows
 ```
 To test xaml configurations you could use a tool I built for that purpose called Layouts Page Editor. You'll find it *layouts* code. 
 
-#### Auto rows/columns
+#### auto rows/columns
 Setting a row or column to Auto we're telling Grid to reserve enough space for children that occupy that row or column. In other word row/column auto size to its content. This feature is propbably the most important of Grid because let you abstract from children phisical sizes.
 
 For example in last sample above we've set last column to fixed width 10px: you see that text contained in left size cells is truncated.
@@ -110,7 +110,7 @@ Let's change it to:
 ```
 You should see that Grid now gives enough space to cells in order to show completely contained text.
 
-#### Span over rows/columns
+#### span over rows/columns
 Another great feature you'll find useful in Grid is the ability to span children over more than one row or column.
 
 For example:
