@@ -78,7 +78,7 @@ module layouts {
         setValue(property: DepProperty, value: any) {
             if (value != this.localPropertyValueMap[property.name]) {
                 var valueToSet = property.converter != null && Ext.isString(value) ? property.converter(value) : value;
-                var oldValue = this.localPropertyValueMap[property.name];
+                var oldValue = this.getValue(property);
                 this.localPropertyValueMap[property.name] = valueToSet;
                 this.onDependencyPropertyChanged(property, valueToSet, oldValue);
             }
