@@ -563,12 +563,14 @@ declare module layouts.controls {
         static columnProperty: DepProperty;
         static getColumn(target: DepObject): number;
         static setColumn(target: DepObject, value: number): void;
+        private static fromString(value);
         static rowSpanProperty: DepProperty;
         static getRowSpan(target: DepObject): number;
         static setRowSpan(target: DepObject, value: number): void;
         static columnSpanProperty: DepProperty;
         static getColumnSpan(target: DepObject): number;
         static setColumnSpan(target: DepObject, value: number): void;
+        private static spanFromString(value);
     }
 }
 declare module layouts.controls {
