@@ -1,7 +1,7 @@
 ## model-view-viewmodel
-*layouts* works best if you write code using a MVVM model. I can't here dive too much in MVVM and I'm sure you'll find on internet better resources to learn it. 
+*layouts* works best if you write code using a MVVM model. I can't dive here too much in MVVM and I'm sure you'll find on internet better resources to learn it. 
 
-*layouts* derives most of its types from DepObject. DepObject provide some basic MVVM functionalities. If you derive a class from DepObject automatically you get some hand features like property changes notifications.
+*layouts* derives most of its types from DepObject. DepObject provide some basic MVVM functionalities. If you derive a class from DepObject automatically you get some handy features like property changes notifications.
 
 For example say we want to build a fully working login page:
 ```javascript
@@ -73,9 +73,14 @@ Finally change the page xaml so to connect or better said 'bind' username textbo
 <Page>
   <Stack Orientation="Vertical" VerticalAlignment="Center" HorizontalAlignment="Center">
       <TextBlock Text="Welcome to Login Page" Margin="8"/>
-      <TextBox Placeholder="User name (test)" Margin="8"/>
+      <TextBox Text="{username,twoway}" Placeholder="User name (test)" Margin="8"/>
       <TextBox Type="password" Placeholder="Password (test)" Margin="8"/>
       <Button Text="Sign In" Margin="8,16,8,8"/>
   </Stack>
 </Page>
 ```
+We're actually declaring a binding between dependency property called "Text" of a TextBox UI element (called target) to a a property of a DepObject-derived object (that is called source).  Any changes made to property username of the viemodel is trasmitted to property Text of TextBox object. As binding is defined as "twoway" also changes to Text property of the TextBox is propagated to Text property of the ViewModel.
+
+### datacontext
+DataContext is a foundamental dependency property. When is created, a Binding by default looks for a source using the DataContext property. Any element of the UI (derived from UIElement and in turn from DepObject) has the DataContext property. If you look above with set the DataContext property of the Page object that is actually the grand parent of TextBox. DataContext "inherit" from page to its descendants or better when binding tries to access TextBox DataContext it bubble up to its parent Stack and then to Page where it finally find a not-null DataContext. This means that you can for example set Stack DataContext to a different value and TextBox automatically will connect to that object.
+
