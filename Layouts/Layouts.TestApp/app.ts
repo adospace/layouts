@@ -76,6 +76,31 @@ class TestViewModel extends layouts.DepObject {
     }
 }
 
+class TestShowHideViewModel extends layouts.DepObject {
+    static typeName: string = "TestShowHideViewModel";
+    get typeName(): string {
+        return TestShowHideViewModel.typeName;
+    }
+
+    static isVisibleProperty = layouts.DepObject.registerProperty(TestShowHideViewModel.typeName, "IsVisible", true);
+    get isVisible(): boolean {
+        return <boolean>this.getValue(TestShowHideViewModel.isVisibleProperty);
+    }
+    set isVisible(value: boolean) {
+        this.setValue(TestShowHideViewModel.isVisibleProperty, value);
+    }
+
+    private _showHideCommand: layouts.Command;
+    get showHideCommand(): layouts.Command {
+        if (this._showHideCommand == null)
+            this._showHideCommand = new layouts.Command((cmd, p) => this.onShowHide(), (cmd, p) => true);
+        return this._showHideCommand;
+    }
+
+    onShowHide() {
+        this.isVisible = !this.isVisible;
+    }
+}
 
 
 window.onload = () => {
@@ -103,13 +128,13 @@ window.onload = () => {
 
     var lmlTest = `<?xml version="1.0" encoding="utf-8" ?>
 <Page Name="testPage">  
-    <ItemsControl ItemsSource="{itemsCollection}" Grid.Row="1" Grid.ColumnSpan="3">
-        <DataTemplate>
-            <TextBlock Text="{.}"/>
-        </DataTemplate>
-    </ItemsControl>
+    <Grid Columns="* Auto 100" Width="200" Height="50" VerticalAlignment="Center" HorizontalAlignment="Center">
+        <TextBlock Text="Centered"  VerticalAlignment="Center" HorizontalAlignment="Center"/>
+        <TextBlock Text="--" IsVisible="{IsVisible}" Grid.Column="1"/>
+        <Button Text="Show/Hide" Command="{showHideCommand}" Grid.Column="2"/>
+    </Grid>
 </Page>`;
 
     app.page = lmlReader.Parse(lmlTest);
-    app.page.dataContext = new TestViewModel();
+    app.page.dataContext = new TestShowHideViewModel();
 };

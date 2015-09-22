@@ -142,7 +142,9 @@ declare module layouts {
         protected attachVisualOverride(elementContainer: HTMLElement): void;
         onClick(ev: MouseEvent): void;
         protected visualConnected(elementContainer: HTMLElement): void;
+        protected parentVisualConnected(parent: UIElement, elementContainer: HTMLElement): void;
         protected visualDisconnected(elementContainer: HTMLElement): void;
+        protected parentVisualDisconnected(parent: UIElement, elementContainer: HTMLElement): void;
         protected onDependencyPropertyChanged(property: DepProperty, value: any, oldValue: any): void;
         onCommandCanExecuteChanged(command: Command): void;
         getValue(property: DepProperty): any;

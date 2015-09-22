@@ -190,8 +190,11 @@ module layouts {
                 
                 //4. remove visual from old container 
                 if (this._visual.parentElement != null) {
+                    //Note children of this are not removed from DOM
+                    //for performance reasons, it would take to much to remove any descendants from DOM
                     var parentElement = this._visual.parentElement;
                     parentElement.removeChild(this._visual);
+                    //this will notify any children of removal
                     this.visualDisconnected(parentElement);
                 }
 
@@ -208,7 +211,8 @@ module layouts {
                         this._visual.style.visibility = "hidden";
                     
                     elementContainer.appendChild(this._visual);
-                    this.visualConnected(elementContainer);
+                    if (elementContainer != null)
+                        this.visualConnected(elementContainer);
                 }
             }
         }
@@ -249,11 +253,23 @@ module layouts {
         }
 
         protected visualConnected(elementContainer: HTMLElement): void {
+            this.parentVisualConnected(this, elementContainer);
+        }
 
+        protected parentVisualConnected(parent: UIElement, elementContainer: HTMLElement) {
+            if (this._logicalChildren == null)
+                return;
+            this._logicalChildren.forEach(c => c.parentVisualConnected(parent, elementContainer));
         }
 
         protected visualDisconnected(elementContainer: HTMLElement): void {
+            this.parentVisualDisconnected(this, elementContainer);
+        }
 
+        protected parentVisualDisconnected(parent: UIElement, elementContainer: HTMLElement) {
+            if (this._logicalChildren == null)
+                return;
+            this._logicalChildren.forEach(c => c.parentVisualDisconnected(parent, elementContainer));
         }
 
         protected onDependencyPropertyChanged(property: DepProperty, value: any, oldValue: any) {
@@ -431,7 +447,7 @@ module layouts {
             this._extendedProperties.push(new ExtendedProperty(name, value));
         }        
 
-        static isVisibleProperty = DepObject.registerProperty(UIElement.typeName, "IsVisible", true, FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender);
+        static isVisibleProperty = DepObject.registerProperty(UIElement.typeName, "IsVisible", true, FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsParentMeasure | FrameworkPropertyMetadataOptions.AffectsRender);
         get isVisible(): boolean {
             return <boolean>this.getValue(UIElement.isVisibleProperty);
         }
