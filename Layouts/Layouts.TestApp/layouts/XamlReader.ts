@@ -185,7 +185,12 @@ module layouts {
                         //at moment we'll support only 2 modes:
                         //1) default -> connect to DataContext
                         //2) self -> connect to object itself
-                        var bindingPath = bingingDef.source == "self" ? bingingDef.path : (bingingDef.path == "." ? "DataContext" : "DataContext." + bingingDef.path);
+                        var isDCProperty = depProperty == FrameworkElement.dataContextProperty;
+                        var bindingPath =
+                            bingingDef.source == "self" ? bingingDef.path :
+                            isDCProperty ? "parentDataContext." + bingingDef.path : 
+                            bingingDef.path == "." ? "DataContext" :
+                                    "DataContext." + bingingDef.path;
                         depObject.bind(depProperty, bindingPath, bingingDef.twoway, depObject, converter);
                     }
                     else

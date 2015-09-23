@@ -399,6 +399,24 @@ module layouts {
         set dataContext(value: any) {
             this.setValue(FrameworkElement.dataContextProperty, value);
         }
+        get parentDataContext(): any {
+            if (this.parent != null)
+                return this.parent.getValue(FrameworkElement.dataContextProperty);
+            return null;
+        }
+        protected onDependencyPropertyChanged(property: DepProperty, value: any, oldValue: any) {
+            super.onDependencyPropertyChanged(property, value, oldValue);
+
+            if (property == FrameworkElement.dataContextProperty)
+                super.onPropertyChanged("parentDataContext", this.parentDataContext, null);
+        }
+        protected onParentChanged(oldParent: DepObject, newParent: DepObject) {
+            super.onParentChanged(oldParent, newParent);
+
+            super.onPropertyChanged("parentDataContext", newParent, oldParent);
+        }
+
+
 
         //tag property
         static tagProperty = DepObject.registerProperty(FrameworkElement.typeName, "Tag");

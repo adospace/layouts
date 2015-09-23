@@ -71,7 +71,7 @@ class CodeViewModel extends layouts.DepObject {
     get view(): layouts.controls.Border {
         if (this._view == null) {
             this._view = CodeView.getView();
-            this._view.setValue(layouts.FrameworkElement.dataContextProperty, this);
+            //this._view.setValue(layouts.FrameworkElement.dataContextProperty, this);
         }
 
         return this._view;

@@ -67,7 +67,7 @@ module layouts {
         protected localPropertyValueMap: { [propertyName: string]: any; } = {};
         //Get property value for this object
         getValue(property: DepProperty): any {
-            if (this.localPropertyValueMap[property.name] == null) {
+            if (!(property.name in this.localPropertyValueMap[property.name])) {
                 return property.getDefaultValue(this);
             }
 
@@ -76,11 +76,20 @@ module layouts {
 
         //set property value to this object
         setValue(property: DepProperty, value: any) {
-            if (value != this.localPropertyValueMap[property.name]) {
+            var oldValue = this.getValue(property);
+            if (value != oldValue) {
                 var valueToSet = property.converter != null && Ext.isString(value) ? property.converter(value) : value;
-                var oldValue = this.getValue(property);
                 this.localPropertyValueMap[property.name] = valueToSet;
                 this.onDependencyPropertyChanged(property, valueToSet, oldValue);
+            }
+        }
+
+        //reset property value to its default
+        resetValue(property: DepProperty) {
+            if (property.name in this.localPropertyValueMap) {
+                var oldValue = this.getValue(property);
+                delete this.localPropertyValueMap[property.name];
+                this.onDependencyPropertyChanged(property, null, oldValue);
             }
         }
 
@@ -181,8 +190,7 @@ module layouts {
                 //if source is not null and retValue.success is false
                 //means that something in binding to original source has broken
                 //I need to reset the source and update target property to its default value
-                var valueToSet = this.targetProperty.getDefaultValue(this.target);
-                this.target.setValue(this.targetProperty, this.converter != null ? this.converter.convert(valueToSet, null) : valueToSet)
+                this.target.resetValue(this.targetProperty)
                 this.source = null;
                 this.sourceProperty = null;
             }

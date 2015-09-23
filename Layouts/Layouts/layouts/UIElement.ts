@@ -321,7 +321,7 @@ module layouts {
         }
 
         getValue(property: DepProperty): any {
-            if (this.localPropertyValueMap[property.name] == null) {
+            if (!(property.name in this.localPropertyValueMap)) {
                 var options = <FrameworkPropertyMetadataOptions>property.options;
                 if (options != null &&
                     this._parent != null &&

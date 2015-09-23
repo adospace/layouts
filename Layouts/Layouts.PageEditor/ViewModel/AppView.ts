@@ -31,7 +31,7 @@ class AppView {
 
     <!-- Main Area -->
     <Border id="mainArea" Grid.Row="1" Grid.Column="1">
-        <ControlTemplate Content="{selected.view}"/>
+        <ControlTemplate DataContext="{selected}" Content="{view}"/>
     </Border>
 
   </Grid>

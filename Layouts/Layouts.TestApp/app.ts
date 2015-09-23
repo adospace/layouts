@@ -102,6 +102,50 @@ class TestShowHideViewModel extends layouts.DepObject {
     }
 }
 
+class TestDataContextParentViewModel extends layouts.DepObject {
+    static typeName: string = "TestDataContextParentViewModel";
+    get typeName(): string {
+        return TestDataContextParentViewModel.typeName;
+    }
+
+    get title(): string {
+        return "parent";
+    }
+
+    _child: TestDataContextChildViewModel;
+    get child(): TestDataContextChildViewModel {
+        return this._child;
+    }
+    set child(value: TestDataContextChildViewModel) {
+        if (this._child != value) {
+            var oldValue = this._child;
+            this._child = value;
+            this.onPropertyChanged("child", value, oldValue);
+        }
+    }
+
+    private _showHideChildCommand: layouts.Command;
+    get showHideChildCommand(): layouts.Command {
+        if (this._showHideChildCommand == null)
+            this._showHideChildCommand = new layouts.Command((cmd, p) => this.onShowHideChild(), (cmd, p) => true);
+        return this._showHideChildCommand;
+    }
+
+    onShowHideChild() {
+        this.child = new TestDataContextChildViewModel();
+    }
+}
+
+class TestDataContextChildViewModel extends layouts.DepObject {
+    static typeName: string = "TestDataContextChildViewModel";
+    get typeName(): string {
+        return TestDataContextChildViewModel.typeName;
+    }
+
+    get title(): string {
+        return "child";
+    }
+}
 
 window.onload = () => {
     var app = new layouts.Application();
@@ -126,15 +170,23 @@ window.onload = () => {
           </Grid>    
     */
 
+//    var lmlTest = `<?xml version="1.0" encoding="utf-8" ?>
+//<Page Name="testPage">  
+//    <Grid Columns="* Auto 100" Width="200" Height="50" VerticalAlignment="Center" HorizontalAlignment="Center">
+//        <TextBlock Text="Centered"  VerticalAlignment="Center" HorizontalAlignment="Center"/>
+//        <TextBlock Text="--" IsVisible="{IsVisible}" Grid.Column="1"/>
+//        <Button Text="Show/Hide" Command="{showHideCommand}" Grid.Column="2"/>
+//    </Grid>
+//</Page>`;
+
     var lmlTest = `<?xml version="1.0" encoding="utf-8" ?>
-<Page Name="testPage">  
-    <Grid Columns="* Auto 100" Width="200" Height="50" VerticalAlignment="Center" HorizontalAlignment="Center">
-        <TextBlock Text="Centered"  VerticalAlignment="Center" HorizontalAlignment="Center"/>
-        <TextBlock Text="--" IsVisible="{IsVisible}" Grid.Column="1"/>
-        <Button Text="Show/Hide" Command="{showHideCommand}" Grid.Column="2"/>
-    </Grid>
+<Page Name="testPage">
+    <Stack VerticalAlignment="Center" HorizontalAlignment="Center">
+        <TextBlock DataContext="{child}" Text="{title}"/>
+        <Button Text="Show/Hide" Command="{showHideChildCommand}" Grid.Column="2"/>
+    </Stack>
 </Page>`;
 
     app.page = lmlReader.Parse(lmlTest);
-    app.page.dataContext = new TestShowHideViewModel();
+    app.page.dataContext = new TestDataContextParentViewModel();
 };

@@ -70,6 +70,7 @@ declare module layouts {
         };
         getValue(property: DepProperty): any;
         setValue(property: DepProperty, value: any): void;
+        resetValue(property: DepProperty): void;
         protected onDependencyPropertyChanged(property: DepProperty, value: any, oldValue: any): void;
         private dpcHandlers;
         subscribeDependencyPropertyChanges(observer: ISupportDependencyPropertyChange): void;
@@ -241,6 +242,9 @@ declare module layouts {
         margin: Thickness;
         static dataContextProperty: DepProperty;
         dataContext: any;
+        parentDataContext: any;
+        protected onDependencyPropertyChanged(property: DepProperty, value: any, oldValue: any): void;
+        protected onParentChanged(oldParent: DepObject, newParent: DepObject): void;
         static tagProperty: DepProperty;
         tag: any;
         static overflowXProperty: DepProperty;
