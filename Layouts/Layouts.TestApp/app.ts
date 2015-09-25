@@ -23,7 +23,7 @@ class TestViewModel extends layouts.DepObject {
                 new TestViewModelItem("item2"),
                 new TestViewModelItem("item3"),
             ]);
-        this._currentItem = this.itemsCollection[0]
+        this._currentItem = this.itemsCollection.at(0);
     }
 
     static nameProperty = layouts.DepObject.registerProperty(TestViewModel.typeName, "name", "test string");
@@ -74,6 +74,26 @@ class TestViewModel extends layouts.DepObject {
     get currentItem(): TestViewModelItem {
         return this._currentItem;
     }
+    set currentItem(value: TestViewModelItem) {
+        if (this._currentItem != value) {
+            var oldValue = this._currentItem;
+            this._currentItem = value;
+            this.onPropertyChanged("currentItem", value, oldValue);
+        }
+    }
+
+    private _currentItemName: string;
+    get currentItemName(): string {
+        return this._currentItemName;
+    }
+    set currentItemName(value: string) {
+        if (this._currentItemName != value) {
+            var oldValue = this._currentItemName;
+            this._currentItemName = value;
+            this.onPropertyChanged("currentItemName", value, oldValue);
+        }
+    }
+
 }
 
 class TestShowHideViewModel extends layouts.DepObject {
@@ -179,14 +199,24 @@ window.onload = () => {
 //    </Grid>
 //</Page>`;
 
-    var lmlTest = `<?xml version="1.0" encoding="utf-8" ?>
+//    var lmlTest = `<?xml version="1.0" encoding="utf-8" ?>
+//<Page Name="testPage">
+//    <Stack VerticalAlignment="Center" HorizontalAlignment="Center">
+//        <TextBlock DataContext="{child}" Text="{title}"/>
+//        <Button Text="Show/Hide" Command="{showHideChildCommand}" Grid.Column="2"/>
+//    </Stack>
+//</Page>`;
+
+        var lmlTest = `<?xml version="1.0" encoding="utf-8" ?>
 <Page Name="testPage">
-    <Stack VerticalAlignment="Center" HorizontalAlignment="Center">
-        <TextBlock DataContext="{child}" Text="{title}"/>
-        <Button Text="Show/Hide" Command="{showHideChildCommand}" Grid.Column="2"/>
+    <Stack VerticalAlignment="Center" HorizontalAlignment="Center" Orientation="Horizontal">
+        <!--<ComboBox Width="150" Height="30" ItemsSource="{itemsCollection}" DisplayMember="itemName" SelectedItem="{currentItem,twoway}"/>-->
+        <ComboBox Width="150" Height="30" ItemsSource="{itemsCollection}" DisplayMember="itemName" SelectMember="itemName" SelectedValue="{currentItemName,twoway}"/>
+        <Button Text="Increment" Command="{incrementCommand}"/>
+        <Button Text="Decrement" Command="{decrementCommand}"/>
     </Stack>
 </Page>`;
 
     app.page = lmlReader.Parse(lmlTest);
-    app.page.dataContext = new TestDataContextParentViewModel();
+    app.page.dataContext = new TestViewModel();
 };

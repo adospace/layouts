@@ -67,11 +67,11 @@ module layouts {
         protected localPropertyValueMap: { [propertyName: string]: any; } = {};
         //Get property value for this object
         getValue(property: DepProperty): any {
-            if (!(property.name in this.localPropertyValueMap[property.name])) {
-                return property.getDefaultValue(this);
+            if (property.name in this.localPropertyValueMap) {
+                return this.localPropertyValueMap[property.name];
             }
 
-            return this.localPropertyValueMap[property.name];
+            return property.getDefaultValue(this);
         }
 
         //set property value to this object

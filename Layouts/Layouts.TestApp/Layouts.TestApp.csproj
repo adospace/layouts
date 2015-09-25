@@ -39,6 +39,9 @@
     <TypeScriptCompile Include="..\Layouts\layouts\controls\Button.ts">
       <Link>layouts\controls\Button.ts</Link>
     </TypeScriptCompile>
+    <TypeScriptCompile Include="..\Layouts\layouts\controls\ComboBox.ts">
+      <Link>layouts\controls\ComboBox.ts</Link>
+    </TypeScriptCompile>
     <TypeScriptCompile Include="..\Layouts\layouts\controls\DataTemplate.ts">
       <Link>layouts\controls\DataTemplate.ts</Link>
     </TypeScriptCompile>
