@@ -146,11 +146,10 @@ module layouts {
                 this.relativeOffset = relativeOffset;
                 this.layoutOverride();
                 if (this._visual != null &&
-                    this._visual.hidden &&
                     this.isVisible)
                     //if visual is hidden here means that I just added it hidden to DOM
                     //so restore it visible (see attachVisual() below)
-                    this._visual.style.visibility = "visible";
+                    this._visual.style.visibility = "";
 
                 this.layoutInvalid = false;
             }
@@ -205,7 +204,7 @@ module layouts {
                     //visual will be restored to visible after it's correctly positioned
                     //see above layout()
                     //NOTE: we use CSS visibility instead of hidden property because with former
-                    //element size is still valid 
+                    //element size remains valid 
                     //http://stackoverflow.com/questions/2345784/jquery-get-height-of-hidden-element-in-jquery
                     if (!showImmediately)
                         this._visual.style.visibility = "hidden";
@@ -224,7 +223,9 @@ module layouts {
                     this._visual.style[ep.name] = ep.value;
                 });
 
-                this._visual.hidden = !this.isVisible;
+                //this._visual.style.display = this.isVisible ? "" : "none";
+                this._visual.style.visibility = this.isVisible ? "" : "hidden"
+                //this._visual.hidden = !this.isVisible;
                 if (this.command != null)
                     this._visual.onclick = (ev) => this.onClick(ev);
 
@@ -288,7 +289,9 @@ module layouts {
             }
             else if (property == UIElement.isVisibleProperty) {
                 if (this._visual != null)
-                    this._visual.hidden = !this.isVisible;
+                    //this._visual.hidden = !<boolean>value;
+                    this._visual.style.visibility = <boolean>value ? "" : "hidden"
+                    //this._visual.style.display = <boolean>value ? "" : "none";
             }
             else if (property == UIElement.classProperty) {
                 var className = this.cssClass;
@@ -455,7 +458,7 @@ module layouts {
             this.setValue(UIElement.isVisibleProperty, value);
         }
         
-        static styleProperty = DepObject.registerProperty(UIElement.typeName, "cssStyle", Consts.stringEmpty, FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender);
+        static styleProperty = DepObject.registerProperty(UIElement.typeName, "cssStyle", Consts.stringEmpty, FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsParentMeasure | FrameworkPropertyMetadataOptions.AffectsRender);
         get cssStyle(): string {
             return <string>this.getValue(UIElement.styleProperty);
         }

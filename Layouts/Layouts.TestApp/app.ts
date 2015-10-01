@@ -177,14 +177,14 @@ window.onload = () => {
     /*
         <Grid Rows="Auto Auto" Columns="Auto Auto Auto" VerticalAlignment="Center" HorizontalAlignment="Center">
       
-              <TextBox Text="{count,twoway}"/>
-              <Button Text="Increment" Command="{incrementCommand}" Grid.Column="1"/>
-              <Button Text="Decrement" Command="{decrementCommand}" Grid.Column="2"/>
+              <TextBox Text="{path:count,twoway}"/>
+              <Button Text="Increment" Command="{path:incrementCommand}" Grid.Column="1"/>
+              <Button Text="Decrement" Command="{path:decrementCommand}" Grid.Column="2"/>
       
 
-              <ItemsControl ItemsSource="{itemsCollection}" Grid.Row="1" Grid.ColumnSpan="3">
+              <ItemsControl ItemsSource="{path:itemsCollection}" Grid.Row="1" Grid.ColumnSpan="3">
                 <DataTemplate>
-                    <TextBlock Text="{itemName}"/>
+                    <TextBlock Text="{path:itemName}"/>
                 </DataTemplate>
               </ItemsControl>
           </Grid>    
@@ -194,24 +194,24 @@ window.onload = () => {
 //<Page Name="testPage">  
 //    <Grid Columns="* Auto 100" Width="200" Height="50" VerticalAlignment="Center" HorizontalAlignment="Center">
 //        <TextBlock Text="Centered"  VerticalAlignment="Center" HorizontalAlignment="Center"/>
-//        <TextBlock Text="--" IsVisible="{IsVisible}" Grid.Column="1"/>
-//        <Button Text="Show/Hide" Command="{showHideCommand}" Grid.Column="2"/>
+//        <TextBlock Text="--" IsVisible="{path:IsVisible}" Grid.Column="1"/>
+//        <Button Text="Show/Hide" Command="{path:showHideCommand}" Grid.Column="2"/>
 //    </Grid>
 //</Page>`;
 
 //    var lmlTest = `<?xml version="1.0" encoding="utf-8" ?>
 //<Page Name="testPage">
 //    <Stack VerticalAlignment="Center" HorizontalAlignment="Center">
-//        <TextBlock DataContext="{child}" Text="{title}"/>
-//        <Button Text="Show/Hide" Command="{showHideChildCommand}" Grid.Column="2"/>
+//        <TextBlock DataContext="{path:child}" Text="{title}"/>
+//        <Button Text="Show/Hide" Command="{path:showHideChildCommand}" Grid.Column="2"/>
 //    </Stack>
 //</Page>`;
 
         var lmlTest = `<?xml version="1.0" encoding="utf-8" ?>
 <Page Name="testPage">
     <Stack VerticalAlignment="Center" HorizontalAlignment="Center" Orientation="Horizontal">
-        <!--<ComboBox Width="150" Height="30" ItemsSource="{itemsCollection}" DisplayMember="itemName" SelectedItem="{currentItem,twoway}"/>-->
-        <ComboBox Width="150" Height="30" ItemsSource="{itemsCollection}" DisplayMember="itemName" SelectMember="itemName" SelectedValue="{currentItemName,twoway}"/>
+        <!--<ComboBox Width="150" Height="30" ItemsSource="{itemsCollection}" DisplayMember="itemName" SelectedItem="{path:currentItem,mode:twoway}"/>-->
+        <ComboBox Width="150" Height="30" ItemsSource="{itemsCollection}" DisplayMember="itemName" SelectMember="itemName" SelectedValue="{path:currentItemName,mode:twoway}"/>
         <Button Text="Increment" Command="{incrementCommand}"/>
         <Button Text="Decrement" Command="{decrementCommand}"/>
     </Stack>

@@ -7,16 +7,16 @@ class AppView {
         return `<?xml version="1.0" encoding="utf-8" ?>
 <Page xmlns:localViews="Layouts.Sample3">
   <Grid Rows="48 *" Columns="Auto *">
-    <Border id="leftSideLogo" IsVisible="{isMenuVisible}"/>
+    <Border id="leftSideLogo" IsVisible="{path:isMenuVisible}"/>
 
     <!-- Header -->
     <Border id="header" Grid.ColumnSpan="2">
         <!-- Logo Area -->
-        <Image Command="{toggleMenuCommand}" class="headerButton" Source="Images/Menu-32.png" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="4"/>
+        <Image Command="{path:toggleMenuCommand}" class="headerButton" Source="Images/Menu-32.png" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="4"/>
     </Border>
 
     <!-- Left Side -->
-    <Border id="leftSide" IsVisible="{isMenuVisible}" Grid.Row="1" Width="250">
+    <Border id="leftSide" IsVisible="{path:isMenuVisible}" Grid.Row="1" Width="250">
         <localViews:TreeView />
     </Border>
 

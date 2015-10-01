@@ -40,12 +40,13 @@ module layouts.controls {
             }
 
             this._buttonElement.onclick = (ev) => this.onClick(ev);
+            this._buttonElement.disabled = !this.isEnabled;
 
             super.attachVisualOverride(elementContainer);
         }
 
         protected measureOverride(constraint: Size): Size {
-            this._buttonElement.disabled = this.command == null || !this.command.canExecute(this.commandParameter);
+            this.isEnabled = this.command != null && this.command.canExecute(this.commandParameter);
 
             var mySize = new Size();
 
@@ -134,17 +135,15 @@ module layouts.controls {
                     (<Command>value).onCanExecuteChangeNotify(this);
             }
             else if (property == Button.isEnabledProperty) {
-                this._buttonElement.disabled = !<boolean>value;
+                if (this._buttonElement != null)
+                    this._buttonElement.disabled = !<boolean>value;
             }
 
             super.onDependencyPropertyChanged(property, value, oldValue);
         }
 
         onCommandCanExecuteChanged(command: Command) {
-            if (this._buttonElement != null) {
-                this.isEnabled = this.command != null && this.command.canExecute(this.commandParameter);
-                this._buttonElement.disabled = !this.isEnabled;
-            }
+            this.isEnabled = this.command != null && this.command.canExecute(this.commandParameter);
         }
 
         //Dependency properties
@@ -164,14 +163,6 @@ module layouts.controls {
         }
         set text(value: string) {
             this.setValue(Button.textProperty, value);
-        }
-
-        static commandParameterProperty = DepObject.registerProperty(Button.typeName, "commandParameter", null, FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender);
-        get commandParameter(): any {
-            return this.getValue(Button.commandParameterProperty);
-        }
-        set commandParameter(value: any) {
-            this.setValue(Button.commandParameterProperty, value);
         }
 
         static whiteSpaceProperty = DepObject.registerProperty(Button.typeName, "WhiteSpace", "pre", FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender);

@@ -14,9 +14,9 @@ module app {
         public static get PAGE_DEFINITION(): string {
             return `<?xml version="1.0" encoding="utf-8" ?>
 <Stack Orientation="Vertical" VerticalAlignment="Center" HorizontalAlignment="Center">
-    <TextBlock Text="{username}" Format="Welcome to Page1 user {0}" Margin="8"/>
-    <TextBox Text="{parameter,twoway}" Placeholder="Parameter for page 2" Margin="8"/>
-    <Button Text="Goto Page 2" Command="{gotoPage2Command}" Margin="8,16,8,8"/>
+    <TextBlock Text="{path:username}" Format="Welcome to Page1 user {0}" Margin="8"/>
+    <TextBox Text="{path:parameter,twoway}" Placeholder="Parameter for page 2" Margin="8"/>
+    <Button Text="Goto Page 2" Command="{path:gotoPage2Command}" Margin="8,16,8,8"/>
 </Stack>`;
         }
 

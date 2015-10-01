@@ -147,8 +147,8 @@ module layouts {
         private bindings: Array<Binding> = new Array<Binding>();
 
         //bind a property of this object to a source object thru a path
-        bind(property: DepProperty, propertyPath: string, twoway: boolean, source: DepObject, converter: IConverter) {
-            var newBinding = new Binding(this, property, propertyPath, source, twoway, converter);
+        bind(property: DepProperty, propertyPath: string, twoway: boolean, source: DepObject, converter?: IConverter, converterParameter?: any, format?: string) {
+            var newBinding = new Binding(this, property, propertyPath, source, twoway, converter, converterParameter, format);
             this.bindings.push(newBinding);
         }
 
@@ -161,16 +161,20 @@ module layouts {
         path: PropertyPath;
         twoWay: boolean = false;
         converter: IConverter = null
+        converterParameter: any = null
+        format: string = null;
 
         private source: DepObject;
         private sourceProperty: DepProperty;
 
-        constructor(target: DepObject, targetProperty: DepProperty, propertyPath: string, source: DepObject, twoWay: boolean = false, converter: IConverter = null) {
+        constructor(target: DepObject, targetProperty: DepProperty, propertyPath: string, source: DepObject, twoWay: boolean = false, converter: IConverter = null, converterParameter: any = null, format: string = null) {
             this.target = target;
             this.targetProperty = targetProperty;
             this.path = new PropertyPath(this, propertyPath, source);
             this.twoWay = twoWay;
             this.converter = converter;
+            this.converterParameter = converterParameter;
+            this.format = format;
 
             this.updateTarget();
 
@@ -184,7 +188,15 @@ module layouts {
             if (retValue.success) {
                 this.source = retValue.source;
                 this.sourceProperty = retValue.sourceProperty;
-                this.target.setValue(this.targetProperty, this.converter != null ? this.converter.convert(retValue.value, null) : retValue.value);//update target
+                var valueToSet = this.converter != null ? this.converter.convert(retValue.value,
+                    {
+                        source: this.source,
+                        sourceProperty: this.sourceProperty,
+                        target: this.target,
+                        targetProperty: this.targetProperty,
+                        parameter: this.converterParameter
+                    }) : retValue.value;
+                this.target.setValue(this.targetProperty, this.format != null ? this.format.format(valueToSet) : valueToSet);//update target
             }
             else if (this.source != null) {
                 //if source is not null and retValue.success is false
@@ -202,7 +214,13 @@ module layouts {
                 this.twoWay) {
                 //if target property value is changed than update source
                 //(twoway mode on)
-                this.path.setValue(this.converter != null ? this.converter.convertBack(value, null) : value);
+                this.path.setValue(this.converter != null ? this.converter.convertBack(value, {
+                    source: this.source,
+                    sourceProperty: this.sourceProperty,
+                    target: this.target,
+                    targetProperty: this.targetProperty,
+                    parameter: this.converterParameter
+                }) : value);
             }
         }
     }

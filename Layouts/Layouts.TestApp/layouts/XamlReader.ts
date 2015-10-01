@@ -13,6 +13,8 @@ module layouts {
                 this.instanceLoader = new InstanceLoader(window)
         }
 
+        private _createdObjectsWithId: { [objectId: string]: any; } = {};
+        
         Parse(lml: string): any {
             var parser = new DOMParser();
             var doc = parser.parseFromString(lml, "text/xml").documentElement;
@@ -51,6 +53,9 @@ module layouts {
                     if (!this.trySetProperty(containerObject, propertyName, this.resolveNameSpace(att.namespaceURI), att.value))
                         if (containerObject["addExtentedProperty"] != null)
                             containerObject["addExtentedProperty"](propertyName, att.value);//if no property with right name put it in extented properties collection
+                    
+                    if (propertyName == "id")
+                        this._createdObjectsWithId[att.value] = containerObject;
                 }
             }
 
@@ -173,25 +178,43 @@ module layouts {
                 if (depProperty != null) {
                     //ok we have a depProperty and a depObject
                     //test if value is actually a Binding object
-                    var bingingDef = Ext.isString(value) ? XamlReader.tryParseBinding(value) : null;
-                    if (bingingDef != null) {
+                    var bindingDef = Ext.isString(value) ? XamlReader.tryParseBinding(value) : null;
+                    if (bindingDef != null) {
                         //here I should check the source of binding (not yet implemented)
                         //by default if source == DataContext binding just connect to
                         //"DataContext." + original path and source is depObject itself
-                        var converter: IConverter = bingingDef.converter == null ? null : this.instanceLoader.getInstance(bingingDef.converter);
+                        var converter: IConverter = bindingDef.converter == null ? null : this.instanceLoader.getInstance(bindingDef.converter);
                         if (converter == null &&
-                            bingingDef.converter != null)
-                            throw new Error("Unable to create converter from '{0}'".format(bingingDef.converter));
+                            bindingDef.converter != null)
+                            throw new Error("Unable to create converter from '{0}'".format(bindingDef.converter));
                         //at moment we'll support only 2 modes:
                         //1) default -> connect to DataContext
                         //2) self -> connect to object itself
+                        //3) {element} -> source is an element reference
                         var isDCProperty = depProperty == FrameworkElement.dataContextProperty;
+                        var isElementNameDefined = bindingDef.element != null;
                         var bindingPath =
-                            bingingDef.source == "self" ? bingingDef.path :
-                            isDCProperty ? "parentDataContext." + bingingDef.path : 
-                            bingingDef.path == "." ? "DataContext" :
-                                    "DataContext." + bingingDef.path;
-                        depObject.bind(depProperty, bindingPath, bingingDef.twoway, depObject, converter);
+                            bindingDef.source == "self" || isElementNameDefined ? bindingDef.path :
+                            isDCProperty ? "parentDataContext." + bindingDef.path : 
+                            bindingDef.path == "." ? "DataContext" :
+                                        "DataContext." + bindingDef.path;
+
+                        var source = depObject;
+                        if (isElementNameDefined) {
+                            if (!(bindingDef.element in this._createdObjectsWithId))
+                                console.log("[Bindings] Unable to find element with id '{0}'".format(bindingDef.element));
+                            else
+                                source = this._createdObjectsWithId[bindingDef.element];
+                        }
+
+                        depObject.bind(
+                            depProperty,
+                            bindingPath,
+                            bindingDef.mode,
+                            source,
+                            converter,
+                            bindingDef.converterParameter,
+                            bindingDef.format);
                     }
                     else
                         depObject.setValue(depProperty, value);
@@ -227,19 +250,55 @@ module layouts {
             return false;
         }
 
-        private static tryParseBinding(value: string): { path: string, twoway: boolean, source: string, converter: string; } {
+        private static tryParseBinding(value: string):
+            {
+                path?: string,
+                mode?: boolean,
+                source?: string,
+                converter?: string,
+                converterParameter?: string,
+                element?: string,
+                format?: string
+            } {
 
             var bindingValue =  value.trim();
             if (bindingValue.length >= 3 && //again here maybe better a regex
                 bindingValue[0] == '{' &&
                 bindingValue[bindingValue.length-1] == '}') {
 
-                var tokens = bindingValue.substr(1, bindingValue.length-2).split(",");
-                var path = tokens[0]; //ex. '.' or 'Name'
-                var twoway = tokens.length > 1 ? (tokens[1] == "twoway") : false;
-                var source = tokens.length > 2 ? tokens[2] : null; //todo convert to source=>self, element etc
-                var converter = tokens.length > 3 ? tokens[3] : null; //converter (typename)to use when updating the target
-                return { path: path, twoway: twoway, source: source, converter: converter };
+                try {
+                    var bindingDef: any = new Object();
+                    var tokens = bindingValue.substr(1, bindingValue.length - 2).split(",");
+                    tokens.forEach(t => {
+                        var keyValue = t.split(":");
+                        if (keyValue.length == 2) {
+                            var value = keyValue[1].trim();
+                            if (value.length > 2 &&
+                                value[0] == '\'' &&
+                                value[value.length - 1] == '\'')
+                                value = value.substr(1, value.length - 2);
+                            bindingDef[keyValue[0].trim()] = value;
+                        }
+                        else if (keyValue.length == 1)
+                            bindingDef["path"] = keyValue[0].trim();
+                        else
+                            throw Error("syntax error");
+                    });
+                    return bindingDef;
+                }
+                catch (e) {
+                    //swallow error here because it could be simply a syntax error
+                    //just signal it on console
+                    console.log("[Bindings] Unable to parse '{0}' as binding definition".format(bindingValue));
+                }
+
+                //var tokens = bindingValue.substr(1, bindingValue.length-2).split(",");
+                //var path = tokens[0]; //ex. '.' or 'Name'
+                //var twoway = tokens.length > 1 ? (tokens[1] == "twoway") : false;
+                //var source = tokens.length > 2 ? tokens[2] : null; //todo convert to source=>self, element etc
+                //var converter = tokens.length > 3 ? tokens[3] : null; //converter (typename) to use when updating the target
+                //var converterParameter = tokens.length > 4 ? tokens[4] : null;//converter parameter to pass to converter as context
+                //return { path: path, twoway: twoway, source: source, converter: converter, converterParameter: converterParameter };
             }
 
             return null;

@@ -6,11 +6,11 @@ class CodeView {
 <Border xmlns:localViews="Layouts.PageEditor">
   <Grid Columns="* *">
     <!-- Ace Editor -->
-    <localViews:AceView SourceCode="{sourceCode,twoway}"/>
+    <localViews:AceView SourceCode="{path:sourceCode,mode:twoway}"/>
 
     <!-- Run Area -->
     <Border Name="runAread" Grid.Column="1">
-        <ControlTemplate Content="{createdControl}"/>
+        <ControlTemplate Content="{path:createdControl}"/>
     </Border>
 
   </Grid>

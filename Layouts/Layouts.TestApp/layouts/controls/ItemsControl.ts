@@ -96,6 +96,9 @@ module layouts.controls {
                     return;
 
                 added.forEach(item=> {
+                    if (item == null)
+                        throw new Error("Unable to render null items");
+
                     var templateForItem = this.getTemplateForItem(item);
                     if (templateForItem == null) {
                         throw new Error("Unable to find a valid template for item");
@@ -108,7 +111,7 @@ module layouts.controls {
 
                 removed.forEach(item=> {
                     this.itemsPanel.children.remove(
-                        this.itemsPanel.children.at(startRemoveIndex));
+                        this.itemsPanel.children.at(startRemoveIndex++));
                 });
 
             }
@@ -134,10 +137,9 @@ module layouts.controls {
             this.setValue(ItemsControl.itemsPanelProperty, value);
         }
 
-
         protected onDependencyPropertyChanged(property: DepProperty, value: any, oldValue: any) {
             if (property == ItemsControl.itemsSourceProperty) {
-                if (oldValue != null && oldValue["onChangeNotify"] != null) {
+                if (oldValue != null && oldValue["offChangeNotify"] != null) {
                     var oldItmesSource = <ObservableCollection<Object>>oldValue;
                     oldItmesSource.offChangeNotify(this);
                 }
@@ -238,7 +240,6 @@ module layouts.controls {
 
             this.invalidateMeasure();
         }
-
 
     }
 }
