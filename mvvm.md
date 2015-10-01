@@ -51,7 +51,7 @@ export class LoginViewModel extends layouts.DepObject {
     }
 }
 ```
-username is defined as public property of type string that has an important call in the set accessor: this.onPropertyChanged(). This call to base DebOpject.onPropertyChanged() protected function notifies any object connect to username changes (most of times is a view class that need to render properly the change).
+username is defined as public property of type string that has an important call in the set accessor: this.onPropertyChanged(). This call to base DebOpject.onPropertyChanged() protected function notifies any object listening to username changes (most of times is a view class that need to properly render the change).
 
 Now connect the view (in our case the page) with the viewmodel using the dataContext property:
 ```javascript
