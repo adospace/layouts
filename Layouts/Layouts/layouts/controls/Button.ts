@@ -46,7 +46,7 @@ module layouts.controls {
         }
 
         protected measureOverride(constraint: Size): Size {
-            this.isEnabled = this.command != null && this.command.canExecute(this.commandParameter);
+            this.isEnabled = this.popup != null || (this.command != null && this.command.canExecute(this.commandParameter));
 
             var mySize = new Size();
 
@@ -143,7 +143,7 @@ module layouts.controls {
         }
 
         onCommandCanExecuteChanged(command: Command) {
-            this.isEnabled = this.command != null && this.command.canExecute(this.commandParameter);
+            this.isEnabled = this.popup != null || (this.command != null && this.command.canExecute(this.commandParameter));
         }
 
         //Dependency properties

@@ -1,4 +1,4 @@
-﻿class AddArticleDialogView extends layouts.controls.Dialog {
+﻿class AddArticleDialogView extends layouts.controls.Popup {
     static typeName: string = "AddArticleDialogView";
     get typeName(): string {
         return AddArticleDialogView.typeName;

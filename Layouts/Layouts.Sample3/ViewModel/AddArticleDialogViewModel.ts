@@ -34,7 +34,7 @@ class AddArticleDialogViewModel extends layouts.DepObject {
     }
 
     onCloseDialog(article: ArticleViewModel) {
-        layouts.LayoutManager.closeDialog(this.view);
+        layouts.LayoutManager.closePopup(this.view);
     }
 
     get appViewModel(): AppViewModel {
@@ -53,7 +53,7 @@ class AddArticleDialogViewModel extends layouts.DepObject {
         var articleAdded = this.category.articles.add(new ArticleViewModel());
         articleAdded.title = this.articleTitle;
         this.appViewModel.openArticle(articleAdded);
-        layouts.LayoutManager.closeDialog(this.view);
+        layouts.LayoutManager.closePopup(this.view);
     }
     
 

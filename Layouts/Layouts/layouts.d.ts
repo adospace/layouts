@@ -150,6 +150,8 @@ declare module layouts {
         attachVisual(elementContainer: HTMLElement, showImmediately?: boolean): void;
         protected attachVisualOverride(elementContainer: HTMLElement): void;
         onClick(ev: MouseEvent): void;
+        onMouseDown(ev: MouseEvent): void;
+        getBoundingClientRect(): ClientRect;
         protected visualConnected(elementContainer: HTMLElement): void;
         protected parentVisualConnected(parent: UIElement, elementContainer: HTMLElement): void;
         protected visualDisconnected(elementContainer: HTMLElement): void;
@@ -183,6 +185,8 @@ declare module layouts {
         command: Command;
         static commandParameterProperty: DepProperty;
         commandParameter: any;
+        static popupProperty: DepProperty;
+        popup: any;
     }
 }
 declare module layouts {
@@ -262,7 +266,14 @@ declare module layouts {
     }
 }
 declare module layouts.controls {
-    class Dialog extends FrameworkElement {
+    enum PopupPosition {
+        Center = 0,
+        Left = 1,
+        Top = 2,
+        Right = 3,
+        Bottom = 4,
+    }
+    class Popup extends FrameworkElement {
         static typeName: string;
         typeName: string;
         private static _init;
@@ -270,21 +281,25 @@ declare module layouts.controls {
         constructor();
         private _child;
         child: UIElement;
+        onShow(): void;
+        onClose(): void;
         protected initializeComponent(): UIElement;
         protected layoutOverride(): void;
         protected measureOverride(constraint: Size): Size;
         protected arrangeOverride(finalSize: Size): Size;
         static sizeToContentProperty: DepProperty;
         sizeToContent: SizeToContent;
+        static positionProperty: DepProperty;
+        position: PopupPosition;
     }
 }
 declare module layouts {
     class LayoutManager {
         static requestLayoutUpdate(): void;
         static updateLayout(): void;
-        private static dialogs;
-        static showDialog(dialog: layouts.controls.Dialog): void;
-        static closeDialog(dialog: layouts.controls.Dialog): void;
+        private static popups;
+        static showPopup(dialog: layouts.controls.Popup): void;
+        static closePopup(dialog?: layouts.controls.Popup): void;
     }
 }
 declare module layouts.controls {

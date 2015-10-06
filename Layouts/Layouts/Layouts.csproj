@@ -31,7 +31,7 @@
     <TypeScriptCompile Include="layouts\controls\Image.ts" />
     <TypeScriptCompile Include="layouts\controls\NativeElements.ts" />
     <TypeScriptCompile Include="layouts\controls\ItemsControl.ts" />
-    <TypeScriptCompile Include="layouts\controls\Dialog.ts" />
+    <TypeScriptCompile Include="layouts\controls\Popup.ts" />
     <TypeScriptCompile Include="layouts\controls\Page.ts" />
     <TypeScriptCompile Include="layouts\controls\Panel.ts" />
     <TypeScriptCompile Include="layouts\controls\ComboBox.ts" />

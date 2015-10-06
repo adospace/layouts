@@ -208,7 +208,10 @@ module layouts {
                     //http://stackoverflow.com/questions/2345784/jquery-get-height-of-hidden-element-in-jquery
                     if (!showImmediately)
                         this._visual.style.visibility = "hidden";
-                    
+
+                    //makes layout invalid so to restore any render in case element was just removed and readded to tree
+                    this.invalidateMeasure();
+
                     elementContainer.appendChild(this._visual);
                     if (elementContainer != null)
                         this.visualConnected(elementContainer);
@@ -228,6 +231,8 @@ module layouts {
                 //this._visual.hidden = !this.isVisible;
                 if (this.command != null)
                     this._visual.onclick = (ev) => this.onClick(ev);
+                if (this.popup != null)
+                    this._visual.onmousedown = (ev) => this.onMouseDown(ev);
 
                 var name = this.id;
                 if (this._visual.id != name &&
@@ -251,6 +256,24 @@ module layouts {
                 this.onCommandCanExecuteChanged(command);
                 ev.stopPropagation();
             }
+        }
+
+        onMouseDown(ev: MouseEvent) {
+            var popup = this.popup;
+            if (popup != null) {
+                LayoutManager.showPopup(popup);
+                ev.stopPropagation();
+                document.addEventListener("mousedown", function () {
+                    this.removeEventListener("mousedown", arguments.callee);
+                    LayoutManager.closePopup();
+                });
+            }
+        }
+
+        getBoundingClientRect(): ClientRect {
+            if (this._visual == null)
+                throw new Error("Unable to get bounding rect for element not linked to DOM");
+            return this._visual.getBoundingClientRect();
         }
 
         protected visualConnected(elementContainer: HTMLElement): void {
@@ -285,6 +308,19 @@ module layouts {
                     (<Command>value).onCanExecuteChangeNotify(this);
                     if (this._visual != null)
                         this._visual.onclick = (ev) => this.onClick(ev);
+                }
+            }
+            else if (property == UIElement.popupProperty) {
+                if (oldValue != null) {
+                    if (this._visual != null)
+                        this._visual.onmousedown = null;
+                    if ((<UIElement>oldValue).parent == this)
+                        (<UIElement>oldValue).parent = null;
+                }
+                if (value != null) {
+                    if (this._visual != null)
+                        this._visual.onmousedown = (ev) => this.onMouseDown(ev);
+                    (<UIElement>value).parent = this;
                 }
             }
             else if (property == UIElement.isVisibleProperty) {
@@ -498,6 +534,16 @@ module layouts {
         }
         set commandParameter(value: any) {
             this.setValue(UIElement.commandParameterProperty, value);
+        }
+
+
+        //get or set popup property for the element
+        static popupProperty = DepObject.registerProperty(UIElement.typeName, "Popup", null, FrameworkPropertyMetadataOptions.AffectsRender);
+        get popup(): any {
+            return <string>this.getValue(UIElement.popupProperty);
+        }
+        set popup(value: any) {
+            this.setValue(UIElement.popupProperty, value);
         }
 
     }

@@ -1,4 +1,4 @@
-﻿/// <reference path="controls/Dialog.ts" />
+﻿/// <reference path="controls/Popup.ts" />
 
 
 module layouts {
@@ -22,31 +22,60 @@ module layouts {
                 page.layout();
             }
 
-            LayoutManager.dialogs.forEach(dialog=> {
-                var sizeToContentWidth = dialog.sizeToContent == layouts.SizeToContent.Both || dialog.sizeToContent == layouts.SizeToContent.Horizontal;
-                var sizeToContentHeight = dialog.sizeToContent == layouts.SizeToContent.Both || dialog.sizeToContent == layouts.SizeToContent.Vertical;
-                dialog.measure(new Size(sizeToContentWidth ? Infinity : docWidth, sizeToContentHeight ? Infinity : docHeight));
-                dialog.arrange(new Rect(0, 0, sizeToContentWidth ? dialog.desideredSize.width : docWidth, sizeToContentHeight ? dialog.desideredSize.height : docHeight));
-                dialog.layout();
+            LayoutManager.popups.forEach(popup=> {
+                var sizeToContentWidth = popup.sizeToContent == layouts.SizeToContent.Both || popup.sizeToContent == layouts.SizeToContent.Horizontal;
+                var sizeToContentHeight = popup.sizeToContent == layouts.SizeToContent.Both || popup.sizeToContent == layouts.SizeToContent.Vertical;
+                popup.measure(new Size(sizeToContentWidth ? Infinity : docWidth, sizeToContentHeight ? Infinity : docHeight));
+                var relativeTo = popup.parent;
+                var left = 0, top = 0;
+                var finalWidth = sizeToContentWidth ? popup.desideredSize.width : docWidth;
+                var finalHeight = sizeToContentHeight ? popup.desideredSize.height : docHeight;
+                if (relativeTo != null && popup.position != layouts.controls.PopupPosition.Center) {
+                    var relativeBound = relativeTo.getBoundingClientRect();
+                    
+                    if (popup.position == layouts.controls.PopupPosition.Left) {
+                        left = relativeBound.left - finalWidth;
+                        top = docHeight / 2 - finalHeight / 2;
+                    }
+                    else if (popup.position == layouts.controls.PopupPosition.Right) {
+                        left = relativeBound.right;
+                        top = docHeight / 2 - finalHeight / 2;
+                    }
+                    else if (popup.position == layouts.controls.PopupPosition.Top) {
+                        top = relativeBound.top - popup.desideredSize.height;
+                        left = docWidth / 2 - finalWidth / 2;
+                    }
+                    else if (popup.position == layouts.controls.PopupPosition.Bottom) {
+                        top = relativeBound.bottom;
+                        left = docWidth / 2 - finalWidth / 2;
+                    }
+                }
+                else {
+                    left = docWidth / 2 - finalWidth / 2;
+                    top = docHeight / 2 - finalHeight / 2;
+                }
+                popup.arrange(new Rect(left, top, finalWidth, finalHeight));
+                popup.layout();
             });
 
             requestAnimationFrame(LayoutManager.updateLayout);
         }
 
 
-        private static dialogs: layouts.controls.Dialog[] = [];
-        static showDialog(dialog: layouts.controls.Dialog) {
-            if (LayoutManager.dialogs.indexOf(dialog) == -1) {
-                LayoutManager.dialogs.push(dialog);
+        private static popups: layouts.controls.Popup[] = [];
+        static showPopup(dialog: layouts.controls.Popup) {
+            if (LayoutManager.popups.indexOf(dialog) == -1) {
+                LayoutManager.popups.push(dialog);
+                dialog.onShow();
                 LayoutManager.updateLayout();
             }
         }
 
-        static closeDialog(dialog: layouts.controls.Dialog) {
-            var indexOfElement = LayoutManager.dialogs.indexOf(dialog);
+        static closePopup(dialog?: layouts.controls.Popup) {
+            var indexOfElement = dialog == null ? LayoutManager.popups.length - 1 : LayoutManager.popups.indexOf(dialog);
             if (indexOfElement > -1) {
-                LayoutManager.dialogs.splice(indexOfElement);
-                dialog.child = null;
+                dialog = LayoutManager.popups.splice(indexOfElement)[0];
+                dialog.onClose();
                 LayoutManager.updateLayout();
             }
         }

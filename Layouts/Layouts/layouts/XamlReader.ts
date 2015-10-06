@@ -165,7 +165,7 @@ module layouts {
                 var depProperty: DepProperty;
 
                 //if an attached property find the property on publisher object
-                //for example if Grid.Row-> lloks for property Grid#Row in Grid type
+                //for example if Grid.Row-> looks for property Grid#Row in Grid type
                 var indexOfDot = propertyName.indexOf(".");
                 if (indexOfDot > -1) {
                     typeName = propertyNameSpace == null ? propertyName.substr(0, indexOfDot) : propertyNameSpace + "." + propertyName.substr(0, indexOfDot);

@@ -3,11 +3,11 @@
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.Default.props" Condition="Exists('$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.Default.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <ProjectGuid>{00A0DF0B-D428-49AE-B3CB-169C81D65459}</ProjectGuid>
+    <ProjectGuid>{9543F8B1-F0D9-4D8C-AB67-02C02F368E24}</ProjectGuid>
     <ProjectTypeGuids>{349c5851-65df-11da-9384-00065b846f21};{fae04ec0-301f-11d3-bf4b-00c04f79efbc}</ProjectTypeGuids>
     <OutputType>Library</OutputType>
     <OutputPath>bin</OutputPath>
-    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <DebugType>full</DebugType>
     <DebugSymbols>true</DebugSymbols>
     <TypeScriptToolsVersion>1.5</TypeScriptToolsVersion>
@@ -16,11 +16,7 @@
     <IISExpressAnonymousAuthentication />
     <IISExpressWindowsAuthentication />
     <IISExpressUseClassicPipelineMode />
-    <UseGlobalApplicationHostFile />
   </PropertyGroup>
-  <ItemGroup>
-    <Service Include="{4A0DDDB5-7A95-4FBF-97CC-616D07737A77}" />
-  </ItemGroup>
   <ItemGroup>
     <Content Include="app.css" />
     <Content Include="index.html" />
@@ -48,6 +44,9 @@
     </TypeScriptCompile>
     <TypeScriptCompile Include="..\Layouts\layouts\controls\Canvas.ts">
       <Link>layouts\controls\Canvas.ts</Link>
+    </TypeScriptCompile>
+    <TypeScriptCompile Include="..\Layouts\layouts\controls\ComboBox.ts">
+      <Link>layouts\controls\ComboBox.ts</Link>
     </TypeScriptCompile>
     <TypeScriptCompile Include="..\Layouts\layouts\controls\ContentTemplate.ts">
       <Link>layouts\controls\ContentTemplate.ts</Link>
@@ -78,6 +77,9 @@
     </TypeScriptCompile>
     <TypeScriptCompile Include="..\Layouts\layouts\controls\Panel.ts">
       <Link>layouts\controls\Panel.ts</Link>
+    </TypeScriptCompile>
+    <TypeScriptCompile Include="..\Layouts\layouts\controls\Popup.ts">
+      <Link>layouts\controls\Popup.ts</Link>
     </TypeScriptCompile>
     <TypeScriptCompile Include="..\Layouts\layouts\controls\Stack.ts">
       <Link>layouts\controls\Stack.ts</Link>
@@ -137,10 +139,6 @@
       <Link>layouts\XamlReader.ts</Link>
     </TypeScriptCompile>
     <TypeScriptCompile Include="app.ts" />
-    <TypeScriptCompile Include="app\Page1.ts" />
-    <TypeScriptCompile Include="app\Login.ts" />
-    <TypeScriptCompile Include="app\Page1ViewModel.ts" />
-    <TypeScriptCompile Include="app\LoginViewModel.ts" />
   </ItemGroup>
   <ItemGroup>
     <None Include="web.Debug.config">
@@ -150,11 +148,14 @@
       <DependentUpon>web.config</DependentUpon>
     </None>
   </ItemGroup>
+  <ItemGroup>
+    <Folder Include="app\" />
+  </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">12.0</VisualStudioVersion>
   </PropertyGroup>
   <PropertyGroup>
-    <RootNamespace>Layouts.Sample5</RootNamespace>
+    <RootNamespace>Layouts.Sample6</RootNamespace>
   </PropertyGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\WebApplications\Microsoft.WebApplication.targets" Condition="Exists('$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\WebApplications\Microsoft.WebApplication.targets')" />
@@ -164,9 +165,9 @@
         <WebProjectProperties>
           <UseIIS>True</UseIIS>
           <AutoAssignPort>True</AutoAssignPort>
-          <DevelopmentServerPort>49734</DevelopmentServerPort>
+          <DevelopmentServerPort>56077</DevelopmentServerPort>
           <DevelopmentServerVPath>/</DevelopmentServerVPath>
-          <IISUrl>http://localhost:49734/</IISUrl>
+          <IISUrl>http://localhost:56077/</IISUrl>
           <NTLMAuthentication>False</NTLMAuthentication>
           <UseCustomServer>False</UseCustomServer>
           <CustomServerUrl>
@@ -177,18 +178,9 @@
     </VisualStudio>
   </ProjectExtensions>
   <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
-    <TypeScriptRemoveComments>false</TypeScriptRemoveComments>
+    <TypeScriptRemoveComments>False</TypeScriptRemoveComments>
     <TypeScriptSourceMap>true</TypeScriptSourceMap>
-    <TypeScriptTarget>ES5</TypeScriptTarget>
-    <TypeScriptCompileOnSaveEnabled>True</TypeScriptCompileOnSaveEnabled>
-    <TypeScriptNoImplicitAny>False</TypeScriptNoImplicitAny>
-    <TypeScriptModuleKind>None</TypeScriptModuleKind>
-    <TypeScriptOutFile>Layouts.Sample5.js</TypeScriptOutFile>
-    <TypeScriptOutDir />
-    <TypeScriptGeneratesDeclarations>False</TypeScriptGeneratesDeclarations>
-    <TypeScriptNoEmitOnError>True</TypeScriptNoEmitOnError>
-    <TypeScriptMapRoot />
-    <TypeScriptSourceRoot />
+    <TypeScriptOutFile>app.js</TypeScriptOutFile>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)' == 'Release'">
     <TypeScriptRemoveComments>true</TypeScriptRemoveComments>

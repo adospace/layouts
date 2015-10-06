@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.23107.0
+# Visual Studio 2013
+VisualStudioVersion = 12.0.31101.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Layouts", "Layouts\Layouts.csproj", "{6FD30FFB-6C2C-4BDA-9C76-1BF5D8AF07F2}"
 EndProject
@@ -18,6 +18,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Layouts.Sample4", "Layouts.Sample4\Layouts.Sample4.csproj", "{8ADFA621-3B8F-431F-A6F7-EF42FF6D765E}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Layouts.Sample5", "Layouts.Sample5\Layouts.Sample5.csproj", "{00A0DF0B-D428-49AE-B3CB-169C81D65459}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Layouts.Sample6", "Layouts.Sample6\Layouts.Sample6.csproj", "{9543F8B1-F0D9-4D8C-AB67-02C02F368E24}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -57,6 +59,10 @@ Global
 		{00A0DF0B-D428-49AE-B3CB-169C81D65459}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{00A0DF0B-D428-49AE-B3CB-169C81D65459}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{00A0DF0B-D428-49AE-B3CB-169C81D65459}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9543F8B1-F0D9-4D8C-AB67-02C02F368E24}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9543F8B1-F0D9-4D8C-AB67-02C02F368E24}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9543F8B1-F0D9-4D8C-AB67-02C02F368E24}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9543F8B1-F0D9-4D8C-AB67-02C02F368E24}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

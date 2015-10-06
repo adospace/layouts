@@ -140,9 +140,6 @@
     <TypeScriptCompile Include="..\Layouts\layouts\controls\DataTemplate.ts">
       <Link>layouts\controls\DataTemplate.ts</Link>
     </TypeScriptCompile>
-    <TypeScriptCompile Include="..\Layouts\layouts\controls\Dialog.ts">
-      <Link>layouts\controls\Dialog.ts</Link>
-    </TypeScriptCompile>
     <TypeScriptCompile Include="..\Layouts\layouts\controls\Frame.ts">
       <Link>layouts\controls\Frame.ts</Link>
     </TypeScriptCompile>
