@@ -35,19 +35,19 @@ module layouts {
                     
                     if (popup.position == layouts.controls.PopupPosition.Left) {
                         left = relativeBound.left - finalWidth;
-                        top = docHeight / 2 - finalHeight / 2;
+                        top = relativeBound.top + relativeBound.height / 2 - finalHeight / 2;
                     }
                     else if (popup.position == layouts.controls.PopupPosition.Right) {
                         left = relativeBound.right;
-                        top = docHeight / 2 - finalHeight / 2;
+                        top = relativeBound.top + relativeBound.height / 2 - finalHeight / 2;
                     }
                     else if (popup.position == layouts.controls.PopupPosition.Top) {
                         top = relativeBound.top - popup.desideredSize.height;
-                        left = docWidth / 2 - finalWidth / 2;
+                        left = relativeBound.left + relativeBound.width / 2 - finalWidth / 2;
                     }
                     else if (popup.position == layouts.controls.PopupPosition.Bottom) {
                         top = relativeBound.bottom;
-                        left = docWidth / 2 - finalWidth / 2;
+                        left = relativeBound.left + relativeBound.width / 2 - finalWidth / 2;
                     }
                 }
                 else {

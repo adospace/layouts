@@ -5,12 +5,12 @@ window.onload = () => {
 
     var lmlTest = `<?xml version="1.0" encoding="utf-8" ?>
 <Page Name="testPage">
-    <Stack VerticalAlignment="Center" HorizontalAlignment="Center" Orientation="Horizontal">
+    <Stack VerticalAlignment="Center" HorizontalAlignment="Right" Orientation="Horizontal" Margin="10,20">
         <Button Text="Test Popup">
             <Button.Popup>
                 <Popup Position="Bottom">
                     <Stack class="popup">
-                        <TextBlock Text="Menu1" Margin="8"/>
+                        <TextBlock Text="{title}" Command="{myCommand}" Margin="8"/>
                         <TextBlock Text="Menu2" Margin="8"/>
                         <TextBlock Text="Menu3" Margin="8"/>
                     </Stack>
@@ -28,5 +28,5 @@ window.onload = () => {
     };
 
     app.page = loader.Parse(lmlTest);
-    //app.page.dataContext = new TestViewModel();
+    app.page.dataContext = new TestViewModel();
 };

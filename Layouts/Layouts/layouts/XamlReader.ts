@@ -210,7 +210,7 @@ module layouts {
                         depObject.bind(
                             depProperty,
                             bindingPath,
-                            bindingDef.mode,
+                            bindingDef.mode != null && bindingDef.mode.toLowerCase() == "twoway",
                             source,
                             converter,
                             bindingDef.converterParameter,
@@ -253,7 +253,7 @@ module layouts {
         private static tryParseBinding(value: string):
             {
                 path?: string,
-                mode?: boolean,
+                mode?: string,
                 source?: string,
                 converter?: string,
                 converterParameter?: string,

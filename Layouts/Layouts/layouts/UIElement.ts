@@ -230,9 +230,9 @@ module layouts {
                 this._visual.style.visibility = this.isVisible ? "" : "hidden"
                 //this._visual.hidden = !this.isVisible;
                 if (this.command != null)
-                    this._visual.onclick = (ev) => this.onClick(ev);
-                if (this.popup != null)
                     this._visual.onmousedown = (ev) => this.onMouseDown(ev);
+                if (this.popup != null)
+                    this._visual.onmouseup = (ev) => this.onMouseUp(ev);
 
                 var name = this.id;
                 if (this._visual.id != name &&
@@ -248,7 +248,16 @@ module layouts {
             }
         }
 
-        onClick(ev: MouseEvent) {
+        //onClick(ev: MouseEvent) {
+        //    var command = this.command;
+        //    var commandParameter = this.commandParameter;
+        //    if (command != null && command.canExecute(commandParameter)) {
+        //        command.execute(commandParameter);
+        //        this.onCommandCanExecuteChanged(command);
+        //        ev.stopPropagation();
+        //    }
+        //}
+        onMouseDown(ev: MouseEvent) {
             var command = this.command;
             var commandParameter = this.commandParameter;
             if (command != null && command.canExecute(commandParameter)) {
@@ -256,18 +265,21 @@ module layouts {
                 this.onCommandCanExecuteChanged(command);
                 ev.stopPropagation();
             }
+
         }
 
-        onMouseDown(ev: MouseEvent) {
+        onMouseUp(ev: MouseEvent) {
+
             var popup = this.popup;
             if (popup != null) {
                 LayoutManager.showPopup(popup);
                 ev.stopPropagation();
-                document.addEventListener("mousedown", function () {
-                    this.removeEventListener("mousedown", arguments.callee);
+                document.addEventListener("mouseup", function () {
+                    this.removeEventListener("mouseup", arguments.callee);
                     LayoutManager.closePopup();
                 });
             }
+
         }
 
         getBoundingClientRect(): ClientRect {
@@ -302,24 +314,24 @@ module layouts {
                 if (oldValue != null) {
                     (<Command>oldValue).offCanExecuteChangeNotify(this);
                     if (this._visual != null)
-                        this._visual.onclick = null;
+                        this._visual.onmousedown = null;
                 }
                 if (value != null) {
                     (<Command>value).onCanExecuteChangeNotify(this);
                     if (this._visual != null)
-                        this._visual.onclick = (ev) => this.onClick(ev);
+                        this._visual.onmousedown = (ev) => this.onMouseDown(ev);
                 }
             }
             else if (property == UIElement.popupProperty) {
                 if (oldValue != null) {
                     if (this._visual != null)
-                        this._visual.onmousedown = null;
+                        this._visual.onmouseup = null;
                     if ((<UIElement>oldValue).parent == this)
                         (<UIElement>oldValue).parent = null;
                 }
                 if (value != null) {
                     if (this._visual != null)
-                        this._visual.onmousedown = (ev) => this.onMouseDown(ev);
+                        this._visual.onmouseup = (ev) => this.onMouseUp(ev);
                     (<UIElement>value).parent = this;
                 }
             }

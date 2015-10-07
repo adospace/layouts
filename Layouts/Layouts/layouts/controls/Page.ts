@@ -90,7 +90,7 @@ module layouts.controls {
     
 
         //SizeToContent property
-        static sizeToContentProperty = DepObject.registerProperty(Page.typeName, "SizeToContent", SizeToContent.None, FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender);
+        static sizeToContentProperty = DepObject.registerProperty(Page.typeName, "SizeToContent", SizeToContent.None, FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender, (v) => SizeToContent[String(v)]);
         get sizeToContent(): SizeToContent {
             return <SizeToContent>this.getValue(Page.sizeToContentProperty);
         }

@@ -39,7 +39,7 @@ module layouts.controls {
                 this._child.attachVisual(this._buttonElement);
             }
 
-            this._buttonElement.onclick = (ev) => this.onClick(ev);
+            //this._buttonElement.onclick = (ev) => this.onClick(ev);
             this._buttonElement.disabled = !this.isEnabled;
 
             super.attachVisualOverride(elementContainer);
