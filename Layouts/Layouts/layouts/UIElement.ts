@@ -180,7 +180,7 @@ module layouts {
                 elementContainer == null)
                 this.attachVisualOverride(null);
 
-            //2. if visual is still null give up
+            //2. if visual is still null we have done
             if (this._visual == null)
                 return;
 
@@ -471,20 +471,29 @@ module layouts {
                 var options = property == null ? null : <FrameworkPropertyMetadataOptions>property.options;
                 if (options != null &&
                     (options & FrameworkPropertyMetadataOptions.Inherits) != 0) {
-                    //if my parent changed I need to notify any of children to update
-                    //any binding linked to my property that has FrameworkPropertyMetadataOptions.Inherits
+                    //if my parent changed I need to notify children to update
+                    //any binding linked to my properties that has FrameworkPropertyMetadataOptions.Inherits
                     //option (most of cases dataContext)
                     //there is not a real value change, only a notification to allow binding update
                     //so value==oldValue
                     if (this._logicalChildren != null) {
-                        var value = this.getValue(property);
-                        this._logicalChildren.forEach((child) => child.onDependencyPropertyChanged(property, value, value));
+                        this._logicalChildren.forEach((child) => child.onParentDependencyPropertyChanged(property));
                     }
                 }
             }
 
             if (this._parent != null)
                 this._parent.notifyInheritsPropertiesChange();
+        }
+
+        //function called when a parent property changed 
+        //(parent property must have FrameworkPropertyMetadataOptions.Inherits option enabled; most of cases is DataContext property)
+        private onParentDependencyPropertyChanged(property) {
+            if (this._logicalChildren != null) {
+                this._logicalChildren.forEach((child) => child.onParentDependencyPropertyChanged(property));
+            }
+            //just notify subscribers of bindings
+            super.onDependencyPropertyChanged(property, null, null);
         }
 
         protected onParentChanged(oldParent: DepObject, newParent: DepObject) {
@@ -530,7 +539,6 @@ module layouts {
         set id(value: string) {
             this.setValue(UIElement.idProperty, value);
         }
-
 
         static commandProperty = DepObject.registerProperty(UIElement.typeName, "Command", null, FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender);
         get command(): Command {

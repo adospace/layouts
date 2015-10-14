@@ -77,8 +77,8 @@ module layouts {
         //set property value to this object
         setValue(property: DepProperty, value: any) {
             var oldValue = this.getValue(property);
-            if (value != oldValue) {
-                var valueToSet = property.converter != null && Ext.isString(value) ? property.converter(value) : value;
+            var valueToSet = property.converter != null && Ext.isString(value) ? property.converter(value) : value;
+            if (oldValue != valueToSet) {
                 this.localPropertyValueMap[property.name] = valueToSet;
                 this.onDependencyPropertyChanged(property, valueToSet, oldValue);
             }
@@ -93,16 +93,16 @@ module layouts {
             }
         }
 
-        //Called when a value of a dependency is changed (manually or by a binding)
+        //Called when a value of a dependency property is changed (manually or by a binding)
         protected onDependencyPropertyChanged(property: DepProperty, value: any, oldValue: any) {
             this.dpcHandlers.forEach((h) => {
-                h.onChangeDependencyProperty(this, property, value);
+                h.onDependencyPropertyChanged(this, property);
             });
 
-            this.bindings.forEach((b) => {
-                if (b.twoWay && b.targetProperty == property)
-                    b.path.setValue(value);//update source if two way binding
-            });
+            //this.bindings.forEach((b) => {
+            //    if (b.twoWay && b.targetProperty == property)
+            //        b.path.setValue(value);//update source if two way binding
+            //});
         }
 
         private dpcHandlers: ISupportDependencyPropertyChange[] = [];
@@ -208,12 +208,13 @@ module layouts {
             }
         }
 
-        onChangeDependencyProperty(depObject: DepObject, depProperty: DepProperty, value: any) {
+        onDependencyPropertyChanged(depObject: DepObject, depProperty: DepProperty) {
             if (depObject == this.target &&
                 depProperty == this.targetProperty &&
                 this.twoWay) {
                 //if target property value is changed than update source
                 //(twoway mode on)
+                var value = depObject.getValue(depProperty);
                 this.path.setValue(this.converter != null ? this.converter.convertBack(value, {
                     source: this.source,
                     sourceProperty: this.sourceProperty,
@@ -364,7 +365,7 @@ module layouts {
             }
         }
 
-        onChangeDependencyProperty(depObject: DepObject, depProperty: DepProperty, value: any) {
+        onDependencyPropertyChanged(depObject: DepObject, depProperty: DepProperty) {
             if (depObject == this.source &&
                 depProperty.name == this.name) {
                 this.build();

@@ -20,10 +20,10 @@ class AppView {
     <!-- Left Side -->
     <Border id="leftSide" Grid.Row="1">
         <Grid Rows="Auto *">
-            <Button Text="New..." Command="{path:addCommand}" Margin="4"/>
-            <ItemsControl Grid.Row="1" ItemsSource="{path:items}" Margin="4,0,4,4">
+            <Button Text="New..." Command="{addCommand}" Margin="4"/>
+            <ItemsControl Grid.Row="1" ItemsSource="{items}" Margin="4,0,4,4">
                 <DataTemplate>
-                    <Button Text="{path:title}" Command="{path:selectCommand}" Margin="4"/>
+                    <Button Text="{title}" Command="{selectCommand}" Margin="4"/>
                 </DataTemplate>                
             </ItemsControl>
         </Grid>
@@ -31,7 +31,7 @@ class AppView {
 
     <!-- Main Area -->
     <Border id="mainArea" Grid.Row="1" Grid.Column="1">
-        <ControlTemplate DataContext="{path:selected}" Content="{view}"/>
+        <ControlTemplate DataContext="{selected}" Content="{view}"/>
     </Border>
 
   </Grid>

@@ -55,7 +55,7 @@ class AceView extends layouts.FrameworkElement {
         if (property == AceView.sourceCodeProperty &&
             this._editor != null &&
             !this._reentrantFlag)
-            this._editor.setValue(value);
+            this._editor.setValue(value == null ? "" : value);
 
         super.onDependencyPropertyChanged(property, value, oldValue);
     }

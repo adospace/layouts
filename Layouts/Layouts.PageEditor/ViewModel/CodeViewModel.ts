@@ -71,7 +71,6 @@ class CodeViewModel extends layouts.DepObject {
     get view(): layouts.controls.Border {
         if (this._view == null) {
             this._view = CodeView.getView();
-            //this._view.setValue(layouts.FrameworkElement.dataContextProperty, this);
         }
 
         return this._view;
@@ -85,6 +84,8 @@ class CodeViewModel extends layouts.DepObject {
     }
 
     onSelectItem() {
+        //reset selected to null will force layouts to reset main area (Controltemplate)
+        //this.owner.selected = null;
         this.owner.selected = this;
     }
 

@@ -287,10 +287,10 @@ module layouts {
             }
         }
 
-        protected attachVisualOverride(elementContainer: HTMLElement): void {
-            super.attachVisualOverride(elementContainer);
+        //protected attachVisualOverride(elementContainer: HTMLElement): void {
+        //    super.attachVisualOverride(elementContainer);
 
-        }
+        //}
 
         //width property
         static widthProperty = DepObject.registerProperty(FrameworkElement.typeName, "Width", Number.NaN, FrameworkPropertyMetadataOptions.AffectsMeasure);

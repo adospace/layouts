@@ -69,41 +69,23 @@ module layouts.controls {
         attachVisualOverride(elementContainer: HTMLElement) {
             this._visual = this._imgElement = document.createElement("img");
 
-            this._imgElement.onload = (ev) => {
-                this._imgElement.onload = null;
+            var imgElement = this._imgElement;
+            imgElement.onload = (ev) => {
                 this.invalidateMeasure();
-            }
+            };
+            imgElement.src = this.source;
 
             super.attachVisualOverride(elementContainer);
         }
 
         protected measureOverride(constraint: Size): Size {
-            var src = this.source;
-            var mySize = new Size();
             var imgElement = this._imgElement;
-            var srcChanged = (imgElement.src != src);
-            if (srcChanged) {
-                imgElement.src = src;
-                imgElement.style.width = isFinite(constraint.width) ? constraint.width.toString() + "px" : "auto";
-                imgElement.style.height = isFinite(constraint.height) ? constraint.height.toString() + "px" : "auto";
-            }
-
-            //if image is already loaded than report its size, otherwise the loaded event will invalidate my measure
             if (imgElement.complete &&
                 imgElement.naturalWidth > 0) {
-                var scaleFactor = Image.computeScaleFactor(constraint,
-                    new Size(imgElement.naturalWidth, imgElement.naturalHeight),
-                    this.stretch,
-                    this.stretchDirection);
-                mySize = new Size(imgElement.naturalWidth * scaleFactor.width, imgElement.naturalHeight * scaleFactor.height);
+                return new Size(imgElement.naturalWidth, imgElement.naturalHeight)
             }
 
-            if (srcChanged && this.renderSize != null) {
-                imgElement.style.width = this.renderSize.width.toString() + "px";
-                imgElement.style.height = this.renderSize.height.toString() + "px";
-            }            
-
-            return mySize;
+            return new Size();
         }
 
         protected arrangeOverride(finalSize: Size): Size {
@@ -114,14 +96,64 @@ module layouts.controls {
                     new Size(imgElement.naturalWidth, imgElement.naturalHeight),
                     this.stretch,
                     this.stretchDirection);
-                return new Size(imgElement.naturalWidth * scaleFactor.width, imgElement.naturalHeight * scaleFactor.height);
+                var scaledSize = new Size(imgElement.naturalWidth * scaleFactor.width, imgElement.naturalHeight * scaleFactor.height);
+                if (scaleFactor.width != 1.0 ||
+                    scaleFactor.height != 1.0) {
+                    imgElement.style.width = scaledSize.width.toString() + "px";
+                    imgElement.style.height = scaledSize.height.toString() + "px";
+                }
+
+                return scaledSize;
             }
 
-            return finalSize;
+            return super.arrangeOverride(finalSize);
         }
 
+        //protected measureOverride(constraint: Size): Size {
+        //    var src = this.source;
+        //    var mySize = new Size();
+        //    var imgElement = this._imgElement;
+        //    var srcChanged = (imgElement.src != src);
+        //    if (srcChanged) {
+        //        imgElement.src = src;
+        //        imgElement.style.width = isFinite(constraint.width) ? constraint.width.toString() + "px" : "auto";
+        //        imgElement.style.height = isFinite(constraint.height) ? constraint.height.toString() + "px" : "auto";
+        //    }
+
+        //    //if image is already loaded than report its size, otherwise the loaded event will invalidate my measure
+        //    if (imgElement.complete &&
+        //        imgElement.naturalWidth > 0) {
+        //        var scaleFactor = Image.computeScaleFactor(constraint,
+        //            new Size(imgElement.naturalWidth, imgElement.naturalHeight),
+        //            this.stretch,
+        //            this.stretchDirection);
+        //        mySize = new Size(imgElement.naturalWidth * scaleFactor.width, imgElement.naturalHeight * scaleFactor.height);
+        //    }
+
+        //    if (srcChanged && this.renderSize != null) {
+        //        imgElement.style.width = this.renderSize.width.toString() + "px";
+        //        imgElement.style.height = this.renderSize.height.toString() + "px";
+        //    }            
+
+        //    return mySize;
+        //}
+
+        //protected arrangeOverride(finalSize: Size): Size {
+        //    var imgElement = this._imgElement;
+        //    if (imgElement.complete &&
+        //        imgElement.naturalWidth > 0) {
+        //        var scaleFactor = Image.computeScaleFactor(finalSize,
+        //            new Size(imgElement.naturalWidth, imgElement.naturalHeight),
+        //            this.stretch,
+        //            this.stretchDirection);
+        //        return new Size(imgElement.naturalWidth * scaleFactor.width, imgElement.naturalHeight * scaleFactor.height);
+        //    }
+
+        //    return finalSize;
+        //}
+
         /// <summary>
-        /// This is a helper function that computes scale factors depending on a target size and a content size
+        /// Helper function that computes scale factors depending on a target size and a content size
         /// </summary>
         /// <param name="availableSize">Size into which the content is being fitted.</param>
         /// <param name="contentSize">Size of the content, measured natively (unconstrained).</param>
@@ -192,6 +224,16 @@ module layouts.controls {
             return new Size(scaleX, scaleY);
         }
 
+        protected onDependencyPropertyChanged(property: DepProperty, value: any, oldValue: any) {
+            if (property == Image.srcProperty) {
+                var imgElement = this._imgElement;
+                if (imgElement != null)
+                    imgElement.src = this.source;
+            }
+
+            super.onDependencyPropertyChanged(property, value, oldValue);
+        }
+
         static srcProperty = DepObject.registerProperty(Image.typeName, "Source", null, FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender);
         get source(): string {
             return <string>this.getValue(Image.srcProperty);
@@ -200,8 +242,7 @@ module layouts.controls {
             this.setValue(Image.srcProperty, value);
         }
 
-
-        static stretchProperty = DepObject.registerProperty(Image.typeName, "Stretch", Stretch.None, FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender);
+        static stretchProperty = DepObject.registerProperty(Image.typeName, "Stretch", Stretch.None, FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender, (v) => Stretch[String(v)]);
         get stretch(): Stretch {
             return <Stretch>this.getValue(Image.stretchProperty);
         }
@@ -209,7 +250,7 @@ module layouts.controls {
             this.setValue(Image.stretchProperty, value);
         }
 
-        static stretchDirectionProperty = DepObject.registerProperty(Image.typeName, "StretchDirection", StretchDirection.Both, FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender);
+        static stretchDirectionProperty = DepObject.registerProperty(Image.typeName, "StretchDirection", StretchDirection.Both, FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender, (v) => StretchDirection[String(v)]);
         get stretchDirection(): StretchDirection {
             return <StretchDirection>this.getValue(Image.stretchDirectionProperty);
         }

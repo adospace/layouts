@@ -22,7 +22,7 @@ module layouts {
     //}
    
     export interface ISupportDependencyPropertyChange {
-        onChangeDependencyProperty(depObject: DepObject, depProperty: DepProperty, value: any);
+        onDependencyPropertyChanged(depObject: DepObject, depProperty: DepProperty);
     }
 
     export interface ISupportPropertyChange {

@@ -9,8 +9,8 @@ class CodeView {
     <localViews:AceView SourceCode="{path:sourceCode,mode:twoway}"/>
 
     <!-- Run Area -->
-    <Border Name="runAread" Grid.Column="1">
-        <ControlTemplate Content="{path:createdControl}"/>
+    <Border id="runArea" Grid.Column="1">
+        <ControlTemplate Content="{createdControl}"/>
     </Border>
 
   </Grid>

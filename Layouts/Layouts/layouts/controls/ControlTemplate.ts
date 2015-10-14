@@ -17,6 +17,7 @@ module layouts.controls {
 
             var child = this.content;
             if (child != null) {
+                child.parent = this;
                 child.attachVisual(this._container);
             }
 
@@ -66,15 +67,17 @@ module layouts.controls {
             if (property == ControlTemplate.contentProperty) {
                 var oldChild = <UIElement>oldValue;
                 if (oldChild != null && oldChild.parent == this) {
-                    oldChild.parent = null;
                     oldChild.attachVisual(null);
+                    oldChild.parent = null;
                 }
 
                 var newChild = <UIElement>value;
                 if (newChild != null) {
-                    newChild.parent = this;
+                    //NOTE: change parent AFTER attachVisual because changing parent will raise
+                    //notifications to binding to DataContext
                     if (this._container != null)
                         newChild.attachVisual(this._container);
+                    newChild.parent = this;
                 }
             }
 
