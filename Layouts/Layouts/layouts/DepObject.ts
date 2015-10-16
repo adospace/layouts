@@ -13,7 +13,7 @@ module layouts {
             if (DepObject.globalPropertyMap[typeName] == null)
                 DepObject.globalPropertyMap[typeName] = new PropertyMap();
 
-            var newProperty = new DepProperty(name, defaultValue, options, converter);
+            var newProperty = new DepProperty(name, typeName, defaultValue, options, converter);
             DepObject.globalPropertyMap[typeName].register(name, newProperty);
             return newProperty;
         }

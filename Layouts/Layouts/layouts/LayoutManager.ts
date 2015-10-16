@@ -11,8 +11,17 @@ module layouts {
 
         static updateLayout() {
             var page = Application.current.page;
-            var docWidth = document.body.clientWidth;
-            var docHeight = document.body.clientHeight;
+            //var docWidth = document.body.clientWidth;
+            var docWidth = window.innerWidth
+                || document.documentElement.clientWidth
+                || document.body.clientWidth;
+
+            //var docHeight = document.body.clientHeight;
+            var docHeight = window.innerHeight
+                || document.documentElement.clientHeight
+                || document.body.clientHeight;
+
+            
 
             if (page != null) {
                 var sizeToContentWidth = page.sizeToContent == layouts.SizeToContent.Both || page.sizeToContent == layouts.SizeToContent.Horizontal;

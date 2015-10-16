@@ -3,6 +3,8 @@ module layouts {
     export class Ext {
         static hasProperty(obj: any, propertyName: string) : boolean {
             var proto = obj.__proto__ || obj.constructor.prototype;
+            if (proto == "")
+                return;
             return (propertyName in obj) || (propertyName in proto);
         }
 
@@ -17,7 +19,9 @@ interface String {
     format(...replacements: string[]): string;
     toUpperFirstLetter(): string;
     toLowerFirstLetter(): string;
+    startsWith(other: string): boolean;
 }
+
 
 if (!String.prototype.format) {
     String.prototype.format = function () {
@@ -43,14 +47,11 @@ if (!String.prototype.toLowerFirstLetter) {
     }
 }
 
-//interface Object {
-//    hasProperty(propertyName: string): boolean;
-//}
-
-//Object.prototype.hasProperty = function (propertyName) {
-//    var proto = this.__proto__ || this.constructor.prototype;
-//    return (propertyName in this) || (propertyName in proto);
-//}
+if (!String.prototype.startsWith) {
+    String.prototype.startsWith = function (other) {
+        return this.charAt(0).toLowerCase() + this.slice(1);
+    }
+}
 
 interface Number {
     isEpsilon(): boolean;

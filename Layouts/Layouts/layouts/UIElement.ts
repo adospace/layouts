@@ -220,43 +220,33 @@ module layouts {
         }
 
         protected attachVisualOverride(elementContainer: HTMLElement): void {
-            if (this._visual != null) {
-                //apply extended properties to html element
-                this._extendedProperties.forEach(ep=> {
-                    this._visual.style[ep.name] = ep.value;
-                });
+            if (this._visual == null)
+                return;
+            
+            //apply extended properties to html element
+            this._extendedProperties.forEach(ep=> {
+                this._visual.style[ep.name] = ep.value;
+            });
 
-                //this._visual.style.display = this.isVisible ? "" : "none";
-                this._visual.style.visibility = this.isVisible ? "" : "hidden"
-                //this._visual.hidden = !this.isVisible;
-                if (this.command != null)
-                    this._visual.onmousedown = (ev) => this.onMouseDown(ev);
-                if (this.popup != null)
-                    this._visual.onmouseup = (ev) => this.onMouseUp(ev);
+            this._visual.style.visibility = this.isVisible ? "" : "hidden"
+            if (this.command != null)
+                this._visual.onmousedown = (ev) => this.onMouseDown(ev);
+            if (this.popup != null)
+                this._visual.onmouseup = (ev) => this.onMouseUp(ev);
 
-                var name = this.id;
-                if (this._visual.id != name &&
-                    name != null)
-                    this._visual.id = name;
-                var className = this.cssClass;
-                if (this._visual.className != className &&
-                    className != null) {
-                    this._visual.className = className;
-                }
-
-                this._visual.style.position = "absolute";
+            var name = this.id;
+            if (this._visual.id != name &&
+                name != null)
+                this._visual.id = name;
+            var className = this.cssClass;
+            if (this._visual.className != className &&
+                className != null) {
+                this._visual.className = className;
             }
+            
+            this._visual.style.position = "absolute";
         }
 
-        //onClick(ev: MouseEvent) {
-        //    var command = this.command;
-        //    var commandParameter = this.commandParameter;
-        //    if (command != null && command.canExecute(commandParameter)) {
-        //        command.execute(commandParameter);
-        //        this.onCommandCanExecuteChanged(command);
-        //        ev.stopPropagation();
-        //    }
-        //}
         onMouseDown(ev: MouseEvent) {
             var command = this.command;
             var commandParameter = this.commandParameter;
@@ -337,9 +327,7 @@ module layouts {
             }
             else if (property == UIElement.isVisibleProperty) {
                 if (this._visual != null)
-                    //this._visual.hidden = !<boolean>value;
                     this._visual.style.visibility = <boolean>value ? "" : "hidden"
-                    //this._visual.style.display = <boolean>value ? "" : "none";
             }
             else if (property == UIElement.classProperty) {
                 var className = this.cssClass;
@@ -476,9 +464,14 @@ module layouts {
                     //option (most of cases dataContext)
                     //there is not a real value change, only a notification to allow binding update
                     //so value==oldValue
-                    if (this._logicalChildren != null) {
-                        this._logicalChildren.forEach((child) => child.onParentDependencyPropertyChanged(property));
-                    }
+                    //if (this._logicalChildren != null) {
+                    //    var value = this.getValue(property);
+                    //    this._logicalChildren.forEach((child) => child.onDependencyPropertyChanged(property, value, value));
+                    //}
+                    this.onParentDependencyPropertyChanged(property);
+                    //if (this._logicalChildren != null) {
+                    //    this._logicalChildren.forEach((child) => child.onParentDependencyPropertyChanged(property));
+                    //}
                 }
             }
 
@@ -515,13 +508,13 @@ module layouts {
             this.setValue(UIElement.isVisibleProperty, value);
         }
         
-        static styleProperty = DepObject.registerProperty(UIElement.typeName, "cssStyle", Consts.stringEmpty, FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsParentMeasure | FrameworkPropertyMetadataOptions.AffectsRender);
-        get cssStyle(): string {
-            return <string>this.getValue(UIElement.styleProperty);
-        }
-        set cssStyle(value: string) {
-            this.setValue(UIElement.styleProperty, value);
-        }
+        //static styleProperty = DepObject.registerProperty(UIElement.typeName, "cssStyle", Consts.stringEmpty, FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsParentMeasure | FrameworkPropertyMetadataOptions.AffectsRender);
+        //get cssStyle(): string {
+        //    return <string>this.getValue(UIElement.styleProperty);
+        //}
+        //set cssStyle(value: string) {
+        //    this.setValue(UIElement.styleProperty, value);
+        //}
 
         static classProperty = DepObject.registerProperty(UIElement.typeName, "class", null, FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender);
         get cssClass(): string {
@@ -555,8 +548,7 @@ module layouts {
         set commandParameter(value: any) {
             this.setValue(UIElement.commandParameterProperty, value);
         }
-
-
+        
         //get or set popup property for the element
         static popupProperty = DepObject.registerProperty(UIElement.typeName, "Popup", null, FrameworkPropertyMetadataOptions.AffectsRender);
         get popup(): any {
@@ -565,6 +557,7 @@ module layouts {
         set popup(value: any) {
             this.setValue(UIElement.popupProperty, value);
         }
+
 
     }
 } 

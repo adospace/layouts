@@ -15,6 +15,7 @@ module layouts.controls {
 
         attachVisualOverride(elementContainer: HTMLElement) {
             this._visual = document.createElement("div");
+            this._visual.innerHTML = this._innerXaml;
             super.attachVisualOverride(elementContainer);
         }
 
@@ -23,28 +24,48 @@ module layouts.controls {
             this._innerXaml = value;
         }
 
+        private _measuredSize: Size;
         protected measureOverride(constraint: Size): Size {
-            var mySize = new Size();
-            var pElement = this._visual;
-
-            if (isFinite(constraint.width))
-                pElement.style.maxWidth = constraint.width + "px";
-            if (isFinite(constraint.height))
-                pElement.style.maxHeight = constraint.height + "px";
-            pElement.style.width = "auto";
-            pElement.style.height = "auto";
-
-            pElement.innerHTML = this._innerXaml;
-
-            mySize = new Size(pElement.clientWidth, pElement.clientHeight);
-
-            if (this.renderSize != null) {
-                pElement.style.width = this.renderSize.width.toString() + "px";
-                pElement.style.height = this.renderSize.height.toString() + "px";
+            var pElement = this._visual;;
+            if (this._measuredSize == null) {
+                pElement.style.width = "";
+                pElement.style.height = "";
+                this._measuredSize = new Size(pElement.clientWidth, pElement.clientHeight);
             }
-
-            return mySize;
+            return new Size(Math.min(constraint.width, this._measuredSize.width), Math.min(constraint.height, this._measuredSize.height));
         }
+
+        protected arrangeOverride(finalSize: Size): Size {
+
+            var pElement = this._visual;
+            pElement.style.width = finalSize.width.toString() + "px";
+            pElement.style.height = finalSize.height.toString() + "px";
+
+            return finalSize;
+        }
+
+        //protected measureOverride(constraint: Size): Size {
+        //    var mySize = new Size();
+        //    var pElement = this._visual;
+
+        //    if (isFinite(constraint.width))
+        //        pElement.style.maxWidth = constraint.width + "px";
+        //    if (isFinite(constraint.height))
+        //        pElement.style.maxHeight = constraint.height + "px";
+        //    pElement.style.width = "auto";
+        //    pElement.style.height = "auto";
+
+        //    pElement.innerHTML = this._innerXaml;
+
+        //    mySize = new Size(pElement.clientWidth, pElement.clientHeight);
+
+        //    if (this.renderSize != null) {
+        //        pElement.style.width = this.renderSize.width.toString() + "px";
+        //        pElement.style.height = this.renderSize.height.toString() + "px";
+        //    }
+
+        //    return mySize;
+        //}
 
     }
 

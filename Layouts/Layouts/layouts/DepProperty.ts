@@ -1,11 +1,7 @@
 ﻿module layouts {
     export class DepProperty {
-        name: string;
         private _defaultValue: any;
-        options: any;
-        converter: { (value: string): any }
-        constructor(name: string, defaultValue: any = null, options: any = null, converter: { (value: string): any } = null ) {
-            this.name = name;
+        constructor(public name: string, public typeName:string, defaultValue: any = null, public options: any = null, public converter: { (value: string): any } = null ) {
             this._defaultValue = defaultValue;
             this.options = options;
             this.converter = converter;

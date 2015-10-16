@@ -42,6 +42,15 @@ class TestViewModel extends layouts.DepObject {
         this.setValue(TestViewModel.countProperty, value);
     }
 
+
+    static dateProperty = layouts.DepObject.registerProperty(TestViewModel.typeName, "date", new Date(), (v) => Date.parse(v));
+    get date(): Date {
+        return <Date>this.getValue(TestViewModel.dateProperty);
+    }
+    set date(value: Date) {
+        this.setValue(TestViewModel.dateProperty, value);
+    }
+
     private _incrementCommand: layouts.Command;
     get incrementCommand(): layouts.Command {
         if (this._incrementCommand == null)
@@ -207,14 +216,31 @@ window.onload = () => {
 //    </Stack>
 //</Page>`;
 
-        var lmlTest = `<?xml version="1.0" encoding="utf-8" ?>
+//        var lmlTest = `<?xml version="1.0" encoding="utf-8" ?>
+//<Page Name="testPage">
+//    <Stack VerticalAlignment="Center" HorizontalAlignment="Center" Orientation="Horizontal">
+//        <!--<ComboBox Width="150" Height="30" ItemsSource="{itemsCollection}" DisplayMember="itemName" SelectedItem="{path:currentItem,mode:twoway}"/>-->
+//        <ComboBox Width="150" Height="30" ItemsSource="{itemsCollection}" DisplayMember="itemName" SelectMember="itemName" SelectedValue="{path:currentItemName,mode:twoway}"/>
+//        <Button Text="Increment" Command="{incrementCommand}"/>
+//        <Button Text="Decrement" Command="{decrementCommand}"/>
+//    </Stack>
+//</Page>`;
+    var lmlTest = `<?xml version="1.0" encoding="utf-8" ?>
 <Page Name="testPage">
-    <Stack VerticalAlignment="Center" HorizontalAlignment="Center" Orientation="Horizontal">
-        <!--<ComboBox Width="150" Height="30" ItemsSource="{itemsCollection}" DisplayMember="itemName" SelectedItem="{path:currentItem,mode:twoway}"/>-->
-        <ComboBox Width="150" Height="30" ItemsSource="{itemsCollection}" DisplayMember="itemName" SelectMember="itemName" SelectedValue="{path:currentItemName,mode:twoway}"/>
-        <Button Text="Increment" Command="{incrementCommand}"/>
-        <Button Text="Decrement" Command="{decrementCommand}"/>
-    </Stack>
+    <ControlTemplateSelector ContentSource="{.}" VerticalAlignment="Center" HorizontalAlignment="Center">
+        <DataTemplate TargetMember="name" TargetType="string">
+            <Stack>
+                <TextBlock Text="{name,format:'{0} => I\'m a string!'}"/>
+                <TextBox Text="{name,mode:twoway}" Margin="0,0,0,0"/>
+            </Stack>
+        </DataTemplate>
+        <DataTemplate TargetMember="name" TargetType="number">
+            <TextBlock Text="{name,format:'{0} => I\'m a number!'}"/>
+        </DataTemplate>
+        <DataTemplate TargetMember="name" TargetType="date">
+            <TextBlock Text="{name,format:'{0} => I\'m a date!'}"/>
+        </DataTemplate>
+    </ControlTemplateSelector>
 </Page>`;
 
     app.page = lmlReader.Parse(lmlTest);

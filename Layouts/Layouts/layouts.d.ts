@@ -8,6 +8,7 @@ interface String {
     format(...replacements: string[]): string;
     toUpperFirstLetter(): string;
     toLowerFirstLetter(): string;
+    startsWith(other: string): boolean;
 }
 interface Number {
     isEpsilon(): boolean;
@@ -22,12 +23,13 @@ declare class InstanceLoader {
 declare module layouts {
     class DepProperty {
         name: string;
-        private _defaultValue;
+        typeName: string;
         options: any;
         converter: {
             (value: string): any;
         };
-        constructor(name: string, defaultValue?: any, options?: any, converter?: {
+        private _defaultValue;
+        constructor(name: string, typeName: string, defaultValue?: any, options?: any, converter?: {
             (value: string): any;
         });
         private _defaultValueMap;
@@ -176,8 +178,6 @@ declare module layouts {
         addExtentedProperty(name: string, value: string): void;
         static isVisibleProperty: DepProperty;
         isVisible: boolean;
-        static styleProperty: DepProperty;
-        cssStyle: string;
         static classProperty: DepProperty;
         cssClass: string;
         static idProperty: DepProperty;
@@ -517,9 +517,28 @@ declare module layouts.controls {
         protected measureOverride(constraint: Size): Size;
         protected arrangeOverride(finalSize: Size): Size;
         protected layoutOverride(): void;
+        protected onDependencyPropertyChanged(property: DepProperty, value: any, oldValue: any): void;
         static contentProperty: DepProperty;
         content: UIElement;
+    }
+}
+declare module layouts.controls {
+    class ControlTemplateSelector extends FrameworkElement {
+        static typeName: string;
+        typeName: string;
+        protected _container: HTMLElement;
+        attachVisualOverride(elementContainer: HTMLElement): void;
+        private _element;
+        private setupItem();
+        protected measureOverride(constraint: Size): Size;
+        protected arrangeOverride(finalSize: Size): Size;
+        protected layoutOverride(): void;
         protected onDependencyPropertyChanged(property: DepProperty, value: any, oldValue: any): void;
+        static contentSourceProperty: DepProperty;
+        contentSource: any;
+        private _templates;
+        templates: ObservableCollection<DataTemplate>;
+        onCollectionChanged(collection: any, added: Object[], removed: Object[], startRemoveIndex: number): void;
     }
 }
 declare module layouts.controls {
@@ -636,7 +655,9 @@ declare module layouts.controls {
         attachVisualOverride(elementContainer: HTMLElement): void;
         private _innerXaml;
         setInnerXaml(value: string): void;
+        private _measuredSize;
         protected measureOverride(constraint: Size): Size;
+        protected arrangeOverride(finalSize: Size): Size;
     }
 }
 declare module layouts.controls {
@@ -659,7 +680,6 @@ declare module layouts.controls {
         static itemsPanelProperty: DepProperty;
         itemsPanel: Panel;
         protected onDependencyPropertyChanged(property: DepProperty, value: any, oldValue: any): void;
-        private getTemplateForItem(item);
         private setupItems();
     }
 }
@@ -708,6 +728,7 @@ declare module layouts.controls {
         typeName: string;
         private _pElement;
         attachVisualOverride(elementContainer: HTMLElement): void;
+        private _measuredSize;
         protected measureOverride(constraint: Size): Size;
         protected arrangeOverride(finalSize: Size): Size;
         protected onDependencyPropertyChanged(property: DepProperty, value: any, oldValue: any): void;
@@ -726,9 +747,10 @@ declare module layouts.controls {
         private _pElement;
         attachVisualOverride(elementContainer: HTMLElement): void;
         onTextChanged(): void;
-        clientSizeOffset: Size;
+        private _measuredSize;
         protected measureOverride(constraint: Size): Size;
         protected layoutOverride(): void;
+        protected onDependencyPropertyChanged(property: DepProperty, value: any, oldValue: any): void;
         static textProperty: DepProperty;
         text: string;
         static placeholderProperty: DepProperty;
@@ -741,12 +763,16 @@ declare module layouts.controls {
     class DataTemplate extends DepObject {
         static typeName: string;
         typeName: string;
-        targetType: string;
         private _innerXaml;
         setInnerXaml(value: string): void;
         private _xamlLoader;
         setXamlLoader(loader: XamlReader): void;
         createElement(): UIElement;
+        static getTemplateForItem(templates: DataTemplate[], item: any): DataTemplate;
+        static targetTypeProperty: DepProperty;
+        targetType: string;
+        static targetMemberProperty: DepProperty;
+        targetMember: string;
     }
 }
 declare module layouts.controls {

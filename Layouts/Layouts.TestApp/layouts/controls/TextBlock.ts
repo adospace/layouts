@@ -47,9 +47,15 @@ module layouts.controls {
         //    return mySize;
         //}
 
+        private _measuredSize: Size;
         protected measureOverride(constraint: Size): Size {
             var pElement = this._pElement;
-            return new Size(0, pElement.clientHeight);
+            if (this._measuredSize == null) {
+                pElement.style.width = "";
+                pElement.style.height = "";
+                this._measuredSize = new Size(pElement.clientWidth, pElement.clientHeight);
+            }
+            return new Size(Math.min(constraint.width, this._measuredSize.width), Math.min(constraint.height, this._measuredSize.height));
         }
 
         protected arrangeOverride(finalSize: Size): Size {
@@ -61,29 +67,22 @@ module layouts.controls {
             return finalSize;
         }
 
-        //protected layoutOverride() {
-        //    super.layoutOverride();
-
-        //    this._pElement.style.whiteSpace = this.whiteSpace;
-        //}
-
         protected onDependencyPropertyChanged(property: DepProperty, value: any, oldValue: any) {
             if (property == TextBlock.textProperty ||
                 property == TextBlock.formatProperty) {
                 var pElement = this._pElement;
                 var text = this.format != null ? this.format.format(this.text) : this.text;
-                if (pElement != null)
+                if (pElement != null) {
                     pElement.innerHTML = <string>value;
+                    this._measuredSize = null;
+                }
             }
             else if (property == TextBlock.whiteSpaceProperty) {
                 var pElement = this._pElement;
-                if (pElement != null)
+                if (pElement != null) {
                     pElement.style.whiteSpace = <string>value;
-            }
-            else if (property == TextBlock.whiteSpaceProperty) {
-                var pElement = this._pElement;
-                if (pElement != null)
-                    pElement.style.whiteSpace = <string>value;
+                    this._measuredSize = null;
+                }
             }
 
             super.onDependencyPropertyChanged(property, value, oldValue);

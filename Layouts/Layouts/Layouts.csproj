@@ -26,6 +26,7 @@
     <TypeScriptCompile Include="layouts\controls\Canvas.ts" />
     <TypeScriptCompile Include="layouts\controls\ContentTemplate.ts" />
     <TypeScriptCompile Include="layouts\controls\ControlTemplate.ts" />
+    <TypeScriptCompile Include="layouts\controls\ControlTemplateSelector.ts" />
     <TypeScriptCompile Include="layouts\controls\Frame.ts" />
     <TypeScriptCompile Include="layouts\controls\Grid.ts" />
     <TypeScriptCompile Include="layouts\controls\Image.ts" />

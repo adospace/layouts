@@ -270,27 +270,27 @@ module layouts {
 
             super.layoutOverride();
 
-            if (this._visual != null) {
-                this._visual.style.position = "absolute";
-                this._visual.style.visibility = this.isVisible ? "visible" : "collapsed";
-                this._visual.style.overflowX = this.overflowX;
-                this._visual.style.overflowY = this.overflowY;
-                if (this.visualOffset != null) {
-                    this._visual.style.top = this.visualOffset.y.toString() + "px";
-                    this._visual.style.left = this.visualOffset.x.toString() + "px";
-                }
-                if (this.renderSize != null) {
-                    //when an element starts hidden renderSize is not available
-                    this._visual.style.width = this.renderSize.width.toString() + "px";
-                    this._visual.style.height = this.renderSize.height.toString() + "px";
-                }
+            if (this._visual == null)
+                return;
+            
+            //this._visual.style.position = "absolute";
+            this._visual.style.visibility = this.isVisible ? "" : "collapsed";
+            this._visual.style.overflowX = this.overflowX;
+            this._visual.style.overflowY = this.overflowY;
+            if (this.visualOffset != null) {
+                //for left and top default value is not 0 so
+                //I've to specify both always
+                this._visual.style.left = this.visualOffset.x.toString() + "px";
+                this._visual.style.top = this.visualOffset.y.toString() + "px";
+            }
+            if (this.renderSize != null) {
+                //when an element starts hidden renderSize is not available
+                this._visual.style.width = this.renderSize.width.toString() + "px";
+                this._visual.style.height = this.renderSize.height.toString() + "px";
             }
         }
 
-        //protected attachVisualOverride(elementContainer: HTMLElement): void {
-        //    super.attachVisualOverride(elementContainer);
-
-        //}
+        
 
         //width property
         static widthProperty = DepObject.registerProperty(FrameworkElement.typeName, "Width", Number.NaN, FrameworkPropertyMetadataOptions.AffectsMeasure);

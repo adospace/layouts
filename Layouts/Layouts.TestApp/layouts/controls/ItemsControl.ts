@@ -99,7 +99,7 @@ module layouts.controls {
                     if (item == null)
                         throw new Error("Unable to render null items");
 
-                    var templateForItem = this.getTemplateForItem(item);
+                    var templateForItem = DataTemplate.getTemplateForItem(this._templates.toArray(), item);
                     if (templateForItem == null) {
                         throw new Error("Unable to find a valid template for item");
                     }
@@ -173,21 +173,30 @@ module layouts.controls {
             super.onDependencyPropertyChanged(property, value, oldValue);
         }
 
-        private getTemplateForItem(item: any): DataTemplate {
-            if (this._templates == null ||
-                this._templates.count == 0)
-                return null;
+        //private getTemplateForItem(item: any): DataTemplate {
+        //    if (this._templates == null ||
+        //        this._templates.count == 0)
+        //        return null;
 
-            let typeName: string = null
-            if (Ext.hasProperty(item, "typeName"))
-                typeName = item["typeName"];
+        //    var typeName: string = typeof item;
+        //    if (Ext.hasProperty(item, "typeName"))
+        //        typeName = item["typeName"];
+        //    else {
+        //        if (item instanceof Date)//detect date type
+        //            typeName = "date";
+                    
+        //    }
 
-            let defaultTemplate = Enumerable.From(this.templates.elements).FirstOrDefault(null, dt => dt.targetType == null);
-            if (typeName != null)
-                return Enumerable.From(this.templates.elements).FirstOrDefault(defaultTemplate, dt => dt.targetType == typeName);
+        //    var foundTemplate: DataTemplate = null;
 
-            return defaultTemplate;                      
-        }
+        //    if (typeName != null)
+        //        foundTemplate = Enumerable.From(this.templates.elements).FirstOrDefault(null, dt => dt.targetType != null && dt.targetType.toLowerCase() == typeName.toLowerCase());
+
+        //    if (foundTemplate != null)
+        //        return foundTemplate;
+
+        //    return Enumerable.From(this.templates.elements).FirstOrDefault(null, dt => dt.targetType == null);
+        //}
 
         private setupItems() {
             
@@ -215,7 +224,7 @@ module layouts.controls {
                 this._elements =
                 Enumerable.From(elements).Select(item=> {
 
-                    var templateForItem = this.getTemplateForItem(item);
+                    var templateForItem = DataTemplate.getTemplateForItem(this._templates.toArray(), item);
                     if (templateForItem == null) {
                         throw new Error("Unable to find a valid template for item");
                     }

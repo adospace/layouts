@@ -55,14 +55,6 @@ module layouts.controls {
             }
         }
 
-        static contentProperty = DepObject.registerProperty(ControlTemplate.typeName, "Content", null, FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender);
-        get content(): UIElement {
-            return <UIElement>this.getValue(ControlTemplate.contentProperty);
-        }
-        set content(value: UIElement) {
-            this.setValue(ControlTemplate.contentProperty, value);
-        }
-
         protected onDependencyPropertyChanged(property: DepProperty, value: any, oldValue: any) {
             if (property == ControlTemplate.contentProperty) {
                 var oldChild = <UIElement>oldValue;
@@ -81,8 +73,17 @@ module layouts.controls {
                 }
             }
 
+
             super.onDependencyPropertyChanged(property, value, oldValue);
         }
-        
+
+        static contentProperty = DepObject.registerProperty(ControlTemplate.typeName, "Content", null, FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender);
+        get content(): UIElement {
+            return <UIElement>this.getValue(ControlTemplate.contentProperty);
+        }
+        set content(value: UIElement) {
+            this.setValue(ControlTemplate.contentProperty, value);
+        }
+
     }
 }
