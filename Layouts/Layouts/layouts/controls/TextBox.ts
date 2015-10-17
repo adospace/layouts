@@ -30,40 +30,6 @@ module layouts.controls {
         }
 
         private _measuredSize: Size;
-        //private _clientSizeOffset: Size;
-
-        //protected measureOverride(constraint: Size): Size {
-        //    //if (this._measuredSize == null) {
-        //        var text = this.text;
-        //        var mySize = new Size();
-        //        var pElement = this._pElement;
-        //        var txtChanged = (pElement.value != text);
-
-        //        if (isFinite(constraint.width))
-        //            pElement.style.maxWidth = constraint.width + "px";
-        //        if (isFinite(constraint.height))
-        //            pElement.style.maxHeight = constraint.height + "px";
-        //        pElement.style.width = "auto";
-        //        pElement.style.height = "auto";
-        //        if (txtChanged) {
-        //            pElement.value = this.text;
-        //        }            
-            
-        //        //client size will maintain internal size of object
-        //        //base class FrameworkElement is going to use RenderSize to set
-        //        //style dimension of element
-        //        this._clientSizeOffset = new Size(pElement.offsetWidth - pElement.clientWidth, pElement.offsetHeight - pElement.clientHeight);
-        //        this._measuredSize = new Size(pElement.offsetWidth, pElement.offsetHeight);
-
-        //        //if (txtChanged) {
-        //        //    pElement.style.width = this.clientSize.width.toString() + "px";
-        //        //    pElement.style.height = this.clientSize.height.toString() + "px";
-        //        //}
-        //    //}
-
-        //    return this._measuredSize;
-        //}
-
 
         protected measureOverride(constraint: Size): Size {
             var pElement = this._pElement;
@@ -71,19 +37,9 @@ module layouts.controls {
                 pElement.style.width = "";
                 pElement.style.height = "";
                 this._measuredSize = new Size(pElement.offsetWidth, pElement.offsetHeight);
-                //this._clientSizeOffset = new Size(pElement.offsetWidth - pElement.clientWidth, pElement.offsetHeight - pElement.clientHeight);
             }
             return new Size(Math.min(constraint.width, this._measuredSize.width), Math.min(constraint.height, this._measuredSize.height));
         }
-
-        //protected arrangeOverride(finalSize: Size): Size {
-
-        //    var pElement = this._pElement;
-        //    pElement.style.width = (finalSize.width - this._clientSizeOffset.width) + "px";
-        //    pElement.style.height = (finalSize.height - this._clientSizeOffset.height) + "px";
-
-        //    return finalSize;
-        //}
 
         protected layoutOverride() {
             super.layoutOverride();
@@ -102,8 +58,7 @@ module layouts.controls {
             if (property == TextBox.textProperty) {
                 var pElement = this._pElement;
                 if (pElement != null) {
-                    var text = <string>value;
-                    this._pElement.value = text == null || text == "" ? " " : text;
+                    this._pElement.value = <string>value;
                     this._measuredSize = null;
                 }
             }
@@ -124,48 +79,6 @@ module layouts.controls {
 
             super.onDependencyPropertyChanged(property, value, oldValue);
         }
-
-        //clientSizeOffset: Size;
-
-        //protected measureOverride(constraint: Size): Size {
-        //    var text = this.text;
-        //    var mySize = new Size();
-        //    var pElement = this._pElement;
-        //    var txtChanged = (pElement.value != text);
-
-        //    if (isFinite(constraint.width))
-        //        pElement.style.maxWidth = constraint.width + "px";
-        //    if (isFinite(constraint.height))
-        //        pElement.style.maxHeight = constraint.height + "px";
-        //    pElement.style.width = "auto";
-        //    pElement.style.height = "auto";
-        //    if (txtChanged) {
-        //        pElement.value = this.text;
-        //    }            
-            
-        //    //client size will maintain internal size of object
-        //    //base class FrameworkElement is going to use RenderSize to set
-        //    //style dimension of element
-        //    this.clientSizeOffset = new Size(pElement.offsetWidth - pElement.clientWidth, pElement.offsetHeight - pElement.clientHeight);
-        //    mySize = new Size(pElement.offsetWidth, pElement.offsetHeight);
-
-        //    //if (txtChanged) {
-        //    //    pElement.style.width = this.clientSize.width.toString() + "px";
-        //    //    pElement.style.height = this.clientSize.height.toString() + "px";
-        //    //}
-
-        //    return mySize;
-        //}
-
-        //protected layoutOverride() {
-        //    super.layoutOverride();
-
-        //    //set appropriate size using saved client size in measure pass
-        //    if (this.renderSize != null) {
-        //        this._pElement.style.width = (this.renderSize.width - this.clientSizeOffset.width) + "px";
-        //        this._pElement.style.height = (this.renderSize.height - this.clientSizeOffset.height) + "px";
-        //    }
-        //}
 
         static textProperty = DepObject.registerProperty(TextBox.typeName, "Text", null, FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender);
         get text(): string {

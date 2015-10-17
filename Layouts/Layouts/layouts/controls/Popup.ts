@@ -7,9 +7,17 @@ module layouts.controls {
     export enum PopupPosition {
         Center,
         Left,
+        LeftTop,
+        LeftBottom,
         Top,
+        TopLeft,
+        TopRight,
         Right,
-        Bottom        
+        RightTop,
+        RightBottom,
+        Bottom,     
+        BottomLeft,       
+        BottomRight,       
     }
 
     export class Popup extends FrameworkElement {

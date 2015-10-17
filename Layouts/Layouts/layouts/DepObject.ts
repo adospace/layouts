@@ -339,7 +339,7 @@ module layouts {
             else if (this.name != null && this.path.indexOf(".") == -1) { //if path contains a dot but next is null binding is not connected
                 if (DepObject.logBindingTraceToConsole) 
                     if (this.sourceProperty == null && (!(this.name in this.source)))
-                        console.log("[Bindings] Unable to find property '{0}' on type '{1}'".format(this.name, this.source["typeName"]));
+                        console.log("[Bindings] Unable to find property '{0}' on type '{1}'".format(this.name, this.source["typeName"] == null ? "<noneType>" : this.source["typeName"]));
                 
                 return {
                     success: true,

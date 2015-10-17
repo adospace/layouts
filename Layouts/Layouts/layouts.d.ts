@@ -269,9 +269,17 @@ declare module layouts.controls {
     enum PopupPosition {
         Center = 0,
         Left = 1,
-        Top = 2,
-        Right = 3,
-        Bottom = 4,
+        LeftTop = 2,
+        LeftBottom = 3,
+        Top = 4,
+        TopLeft = 5,
+        TopRight = 6,
+        Right = 7,
+        RightTop = 8,
+        RightBottom = 9,
+        Bottom = 10,
+        BottomLeft = 11,
+        BottomRight = 12,
     }
     class Popup extends FrameworkElement {
         static typeName: string;
