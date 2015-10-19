@@ -15,37 +15,13 @@ module layouts.controls {
 
             this._visual = this._pElement = document.createElement("p");
             this._pElement.style.whiteSpace = this.whiteSpace;
-            var text = this.format != null ? this.format.format(this.text) : this.text;
+            var text = this.text;
+            var format = this.format;
+            text = format != null && text != null && text != Consts.stringEmpty ? format.format(text) : text;
             this._pElement.innerHTML = text;
 
             super.attachVisualOverride(elementContainer);
         }
-
-        //protected measureOverride(constraint: Size): Size {
-        //    var text = this.format != null ? this.format.format(this.text) : this.text;
-        //    var mySize = new Size();
-        //    var pElement = this._pElement;
-        //    var txtChanged = (pElement.innerText != text);
-
-        //    if (isFinite(constraint.width))
-        //        pElement.style.maxWidth = constraint.width + "px";
-        //    if (isFinite(constraint.height))
-        //        pElement.style.maxHeight = constraint.height + "px";
-        //    pElement.style.width = "auto";
-        //    pElement.style.height = "auto";
-        //    pElement.style.whiteSpace = this.whiteSpace;
-        //    if (txtChanged) {
-        //        pElement.innerHTML = text;
-        //    }
-        //    mySize = new Size(pElement.clientWidth, pElement.clientHeight);
-
-        //    if (txtChanged && this.renderSize != null) {
-        //        pElement.style.width = this.renderSize.width.toString() + "px";
-        //        pElement.style.height = this.renderSize.height.toString() + "px";
-        //    }
-
-        //    return mySize;
-        //}
 
         private _measuredSize: Size;
         protected measureOverride(constraint: Size): Size {
@@ -71,9 +47,11 @@ module layouts.controls {
             if (property == TextBlock.textProperty ||
                 property == TextBlock.formatProperty) {
                 var pElement = this._pElement;
-                var text = this.format != null ? this.format.format(this.text) : this.text;
+                var text = <string>value;
+                var format = this.format;
+                text = format != null && text != null && text != Consts.stringEmpty ? format.format(text) : text;
                 if (pElement != null) {
-                    pElement.innerHTML = <string>value;
+                    pElement.innerHTML = text;
                     this._measuredSize = null;
                 }
             }

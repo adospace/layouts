@@ -1,0 +1,318 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+    <title>The Code Project</title>
+    <Style>
+        BODY, P, TD { font-family: Verdana, Arial, Helvetica, sans-serif; font-size: 10pt }
+        H2,H3,H4,H5 { color: #ff9900; font-weight: bold; }
+        H2 { font-size: 13pt; }
+        H3 { font-size: 12pt; }
+        H4 { font-size: 10pt; color: black; }
+        PRE { BACKGROUND-COLOR: #FBEDBB; FONT-FAMILY: "Courier New", Courier, mono; WHITE-SPACE: pre; }
+        CODE { COLOR: #990000; FONT-FAMILY: "Courier New", Courier, mono; }
+    </Style>
+    <link rel="stylesheet" type="text/css" href="http://www.codeproject.com/App_Themes/Std/CodeProject.css" />
+</head>
+<body bgcolor="#FFFFFF" color=#000000>
+
+    <!--------------------------------------------------------------------------->
+    <!-------------------------------     STEP 1      --------------------------->
+    <!--  Fill in the details (CodeProject will reformat this section for you) -->
+
+<pre>Title:       Layouts - Xaml for the Web
+Author:      adospace.net
+Email:       adospace@yahoo.it
+Language:    TypeScript
+Platform:    Web
+Technology:  HTML5
+Level:       Intermediate
+Description: Layouts is Javascript library (source are writtent in Typescript) that let you create web applications with complex UI using Xaml and MVVM
+Section      HTML
+SubSection   HTML5
+License:     CPOL
+</pre>
+
+    <!-------------------------------     STEP 2      --------------------------->
+    <!--  Include download and sample image information.                       -->
+
+    <ul class="download">
+        <li>
+            <a href="https://github.com/adospace/layouts">
+				Layouts sources and documentation on Github
+            </a>
+        </li>
+    </ul>
+    <p>
+        <img alt="Sample Image - maximum width is 600 pixels" height="363" src="LayoutsSC.png" width="576" />
+    </p>
+
+
+    <!-------------------------------     STEP 3      --------------------------->
+    <!--  Add the article text. Please use simple formatting (<h2>, <p> etc)   -->
+
+    <h2>Introduction</h2>
+    <p>
+        With Layouts you can create a web application describing its UI in Xaml.
+        Actually Layouts does much more than this: you can create a fully SPA (single
+        page application) using best MVVM practices. Layouts is suited to build complex
+        user interfaces like dashboards or LOB applications but is really easy enough to
+        even just build a page of your application.
+    </p>
+	<p>
+        In short Layouts replaces HTML with XAML and leave the same Javascript 
+		and CSS web developers are used to work with.</p>
+    <p>
+        A basic knowledge of TypeScript (http://www.typescriptlang.org/) is
+        preferable before reading this article or look at Layouts source.
+    </p>
+    <h2>Getting Started</h2>
+    <p>
+        First create an empty TypeScript project in Visual Studio (or in Sublime or
+        whatsoever).
+    </p>
+    <p>Put in following files:</p>
+    <p>index.xml is an empty HTML page with links to layouts.js, linq.min.js and app.js:</p>
+<pre>
+&lt;!DOCTYPE html&gt;
+&lt;html lang="en"&gt;
+&lt;head&gt;
+	&lt;meta charset="utf-8" /&gt;
+	&lt;title&gt;Layouts Sample&lt;/title&gt;
+	&lt;link rel="stylesheet" href="app.css" type="text/css" /&gt;
+	&lt;script src="linq.min.js" type="text/javascript"&gt;&lt;/script&gt;
+	&lt;script src="layouts.js" type="text/javascript"&gt;&lt;/script&gt;
+	&lt;script src="app.js" type="text/javascript"&gt;&lt;/script&gt;
+	&lt;/head&gt;
+	&lt;body&gt;
+	&lt;/body&gt;
+&lt;/html&gt;
+</pre>
+    <p>app.css that just remove any margins and set body to occupy the whole page:</p>
+<pre>
+* {
+	margin: 0px;
+}
+	html { 
+	height:100%; 
+}
+body {
+	font-family: 'Segoe UI', sans-serif;
+	height:100%; 
+	margin:0px; 
+}
+#helloworld {
+	color: red;
+}</pre>
+    <p>Finally copy latest layouts.js file from github.com repository, linq.min.js from https://linqjs.codeplex.com/ and setup TypeScript compiler to generate everything in one single file called app.js.</p>
+    <h2>Hello World</h2>
+    <p>Add a typescript file app.ts like the following:</p>
+<pre>
+/// &lt;reference path="layouts.d.ts"/&gt;
+window.onload = () =&gt; {
+	var app = new layouts.Application();
+	var lmlReader = new layouts.XamlReader();
+	var lmlTest = `&lt;?xml version="1.0" encoding="utf-8" ?&gt;
+		&lt;Page&gt;
+			&lt;TextBlock id="helloworld" Text="Hello World" VerticalAlignment="Center" HorizontalAlignment="Center"/&gt;
+		&lt;/Page&gt;
+	`;
+	app.page = lmlReader.Parse(lmlTest);
+};</pre>
+<p>If everything compile and run you should be able to see a white page with Hello World centered in red.</p>
+<p>Looking at above code you will see that I've created an Application (variable app) and a xaml reader (lmlReader).
+Next I'll describe how my page should be composed in xaml-like markup that I 
+than pass to XamlReader.Parse method to get a Page object. Application.Page is 
+finally set with newly created page.In layouts there can be only one Application 
+object. Application.Page returns current page: one could switch between pages 
+just setting this property.</p>
+	<p>The interesting part is how Page is defined in Xaml. We define the Page 
+	itself using the Page header that contains a TextBlock element. Looking at 
+	TextBlock, it defines a paragraph object (p) vertically and horizontally 
+	center. TextBlock id attribute is directly passed to resulting HTML so we 
+	can just select it in CSS file (app.css) to give it a red color.</p>
+	<p>Let's experiment a bit with this xaml for example set HorizontalAlignment 
+	to Left or Right and VerticalAlignment to Top or Bottom.</p>
+	<p>XamlReader.Parse method is quite powerful because it doesn't only manage 
+	Page object. It can parse and create other layouts controls but also 
+	controls you define in your code.</p>
+    <h2>Sample Login Page</h2>
+	<p>Now let's complicate a bit our sample creating a login page:</p>
+	<pre>window.onload = () =&gt; {
+	var app = new layouts.Application();
+	var lmlReader = new layouts.XamlReader();
+
+	var lmlTest = `&lt;?xml version= "1.0" encoding= "utf-8" ?&gt;
+	&lt;Stack Orientation="Vertical" VerticalAlignment= "Center" HorizontalAlignment= "Center" &gt;
+		&lt;TextBlock Text="Welcome to Login Page" Margin= "8" /&gt;
+		&lt;TextBox Placeholder= "User name" Margin= "8" /&gt;
+		&lt;TextBox Type= "password" Placeholder= "Password" Margin= "8" /&gt;
+		&lt;Button Text="Sign In" Margin= "8,16,8,8" /&gt;
+	&lt;/Stack&gt;
+	`;
+	app.page = lmlReader.Parse(lmlTest);
+};</pre>
+	<p>
+	
+	Stack element is fundamental element in Layouts (as long with Grid) that 
+	allows you arrange children elements in a stack vertically or horizontally 
+	oriented. TextBox is rendered as an HTML input control and Button as a html 
+	button. Margin is an attribute that determines how elements are positioned 
+	relative to their borders. Margin="8" means "reserve 8 pixel space on top, 
+	right, bottom and left".
+	
+	</p>
+	<p>
+	
+	Note that button is disabled: we have not yet specified a command for the 
+	button so Layouts disables it (see below).</p>
+	<p>
+	
+	Take a moment to experiment with Layouts Margin and Orientation properties. 
+	You can also embed a Stack inside another Stack.</p>
+	<p>
+	
+	Make another small modification:</p>
+	<pre>
+var lmlTest = `&lt;?xml version= "1.0" encoding= "utf-8" ?&gt;
+&lt;Stack Orientation="Vertical" VerticalAlignment= "Center" HorizontalAlignment= "Center"&gt;
+	&lt;TextBlock Text="Welcome to Login Page" Margin= "8" /&gt;
+		&lt;TextBox Placeholder= "User name" Margin= "8" /&gt;
+	&lt;TextBox Type= "password" Placeholder= "Password" Margin= "8" /&gt;
+	&lt;Grid Columns="* Auto" Margin= "8,16,8,8" MaxWidth="300"&gt;
+		&lt;Button Text="Sign In"/&gt;
+		&lt;TextBlock Text="Not yet registered?" Grid.Column="1" Margin="10,0,0,0"/&gt;
+	&lt;/Grid&gt;
+&lt;/Stack&gt;
+`;</pre>
+	<p>We've added a Grid panel inside the stack. Grid is the most powerful element present in Layouts. Grid arranges its children
+	using grid layout composed of Rows and Columns. Above we've created a Grid 
+	with 2 columns and 1 row (by default). First column has width start (*) and 
+	second column has width Auto. Grid also supports fixed size columns or rows 
+	where you'll be able to specify how large should be a column or row in 
+	pixels.</p>
+	<p>Again take a moment experimenting with Grid. Please note that if you 
+	change text "Not yet registered" with something else Grid will reserve 
+	enough space to completely show new text. Auto sizing is one  
+	important Layouts feature: it allows the creation of interfaces that follow 
+	content size.</p>
+    <h2>MVVM</h2>
+    <p>Layouts encourages use of MVVM pattern: it provides some important 
+	classes you are required to implement in order to plug UI elements with models. I 
+	can't dive here too much in MVVM description and I'm sure out there you can 
+	find guides and tutorials that describe it much better than I could do.</p>
+	<p>Let's create a view-model class that can handle login process:</p>
+	<pre>class LoginViewModel extends layouts.DepObject {
+	static typeName: string = "app.LoginViewModel";
+	get typeName(): string {
+		return LoginViewModel.typeName;
+	}
+
+	constructor() {
+		super();
+	}
+	
+	private _username: string;
+	get username(): string {
+		return this._username;
+	}
+	set username(value: string) {
+		if (this._username != value) {
+			var oldValue = this._username;
+			this._username = value;
+			this.onPropertyChanged("username", value, oldValue);
+			this._loginCommand.canExecuteChanged();
+		}
+	}
+	
+	private _password: string;
+	get password(): string {
+		return this._password;
+	}
+	set password(value: string) {
+		if (this._password != value) {
+			var oldValue = this._password;
+			this._password = value;
+			this.onPropertyChanged("password", value, oldValue);
+			this._loginCommand.canExecuteChanged();
+		}
+	}
+	
+	private _loginCommand: layouts.Command;
+	get loginCommand(): layouts.Command {
+		if (this._loginCommand == null)
+			this._loginCommand = new layouts.Command((cmd, p) =&gt; this.onLogin(), (cmd, p) =&gt; this.canLogin());
+		return this._loginCommand;
+	}
+	
+	onLogin() {
+		if (this._username == "test" &amp;&amp;
+			this._password == "test") {
+			alert("Logged in!");
+		}
+		else
+			alert("Unable to login!");
+	}
+	
+	canLogin(): boolean {
+		return this._username != null &amp;&amp; this._username.trim().length &gt; 0 &amp;&amp;
+		this._password != null &amp;&amp; this._password.trim().length &gt; 0;
+	}
+
+}
+</pre>
+	<p>Layouts defines a type called DepObject that provides some basic features useful to create 
+	view models. For example above we've defined a LoginViewModel class that 
+	derives from DepObject. Our view model defines a couple of properties 
+	(Username and Password) and a command (loginCommand). The first part 
+	declaring the type name is required to making Layouts binding work (as there 
+	is no way in javascript to discover type name at runtime).</p>
+	<p>Now let's bind or link the view (login page) to above view-model:</p>
+	<pre>window.onload = () =&gt; {
+	var app = new layouts.Application();
+	var lmlReader = new layouts.XamlReader();
+
+	var lmlTest = `&lt;?xml version= "1.0" encoding= "utf-8" ?&gt;
+	&lt;Stack Orientation="Vertical" VerticalAlignment="Center" HorizontalAlignment="Center"&gt;
+		&lt;TextBlock Text="Welcome to Login Page" Margin="8"/&gt;
+		&lt;TextBox Text="{username,mode:twoway}" Placeholder="User name (test)" Margin="8"/&gt;
+		&lt;TextBox Text="{password,mode:twoway}" Type="password" Placeholder="Password (test)" Margin="8"/&gt;
+		&lt;Button Text="Sign In" Command="{loginCommand}" Margin="8,16,8,8"/&gt;
+	&lt;/Stack&gt;
+	`;
+	app.page = lmlReader.Parse(lmlTest);
+	app.page.dataContext = new LoginViewModel();
+};</pre>
+	<p>Note as first thing that I've set property dataContext of current page to a new instance of 
+	LoginViewModel. Than looking at xaml definition you can certainly notice that 
+	I've informed Layouts to bind first text box to Username property of the 
+	view-model, second textbox to Password and finally button to loginCommand. 
+	Now if you run the sample application you should be able to edit username 
+	and password and then sign-in. </p>
+	<h2>What's next?</h2>
+	<p>Layouts is a large framework and would be impossible to describe all 
+	details in an article. This is a summary of what you could get with it:</p>
+	<ul>
+		<li>Controls like ItemsControl,ControlTemplate and ContentTemplate and many other</li>
+		<li>Ability to create custom controls deriving from FrameworkElement or UserContol. 
+		In github repository you'll find controls like TreeView and TabView.</li>
+		<li>Ability to embed external UI frameworks (I’ve successfully used Kendo UI, JQuery UI and datatables.net in projects)</li>
+		<li>Complex binding scenarios with custom converters and targets (self,dataContext,element)</li>
+		<li>Ability to directly embed HTML as native elements</li>
+		<li>Embedded navigation system for SPA implementation</li>
+	</ul>
+    <h2>Conclusion</h2>
+    <p>
+        Layouts is my attempt to port Xaml and WPF paradigms to web application 
+		development. I've used Layouts to build a complex dashboard application 
+		that is now getting in production and that will be used by tens of 
+		people. In the last 3 months I've deeply worked to get it stable and 
+		fully featured.
+	</p>
+    <h2>History</h2>
+    <p>10-19-2015 First Article Release</p>
+
+    <!-------------------------------    That's it!   --------------------------->
+
+</body>
+
+</html>

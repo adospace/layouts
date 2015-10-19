@@ -6,7 +6,7 @@ class AppView {
     public static get PAGE_DEFINITION(): string {
         return `<?xml version="1.0" encoding="utf-8" ?>
 <Page>  
-  <Grid Rows="48 *" Columns="250 *">
+  <Grid Rows="48 *" Columns="150 *">
     <!-- Header -->
     <Border id="header" Grid.Column="1">
         

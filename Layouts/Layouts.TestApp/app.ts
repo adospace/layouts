@@ -225,23 +225,37 @@ window.onload = () => {
 //        <Button Text="Decrement" Command="{decrementCommand}"/>
 //    </Stack>
 //</Page>`;
-    var lmlTest = `<?xml version="1.0" encoding="utf-8" ?>
-<Page Name="testPage">
-    <ControlTemplateSelector ContentSource="{.}" VerticalAlignment="Center" HorizontalAlignment="Center">
-        <DataTemplate TargetMember="name" TargetType="string">
-            <Stack>
-                <TextBlock Text="{name,format:'{0} => I\'m a string!'}"/>
-                <TextBox Text="{name,mode:twoway}" Margin="0,0,0,0"/>
-            </Stack>
-        </DataTemplate>
-        <DataTemplate TargetMember="name" TargetType="number">
-            <TextBlock Text="{name,format:'{0} => I\'m a number!'}"/>
-        </DataTemplate>
-        <DataTemplate TargetMember="name" TargetType="date">
-            <TextBlock Text="{name,format:'{0} => I\'m a date!'}"/>
-        </DataTemplate>
-    </ControlTemplateSelector>
-</Page>`;
+
+//    var lmlTest = `<?xml version="1.0" encoding="utf-8" ?>
+//<Page Name="testPage">
+//    <ControlTemplateSelector ContentSource="{.}" VerticalAlignment="Center" HorizontalAlignment="Center">
+//        <DataTemplate TargetMember="name" TargetType="string">
+//            <Stack>
+//                <TextBlock Text="{name,format:'{0} => I\'m a string!'}"/>
+//                <TextBox Text="{name,mode:twoway}" Margin="0,0,0,0"/>
+//            </Stack>
+//        </DataTemplate>
+//        <DataTemplate TargetMember="name" TargetType="number">
+//            <TextBlock Text="{name,format:'{0} => I\'m a number!'}"/>
+//        </DataTemplate>
+//        <DataTemplate TargetMember="name" TargetType="date">
+//            <TextBlock Text="{name,format:'{0} => I\'m a date!'}"/>
+//        </DataTemplate>
+//    </ControlTemplateSelector>
+//</Page>`;
+
+
+        var lmlTest = `<?xml version= "1.0" encoding= "utf-8" ?>
+<Stack Orientation="Vertical" VerticalAlignment= "Center" HorizontalAlignment= "Center">
+    <TextBlock Text="Welcome to Login Page" Margin= "8" />
+    <TextBox Placeholder= "User name" Margin= "8" />
+    <TextBox Type= "password" Placeholder= "Password" Margin= "8" />
+    <Grid Columns="* Auto" Margin= "8,16,8,8" MaxWidth="300">
+        <Button Text="Sign In" />
+        <TextBlock Text="Not yet registered?" Grid.Column="1" Margin="10,0,0,0"/>
+    </Grid>
+</Stack>
+`;
 
     app.page = lmlReader.Parse(lmlTest);
     app.page.dataContext = new TestViewModel();
