@@ -84,7 +84,7 @@ module layouts.controls {
 
             if (this._child != null) {
                 this._child.measure(constraint);
-                return this._child.desideredSize;
+                return this._child.desiredSize;
             }
 
             return mySize;

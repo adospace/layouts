@@ -257,9 +257,11 @@ module layouts.controls {
             return Grid.typeName;
         }
 
-        private rowDefs: RowDef[];
-        private columnDefs: ColumnDef[];
-        private elementDefs: ElementDef[]; 
+        private _rowDefs: RowDef[];
+        private _columnDefs: ColumnDef[];
+        private _elementDefs: ElementDef[]; 
+        private _lastDesiredSize: Size;
+
 
         protected measureOverride(constraint: Size): Size {
             var desideredSize = new Size();
@@ -270,40 +272,40 @@ module layouts.controls {
             var rows = this.getRows();
             var columns = this.getColumns();
 
-            this.rowDefs = new Array<RowDef>(Math.max(rows.count, 1));
-            this.columnDefs = new Array<ColumnDef>(Math.max(this.columns.count, 1));
-            this.elementDefs = new Array<ElementDef>(childrenCount);
+            this._rowDefs = new Array<RowDef>(Math.max(rows.count, 1));
+            this._columnDefs = new Array<ColumnDef>(Math.max(this.columns.count, 1));
+            this._elementDefs = new Array<ElementDef>(childrenCount);
             if (rows.count > 0)
-                rows.forEach((row, i) => this.rowDefs[i] = new RowDef(row, i, vSizeToContent));
+                rows.forEach((row, i) => this._rowDefs[i] = new RowDef(row, i, vSizeToContent));
             else
-                this.rowDefs[0] = new RowDef(new GridRow(new GridLength(1, GridUnitType.Star)), 0, vSizeToContent);
+                this._rowDefs[0] = new RowDef(new GridRow(new GridLength(1, GridUnitType.Star)), 0, vSizeToContent);
             if (columns.count > 0)
-                columns.forEach((column, i) => this.columnDefs[i] = new ColumnDef(column, i, hSizeToContent));
+                columns.forEach((column, i) => this._columnDefs[i] = new ColumnDef(column, i, hSizeToContent));
             else
-                this.columnDefs[0] = new ColumnDef(new GridColumn(new GridLength(1, GridUnitType.Star)), 0, hSizeToContent);
+                this._columnDefs[0] = new ColumnDef(new GridColumn(new GridLength(1, GridUnitType.Star)), 0, hSizeToContent);
 
             for (var iElement = 0; iElement < childrenCount; iElement++) {
                 var child = this.children.at(iElement);
-                var elRow = Grid.getRow(child).minMax(0, this.rowDefs.length - 1);
-                var elColumn = Grid.getColumn(child).minMax(0, this.columnDefs.length - 1);
-                var elRowSpan = Grid.getRowSpan(child).minMax(1, this.rowDefs.length - elRow);
-                var elColumnSpan = Grid.getColumnSpan(child).minMax(1, this.columnDefs.length - elColumn);
+                var elRow = Grid.getRow(child).minMax(0, this._rowDefs.length - 1);
+                var elColumn = Grid.getColumn(child).minMax(0, this._columnDefs.length - 1);
+                var elRowSpan = Grid.getRowSpan(child).minMax(1, this._rowDefs.length - elRow);
+                var elColumnSpan = Grid.getColumnSpan(child).minMax(1, this._columnDefs.length - elColumn);
 
-                this.elementDefs[iElement] = new ElementDef(child, elRow, elColumn, elRowSpan, elColumnSpan);
+                this._elementDefs[iElement] = new ElementDef(child, elRow, elColumn, elRowSpan, elColumnSpan);
 
                 if (elRowSpan == 1) {
                     for (var row = elRow; row < elRow + elRowSpan; row++)
-                        this.rowDefs[row].elements.push(this.elementDefs[iElement]);
+                        this._rowDefs[row].elements.push(this._elementDefs[iElement]);
                 }
                 if (elColumnSpan == 1) {
                     for (var col = elColumn; col < elColumn + elColumnSpan; col++)
-                        this.columnDefs[col].elements.push(this.elementDefs[iElement]);
+                        this._columnDefs[col].elements.push(this._elementDefs[iElement]);
                 }
             }
 
-            //measure children full contained auto and fixed size in any row/column (exclude only children that are fully contained in star w/h cells)
-            for (var iRow = 0; iRow < this.rowDefs.length; iRow++) {
-                var rowDef = this.rowDefs[iRow];
+            //measure children full contained in auto and fixed size row/column (exclude only children that are fully contained in star w/h cells)
+            for (var iRow = 0; iRow < this._rowDefs.length; iRow++) {
+                var rowDef = this._rowDefs[iRow];
                 var elements = rowDef.elements;
 
                 if (rowDef.isAuto) {
@@ -317,8 +319,8 @@ module layouts.controls {
                     elements.forEach((el) => el.measuredWidthFirstPass = true);//elements in this group can still be measured by the other dimension (width or height)
                 }
             }
-            for (var iColumn = 0; iColumn < this.columnDefs.length; iColumn++) {
-                var columnDef = this.columnDefs[iColumn];
+            for (var iColumn = 0; iColumn < this._columnDefs.length; iColumn++) {
+                var columnDef = this._columnDefs[iColumn];
                 var elements = columnDef.elements;
 
                 if (columnDef.isAuto) {
@@ -332,35 +334,35 @@ module layouts.controls {
                     elements.forEach((el) => el.measuredHeightFirstPass = true);//elements in this group can still be measured by the other dimension (width or height)
                 }
             }
-            this.elementDefs.forEach((el) => {
+            this._elementDefs.forEach((el) => {
                 if (!el.measuredHeightFirstPass ||
                     !el.measuredWidthFirstPass) {
                     el.element.measure(new Size(el.getAllAvailWidth(), el.getAllAvailHeight()));
                     if (isNaN(el.desWidth))
-                        el.desWidth = el.element.desideredSize.width;
+                        el.desWidth = el.element.desiredSize.width;
                     if (isNaN(el.desHeight))
-                        el.desHeight = el.element.desideredSize.height;
+                        el.desHeight = el.element.desiredSize.height;
                 }
                 el.measuredWidthFirstPass = el.measuredHeightFirstPass = true;
             });
 
             //than get max of any auto/fixed measured row/column
-            this.rowDefs.forEach(rowDef => {
+            this._rowDefs.forEach(rowDef => {
                 if (!rowDef.isStar)
-                    rowDef.elements.forEach((el) => rowDef.desHeight = Math.max(rowDef.desHeight, el.element.desideredSize.height));
+                    rowDef.elements.forEach((el) => rowDef.desHeight = Math.max(rowDef.desHeight, el.element.desiredSize.height));
             });
 
-            this.columnDefs.forEach(columnDef => {
+            this._columnDefs.forEach(columnDef => {
                 if (!columnDef.isStar)
-                    columnDef.elements.forEach((el) => columnDef.desWidth = Math.max(columnDef.desWidth, el.element.desideredSize.width));
+                    columnDef.elements.forEach((el) => columnDef.desWidth = Math.max(columnDef.desWidth, el.element.desiredSize.width));
             });
 
             //now measure any fully contained star size row/column
             var elementToMeasure: ElementDef[] = [];
-            var notStarRowsHeight = 0; this.rowDefs.forEach((r) => notStarRowsHeight += r.desHeight);
-            var sumRowStars = 0; this.rowDefs.forEach(r => { if (r.isStar) sumRowStars += r.row.height.value; });
+            var notStarRowsHeight = 0; this._rowDefs.forEach((r) => notStarRowsHeight += r.desHeight);
+            var sumRowStars = 0; this._rowDefs.forEach(r => { if (r.isStar) sumRowStars += r.row.height.value; });
             var vRowMultiplier = (constraint.height - notStarRowsHeight) / sumRowStars;
-            this.rowDefs.forEach(rowDef=> {
+            this._rowDefs.forEach(rowDef=> {
                 if (!rowDef.isStar)
                     return;
 
@@ -375,10 +377,10 @@ module layouts.controls {
                 elementToMeasure.push.apply(elementToMeasure, elements);                
             });
 
-            var notStarColumnsHeight = 0; this.columnDefs.forEach((c) => notStarColumnsHeight += c.desWidth);
-            var sumColumnStars = 0; this.columnDefs.forEach(c => { if (c.isStar) sumColumnStars += c.column.width.value; });
+            var notStarColumnsHeight = 0; this._columnDefs.forEach((c) => notStarColumnsHeight += c.desWidth);
+            var sumColumnStars = 0; this._columnDefs.forEach(c => { if (c.isStar) sumColumnStars += c.column.width.value; });
             var vColumnMultiplier = (constraint.width - notStarColumnsHeight) / sumColumnStars;
-            this.columnDefs.forEach(columnDef => {
+            this._columnDefs.forEach(columnDef => {
                 if (!columnDef.isStar)
                     return;
 
@@ -395,31 +397,31 @@ module layouts.controls {
                 if (!e.measuredHeightFirstPass ||
                     !e.measuredWidthFirstPass) {
                     e.element.measure(new Size(e.getAllAvailWidth(), e.getAllAvailHeight()));
-                    e.desWidth = e.element.desideredSize.width;
-                    e.desHeight = e.element.desideredSize.height;
+                    e.desWidth = e.element.desiredSize.width;
+                    e.desHeight = e.element.desiredSize.height;
                     e.measuredWidthFirstPass = true;
                     e.measuredHeightFirstPass = true;
                 }
             });
 
             //than adjust width and height to fit children that spans over columns or rows containing auto rows or auto columns
-            for (var iElement = 0; iElement < this.elementDefs.length; iElement++) {
-                var elementDef = this.elementDefs[iElement];
+            for (var iElement = 0; iElement < this._elementDefs.length; iElement++) {
+                var elementDef = this._elementDefs[iElement];
                 if (elementDef.rowSpan > 1) {
-                    if (this.rowDefs
+                    if (this._rowDefs
                         .slice(elementDef.row, elementDef.row + elementDef.rowSpan)
                         .every((v, i, a) => v.isAuto || v.isFixed)) {
                         var concatHeight = 0;
-                        this.rowDefs.slice(elementDef.row, elementDef.row + elementDef.rowSpan).forEach((el) => concatHeight += el.desHeight);
+                        this._rowDefs.slice(elementDef.row, elementDef.row + elementDef.rowSpan).forEach((el) => concatHeight += el.desHeight);
 
                         if (concatHeight < elementDef.desHeight) {
                             var diff = elementDef.desHeight - concatHeight;
-                            var autoRows = this.rowDefs.filter(r=> r.isAuto);
+                            var autoRows = this._rowDefs.filter(r=> r.isAuto);
                             if (autoRows.length > 0) {
                                 autoRows.forEach(c=> c.desHeight += diff / autoRows.length);
                             }
                             else {
-                                var starRows = this.rowDefs.filter(r=> r.isStar);
+                                var starRows = this._rowDefs.filter(r=> r.isStar);
                                 if (starRows.length > 0) {
                                     starRows.forEach(c=> c.desHeight += diff / autoColumns.length);
                                 }
@@ -431,19 +433,19 @@ module layouts.controls {
                     }
                 }
                 if (elementDef.columnSpan > 1) {
-                    if (this.columnDefs
+                    if (this._columnDefs
                         .slice(elementDef.column, elementDef.column + elementDef.columnSpan)
                         .every((v, i, a) => v.isAuto || v.isFixed)) {
                         var concatWidth = 0;
-                        this.columnDefs.slice(elementDef.column, elementDef.column + elementDef.columnSpan).forEach((el) => concatWidth += el.desWidth);
+                        this._columnDefs.slice(elementDef.column, elementDef.column + elementDef.columnSpan).forEach((el) => concatWidth += el.desWidth);
                         if (concatWidth < elementDef.desWidth) {
                             var diff = elementDef.desWidth - concatWidth;
-                            var autoColumns = this.columnDefs.filter(c=> c.isAuto);
+                            var autoColumns = this._columnDefs.filter(c=> c.isAuto);
                             if (autoColumns.length > 0) {
                                 autoColumns.forEach(c=> c.desWidth += diff / autoColumns.length);
                             }
                             else {
-                                var starColumns = this.columnDefs.filter(c=> c.isStar);
+                                var starColumns = this._columnDefs.filter(c=> c.isStar);
                                 if (starColumns.length > 0) {
                                     starColumns.forEach(c=> c.desWidth += diff / autoColumns.length);
                                 }
@@ -458,8 +460,9 @@ module layouts.controls {
 
 
             //finally sum up the desidered size
-            this.rowDefs.forEach(r => desideredSize.height += r.desHeight);
-            this.columnDefs.forEach(c => desideredSize.width += c.desWidth);
+            this._rowDefs.forEach(r => desideredSize.height += r.desHeight);
+            this._columnDefs.forEach(c => desideredSize.width += c.desWidth);
+            this._lastDesiredSize = desideredSize;
             return desideredSize;
         }
 
@@ -467,24 +470,24 @@ module layouts.controls {
             //if finalSize != this.desideredSize we have to
             //to correct row/column with star values to take extra space or viceversa
             //remove space no more available from measure pass
-            var xDiff = finalSize.width - this.desideredSize.width;
-            var yDiff = finalSize.height - this.desideredSize.height;
+            var xDiff = finalSize.width - this._lastDesiredSize.width;
+            var yDiff = finalSize.height - this._lastDesiredSize.height;
 
             //rd.isStar/cd.isStar take in count also sizeToContent stuff
             //we need here only to know if column is star or not
             //this why we are using rd.row.height.isStar or cd.column.width.isStar
             var starRowCount = 0;
-            this.rowDefs.forEach(rd=> {
+            this._rowDefs.forEach(rd=> {
                 if (rd.row.height.isStar)
                     starRowCount++;
             });
             var starColumnCount = 0;
-            this.columnDefs.forEach(cd=> {
+            this._columnDefs.forEach(cd=> {
                 if (cd.column.width.isStar)
                     starColumnCount++;
             });
 
-            this.rowDefs.forEach(rd=> {
+            this._rowDefs.forEach(rd=> {
                 //rd.isStar takes in count also sizeToContent stuff
                 //we need here only to know if column is star or not
                 if (rd.row.height.isStar)
@@ -493,20 +496,20 @@ module layouts.controls {
                     rd.finalHeight = rd.desHeight;
             });
 
-            this.columnDefs.forEach(cd=> {
+            this._columnDefs.forEach(cd=> {
                 if (cd.column.width.isStar)
                     cd.finalWidth = cd.desWidth + xDiff / starColumnCount;
                 else
                     cd.finalWidth = cd.desWidth;
             });
 
-            this.elementDefs.forEach(el => {
-                let finalLeft = 0; this.columnDefs.slice(0, el.column).forEach(c => finalLeft += c.finalWidth );
-                let finalWidth = 0; this.columnDefs.slice(el.column, el.column + el.columnSpan).forEach(c => finalWidth += c.finalWidth );
+            this._elementDefs.forEach(el => {
+                let finalLeft = 0; this._columnDefs.slice(0, el.column).forEach(c => finalLeft += c.finalWidth );
+                let finalWidth = 0; this._columnDefs.slice(el.column, el.column + el.columnSpan).forEach(c => finalWidth += c.finalWidth );
                 finalWidth -= (el.cellLeftOffset * 2) ;
 
-                let finalTop = 0; this.rowDefs.slice(0, el.row).forEach(c => finalTop += c.finalHeight );
-                let finalHeight = 0; this.rowDefs.slice(el.row, el.row + el.rowSpan).forEach(r => finalHeight += r.finalHeight );
+                let finalTop = 0; this._rowDefs.slice(0, el.row).forEach(c => finalTop += c.finalHeight );
+                let finalHeight = 0; this._rowDefs.slice(el.row, el.row + el.rowSpan).forEach(r => finalHeight += r.finalHeight );
                 finalHeight += (el.cellTopOffset * 2) ;
 
                 el.element.arrange(new Rect(finalLeft + el.cellLeftOffset, finalTop + el.cellTopOffset, finalWidth, finalHeight));

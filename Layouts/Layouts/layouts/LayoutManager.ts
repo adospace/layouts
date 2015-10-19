@@ -27,7 +27,7 @@ module layouts {
                 var sizeToContentWidth = page.sizeToContent == layouts.SizeToContent.Both || page.sizeToContent == layouts.SizeToContent.Horizontal;
                 var sizeToContentHeight = page.sizeToContent == layouts.SizeToContent.Both || page.sizeToContent == layouts.SizeToContent.Vertical;
                 page.measure(new Size(sizeToContentWidth ? Infinity : docWidth, sizeToContentHeight ? Infinity : docHeight));
-                page.arrange(new Rect(0, 0, sizeToContentWidth ? page.desideredSize.width : docWidth, sizeToContentHeight ? page.desideredSize.height : docHeight));
+                page.arrange(new Rect(0, 0, sizeToContentWidth ? page.desiredSize.width : docWidth, sizeToContentHeight ? page.desiredSize.height : docHeight));
                 page.layout();
             }
 
@@ -37,8 +37,8 @@ module layouts {
                 popup.measure(new Size(sizeToContentWidth ? Infinity : docWidth, sizeToContentHeight ? Infinity : docHeight));
                 var relativeTo = popup.parent;
                 var left = 0, top = 0;
-                var finalWidth = sizeToContentWidth ? popup.desideredSize.width : docWidth;
-                var finalHeight = sizeToContentHeight ? popup.desideredSize.height : docHeight;
+                var finalWidth = sizeToContentWidth ? popup.desiredSize.width : docWidth;
+                var finalHeight = sizeToContentHeight ? popup.desiredSize.height : docHeight;
                 if (relativeTo != null && popup.position != layouts.controls.PopupPosition.Center) {
                     var relativeBound = relativeTo.getBoundingClientRect();
                     
@@ -67,7 +67,7 @@ module layouts {
                     else if (popup.position == layouts.controls.PopupPosition.Top ||
                         popup.position == layouts.controls.PopupPosition.TopLeft ||
                         popup.position == layouts.controls.PopupPosition.TopRight) {
-                        top = relativeBound.top - popup.desideredSize.height;
+                        top = relativeBound.top - popup.desiredSize.height;
                         if (popup.position == layouts.controls.PopupPosition.Top)
                             left = relativeBound.left + relativeBound.width / 2 - finalWidth / 2;
                         else if (popup.position == layouts.controls.PopupPosition.TopLeft)

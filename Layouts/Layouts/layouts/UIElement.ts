@@ -75,7 +75,7 @@ module layouts {
         }
 
 
-        desideredSize: Size;
+        desiredSize: Size;
         renderSize: Size;
 
         ///Measure Pass
@@ -83,7 +83,7 @@ module layouts {
         measure(availableSize: Size): void {
 
             if (!this.isVisible) {
-                this.desideredSize = new Size();
+                this.desiredSize = new Size();
                 this.measureDirty = false;
                 return;
             }
@@ -95,11 +95,11 @@ module layouts {
                 return;
 
             this.previousAvailableSize = availableSize;
-            this.desideredSize = this.measureCore(availableSize);
-            if (isNaN(this.desideredSize.width) ||
-                !isFinite(this.desideredSize.width) ||
-                isNaN(this.desideredSize.height) ||
-                !isFinite(this.desideredSize.height))
+            this.desiredSize = this.measureCore(availableSize);
+            if (isNaN(this.desiredSize.width) ||
+                !isFinite(this.desiredSize.width) ||
+                isNaN(this.desiredSize.height) ||
+                !isFinite(this.desiredSize.height))
                 throw new Error("measure pass must return valid size");
 
             this.measureDirty = false;

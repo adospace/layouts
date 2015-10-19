@@ -34,7 +34,7 @@ module layouts.controls {
                     let right = Canvas.getRight(child);
 
                     if (!isNaN(right)) {
-                        x = finalSize.width - child.desideredSize.width - right;
+                        x = finalSize.width - child.desiredSize.width - right;
                     }
                 }
 
@@ -46,11 +46,11 @@ module layouts.controls {
                     let bottom = Canvas.getBottom(child);
 
                     if (!isNaN(bottom)) {
-                        y = finalSize.height - child.desideredSize.height - bottom;
+                        y = finalSize.height - child.desiredSize.height - bottom;
                     }
                 }
 
-                child.arrange(new Rect(x, y, child.desideredSize.width, child.desideredSize.height));
+                child.arrange(new Rect(x, y, child.desiredSize.width, child.desiredSize.height));
             });
 
             return finalSize;

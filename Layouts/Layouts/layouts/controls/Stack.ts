@@ -36,13 +36,13 @@ module layouts.controls {
             {
                 if (orientation == Orientation.Horizontal) {
                     child.measure(new Size(Infinity, constraint.height));
-                    mySize.width += child.desideredSize.width;
-                    mySize.height = Math.max(mySize.height, child.desideredSize.height);
+                    mySize.width += child.desiredSize.width;
+                    mySize.height = Math.max(mySize.height, child.desiredSize.height);
                 }
                 else {
                     child.measure(new Size(constraint.width, Infinity));
-                    mySize.width = Math.max(mySize.width, child.desideredSize.width);
-                    mySize.height += child.desideredSize.height;
+                    mySize.width = Math.max(mySize.width, child.desiredSize.width);
+                    mySize.height += child.desiredSize.height;
                 }
             });
 
@@ -65,12 +65,12 @@ module layouts.controls {
                 this.children.forEach((child) => {
                     var sizeChild = new Size();
                     if (orientation == Orientation.Horizontal) {
-                        sizeChild.width = child.desideredSize.width;
-                        sizeChild.height = Math.max(finalSize.height, child.desideredSize.height);
+                        sizeChild.width = child.desiredSize.width;
+                        sizeChild.height = Math.max(finalSize.height, child.desiredSize.height);
                     }
                     else {
-                        sizeChild.height = child.desideredSize.height;
-                        sizeChild.width = Math.max(finalSize.width, child.desideredSize.width);
+                        sizeChild.height = child.desiredSize.height;
+                        sizeChild.width = Math.max(finalSize.width, child.desiredSize.width);
                     }
 
                     child.arrange(new Rect(posChild.x, posChild.y, sizeChild.width, sizeChild.height));

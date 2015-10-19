@@ -39,7 +39,7 @@ module layouts.controls {
 
             if (this.itemsPanel != null) {
                 this.itemsPanel.measure(constraint);
-                return this.itemsPanel.desideredSize;
+                return this.itemsPanel.desiredSize;
             }
 
             return new Size();

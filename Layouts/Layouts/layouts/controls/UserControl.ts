@@ -38,7 +38,7 @@ module layouts.controls {
             var child = this._content;
             if (child != null) {
                 child.measure(constraint);
-                return child.desideredSize;
+                return child.desiredSize;
             }
 
             return new Size();

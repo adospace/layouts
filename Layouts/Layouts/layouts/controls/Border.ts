@@ -71,7 +71,7 @@ module layouts.controls {
 
 
                 this._child.measure(childConstraint);
-                var childSize = this._child.desideredSize;
+                var childSize = this._child.desiredSize;
 
                 // Now use the returned size to drive our size, by adding back the margins, etc.
                 mySize.width = childSize.width + combined.width;

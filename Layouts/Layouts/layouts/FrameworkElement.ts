@@ -101,16 +101,16 @@ module layouts {
 
             this.unclippedDesiredSize = desideredSize;
 
-            var clipped = false;
+            //var clipped = false;
 
             if (desideredSize.width > mm.maxWidth) {
                 desideredSize.width = mm.maxWidth;
-                clipped = true;
+                //clipped = true;
             }
 
             if (desideredSize.height > mm.maxHeight) {
                 desideredSize.height = mm.maxHeight;
-                clipped = true;
+                //clipped = true;
             }
 
             var clippedDesiredWidth = desideredSize.width + marginWidth;
@@ -118,12 +118,12 @@ module layouts {
 
             if (clippedDesiredWidth > availableSize.width) {
                 clippedDesiredWidth = availableSize.width;
-                clipped = true;
+                //clipped = true;
             }
 
             if (clippedDesiredHeight > availableSize.height) {
                 clippedDesiredHeight = availableSize.height;
-                clipped = true;
+                //clipped = true;
             }
 
             return new Size(Math.max(0, clippedDesiredWidth), Math.max(0, clippedDesiredHeight));
