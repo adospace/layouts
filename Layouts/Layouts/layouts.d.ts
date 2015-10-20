@@ -136,7 +136,7 @@ declare module layouts {
     class UIElement extends DepObject implements ISupportCommandCanExecuteChanged {
         static typeName: string;
         typeName: string;
-        desideredSize: Size;
+        desiredSize: Size;
         renderSize: Size;
         private previousAvailableSize;
         measure(availableSize: Size): void;
@@ -597,9 +597,10 @@ declare module layouts.controls {
     class Grid extends Panel implements ISupportCollectionChanged {
         static typeName: string;
         typeName: string;
-        private rowDefs;
-        private columnDefs;
-        private elementDefs;
+        private _rowDefs;
+        private _columnDefs;
+        private _elementDefs;
+        private _lastDesiredSize;
         protected measureOverride(constraint: Size): Size;
         protected arrangeOverride(finalSize: Size): Size;
         static rowsProperty: DepProperty;

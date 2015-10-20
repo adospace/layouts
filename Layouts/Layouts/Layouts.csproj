@@ -64,6 +64,7 @@
     <Content Include="cp_article\LayoutsSC.png" />
     <Content Include="cp_article\Readme.txt" />
     <Content Include="packages.config" />
+    <Content Include="cp_article\LayoutsTestApp.zip" />
     <None Include="Scripts\linq-vsdoc.js" />
     <Content Include="Scripts\linq.js" />
     <Content Include="Scripts\linq.min.js" />
