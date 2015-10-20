@@ -1,7 +1,7 @@
 
 ## ItemsControl
 
-One foundamntal control provided by *Layouts* is ItemsControl. With it you can arrange a list of elements based off a collection of objects. The most obvious example of ItemsControl is classic ListBox.
+One fundamental control provided by *Layouts* is ItemsControl. With it you can arrange a list of elements based on a collection of objects. The most obvious example of ItemsControl is the classic ListBox.
 To start let's create a view-model that expose a collection of objects and a property that returns currently selected item.
 ```javascript
 class TestViewModelItem extends layouts.DepObject {
@@ -46,4 +46,8 @@ class TestViewModel extends layouts.DepObject {
         }
     }
 }
+```
+Then write a xaml with an ItemsControl bound to above collection:
+```javascript
+
 ```
