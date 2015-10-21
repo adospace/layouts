@@ -23,6 +23,7 @@
     <Content Include="index.html" />
     <Content Include="packages.config" />
     <None Include="Scripts\linq-vsdoc.js" />
+    <Content Include="Samples.txt" />
     <Content Include="Scripts\ace\src\ace.js" />
     <Content Include="Scripts\ace\src\ext-beautify.js" />
     <Content Include="Scripts\ace\src\ext-chromevox.js" />
@@ -433,6 +434,7 @@
       <DependentUpon>web.config</DependentUpon>
     </None>
   </ItemGroup>
+  <ItemGroup />
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">12.0</VisualStudioVersion>
   </PropertyGroup>

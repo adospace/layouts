@@ -38,14 +38,31 @@ class AppViewModel extends layouts.DepObject {
     }
 
     loadSavedSamples() {
-        for (var i = 0; i < localStorage.length; i++) {
-            var sample = new CodeViewModel(this);
-            sample.title = "Code " + (i + 1);
-            sample.sourceCode = localStorage.getItem(sample.title);
-            this._items.add(sample);
-        }
+        var jsonFile = new XMLHttpRequest();
+        jsonFile.onreadystatechange = (ev) => {
+            if (jsonFile.readyState == 4 && jsonFile.status == 200) {
+                var jsonContent = JSON.parse(jsonFile.responseText);
+                var samples = jsonContent;
+                for (var i = 0; i < samples.length; i++) {
+                    let sample = new CodeViewModel(this, true);
+                    sample.title = samples[i].Title;
+                    sample.sourceCode = samples[i].Code;
+                    this._items.add(sample);
+                }
+                for (var i = 0; i < localStorage.length; i++) {
+                    let sample = new CodeViewModel(this);
+                    sample.title = "Code " + (i + 1);
+                    sample.sourceCode = localStorage.getItem(sample.title);
+                    this._items.add(sample);
+                }
 
-        this.selected = this._items.first();
+                this.selected = this._items.first();
+            }
+        }
+        jsonFile.open("GET", "samples.txt", true);
+        jsonFile.send();
+
+
     }
 
 

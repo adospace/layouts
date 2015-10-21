@@ -6,9 +6,12 @@ class CodeViewModel extends layouts.DepObject {
         return CodeViewModel.typeName;
     }
 
-    constructor(public owner: AppViewModel) {
+    constructor(public owner: AppViewModel, isSampleCode = false) {
         super();
+        this._isSampleCode = isSampleCode;
     }
+
+    private _isSampleCode = false;
 
     private _title: string;
     get title(): string {
@@ -46,7 +49,8 @@ class CodeViewModel extends layouts.DepObject {
                 this._oldParsedDocument = doc;
                 var loader = new layouts.XamlReader();
                 this.createdControl = loader.Load(doc);
-                localStorage.setItem(this.title, this.sourceCode);
+                if (!this._isSampleCode)
+                    localStorage.setItem(this.title, this.sourceCode);
             }
         }
         catch (error)
