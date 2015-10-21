@@ -1,0 +1,48 @@
+﻿* {
+    margin: 0px;
+}
+
+html { 
+    height:100%; 
+}
+
+body {
+    font-family: 'Segoe UI', sans-serif;
+    height:100%; 
+    margin:0px; 
+}
+
+#header {
+    background-color: #353F4B;
+}
+
+#header p {
+    color: #A8B9C3;    
+}
+
+#leftSide {
+    background-color: #4BADD0;
+}
+
+#leftSide p {
+    color: white;    
+}
+
+#logo {
+    background-color: #222C38;
+}
+
+#logo p {
+    color: #A8B9C3;    
+}
+
+#mainArea {
+    
+}
+
+#mainArea  p {
+    color: #2C3033;
+}
+
+
+
