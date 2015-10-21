@@ -59,7 +59,7 @@ class AppViewModel extends layouts.DepObject {
                 this.selected = this._items.first();
             }
         }
-        jsonFile.open("GET", "samples.txt", true);
+        jsonFile.open("GET", "Samples.txt", true);
         jsonFile.send();
 
 
