@@ -17,6 +17,7 @@ module layouts.controls {
 
             this._pElement.value = this.text;
             this._pElement.type = this.type;
+            this._pElement.readOnly = this.isReadonly;
             this._pElement.placeholder = this.placeholder;
             this._pElement.oninput = (ev) => this.onTextChanged();
             this._pElement.onchange = (ev) => this.onTextChanged();
@@ -76,7 +77,12 @@ module layouts.controls {
                     this._measuredSize = null;
                 }
             }
-
+            else if (property == TextBox.isReadonlyProperty) {
+                var pElement = this._pElement;
+                if (pElement != null) {
+                    pElement.readOnly = <boolean>value;
+                }
+            }
             super.onDependencyPropertyChanged(property, value, oldValue);
         }
 
@@ -103,5 +109,14 @@ module layouts.controls {
         set type(value: string) {
             this.setValue(TextBox.typeProperty, value);
         }
+
+        static isReadonlyProperty = DepObject.registerProperty(TextBox.typeName, "IsReadonly", false);
+        get isReadonly(): boolean {
+            return <boolean>this.getValue(TextBox.isReadonlyProperty);
+        }
+        set isReadonly(value: boolean) {
+            this.setValue(TextBox.isReadonlyProperty, value);
+        }
+
     }
 } 

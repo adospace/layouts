@@ -766,6 +766,8 @@ declare module layouts.controls {
         placeholder: string;
         static typeProperty: DepProperty;
         type: string;
+        static isReadonlyProperty: DepProperty;
+        isReadonly: boolean;
     }
 }
 declare module layouts.controls {
