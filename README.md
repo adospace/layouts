@@ -8,10 +8,16 @@ WPF/SL are great libraries for creating UI for desktop and web applications that
 *layouts* can be an ideal start for those applications that need to be ported from Silverlight to HTML5 but is flexible enough for build most of projects that require complex user interfaces (like dashboards, graphical designers, single page apps). This means that it's not a "general purpose" framework for every kind of web application.
 
 * [Getting Started](gettingstarted.md)
+Explain how to setup the environment (take 1 min)
 * [Hello World](helloworld.md)
+First sample application in *layouts*
 * [UI Elements](uielements.md)
+Discover how to create basic elements in *layouts*
 * [Panels](panels.md)
+Discover how arrange elements
 * [MVVM](mvvm.md)
-
+Explain how to bind UI elements to behind models
+* [ItemsControl](itemscontrol.md)
+Introduction to ItemsControl
 
 
