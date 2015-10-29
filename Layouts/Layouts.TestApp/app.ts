@@ -4,8 +4,19 @@
         return TestViewModelItem.typeName;
     }
 
-    constructor(public itemName: string) {
+    constructor(public itemName: string, public itemValue?: any) {
         super();
+    }
+
+    private _testCommand: layouts.Command;
+    get testCommand(): layouts.Command {
+        if (this._testCommand == null)
+            this._testCommand = new layouts.Command((cmd, p) => this.onTest(), (cmd, p) => true);
+        return this._testCommand;
+    }
+
+    onTest() {
+        alert("Test Command");
     }
 }
 
@@ -19,9 +30,9 @@ class TestViewModel extends layouts.DepObject {
         super();
         this.itemsCollection = new layouts.ObservableCollection<TestViewModelItem>(
             [
-                new TestViewModelItem("item1"),
-                new TestViewModelItem("item2"),
-                new TestViewModelItem("item3"),
+                new TestViewModelItem("item1", 12),
+                new TestViewModelItem("item2", "I'm a string"),
+                new TestViewModelItem("item3", 34),
             ]);
         this._currentItem = this.itemsCollection.at(0);
     }
@@ -245,16 +256,27 @@ window.onload = () => {
 //</Page>`;
 
 
-        var lmlTest = `<?xml version= "1.0" encoding= "utf-8" ?>
-<Stack Orientation="Vertical" VerticalAlignment= "Center" HorizontalAlignment= "Center">
-    <TextBlock Text="Welcome to Login Page" Margin= "8" />
-    <TextBox Placeholder= "User name" Margin= "8" />
-    <TextBox Type= "password" Placeholder= "Password" Margin= "8" />
-    <Grid Columns="* Auto" Margin= "8,16,8,8" MaxWidth="300">
-        <Button Text="Sign In" />
-        <TextBlock Text="Not yet registered?" Grid.Column="1" Margin="10,0,0,0"/>
-    </Grid>
-</Stack>
+//        var lmlTest = `<?xml version= "1.0" encoding= "utf-8" ?>
+//<Stack Orientation="Vertical" VerticalAlignment= "Center" HorizontalAlignment= "Center">
+//    <TextBlock Text="Welcome to Login Page" Margin= "8" />
+//    <TextBox Placeholder= "User name" Margin= "8" />
+//    <TextBox Type= "password" Placeholder= "Password" Margin= "8" />
+//    <Grid Columns="* Auto" Margin= "8,16,8,8" MaxWidth="300">
+//        <Button Text="Sign In" />
+//        <TextBlock Text="Not yet registered?" Grid.Column="1" Margin="10,0,0,0"/>
+//    </Grid>
+//</Stack>
+//`;
+
+    var lmlTest = `<?xml version= "1.0" encoding= "utf-8" ?>
+<ItemsControl ItemsSource="{itemsCollection}" SelectedItem="{currentItem,mode:twoway}" VerticalAlignment= "Center" HorizontalAlignment= "Center">
+    <DataTemplate TargetType="number" TargetMember="itemValue">
+        <TextBlock Text="{itemValue}" Command="{testCommand}"/>
+    </DataTemplate>
+    <DataTemplate TargetType="string" TargetMember="itemValue">
+        <TextBox Text="{itemValue,mode:twoway}"/>
+    </DataTemplate>  
+</ItemsControl>
 `;
 
     app.page = lmlReader.Parse(lmlTest);

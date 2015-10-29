@@ -29,7 +29,7 @@ module layouts {
                 ///compile in:
                 ///   \/Product\/([\w\d_$]+)\/([\w\d_$]+)\/([\w\d_$]+)
                 //var re = /\{([\w\d_$]+)\}/gi;
-                var re = new RegExp("\\{([\\w\\d_&$]+)\\}", "gi");
+                var re = new RegExp("\\{([\\w\\d_&$-]+)\\}", "gi");
                 var s = this.uri;
                 var m;
                 var rx = this.uri.split("/").join("\\/");
@@ -38,7 +38,7 @@ module layouts {
                     m = re.exec(s);
                     if (m) {
                         //console.log(m[0], m[1]);
-                        rx = rx.replace(m[0], "([\\w\\d_&$]+)");
+                        rx = rx.replace(m[0], "([\\w\\d_&$-]+)");
                         this._queryStringTokens.push(m[1]);
                     }
                 } while (m);
