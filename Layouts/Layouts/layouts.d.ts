@@ -303,7 +303,6 @@ declare module layouts.controls {
 }
 declare module layouts {
     class LayoutManager {
-        static requestLayoutUpdate(): void;
         static updateLayout(): void;
         private static popups;
         static showPopup(dialog: layouts.controls.Popup): void;
@@ -358,6 +357,10 @@ declare module layouts {
         static current: Application;
         private _page;
         page: layouts.controls.Page;
+        private static requestAnimationFrame();
+        private static onAnimationFrame();
+        private static _beginInvokeActions;
+        static beginInvoke(action: () => void): void;
         private _mappings;
         mappings: UriMapping[];
         map(uri: string, mappedUri: string): UriMapping;

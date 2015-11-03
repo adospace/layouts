@@ -19,7 +19,8 @@ module app {
                 var oldValue = this._username;
                 this._username = value;
                 this.onPropertyChanged("username", value, oldValue);
-                this._loginCommand.canExecuteChanged();
+                layouts.Application.beginInvoke(() =>
+                    this._loginCommand.canExecuteChanged());
             }
         }
 

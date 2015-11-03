@@ -4,9 +4,6 @@
 module layouts {
     export class LayoutManager {
 
-        static requestLayoutUpdate() {
-            requestAnimationFrame(LayoutManager.updateLayout);
-        }
 
 
         static updateLayout() {
@@ -94,8 +91,6 @@ module layouts {
                 popup.arrange(new Rect(left, top, finalWidth, finalHeight));
                 popup.layout();
             });
-
-            requestAnimationFrame(LayoutManager.updateLayout);
         }
 
 

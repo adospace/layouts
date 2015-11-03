@@ -73,7 +73,10 @@ module layouts.controls {
             imgElement.onload = (ev) => {
                 this.invalidateMeasure();
             };
-            imgElement.src = this.source;
+            var source = this.source;
+            if (source != null &&
+                source.trim().length > 0)
+                imgElement.src = source;
 
             super.attachVisualOverride(elementContainer);
         }
@@ -227,8 +230,9 @@ module layouts.controls {
         protected onDependencyPropertyChanged(property: DepProperty, value: any, oldValue: any) {
             if (property == Image.srcProperty) {
                 var imgElement = this._imgElement;
-                if (imgElement != null)
-                    imgElement.src = this.source;
+                if (imgElement != null) {
+                    imgElement.src = value == null ? layouts.Consts.stringEmpty : value;
+                }
             }
 
             super.onDependencyPropertyChanged(property, value, oldValue);

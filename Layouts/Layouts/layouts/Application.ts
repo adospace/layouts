@@ -127,11 +127,26 @@ module layouts {
                 if (this._page != null)
                     this._page.attachVisual(document.body);
 
-
-                LayoutManager.requestLayoutUpdate();
+                Application.requestAnimationFrame();
             }
         }
 
+        //Dispatcher Thread
+        private static requestAnimationFrame() {
+            requestAnimationFrame(Application.onAnimationFrame);
+        }
+
+        private static onAnimationFrame() {
+            LayoutManager.updateLayout();
+            Application._beginInvokeActions.forEach((action) => { action() });
+            Application._beginInvokeActions = [];
+            requestAnimationFrame(Application.onAnimationFrame);
+        }
+
+        private static _beginInvokeActions: (() => void)[] = [];
+        static beginInvoke(action: () => void) {
+            Application._beginInvokeActions.push(action);
+        }
 
         private _mappings: UriMapping[] = [];
         get mappings(): UriMapping[] {
