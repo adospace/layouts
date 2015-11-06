@@ -220,6 +220,7 @@
     </TypeScriptCompile>
     <TypeScriptCompile Include="app.ts" />
     <TypeScriptCompile Include="app\GridView.ts" />
+    <TypeScriptCompile Include="layouts\EventAction.ts" />
     <TypeScriptCompile Include="Scripts\typings\jquery.dataTables\jquery.dataTables-1.9.4.d.ts" />
     <TypeScriptCompile Include="Scripts\typings\jquery.dataTables\jquery.dataTables.d.ts" />
     <TypeScriptCompile Include="Scripts\typings\jquery\jquery.d.ts" />

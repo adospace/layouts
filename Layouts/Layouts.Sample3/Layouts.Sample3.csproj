@@ -16,6 +16,7 @@
     <IISExpressAnonymousAuthentication />
     <IISExpressWindowsAuthentication />
     <IISExpressUseClassicPipelineMode />
+    <UseGlobalApplicationHostFile />
   </PropertyGroup>
   <ItemGroup>
     <Content Include="app.css" />
@@ -132,6 +133,7 @@
       <Link>layouts\XamlReader.ts</Link>
     </TypeScriptCompile>
     <TypeScriptCompile Include="app.ts" />
+    <TypeScriptCompile Include="layouts\EventAction.ts" />
     <TypeScriptCompile Include="ViewModel\AddArticleDialogView.ts" />
     <TypeScriptCompile Include="ViewModel\AddArticleDialogViewModel.ts" />
     <TypeScriptCompile Include="ViewModel\AppView.ts" />

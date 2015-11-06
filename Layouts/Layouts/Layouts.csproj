@@ -43,6 +43,7 @@
     <TypeScriptCompile Include="layouts\controls\UserControl.ts" />
     <TypeScriptCompile Include="layouts\DepObject.ts" />
     <TypeScriptCompile Include="layouts\DepProperty.ts" />
+    <TypeScriptCompile Include="layouts\EventAction.ts" />
     <TypeScriptCompile Include="layouts\Extensions.ts" />
     <TypeScriptCompile Include="layouts\FrameworkElement.ts" />
     <TypeScriptCompile Include="layouts\Command.ts" />

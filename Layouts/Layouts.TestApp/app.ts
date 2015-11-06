@@ -114,6 +114,16 @@ class TestViewModel extends layouts.DepObject {
         }
     }
 
+    private _layoutUpdatedEvent: layouts.EventAction;
+    get layoutUpdated(): layouts.EventAction {
+        if (this._layoutUpdatedEvent == null)
+            this._layoutUpdatedEvent = new layouts.EventAction((ev, p) => this.onLayoutUpdated(p));
+        return this._layoutUpdatedEvent;
+    }
+
+    onLayoutUpdated(p: any) {
+        console.log("onLayoutUpdated");
+    }
 }
 
 class TestShowHideViewModel extends layouts.DepObject {
@@ -269,7 +279,7 @@ window.onload = () => {
 //`;
 
     var lmlTest = `<?xml version= "1.0" encoding= "utf-8" ?>
-<ItemsControl ItemsSource="{itemsCollection}" SelectedItem="{currentItem,mode:twoway}" VerticalAlignment= "Center" HorizontalAlignment= "Center">
+<ItemsControl ItemsSource="{itemsCollection}" SelectedItem="{currentItem,mode:twoway}" LayoutUpdated="{layoutUpdated}" VerticalAlignment= "Center" HorizontalAlignment= "Center">
     <DataTemplate TargetType="number" TargetMember="itemValue">
         <TextBlock Text="{itemValue}" Command="{testCommand}"/>
     </DataTemplate>

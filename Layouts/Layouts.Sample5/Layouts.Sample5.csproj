@@ -97,6 +97,9 @@
     <TypeScriptCompile Include="..\Layouts\layouts\DepProperty.ts">
       <Link>layouts\DepProperty.ts</Link>
     </TypeScriptCompile>
+    <TypeScriptCompile Include="..\Layouts\layouts\EventAction.ts">
+      <Link>layouts\EventAction.ts</Link>
+    </TypeScriptCompile>
     <TypeScriptCompile Include="..\Layouts\layouts\Extensions.ts">
       <Link>layouts\Extensions.ts</Link>
     </TypeScriptCompile>

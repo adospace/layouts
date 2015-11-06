@@ -141,6 +141,7 @@
     </TypeScriptCompile>
     <TypeScriptCompile Include="app.ts" />
     <TypeScriptCompile Include="app\TestViewModel.ts" />
+    <TypeScriptCompile Include="layouts\EventAction.ts" />
   </ItemGroup>
   <ItemGroup>
     <None Include="web.Debug.config">

@@ -419,6 +419,7 @@
       <Link>layouts\XamlReader.ts</Link>
     </TypeScriptCompile>
     <TypeScriptCompile Include="app.ts" />
+    <TypeScriptCompile Include="layouts\EventAction.ts" />
     <TypeScriptCompile Include="Scripts\typings\ace\ace.d.ts" />
     <TypeScriptCompile Include="ViewModel\AceView.ts" />
     <TypeScriptCompile Include="ViewModel\AppViewModel.ts" />

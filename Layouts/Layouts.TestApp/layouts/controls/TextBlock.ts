@@ -18,7 +18,7 @@ module layouts.controls {
             var text = this.text;
             var format = this.format;
             text = format != null && text != null && text != Consts.stringEmpty ? format.format(text) : text;
-            this._pElement.innerHTML = text;
+            this._pElement.innerHTML = text == null ? layouts.Consts.stringEmpty : text;
 
             super.attachVisualOverride(elementContainer);
         }
@@ -51,7 +51,7 @@ module layouts.controls {
                 var format = this.format;
                 text = format != null && text != null && text != Consts.stringEmpty ? format.format(text) : text;
                 if (pElement != null) {
-                    pElement.innerHTML = text;
+                    pElement.innerHTML = text == null ? layouts.Consts.stringEmpty : text;
                     this._measuredSize = null;
                 }
             }

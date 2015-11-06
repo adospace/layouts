@@ -188,6 +188,8 @@ declare module layouts {
         commandParameter: any;
         static popupProperty: DepProperty;
         popup: any;
+        static layoutUpdatedProperty: DepProperty;
+        layoutUpdated: EventAction;
     }
 }
 declare module layouts {
@@ -800,6 +802,17 @@ declare module layouts.controls {
         protected measureOverride(constraint: Size): Size;
         protected arrangeOverride(finalSize: Size): Size;
         protected layoutOverride(): void;
+    }
+}
+declare module layouts {
+    class EventAction {
+        invokeHandler: {
+            (event: EventAction, parameter: any): void;
+        };
+        constructor(invokeHandler?: {
+            (event: EventAction, parameter: any): void;
+        });
+        invoke(parameter: any): void;
     }
 }
 declare module layouts {

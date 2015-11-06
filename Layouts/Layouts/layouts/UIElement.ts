@@ -152,6 +152,10 @@ module layouts {
                     this._visual.style.visibility = "";
 
                 this.layoutInvalid = false;
+
+                var layoutUpdated = this.layoutUpdated;
+                if (layoutUpdated != null)
+                    layoutUpdated.invoke(this);
             }
         }
         protected layoutOverride() {
@@ -163,6 +167,8 @@ module layouts {
 
             }
         }
+
+
 
         ///Attach page visual tree (attach to null to remove it from DOM)
         protected _visual: HTMLElement;
@@ -558,6 +564,12 @@ module layouts {
             this.setValue(UIElement.popupProperty, value);
         }
 
-
+        static layoutUpdatedProperty = DepObject.registerProperty(UIElement.typeName, "LayoutUpdated", null, FrameworkPropertyMetadataOptions.None);
+        get layoutUpdated(): EventAction {
+            return <EventAction>this.getValue(UIElement.layoutUpdatedProperty);
+        }
+        set layoutUpdated(value: EventAction) {
+            this.setValue(UIElement.layoutUpdatedProperty, value);
+        }
     }
 } 
