@@ -85,7 +85,7 @@ module layouts.controls {
             var imgElement = this._imgElement;
             if (imgElement.complete &&
                 imgElement.naturalWidth > 0) {
-                return new Size(imgElement.naturalWidth, imgElement.naturalHeight)
+                return new Size(imgElement.naturalWidth, imgElement.naturalHeight);
             }
 
             return new Size();

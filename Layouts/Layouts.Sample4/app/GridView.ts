@@ -159,7 +159,7 @@ module layouts.controls {
             this._tableContainer.appendChild(this._tableElement);
 
 
-            this._dataTable = $(this._tableElement).dataTable({ scrollX: true});
+            this._dataTable = $(this._tableElement).dataTable();
             
         }
 
