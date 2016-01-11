@@ -67,7 +67,7 @@ Now look at DataTemplate: we're defining how items objects of itemsCollection mu
 <TextBox Text="{itemName,mode:twoway}"/>
 ```
 to have a textbox for each item able to modify the itemName property of TestViewModelItem (note again mode:twoway).
-ItemsControl has one nice properties like ItemsPanel that allows you to specify which panel ItemsControl must use to arrange children elements. By default ItemsControl uses a Stack panel with Verrical orientation.
+ItemsControl has one nice properties like ItemsPanel that allows you to specify which panel ItemsControl must use to arrange children elements. By default ItemsControl uses a Stack panel with Vertical orientation.
 For example try use a Stack with Horizontal orientation:
 ```xml
 <ItemsControl ItemsSource="{itemsCollection}" SelectedItem="{currentItem,mode:twoway}" VerticalAlignment= "Center" HorizontalAlignment= "Center">
@@ -79,7 +79,7 @@ For example try use a Stack with Horizontal orientation:
     </DataTemplate>
 </ItemsControl>
 ```
-The best think is that you can create your custom panel and plug it like shown above. Creating cusom panels or custom controls will be shown in next chapters.
+Bonus value is that you can create your custom panel and plug it like shown above. Creating custom panels or custom controls will be shown in next chapters.
 DataTemplate has some nice features too. TargetType let you specify which type of object should be rendered with that DataTemplate. TargetMember let specify a property of item type to use to select the object to render.
 For examples change xaml specifing 2 different DataTemplate for types number and string:
 ```xml
