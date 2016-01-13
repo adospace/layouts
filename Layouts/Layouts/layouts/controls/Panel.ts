@@ -31,8 +31,10 @@ module layouts.controls {
             if (this._children != null) {
                 //reset parent on all children
                 this._children.forEach(el=> {
-                    if (el.parent == this)
+                    if (el.parent == this) {
                         el.parent = null;
+                        el.attachVisual(null);
+                    }
                 });
 
                 //remove handler so that resource can be disposed

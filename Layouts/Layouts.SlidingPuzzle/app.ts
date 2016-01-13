@@ -199,26 +199,40 @@ window.onload = () => {
     var app = new layouts.Application();
     var loader = new layouts.XamlReader();
 
+//    var lmlTest = `<?xml version="1.0" encoding="utf-8" ?>
+//<Page Name="testPage">
+//    <Stack VerticalAlignment="Center" HorizontalAlignment="Center" Orientation="Vertical">
+//        <Grid Rows="* * * *" Columns="* * * *" Width="400" Height="400">
+//            <Button class="tile" Text="{pad.tiles[0].num}" Grid.Row="{pad.tiles[0].row}" Grid.Column="{pad.tiles[0].col}" Command="{pad.tiles[0].moveCommand}"/>
+//            <Button class="tile" Text="{pad.tiles[1].num}" Grid.Row="{pad.tiles[1].row}" Grid.Column="{pad.tiles[1].col}" Command="{pad.tiles[1].moveCommand}"/>
+//            <Button class="tile" Text="{pad.tiles[2].num}" Grid.Row="{pad.tiles[2].row}" Grid.Column="{pad.tiles[2].col}" Command="{pad.tiles[2].moveCommand}"/>
+//            <Button class="tile" Text="{pad.tiles[3].num}" Grid.Row="{pad.tiles[3].row}" Grid.Column="{pad.tiles[3].col}" Command="{pad.tiles[3].moveCommand}"/>
+//            <Button class="tile" Text="{pad.tiles[4].num}" Grid.Row="{pad.tiles[4].row}" Grid.Column="{pad.tiles[4].col}" Command="{pad.tiles[4].moveCommand}"/>
+//            <Button class="tile" Text="{pad.tiles[5].num}" Grid.Row="{pad.tiles[5].row}" Grid.Column="{pad.tiles[5].col}" Command="{pad.tiles[5].moveCommand}"/>
+//            <Button class="tile" Text="{pad.tiles[6].num}" Grid.Row="{pad.tiles[6].row}" Grid.Column="{pad.tiles[6].col}" Command="{pad.tiles[6].moveCommand}"/>
+//            <Button class="tile" Text="{pad.tiles[7].num}" Grid.Row="{pad.tiles[7].row}" Grid.Column="{pad.tiles[7].col}" Command="{pad.tiles[7].moveCommand}"/>
+//            <Button class="tile" Text="{pad.tiles[8].num}" Grid.Row="{pad.tiles[8].row}" Grid.Column="{pad.tiles[8].col}" Command="{pad.tiles[8].moveCommand}"/>
+//            <Button class="tile" Text="{pad.tiles[9].num}" Grid.Row="{pad.tiles[9].row}" Grid.Column="{pad.tiles[9].col}" Command="{pad.tiles[9].moveCommand}"/>
+//            <Button class="tile" Text="{pad.tiles[10].num}" Grid.Row="{pad.tiles[10].row}" Grid.Column="{pad.tiles[10].col}" Command="{pad.tiles[10].moveCommand}"/>
+//            <Button class="tile" Text="{pad.tiles[11].num}" Grid.Row="{pad.tiles[11].row}" Grid.Column="{pad.tiles[11].col}" Command="{pad.tiles[11].moveCommand}"/>
+//            <Button class="tile" Text="{pad.tiles[12].num}" Grid.Row="{pad.tiles[12].row}" Grid.Column="{pad.tiles[12].col}" Command="{pad.tiles[12].moveCommand}"/>
+//            <Button class="tile" Text="{pad.tiles[13].num}" Grid.Row="{pad.tiles[13].row}" Grid.Column="{pad.tiles[13].col}" Command="{pad.tiles[13].moveCommand}"/>
+//            <Button class="tile" Text="{pad.tiles[14].num}" Grid.Row="{pad.tiles[14].row}" Grid.Column="{pad.tiles[14].col}" Command="{pad.tiles[14].moveCommand}"/>
+//        </Grid>
+//        <Button Text="New Game" Command="{newGameCommand}"/>
+//    </Stack>
+//</Page>`;
     var lmlTest = `<?xml version="1.0" encoding="utf-8" ?>
 <Page Name="testPage">
     <Stack VerticalAlignment="Center" HorizontalAlignment="Center" Orientation="Vertical">
-        <Grid Rows="* * * *" Columns="* * * *" Width="400" Height="400">
-            <Button class="tile" Text="{pad.tiles[0].num}" Grid.Row="{pad.tiles[0].row}" Grid.Column="{pad.tiles[0].col}" Command="{pad.tiles[0].moveCommand}"/>
-            <Button class="tile" Text="{pad.tiles[1].num}" Grid.Row="{pad.tiles[1].row}" Grid.Column="{pad.tiles[1].col}" Command="{pad.tiles[1].moveCommand}"/>
-            <Button class="tile" Text="{pad.tiles[2].num}" Grid.Row="{pad.tiles[2].row}" Grid.Column="{pad.tiles[2].col}" Command="{pad.tiles[2].moveCommand}"/>
-            <Button class="tile" Text="{pad.tiles[3].num}" Grid.Row="{pad.tiles[3].row}" Grid.Column="{pad.tiles[3].col}" Command="{pad.tiles[3].moveCommand}"/>
-            <Button class="tile" Text="{pad.tiles[4].num}" Grid.Row="{pad.tiles[4].row}" Grid.Column="{pad.tiles[4].col}" Command="{pad.tiles[4].moveCommand}"/>
-            <Button class="tile" Text="{pad.tiles[5].num}" Grid.Row="{pad.tiles[5].row}" Grid.Column="{pad.tiles[5].col}" Command="{pad.tiles[5].moveCommand}"/>
-            <Button class="tile" Text="{pad.tiles[6].num}" Grid.Row="{pad.tiles[6].row}" Grid.Column="{pad.tiles[6].col}" Command="{pad.tiles[6].moveCommand}"/>
-            <Button class="tile" Text="{pad.tiles[7].num}" Grid.Row="{pad.tiles[7].row}" Grid.Column="{pad.tiles[7].col}" Command="{pad.tiles[7].moveCommand}"/>
-            <Button class="tile" Text="{pad.tiles[8].num}" Grid.Row="{pad.tiles[8].row}" Grid.Column="{pad.tiles[8].col}" Command="{pad.tiles[8].moveCommand}"/>
-            <Button class="tile" Text="{pad.tiles[9].num}" Grid.Row="{pad.tiles[9].row}" Grid.Column="{pad.tiles[9].col}" Command="{pad.tiles[9].moveCommand}"/>
-            <Button class="tile" Text="{pad.tiles[10].num}" Grid.Row="{pad.tiles[10].row}" Grid.Column="{pad.tiles[10].col}" Command="{pad.tiles[10].moveCommand}"/>
-            <Button class="tile" Text="{pad.tiles[11].num}" Grid.Row="{pad.tiles[11].row}" Grid.Column="{pad.tiles[11].col}" Command="{pad.tiles[11].moveCommand}"/>
-            <Button class="tile" Text="{pad.tiles[12].num}" Grid.Row="{pad.tiles[12].row}" Grid.Column="{pad.tiles[12].col}" Command="{pad.tiles[12].moveCommand}"/>
-            <Button class="tile" Text="{pad.tiles[13].num}" Grid.Row="{pad.tiles[13].row}" Grid.Column="{pad.tiles[13].col}" Command="{pad.tiles[13].moveCommand}"/>
-            <Button class="tile" Text="{pad.tiles[14].num}" Grid.Row="{pad.tiles[14].row}" Grid.Column="{pad.tiles[14].col}" Command="{pad.tiles[14].moveCommand}"/>
-        </Grid>
+        <ItemsControl ItemsSource="{pad.tiles}">
+            <ItemsControl.ItemsPanel>
+                <Grid Rows="* * * *" Columns="* * * *" Width="400" Height="400"/>
+            </ItemsControl.ItemsPanel>
+            <DataTemplate>
+                <Button class="tile" Text="{num}" Grid.Row="{row}" Grid.Column="{col}" Command="{moveCommand}"/>
+            </DataTemplate>
+        </ItemsControl>
         <Button Text="New Game" Command="{newGameCommand}"/>
     </Stack>
 </Page>`;
