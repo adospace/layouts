@@ -3,7 +3,7 @@
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.Default.props" Condition="Exists('$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.Default.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <ProjectGuid>{6FD30FFB-6C2C-4BDA-9C76-1BF5D8AF07F2}</ProjectGuid>
+    <ProjectGuid>{2E8E9E8A-2D84-4ECF-AD56-EB29AEEE6876}</ProjectGuid>
     <ProjectTypeGuids>{349c5851-65df-11da-9384-00065b846f21};{fae04ec0-301f-11d3-bf4b-00c04f79efbc}</ProjectTypeGuids>
     <OutputType>Library</OutputType>
     <OutputPath>bin</OutputPath>
@@ -19,62 +19,36 @@
     <UseGlobalApplicationHostFile />
   </PropertyGroup>
   <ItemGroup>
-    <TypeScriptCompile Include="layouts\Application.ts" />
-    <TypeScriptCompile Include="layouts\Consts.ts" />
-    <TypeScriptCompile Include="layouts\controls\Border.ts" />
-    <TypeScriptCompile Include="layouts\controls\Button.ts" />
-    <TypeScriptCompile Include="layouts\controls\Canvas.ts" />
-    <TypeScriptCompile Include="layouts\controls\ContentTemplate.ts" />
-    <TypeScriptCompile Include="layouts\controls\ControlTemplate.ts" />
-    <TypeScriptCompile Include="layouts\controls\ControlTemplateSelector.ts" />
-    <TypeScriptCompile Include="layouts\controls\Frame.ts" />
-    <TypeScriptCompile Include="layouts\controls\Grid.ts" />
-    <TypeScriptCompile Include="layouts\controls\Image.ts" />
-    <TypeScriptCompile Include="layouts\controls\NativeElements.ts" />
-    <TypeScriptCompile Include="layouts\controls\ItemsControl.ts" />
-    <TypeScriptCompile Include="layouts\controls\Popup.ts" />
-    <TypeScriptCompile Include="layouts\controls\Page.ts" />
-    <TypeScriptCompile Include="layouts\controls\Panel.ts" />
-    <TypeScriptCompile Include="layouts\controls\ComboBox.ts" />
-    <TypeScriptCompile Include="layouts\controls\Stack.ts" />
-    <TypeScriptCompile Include="layouts\controls\TextBlock.ts" />
-    <TypeScriptCompile Include="layouts\controls\TextBox.ts" />
-    <TypeScriptCompile Include="layouts\controls\DataTemplate.ts" />
-    <TypeScriptCompile Include="layouts\controls\UserControl.ts" />
-    <TypeScriptCompile Include="layouts\DepObject.ts" />
-    <TypeScriptCompile Include="layouts\DepProperty.ts" />
-    <TypeScriptCompile Include="layouts\EventAction.ts" />
-    <TypeScriptCompile Include="layouts\Extensions.ts" />
-    <TypeScriptCompile Include="layouts\FrameworkElement.ts" />
-    <TypeScriptCompile Include="layouts\Command.ts" />
-    <TypeScriptCompile Include="layouts\IComparer.ts" />
-    <TypeScriptCompile Include="layouts\IConverter.ts" />
-    <TypeScriptCompile Include="layouts\INotifyCollectionChanged.ts" />
-    <TypeScriptCompile Include="layouts\ISupport.ts" />
-    <TypeScriptCompile Include="layouts\LayoutManager.ts" />
-    <TypeScriptCompile Include="layouts\ObservableCollection.ts" />
-    <TypeScriptCompile Include="layouts\XamlReader.ts" />
-    <TypeScriptCompile Include="layouts\PropertyMap.ts" />
-    <TypeScriptCompile Include="layouts\Timer.ts" />
-    <TypeScriptCompile Include="layouts\UIElement.ts" />
-    <TypeScriptCompile Include="layouts\linq.d.ts" />
+    <Service Include="{4A0DDDB5-7A95-4FBF-97CC-616D07737A77}" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="cp_article\article.htm" />
-    <Content Include="cp_article\codeproject_template.htm" />
-    <Content Include="cp_article\LayoutsSC.png" />
-    <Content Include="cp_article\Readme.txt" />
+    <Content Include="app.css" />
+    <Content Include="index.html" />
     <Content Include="packages.config" />
-    <Content Include="cp_article\LayoutsTestApp.zip" />
+    <Content Include="Scripts\layouts.js.map" />
     <None Include="Scripts\linq-vsdoc.js" />
+    <Content Include="Scripts\layouts.js" />
     <Content Include="Scripts\linq.js" />
     <Content Include="Scripts\linq.min.js" />
+    <Content Include="web.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <TypeScriptCompile Include="app.ts" />
+    <TypeScriptCompile Include="Scripts\typings\layouts.d.ts" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="web.Debug.config">
+      <DependentUpon>web.config</DependentUpon>
+    </None>
+    <None Include="web.Release.config">
+      <DependentUpon>web.config</DependentUpon>
+    </None>
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">12.0</VisualStudioVersion>
   </PropertyGroup>
   <PropertyGroup>
-    <RootNamespace>Layouts</RootNamespace>
+    <RootNamespace>Layouts.SlidingPuzzle</RootNamespace>
   </PropertyGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\WebApplications\Microsoft.WebApplication.targets" Condition="Exists('$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\WebApplications\Microsoft.WebApplication.targets')" />
@@ -82,11 +56,11 @@
     <VisualStudio>
       <FlavorProperties GUID="{349c5851-65df-11da-9384-00065b846f21}">
         <WebProjectProperties>
-          <UseIIS>False</UseIIS>
+          <UseIIS>True</UseIIS>
           <AutoAssignPort>True</AutoAssignPort>
-          <DevelopmentServerPort>61184</DevelopmentServerPort>
+          <DevelopmentServerPort>57477</DevelopmentServerPort>
           <DevelopmentServerVPath>/</DevelopmentServerVPath>
-          <IISUrl>http://localhost:61184/</IISUrl>
+          <IISUrl>http://localhost:57477/</IISUrl>
           <NTLMAuthentication>False</NTLMAuthentication>
           <UseCustomServer>False</UseCustomServer>
           <CustomServerUrl>
@@ -99,8 +73,17 @@
   <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
     <TypeScriptRemoveComments>false</TypeScriptRemoveComments>
     <TypeScriptSourceMap>true</TypeScriptSourceMap>
-    <TypeScriptGeneratesDeclarations>True</TypeScriptGeneratesDeclarations>
-    <TypeScriptOutFile>layouts.js</TypeScriptOutFile>
+    <TypeScriptTarget>ES5</TypeScriptTarget>
+    <TypeScriptJSXEmit>None</TypeScriptJSXEmit>
+    <TypeScriptCompileOnSaveEnabled>True</TypeScriptCompileOnSaveEnabled>
+    <TypeScriptNoImplicitAny>False</TypeScriptNoImplicitAny>
+    <TypeScriptModuleKind>None</TypeScriptModuleKind>
+    <TypeScriptOutFile>app.js</TypeScriptOutFile>
+    <TypeScriptOutDir />
+    <TypeScriptGeneratesDeclarations>False</TypeScriptGeneratesDeclarations>
+    <TypeScriptNoEmitOnError>True</TypeScriptNoEmitOnError>
+    <TypeScriptMapRoot />
+    <TypeScriptSourceRoot />
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)' == 'Release'">
     <TypeScriptRemoveComments>true</TypeScriptRemoveComments>

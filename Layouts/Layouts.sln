@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
-VisualStudioVersion = 14.0.23107.0
+VisualStudioVersion = 14.0.24720.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Layouts", "Layouts\Layouts.csproj", "{6FD30FFB-6C2C-4BDA-9C76-1BF5D8AF07F2}"
 EndProject
@@ -20,6 +20,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Layouts.Sample5", "Layouts.Sample5\Layouts.Sample5.csproj", "{00A0DF0B-D428-49AE-B3CB-169C81D65459}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Layouts.Sample6", "Layouts.Sample6\Layouts.Sample6.csproj", "{9543F8B1-F0D9-4D8C-AB67-02C02F368E24}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Layouts.SlidingPuzzle", "Layouts.SlidingPuzzle\Layouts.SlidingPuzzle.csproj", "{2E8E9E8A-2D84-4ECF-AD56-EB29AEEE6876}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -63,6 +65,10 @@ Global
 		{9543F8B1-F0D9-4D8C-AB67-02C02F368E24}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9543F8B1-F0D9-4D8C-AB67-02C02F368E24}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9543F8B1-F0D9-4D8C-AB67-02C02F368E24}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2E8E9E8A-2D84-4ECF-AD56-EB29AEEE6876}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2E8E9E8A-2D84-4ECF-AD56-EB29AEEE6876}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2E8E9E8A-2D84-4ECF-AD56-EB29AEEE6876}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2E8E9E8A-2D84-4ECF-AD56-EB29AEEE6876}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

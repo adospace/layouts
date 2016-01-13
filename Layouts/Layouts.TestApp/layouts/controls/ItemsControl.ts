@@ -138,7 +138,7 @@ module layouts.controls {
         }
 
         protected onDependencyPropertyChanged(property: DepProperty, value: any, oldValue: any) {
-            if (property == ItemsControl.itemsSourceProperty && oldValue != value) {
+            if (property == ItemsControl.itemsSourceProperty) {
                 if (oldValue != null && oldValue["offChangeNotify"] != null) {
                     var oldItmesSource = <ObservableCollection<Object>>oldValue;
                     oldItmesSource.offChangeNotify(this);

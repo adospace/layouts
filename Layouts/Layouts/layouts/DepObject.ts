@@ -98,11 +98,6 @@ module layouts {
             this.dpcHandlers.forEach((h) => {
                 h.onDependencyPropertyChanged(this, property);
             });
-
-            //this.bindings.forEach((b) => {
-            //    if (b.twoWay && b.targetProperty == property)
-            //        b.path.setValue(value);//update source if two way binding
-            //});
         }
 
         private dpcHandlers: ISupportDependencyPropertyChange[] = [];
@@ -234,6 +229,7 @@ module layouts {
         private next: PropertyPath;
         private prev: PropertyPath;
         sourceProperty: DepProperty;
+        indexers: string[];
 
         constructor(owner: Binding, path: string, source: DepObject) {
             this.owner = owner;
@@ -261,6 +257,40 @@ module layouts {
                 this.source.unsubscribeDependencyPropertyChanges(this);
         }
 
+        private lookForIndexers() {
+            var re = /([\w_]+)(\[([\w_]+)\])/gmi;
+            var m;
+            var nameStr = this.name;
+
+            if ((m = re.exec(nameStr)) !== null) {
+                if (m.index === re.lastIndex) {
+                    re.lastIndex++;
+                }
+                // View your result using the m-variable.
+                // eg m[0] etc.
+                //there is at least an indexer in the form property[...]...
+                //property name is returned in m[1]
+                this.name = m[1];
+
+                //so get the first indexer and save it in this.indexers
+                this.indexers = [];
+                this.indexers.push(m[3]);
+
+                //for now support up to 2 indexer like 'property[..][..]'
+                //search for a second indexer if exists
+                re = /([\w_]+)(\[([\w_]+)\])(\[([\w_]+)\])/gmi;
+
+                if ((m = re.exec(nameStr)) !== null) {
+                    if (m.index === re.lastIndex) {
+                        re.lastIndex++;
+                    }
+                    this.indexers.push(m[5]);
+                }
+
+            } else
+                this.indexers = null;
+        }
+
         private build(): void {
             var oldNext = this.next;
 
@@ -279,6 +309,8 @@ module layouts {
                 if (dotIndex > -1) {
                     //first token of path is the name of property to look in source object
                     this.name = this.path.substring(0, dotIndex);
+                    this.lookForIndexers();
+
                     this.sourceProperty = DepObject.lookupProperty(this.source, this.name);
 
                     //NOTE: this.source can be n UIElement(quite often) and it has custom getValue method that looks for parent values
@@ -287,6 +319,15 @@ module layouts {
                     var sourcePropertyValue = (this.sourceProperty != null) ?
                         this.source.getValue(this.sourceProperty) : //if it's a dep property get value using DepObject hierarchy
                         this.source[this.name];//otherwise try using normal property lookup method
+
+
+                    //if an indexer list is defined (binding to something like 'property[...]...')
+                    //go deeper to property value accessed with the indexer
+                    if (this.indexers != null && sourcePropertyValue != null) {
+                        sourcePropertyValue = sourcePropertyValue[this.indexers[0]];
+                        if (this.indexers.length > 1 && sourcePropertyValue != null)
+                            sourcePropertyValue = sourcePropertyValue[this.indexers[1]];
+                    }
 
                     if (sourcePropertyValue != null) {
                         //is source value is not null means I can go further in search...
@@ -304,6 +345,7 @@ module layouts {
                 }
                 else {
                     this.name = this.path;
+                    this.lookForIndexers();
                     this.sourceProperty = DepObject.lookupProperty(this.source, this.name);
                     this.next = null;
                 }
@@ -340,10 +382,23 @@ module layouts {
                 if (DepObject.logBindingTraceToConsole) 
                     if (this.sourceProperty == null && (!(this.name in this.source)))
                         console.log("[Bindings] Unable to find property '{0}' on type '{1}'".format(this.name, this.source["typeName"] == null ? "<noneType>" : this.source["typeName"]));
-                
+
+                var sourcePropertyValue = (this.sourceProperty != null) ?
+                    this.source.getValue(this.sourceProperty) : //if it's a dep property get value using DepObject hierarchy
+                    this.source[this.name];//otherwise try using normal property lookup method
+
+
+                //if an indexer list is defined (binding to something like 'property[...]...')
+                //go deeper to property value accessed with the indexer
+                if (this.indexers != null && sourcePropertyValue != null) {
+                    sourcePropertyValue = sourcePropertyValue[this.indexers[0]];
+                    if (this.indexers.length > 1 && sourcePropertyValue != null)
+                        sourcePropertyValue = sourcePropertyValue[this.indexers[1]];
+                }
+
                 return {
                     success: true,
-                    value: this.sourceProperty != null ? this.source.getValue(this.sourceProperty) : this.source[this.name],
+                    value: sourcePropertyValue,
                     source: this.source,
                     property: this.sourceProperty
                 };
@@ -358,6 +413,10 @@ module layouts {
             if (this.next != null)
                 this.next.setValue(value);
             else if (this.name != null && this.path.indexOf(".") == -1) {
+
+                if (this.indexers != null)
+                    throw new Error("Unable to update source when indexers are specified in binding path");
+
                 if (this.sourceProperty != null)
                     this.source.setValue(this.sourceProperty, value);
                 else

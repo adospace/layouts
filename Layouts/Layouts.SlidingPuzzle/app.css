@@ -1,0 +1,18 @@
+﻿* {
+    margin: 0px;
+}
+
+html { 
+    height:100%; 
+}
+
+body {
+    font-family: 'Segoe UI', sans-serif;
+    height:100%; 
+    margin:0px; 
+}
+
+.tile {
+    font-size: 18px;
+    font-weight: bold;
+}

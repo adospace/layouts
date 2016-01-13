@@ -73,7 +73,7 @@ module layouts.controls {
                 var text = this.text;
                 var mySize = new Size();
                 var pElement = this._buttonElement;
-                var txtChanged = (pElement.innerText != text);
+                var txtChanged = (pElement.innerText !== text);
 
                 if (isFinite(constraint.width))
                     pElement.style.maxWidth = constraint.width + "px";
