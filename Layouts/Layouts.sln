@@ -23,6 +23,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Layouts.Sample6", "Layouts.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Layouts.SlidingPuzzle", "Layouts.SlidingPuzzle\Layouts.SlidingPuzzle.csproj", "{2E8E9E8A-2D84-4ECF-AD56-EB29AEEE6876}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "NuGet", "NuGet", "{B7B44049-3468-45BA-ABDB-52F3B16A9988}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Layouts", "NuGet\Layouts\Layouts.csproj", "{0451BAEF-DF2E-4B98-8644-94EE9415E389}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -69,8 +73,15 @@ Global
 		{2E8E9E8A-2D84-4ECF-AD56-EB29AEEE6876}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2E8E9E8A-2D84-4ECF-AD56-EB29AEEE6876}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2E8E9E8A-2D84-4ECF-AD56-EB29AEEE6876}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0451BAEF-DF2E-4B98-8644-94EE9415E389}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0451BAEF-DF2E-4B98-8644-94EE9415E389}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0451BAEF-DF2E-4B98-8644-94EE9415E389}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0451BAEF-DF2E-4B98-8644-94EE9415E389}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{0451BAEF-DF2E-4B98-8644-94EE9415E389} = {B7B44049-3468-45BA-ABDB-52F3B16A9988}
 	EndGlobalSection
 EndGlobal

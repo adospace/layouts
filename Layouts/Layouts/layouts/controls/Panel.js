@@ -1,12 +1,7 @@
-/// <reference path="..\DepProperty.ts" />
-/// <reference path="..\DepObject.ts" />
-/// <reference path="..\FrameworkElement.ts" /> 
-/// <reference path="..\ISupport.ts" /> 
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
     function __() { this.constructor = d; }
-    __.prototype = b.prototype;
-    d.prototype = new __();
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
 var layouts;
 (function (layouts) {
@@ -16,7 +11,6 @@ var layouts;
             __extends(Panel, _super);
             function Panel() {
                 _super.apply(this, arguments);
-                //virtual items
                 this.virtualItemCount = 0;
                 this.virtualOffset = null;
             }
@@ -43,21 +37,18 @@ var layouts;
                     if (value == this._children)
                         return;
                     if (this._children != null) {
-                        //reset parent on all children
                         this._children.forEach(function (el) {
-                            if (el.parent == _this)
+                            if (el.parent == _this) {
                                 el.parent = null;
+                                el.attachVisual(null);
+                            }
                         });
-                        //remove handler so that resource can be disposed
                         this._children.offChangeNotify(this);
                     }
                     this._children = value;
                     if (this._children != null) {
-                        //attach new children here
                         this._children.forEach(function (el) {
                             if (el.parent != null) {
-                                //if already child of a different parent throw error
-                                //in future investigate if it can be removed from container automatically
                                 throw new Error("Element already child of another element, please remove it first from previous container");
                             }
                             el.parent = _this;
@@ -113,4 +104,3 @@ var layouts;
         controls.Panel = Panel;
     })(controls = layouts.controls || (layouts.controls = {}));
 })(layouts || (layouts = {}));
-//# sourceMappingURL=Panel.js.map
