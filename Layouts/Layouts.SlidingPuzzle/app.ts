@@ -222,19 +222,44 @@ window.onload = () => {
 //        <Button Text="New Game" Command="{newGameCommand}"/>
 //    </Stack>
 //</Page>`;
+    
+    //@media(min - width:320px) { /* smartphones, iPhone, portrait 480x320 phones */ }
+    //@media(min - width:481px) { /* portrait e-readers (Nook/Kindle), smaller tablets @ 600 or @ 640 wide. */ }
+    //@media(min - width:641px) { /* portrait tablets, portrait iPad, landscape e-readers, landscape 800x480 or 854x480 phones */ }
+    //@media(min - width:961px) { /* tablet, landscape iPad, lo-res laptops ands desktops */ }
+    //@media(min - width:1025px) { /* big landscape tablets, laptops, and desktops */ }
+    //@media(min - width:1281px) { /* hi-res laptops and desktops */ }
+
     var lmlTest = `<?xml version="1.0" encoding="utf-8" ?>
 <Page Name="testPage">
-    <Stack VerticalAlignment="Center" HorizontalAlignment="Center" Orientation="Vertical">
-        <ItemsControl ItemsSource="{pad.tiles}">
-            <ItemsControl.ItemsPanel>
-                <Grid Rows="* * * *" Columns="* * * *" Width="400" Height="400"/>
-            </ItemsControl.ItemsPanel>
-            <DataTemplate>
-                <Button class="tile" Text="{num}" Grid.Row="{row}" Grid.Column="{col}" Command="{moveCommand}"/>
-            </DataTemplate>
-        </ItemsControl>
-        <Button Text="New Game" Command="{newGameCommand}"/>
-    </Stack>
+    <MediaTemplateSelector>
+        <DataTemplate Media="(min-width:1025px)">
+            <Stack VerticalAlignment="Center" HorizontalAlignment="Center" Orientation="Vertical">
+                <ItemsControl ItemsSource="{pad.tiles}" Width="400" Height="400">
+                    <ItemsControl.ItemsPanel>
+                        <Grid Rows="* * * *" Columns="* * * *"/>
+                    </ItemsControl.ItemsPanel>
+                    <DataTemplate>
+                        <Button class="tile" Text="{num}" Grid.Row="{row}" Grid.Column="{col}" Command="{moveCommand}"/>
+                    </DataTemplate>
+                </ItemsControl>
+                <Button Text="New Game" Command="{newGameCommand}"/>
+            </Stack>
+        </DataTemplate>
+        <DataTemplate Media="(min-width:320px)">
+            <Grid Rows="* Auto">
+                <ItemsControl ItemsSource="{pad.tiles}">
+                    <ItemsControl.ItemsPanel>
+                        <Grid Rows="* * * *" Columns="* * * *"/>
+                    </ItemsControl.ItemsPanel>
+                    <DataTemplate>
+                        <Button class="tile" Text="{num}" Grid.Row="{row}" Grid.Column="{col}" Command="{moveCommand}"/>
+                    </DataTemplate>
+                </ItemsControl>
+                <Button Text="New Game" Command="{newGameCommand}" Grid.Row="1" Height="100"/>
+            </Grid>
+        </DataTemplate>
+    </MediaTemplateSelector>
 </Page>`;
 
     app.page = loader.Parse(lmlTest);

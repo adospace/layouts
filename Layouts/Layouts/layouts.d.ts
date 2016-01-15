@@ -663,6 +663,21 @@ declare module layouts.controls {
     }
 }
 declare module layouts.controls {
+    class MediaTemplateSelector extends FrameworkElement {
+        static typeName: string;
+        typeName: string;
+        protected _container: HTMLElement;
+        attachVisualOverride(elementContainer: HTMLElement): void;
+        private _element;
+        private setupItem();
+        protected measureOverride(constraint: Size): Size;
+        protected arrangeOverride(finalSize: Size): Size;
+        protected layoutOverride(): void;
+        private _templates;
+        templates: ObservableCollection<DataTemplate>;
+    }
+}
+declare module layouts.controls {
     class div extends FrameworkElement {
         static typeName: string;
         typeName: string;
@@ -785,10 +800,13 @@ declare module layouts.controls {
         setXamlLoader(loader: XamlReader): void;
         createElement(): UIElement;
         static getTemplateForItem(templates: DataTemplate[], item: any): DataTemplate;
+        static getTemplateForMedia(templates: DataTemplate[]): DataTemplate;
         static targetTypeProperty: DepProperty;
         targetType: string;
         static targetMemberProperty: DepProperty;
         targetMember: string;
+        static mediaProperty: DepProperty;
+        media: string;
     }
 }
 declare module layouts.controls {

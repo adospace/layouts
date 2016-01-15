@@ -60,6 +60,27 @@
             return Enumerable.From(templates).FirstOrDefault(null, dt => dt.targetType == null);
         }
 
+        public static getTemplateForMedia(templates: DataTemplate[]): DataTemplate {
+            if (templates == null ||
+                templates.length == 0)
+                return null;
+
+            var foundTemplate =
+                Enumerable.From(templates).FirstOrDefault(null, template => {
+                    if (template.media == null ||
+                        template.media.trim().length == 0) {
+                        return true;
+                    }
+
+                    return window.matchMedia(template.media).matches;
+                });
+
+            if (foundTemplate != null)
+                return foundTemplate;
+
+            return Enumerable.From(templates).FirstOrDefault(null, dt => dt.targetType == null);
+        }
+
 
         ///returns the type datatemplate is suited for
         ///if null it means it's a generic template usable for any object of any type
@@ -79,6 +100,14 @@
             this.setValue(DataTemplate.targetMemberProperty, value);
         }
 
+
+        static mediaProperty = DepObject.registerProperty(DataTemplate.typeName, "Media", null);
+        get media(): string {
+            return <string>this.getValue(DataTemplate.mediaProperty);
+        }
+        set media(value: string) {
+            this.setValue(DataTemplate.mediaProperty, value);
+        }
     }
 
 

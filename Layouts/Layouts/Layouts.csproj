@@ -30,6 +30,7 @@
     <TypeScriptCompile Include="layouts\controls\Frame.ts" />
     <TypeScriptCompile Include="layouts\controls\Grid.ts" />
     <TypeScriptCompile Include="layouts\controls\Image.ts" />
+    <TypeScriptCompile Include="layouts\controls\MediaTemplateSelector.ts" />
     <TypeScriptCompile Include="layouts\controls\NativeElements.ts" />
     <TypeScriptCompile Include="layouts\controls\ItemsControl.ts" />
     <TypeScriptCompile Include="layouts\controls\Popup.ts" />

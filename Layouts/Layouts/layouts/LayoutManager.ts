@@ -18,7 +18,8 @@ module layouts {
                 || document.documentElement.clientHeight
                 || document.body.clientHeight;
 
-            
+            //docWidth /= window.devicePixelRatio || 1;
+            //docHeight /= window.devicePixelRatio || 1;
 
             if (page != null) {
                 var sizeToContentWidth = page.sizeToContent == layouts.SizeToContent.Both || page.sizeToContent == layouts.SizeToContent.Horizontal;

@@ -1668,6 +1668,8 @@ var layouts;
             var docHeight = window.innerHeight
                 || document.documentElement.clientHeight
                 || document.body.clientHeight;
+            //docWidth /= window.devicePixelRatio || 1;
+            //docHeight /= window.devicePixelRatio || 1;
             if (page != null) {
                 var sizeToContentWidth = page.sizeToContent == layouts.SizeToContent.Both || page.sizeToContent == layouts.SizeToContent.Horizontal;
                 var sizeToContentHeight = page.sizeToContent == layouts.SizeToContent.Both || page.sizeToContent == layouts.SizeToContent.Vertical;
@@ -3979,6 +3981,88 @@ var layouts;
         controls.Image = Image;
     })(controls = layouts.controls || (layouts.controls = {}));
 })(layouts || (layouts = {}));
+var layouts;
+(function (layouts) {
+    var controls;
+    (function (controls) {
+        var MediaTemplateSelector = (function (_super) {
+            __extends(MediaTemplateSelector, _super);
+            function MediaTemplateSelector() {
+                _super.apply(this, arguments);
+            }
+            Object.defineProperty(MediaTemplateSelector.prototype, "typeName", {
+                get: function () {
+                    return MediaTemplateSelector.typeName;
+                },
+                enumerable: true,
+                configurable: true
+            });
+            MediaTemplateSelector.prototype.attachVisualOverride = function (elementContainer) {
+                this._container = elementContainer;
+                this.setupItem();
+                _super.prototype.attachVisualOverride.call(this, elementContainer);
+            };
+            MediaTemplateSelector.prototype.setupItem = function () {
+                if (this._container == null)
+                    return;
+                if (this._element != null) {
+                    this._element.attachVisual(null);
+                    this._element.parent = null;
+                }
+                if (this._templates == null ||
+                    this._templates.count == 0)
+                    return;
+                var templateForItem = controls.DataTemplate.getTemplateForMedia(this._templates.toArray());
+                if (templateForItem == null) {
+                    throw new Error("Unable to find a valid template for this media");
+                }
+                this._element = templateForItem.createElement();
+                if (this._element != null) {
+                    this._element.attachVisual(this._container);
+                    this._element.parent = this;
+                }
+                this.invalidateMeasure();
+            };
+            MediaTemplateSelector.prototype.measureOverride = function (constraint) {
+                var child = this._element;
+                if (child != null) {
+                    child.measure(constraint);
+                    return child.desiredSize;
+                }
+                return new layouts.Size();
+            };
+            MediaTemplateSelector.prototype.arrangeOverride = function (finalSize) {
+                var child = this._element;
+                if (child != null)
+                    child.arrange(finalSize.toRect());
+                return finalSize;
+            };
+            MediaTemplateSelector.prototype.layoutOverride = function () {
+                _super.prototype.layoutOverride.call(this);
+                var child = this._element;
+                if (child != null) {
+                    var childOffset = this.visualOffset;
+                    if (this.relativeOffset != null)
+                        childOffset = childOffset.add(this.relativeOffset);
+                    child.layout(childOffset);
+                }
+            };
+            Object.defineProperty(MediaTemplateSelector.prototype, "templates", {
+                get: function () {
+                    return this._templates;
+                },
+                set: function (value) {
+                    this._templates = value;
+                },
+                enumerable: true,
+                configurable: true
+            });
+            MediaTemplateSelector.typeName = "layouts.controls.MediaTemplateSelector";
+            return MediaTemplateSelector;
+        })(layouts.FrameworkElement);
+        controls.MediaTemplateSelector = MediaTemplateSelector;
+    })(controls = layouts.controls || (layouts.controls = {}));
+})(layouts || (layouts = {}));
 /// <reference path="..\DepProperty.ts" />
 /// <reference path="..\DepObject.ts" />
 /// <reference path="..\FrameworkElement.ts" /> 
@@ -4845,6 +4929,21 @@ var layouts;
                     return foundTemplate;
                 return Enumerable.From(templates).FirstOrDefault(null, function (dt) { return dt.targetType == null; });
             };
+            DataTemplate.getTemplateForMedia = function (templates) {
+                if (templates == null ||
+                    templates.length == 0)
+                    return null;
+                var foundTemplate = Enumerable.From(templates).FirstOrDefault(null, function (template) {
+                    if (template.media == null ||
+                        template.media.trim().length == 0) {
+                        return true;
+                    }
+                    return window.matchMedia(template.media).matches;
+                });
+                if (foundTemplate != null)
+                    return foundTemplate;
+                return Enumerable.From(templates).FirstOrDefault(null, function (dt) { return dt.targetType == null; });
+            };
             Object.defineProperty(DataTemplate.prototype, "targetType", {
                 get: function () {
                     return this.getValue(DataTemplate.targetTypeProperty);
@@ -4865,11 +4964,22 @@ var layouts;
                 enumerable: true,
                 configurable: true
             });
+            Object.defineProperty(DataTemplate.prototype, "media", {
+                get: function () {
+                    return this.getValue(DataTemplate.mediaProperty);
+                },
+                set: function (value) {
+                    this.setValue(DataTemplate.mediaProperty, value);
+                },
+                enumerable: true,
+                configurable: true
+            });
             DataTemplate.typeName = "layouts.controls.DataTemplate";
             ///returns the type datatemplate is suited for
             ///if null it means it's a generic template usable for any object of any type
             DataTemplate.targetTypeProperty = layouts.DepObject.registerProperty(DataTemplate.typeName, "TargetType", null);
             DataTemplate.targetMemberProperty = layouts.DepObject.registerProperty(DataTemplate.typeName, "TargetMember", null);
+            DataTemplate.mediaProperty = layouts.DepObject.registerProperty(DataTemplate.typeName, "Media", null);
             return DataTemplate;
         })(layouts.DepObject);
         controls.DataTemplate = DataTemplate;
