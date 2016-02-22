@@ -272,7 +272,7 @@ module layouts {
                 ev.stopPropagation();
                 document.addEventListener("mouseup", function () {
                     this.removeEventListener("mouseup", arguments.callee);
-                    LayoutManager.closePopup();
+                    LayoutManager.closePopup(popup);
                 });
             }
 
