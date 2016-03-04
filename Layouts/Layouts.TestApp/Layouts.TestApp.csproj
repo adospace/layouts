@@ -69,6 +69,9 @@
     <TypeScriptCompile Include="..\Layouts\layouts\controls\Grid.ts">
       <Link>layouts\controls\Grid.ts</Link>
     </TypeScriptCompile>
+    <TypeScriptCompile Include="..\Layouts\layouts\controls\GridSplitter.ts">
+      <Link>layouts\controls\GridSplitter.ts</Link>
+    </TypeScriptCompile>
     <TypeScriptCompile Include="..\Layouts\layouts\controls\Image.ts">
       <Link>layouts\controls\Image.ts</Link>
     </TypeScriptCompile>

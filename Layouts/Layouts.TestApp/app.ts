@@ -1,201 +1,201 @@
-﻿class TestViewModelItem extends layouts.DepObject {
-    static typeName: string = "TestViewModelItem";
-    get typeName(): string {
-        return TestViewModelItem.typeName;
-    }
+﻿//class TestViewModelItem extends layouts.DepObject {
+//    static typeName: string = "TestViewModelItem";
+//    get typeName(): string {
+//        return TestViewModelItem.typeName;
+//    }
 
-    constructor(public itemName: string, public itemValue?: any) {
-        super();
-    }
+//    constructor(public itemName: string, public itemValue?: any) {
+//        super();
+//    }
 
-    private _testCommand: layouts.Command;
-    get testCommand(): layouts.Command {
-        if (this._testCommand == null)
-            this._testCommand = new layouts.Command((cmd, p) => this.onTest(), (cmd, p) => true);
-        return this._testCommand;
-    }
+//    private _testCommand: layouts.Command;
+//    get testCommand(): layouts.Command {
+//        if (this._testCommand == null)
+//            this._testCommand = new layouts.Command((cmd, p) => this.onTest(), (cmd, p) => true);
+//        return this._testCommand;
+//    }
 
-    onTest() {
-        alert("Test Command");
-    }
-}
+//    onTest() {
+//        alert("Test Command");
+//    }
+//}
 
-class TestViewModel extends layouts.DepObject {
-    static typeName: string = "TestViewModel";
-    get typeName(): string {
-        return TestViewModel.typeName;
-    }
+//class TestViewModel extends layouts.DepObject {
+//    static typeName: string = "TestViewModel";
+//    get typeName(): string {
+//        return TestViewModel.typeName;
+//    }
 
-    constructor() {
-        super();
-        this.itemsCollection = new layouts.ObservableCollection<TestViewModelItem>(
-            [
-                new TestViewModelItem("item1", 12),
-                new TestViewModelItem("item2", "I'm a string"),
-                new TestViewModelItem("item3", 34),
-            ]);
-        this._currentItem = this.itemsCollection.at(0);
-    }
+//    constructor() {
+//        super();
+//        this.itemsCollection = new layouts.ObservableCollection<TestViewModelItem>(
+//            [
+//                new TestViewModelItem("item1", 12),
+//                new TestViewModelItem("item2", "I'm a string"),
+//                new TestViewModelItem("item3", 34),
+//            ]);
+//        this._currentItem = this.itemsCollection.at(0);
+//    }
 
-    static nameProperty = layouts.DepObject.registerProperty(TestViewModel.typeName, "name", "test string");
-    get name(): string {
-        return <string>this.getValue(TestViewModel.nameProperty);
-    }
-    set name(value: string) {
-        this.setValue(TestViewModel.nameProperty, value);
-    }
+//    static nameProperty = layouts.DepObject.registerProperty(TestViewModel.typeName, "name", "test string");
+//    get name(): string {
+//        return <string>this.getValue(TestViewModel.nameProperty);
+//    }
+//    set name(value: string) {
+//        this.setValue(TestViewModel.nameProperty, value);
+//    }
 
-    static countProperty = layouts.DepObject.registerProperty(TestViewModel.typeName, "count", 3, (v) => parseInt(v));
-    get count(): number {
-        return <number>this.getValue(TestViewModel.countProperty);
-    }
-    set count(value: number) {
-        this.setValue(TestViewModel.countProperty, value);
-    }
+//    static countProperty = layouts.DepObject.registerProperty(TestViewModel.typeName, "count", 3, (v) => parseInt(v));
+//    get count(): number {
+//        return <number>this.getValue(TestViewModel.countProperty);
+//    }
+//    set count(value: number) {
+//        this.setValue(TestViewModel.countProperty, value);
+//    }
 
 
-    static dateProperty = layouts.DepObject.registerProperty(TestViewModel.typeName, "date", new Date(), (v) => Date.parse(v));
-    get date(): Date {
-        return <Date>this.getValue(TestViewModel.dateProperty);
-    }
-    set date(value: Date) {
-        this.setValue(TestViewModel.dateProperty, value);
-    }
+//    static dateProperty = layouts.DepObject.registerProperty(TestViewModel.typeName, "date", new Date(), (v) => Date.parse(v));
+//    get date(): Date {
+//        return <Date>this.getValue(TestViewModel.dateProperty);
+//    }
+//    set date(value: Date) {
+//        this.setValue(TestViewModel.dateProperty, value);
+//    }
 
-    private _incrementCommand: layouts.Command;
-    get incrementCommand(): layouts.Command {
-        if (this._incrementCommand == null)
-            this._incrementCommand = new layouts.Command((cmd, p) => this.onIncrement(), (cmd, p) => true);
-        return this._incrementCommand;
-    }
+//    private _incrementCommand: layouts.Command;
+//    get incrementCommand(): layouts.Command {
+//        if (this._incrementCommand == null)
+//            this._incrementCommand = new layouts.Command((cmd, p) => this.onIncrement(), (cmd, p) => true);
+//        return this._incrementCommand;
+//    }
 
-    onIncrement() {
-        this.count++;
-        this.itemsCollection.add(new TestViewModelItem("item" + this.count));
-        this.decrementCommand.canExecuteChanged();
-    }
+//    onIncrement() {
+//        this.count++;
+//        this.itemsCollection.add(new TestViewModelItem("item" + this.count));
+//        this.decrementCommand.canExecuteChanged();
+//    }
 
-    private _decrementCommand: layouts.Command;
-    get decrementCommand(): layouts.Command {
-        if (this._decrementCommand == null)
-            this._decrementCommand = new layouts.Command((cmd, p) => this.onDecrement(), (cmd, p) => this.itemsCollection.count > 0);
-        return this._decrementCommand;
-    }
+//    private _decrementCommand: layouts.Command;
+//    get decrementCommand(): layouts.Command {
+//        if (this._decrementCommand == null)
+//            this._decrementCommand = new layouts.Command((cmd, p) => this.onDecrement(), (cmd, p) => this.itemsCollection.count > 0);
+//        return this._decrementCommand;
+//    }
 
-    onDecrement() {
-        this.count--;
-        this.itemsCollection.remove(
-            this.itemsCollection.last());
-    }
+//    onDecrement() {
+//        this.count--;
+//        this.itemsCollection.remove(
+//            this.itemsCollection.last());
+//    }
 
-    itemsCollection: layouts.ObservableCollection<TestViewModelItem>;
+//    itemsCollection: layouts.ObservableCollection<TestViewModelItem>;
 
-    private _currentItem: TestViewModelItem;
-    get currentItem(): TestViewModelItem {
-        return this._currentItem;
-    }
-    set currentItem(value: TestViewModelItem) {
-        if (this._currentItem != value) {
-            var oldValue = this._currentItem;
-            this._currentItem = value;
-            this.onPropertyChanged("currentItem", value, oldValue);
-        }
-    }
+//    private _currentItem: TestViewModelItem;
+//    get currentItem(): TestViewModelItem {
+//        return this._currentItem;
+//    }
+//    set currentItem(value: TestViewModelItem) {
+//        if (this._currentItem != value) {
+//            var oldValue = this._currentItem;
+//            this._currentItem = value;
+//            this.onPropertyChanged("currentItem", value, oldValue);
+//        }
+//    }
 
-    private _currentItemName: string;
-    get currentItemName(): string {
-        return this._currentItemName;
-    }
-    set currentItemName(value: string) {
-        if (this._currentItemName != value) {
-            var oldValue = this._currentItemName;
-            this._currentItemName = value;
-            this.onPropertyChanged("currentItemName", value, oldValue);
-        }
-    }
+//    private _currentItemName: string;
+//    get currentItemName(): string {
+//        return this._currentItemName;
+//    }
+//    set currentItemName(value: string) {
+//        if (this._currentItemName != value) {
+//            var oldValue = this._currentItemName;
+//            this._currentItemName = value;
+//            this.onPropertyChanged("currentItemName", value, oldValue);
+//        }
+//    }
 
-    private _layoutUpdatedEvent: layouts.EventAction;
-    get layoutUpdated(): layouts.EventAction {
-        if (this._layoutUpdatedEvent == null)
-            this._layoutUpdatedEvent = new layouts.EventAction((ev, p) => this.onLayoutUpdated(p));
-        return this._layoutUpdatedEvent;
-    }
+//    private _layoutUpdatedEvent: layouts.EventAction;
+//    get layoutUpdated(): layouts.EventAction {
+//        if (this._layoutUpdatedEvent == null)
+//            this._layoutUpdatedEvent = new layouts.EventAction((ev, p) => this.onLayoutUpdated(p));
+//        return this._layoutUpdatedEvent;
+//    }
 
-    onLayoutUpdated(p: any) {
-        console.log("onLayoutUpdated");
-    }
-}
+//    onLayoutUpdated(p: any) {
+//        console.log("onLayoutUpdated");
+//    }
+//}
 
-class TestShowHideViewModel extends layouts.DepObject {
-    static typeName: string = "TestShowHideViewModel";
-    get typeName(): string {
-        return TestShowHideViewModel.typeName;
-    }
+//class TestShowHideViewModel extends layouts.DepObject {
+//    static typeName: string = "TestShowHideViewModel";
+//    get typeName(): string {
+//        return TestShowHideViewModel.typeName;
+//    }
 
-    static isVisibleProperty = layouts.DepObject.registerProperty(TestShowHideViewModel.typeName, "IsVisible", true);
-    get isVisible(): boolean {
-        return <boolean>this.getValue(TestShowHideViewModel.isVisibleProperty);
-    }
-    set isVisible(value: boolean) {
-        this.setValue(TestShowHideViewModel.isVisibleProperty, value);
-    }
+//    static isVisibleProperty = layouts.DepObject.registerProperty(TestShowHideViewModel.typeName, "IsVisible", true);
+//    get isVisible(): boolean {
+//        return <boolean>this.getValue(TestShowHideViewModel.isVisibleProperty);
+//    }
+//    set isVisible(value: boolean) {
+//        this.setValue(TestShowHideViewModel.isVisibleProperty, value);
+//    }
 
-    private _showHideCommand: layouts.Command;
-    get showHideCommand(): layouts.Command {
-        if (this._showHideCommand == null)
-            this._showHideCommand = new layouts.Command((cmd, p) => this.onShowHide(), (cmd, p) => true);
-        return this._showHideCommand;
-    }
+//    private _showHideCommand: layouts.Command;
+//    get showHideCommand(): layouts.Command {
+//        if (this._showHideCommand == null)
+//            this._showHideCommand = new layouts.Command((cmd, p) => this.onShowHide(), (cmd, p) => true);
+//        return this._showHideCommand;
+//    }
 
-    onShowHide() {
-        this.isVisible = !this.isVisible;
-    }
-}
+//    onShowHide() {
+//        this.isVisible = !this.isVisible;
+//    }
+//}
 
-class TestDataContextParentViewModel extends layouts.DepObject {
-    static typeName: string = "TestDataContextParentViewModel";
-    get typeName(): string {
-        return TestDataContextParentViewModel.typeName;
-    }
+//class TestDataContextParentViewModel extends layouts.DepObject {
+//    static typeName: string = "TestDataContextParentViewModel";
+//    get typeName(): string {
+//        return TestDataContextParentViewModel.typeName;
+//    }
 
-    get title(): string {
-        return "parent";
-    }
+//    get title(): string {
+//        return "parent";
+//    }
 
-    _child: TestDataContextChildViewModel;
-    get child(): TestDataContextChildViewModel {
-        return this._child;
-    }
-    set child(value: TestDataContextChildViewModel) {
-        if (this._child != value) {
-            var oldValue = this._child;
-            this._child = value;
-            this.onPropertyChanged("child", value, oldValue);
-        }
-    }
+//    _child: TestDataContextChildViewModel;
+//    get child(): TestDataContextChildViewModel {
+//        return this._child;
+//    }
+//    set child(value: TestDataContextChildViewModel) {
+//        if (this._child != value) {
+//            var oldValue = this._child;
+//            this._child = value;
+//            this.onPropertyChanged("child", value, oldValue);
+//        }
+//    }
 
-    private _showHideChildCommand: layouts.Command;
-    get showHideChildCommand(): layouts.Command {
-        if (this._showHideChildCommand == null)
-            this._showHideChildCommand = new layouts.Command((cmd, p) => this.onShowHideChild(), (cmd, p) => true);
-        return this._showHideChildCommand;
-    }
+//    private _showHideChildCommand: layouts.Command;
+//    get showHideChildCommand(): layouts.Command {
+//        if (this._showHideChildCommand == null)
+//            this._showHideChildCommand = new layouts.Command((cmd, p) => this.onShowHideChild(), (cmd, p) => true);
+//        return this._showHideChildCommand;
+//    }
 
-    onShowHideChild() {
-        this.child = new TestDataContextChildViewModel();
-    }
-}
+//    onShowHideChild() {
+//        this.child = new TestDataContextChildViewModel();
+//    }
+//}
 
-class TestDataContextChildViewModel extends layouts.DepObject {
-    static typeName: string = "TestDataContextChildViewModel";
-    get typeName(): string {
-        return TestDataContextChildViewModel.typeName;
-    }
+//class TestDataContextChildViewModel extends layouts.DepObject {
+//    static typeName: string = "TestDataContextChildViewModel";
+//    get typeName(): string {
+//        return TestDataContextChildViewModel.typeName;
+//    }
 
-    get title(): string {
-        return "child";
-    }
-}
+//    get title(): string {
+//        return "child";
+//    }
+//}
 
 window.onload = () => {
     var app = new layouts.Application();
@@ -278,17 +278,29 @@ window.onload = () => {
 //</Stack>
 //`;
 
+//    var lmlTest = `<?xml version= "1.0" encoding= "utf-8" ?>
+//<ItemsControl ItemsSource="{itemsCollection}" SelectedItem="{currentItem,mode:twoway}" LayoutUpdated="{layoutUpdated}" VerticalAlignment= "Center" HorizontalAlignment= "Center">
+//    <DataTemplate TargetType="number" TargetMember="itemValue">
+//        <TextBlock Text="{itemValue}" Command="{testCommand}"/>
+//    </DataTemplate>
+//    <DataTemplate TargetType="string" TargetMember="itemValue">
+//        <TextBox Text="{itemValue,mode:twoway}"/>
+//    </DataTemplate>  
+//</ItemsControl>
+//`;
+
     var lmlTest = `<?xml version= "1.0" encoding= "utf-8" ?>
-<ItemsControl ItemsSource="{itemsCollection}" SelectedItem="{currentItem,mode:twoway}" LayoutUpdated="{layoutUpdated}" VerticalAlignment= "Center" HorizontalAlignment= "Center">
-    <DataTemplate TargetType="number" TargetMember="itemValue">
-        <TextBlock Text="{itemValue}" Command="{testCommand}"/>
-    </DataTemplate>
-    <DataTemplate TargetType="string" TargetMember="itemValue">
-        <TextBox Text="{itemValue,mode:twoway}"/>
-    </DataTemplate>  
-</ItemsControl>
+<Grid Margin="100" Rows="[,100,300] * * 50">
+    <Border Background="Red"/>
+    <GridSplitter VerticalAlignment="Top" Height="8" Grid.Row="1"/>
+    <Border Background="Blue" Grid.Row="1" Margin="0,8,0,0"/>
+    <GridSplitter VerticalAlignment="Top" Height="8" Grid.Row="2"/>
+    <Border Background="Gray" Grid.Row="2" Margin="0,8,0,0"/>
+    <GridSplitter VerticalAlignment="Top" Height="8" Grid.Row="3"/>
+    <Border Background="Green" Grid.Row="3" Margin="0,8,0,0"/>
+</Grid>
 `;
 
     app.page = lmlReader.Parse(lmlTest);
-    app.page.dataContext = new TestViewModel();
+//    app.page.dataContext = new TestViewModel();
 };

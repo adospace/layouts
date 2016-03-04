@@ -261,11 +261,9 @@ module layouts {
                 this.onCommandCanExecuteChanged(command);
                 ev.stopPropagation();
             }
-
         }
 
         onMouseUp(ev: MouseEvent) {
-
             var popup = this.popup;
             if (popup != null) {
                 LayoutManager.showPopup(popup);
