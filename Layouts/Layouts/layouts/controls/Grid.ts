@@ -518,108 +518,13 @@ module layouts.controls {
             return finalSize;
         }   
 
-        ///Grid splitter
-        private _draggingStartPointX: number;
-        private _draggingStartPointY: number;
-        private _draggingSplitter : GridSplitter;
-        public drag(splitter: GridSplitter, ev: MouseEvent) {
-
-            var dragging = false;
-
-            if (splitter.verticalAlignment == VerticalAlignment.Top) {
-                var thisRowIndex = Grid.getRow(splitter);
-                thisRowIndex = Math.min(thisRowIndex, this.rows.count - 1);
-                dragging = thisRowIndex > 0 && this.rows.count > 1;
-            }
-            else if (splitter.verticalAlignment == VerticalAlignment.Bottom) {
-                var thisRowIndex = Grid.getRow(splitter);
-                thisRowIndex = Math.min(thisRowIndex, this.rows.count - 1);
-                dragging = thisRowIndex >= 0 && this.rows.count > 1;
-            }
-            else if (splitter.horizontalAlignment == HorizontalAlignment.Left) {
-                var thisColIndex = Grid.getColumn(splitter);
-                thisColIndex = Math.min(thisColIndex, this.columns.count - 1);
-                dragging = thisColIndex > 0 && this.columns.count > 1;
-            }
-            else if (splitter.horizontalAlignment == HorizontalAlignment.Left) {
-                var thisColIndex = Grid.getColumn(splitter);
-                thisColIndex = Math.min(thisColIndex, this.columns.count - 1);
-                dragging = thisColIndex >= 0 && this.columns.count > 1;
-            }
-
-            if (dragging) {
-                document.addEventListener("mousemove", this.onSplitterMouseMove, true);
-                document.addEventListener("mouseup", this.onSplitterMouseUp, true);
-                this._draggingStartPointX = ev.x;
-                this._draggingStartPointY = ev.y;
-                this._draggingSplitter = splitter;
-                ev.stopPropagation();
-            }
+        public getRowFinalHeight(rowIndex: number): number {
+            return this._rowDefs[rowIndex].finalHeight;
+        }
+        public getColumnfinalWidth(colIndex: number): number {
+            return this._columnDefs[colIndex].finalWidth;
         }
 
-        private onSplitterMouseMove = (ev: MouseEvent) => {
-            this.dragSplitter(ev);
-            ev.stopPropagation();
-        }
-
-        private onSplitterMouseUp = (ev: MouseEvent) => {
-            this.dragSplitter(ev);
-            document.removeEventListener("mousemove", this.onSplitterMouseMove, true);
-            document.removeEventListener("mouseup", this.onSplitterMouseUp, true);
-            ev.stopPropagation();
-        }
-
-        private dragSplitter(ev: MouseEvent) {
-
-            var saveDraggingStartPoint = true;
-
-            if (this._draggingSplitter.verticalAlignment == VerticalAlignment.Top) {
-                var thisRowIndex = Grid.getRow(this._draggingSplitter);
-                thisRowIndex = Math.min(thisRowIndex, this.rows.count - 1);
-                var topRow: GridRow = this.rows.elements[thisRowIndex - 1];
-                var bottomRow: GridRow = this.rows.elements[thisRowIndex];
-
-                if (topRow.height.isAuto || bottomRow.height.isAuto)
-                    return;
-
-                if (topRow.height.isFixed || bottomRow.height.isFixed) {
-                    if (topRow.height.isFixed) {
-                        saveDraggingStartPoint = (topRow.height.value + (ev.y - this._draggingStartPointY)) > 0;
-                        topRow.height = new GridLength(Math.max(0, topRow.height.value + (ev.y - this._draggingStartPointY)), GridUnitType.Pixel);
-                    }
-                    if (bottomRow.height.isFixed) {
-                        saveDraggingStartPoint = (bottomRow.height.value - (ev.y - this._draggingStartPointY)) > this._draggingSplitter.actualHeight;
-                        bottomRow.height = new GridLength(Math.max(this._draggingSplitter.actualHeight, bottomRow.height.value - (ev.y - this._draggingStartPointY)), GridUnitType.Pixel);
-                    }
-                    this.invalidateMeasure();
-                }
-                else { //both are star
-                    if (this._rowDefs == null ||
-                        this._rowDefs.length <= thisRowIndex)
-                        return;
-
-                    var heightFactor = (bottomRow.height.value + topRow.height.value) /
-                        (this._rowDefs[thisRowIndex - 1].finalHeight + this._rowDefs[thisRowIndex].finalHeight);
-
-                    var heightStarDiff = (ev.y - this._draggingStartPointY) * heightFactor;
-
-                    saveDraggingStartPoint = topRow.height.value + heightStarDiff > 0 &&
-                        bottomRow.height.value - heightStarDiff > 0;
-
-
-                    var minHeight = this._draggingSplitter.actualHeight * heightFactor;
-
-                    topRow.height = new GridLength(Math.max(minHeight, topRow.height.value + heightStarDiff), GridUnitType.Star);
-                    bottomRow.height = new GridLength(Math.max(minHeight, bottomRow.height.value - heightStarDiff), GridUnitType.Star);
-                    this.invalidateMeasure();
-                }
-            }
-
-            if (saveDraggingStartPoint) {
-                this._draggingStartPointX = ev.x;
-                this._draggingStartPointY = ev.y;
-            }
-        }
 
         ///Dependency properties
 

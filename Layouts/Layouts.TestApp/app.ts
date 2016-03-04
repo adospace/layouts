@@ -290,10 +290,10 @@ window.onload = () => {
 //`;
 
     var lmlTest = `<?xml version= "1.0" encoding= "utf-8" ?>
-<Grid Margin="100" Rows="[,100,300] * * 50">
-    <Border Background="Red"/>
-    <GridSplitter VerticalAlignment="Top" Height="8" Grid.Row="1"/>
-    <Border Background="Blue" Grid.Row="1" Margin="0,8,0,0"/>
+<Grid Margin="100" Rows="100 * * 50">
+    <Border Background="Red" Margin="0,0,0,8" BorderBrush="Cyan" BorderThickness="2"/>
+    <GridSplitter VerticalAlignment="Bottom" Height="8" Grid.Row="0" Background="Black"/>
+    <Border Background="Blue" Grid.Row="1" Margin="0,0,0,0"/>
     <GridSplitter VerticalAlignment="Top" Height="8" Grid.Row="2"/>
     <Border Background="Gray" Grid.Row="2" Margin="0,8,0,0"/>
     <GridSplitter VerticalAlignment="Top" Height="8" Grid.Row="3"/>

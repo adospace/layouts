@@ -56,6 +56,9 @@ if (!String.prototype.startsWith) {
 interface Number {
     isEpsilon(): boolean;
     isCloseTo(other: number): boolean;
+    isLessThen(other: number): boolean;
+    isGreaterThen(other: number): boolean;
+    isCloseTo(other: number): boolean;
     minMax(min: number, max: number);
 }
 
@@ -70,6 +73,13 @@ Number.prototype.isCloseTo = function (other) {
 Number.prototype.minMax = function (min: number, max: number) {
     return Math.max(min, Math.min(this, max));
 };
+Number.prototype.isLessThen = function (other) {
+    return (this - other) < 1e-10;
+}
+Number.prototype.isGreaterThen = function (other) {
+    return (this - other) > 1e-10;
+}
+
 
 class InstanceLoader {
     constructor(private context: Object) {

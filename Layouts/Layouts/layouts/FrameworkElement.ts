@@ -35,6 +35,10 @@ module layouts {
 
             throw new Error("Thickness format error");
         }
+
+        get isSameWidth(): boolean {
+            return this.left == this.top && this.left == this.right && this.right == this.bottom;
+        }
     }
 
     class MinMax {

@@ -45,6 +45,7 @@ module layouts.controls {
         attachVisualOverride(elementContainer: HTMLElement) {
 
             this._visual = this._divElement = document.createElement("div");
+            this.updateVisualProperties();
 
             if (this._child != null) {
                 this._child.attachVisual(this._divElement);
@@ -93,8 +94,6 @@ module layouts.controls {
                 Math.max(0.0, boundRect.width - borders.left - borders.right),
                 Math.max(0.0, boundRect.height - borders.top - borders.bottom));
 
-            var borderBrush = this.borderBrush;
-
             //  arrange child
             var child = this._child;
             var padding = this.padding;
@@ -107,18 +106,47 @@ module layouts.controls {
                 child.arrange(childRect);
             }
 
-            return finalSize;
+            if (this._visual != null) {
+                
+            }
+
+
+            return innerRect.size;
         }   
 
         protected layoutOverride() {
             super.layoutOverride();
 
-            var background = this.background;
-            if (this._visual.style.background != background)
-                this._visual.style.background = background;
 
             if (this._child != null)
                 this._child.layout();
+        }
+
+        updateVisualProperties() {
+            if (this._visual == null)
+                return;
+            this._visual.style.background = this.background;
+            this._visual.style.borderColor = this.borderBrush;
+            this._visual.style.borderStyle = this.borderStyle;
+            var borderThickness = this.borderThickness;
+            if (borderThickness.isSameWidth)
+                this._visual.style.borderWidth = borderThickness.left.toString() + "px";
+            else {
+                this._visual.style.borderLeft = borderThickness.left.toString() + "px";
+                this._visual.style.borderTop = borderThickness.top.toString() + "px";
+                this._visual.style.borderRight = borderThickness.right.toString() + "px";
+                this._visual.style.borderBottom = borderThickness.bottom.toString() + "px";
+            }
+        }
+
+        protected onDependencyPropertyChanged(property: DepProperty, value: any, oldValue: any) {
+
+            if (property == Border.borderThicknessProperty ||
+                property == Border.backgroundProperty ||
+                property == Border.borderBrushProperty)
+                this.updateVisualProperties();
+
+            super.onDependencyPropertyChanged(property, value, oldValue);
         }
 
         static borderThicknessProperty = DepObject.registerProperty(Border.typeName, "BorderThickness", new Thickness(), FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender, (v) => Thickness.fromString(v));
@@ -153,5 +181,12 @@ module layouts.controls {
             this.setValue(Border.borderBrushProperty, value);
         }
 
+        static borderStyleProperty = DepObject.registerProperty(Border.typeName, "BorderStyle", "solid", FrameworkPropertyMetadataOptions.AffectsRender);
+        get borderStyle(): string {
+            return <string>this.getValue(Border.borderStyleProperty);
+        }
+        set borderStyle(value: string) {
+            this.setValue(Border.borderStyleProperty, value);
+        }
     }
 }
