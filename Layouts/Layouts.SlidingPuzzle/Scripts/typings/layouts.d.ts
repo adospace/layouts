@@ -13,6 +13,9 @@ interface String {
 interface Number {
     isEpsilon(): boolean;
     isCloseTo(other: number): boolean;
+    isLessThen(other: number): boolean;
+    isGreaterThen(other: number): boolean;
+    isCloseTo(other: number): boolean;
     minMax(min: number, max: number): any;
 }
 declare class InstanceLoader {
@@ -218,6 +221,7 @@ declare module layouts {
         bottom: number;
         constructor(left?: number, top?: number, right?: number, bottom?: number);
         static fromString(v: string): Thickness;
+        isSameWidth: boolean;
     }
     class FrameworkElement extends UIElement {
         static typeName: string;
@@ -411,6 +415,8 @@ declare module layouts.controls {
         protected measureOverride(constraint: Size): Size;
         protected arrangeOverride(finalSize: Size): Size;
         protected layoutOverride(): void;
+        updateVisualProperties(): void;
+        protected onDependencyPropertyChanged(property: DepProperty, value: any, oldValue: any): void;
         static borderThicknessProperty: DepProperty;
         borderThickness: Thickness;
         static paddingProperty: DepProperty;
@@ -419,6 +425,8 @@ declare module layouts.controls {
         background: string;
         static borderBrushProperty: DepProperty;
         borderBrush: string;
+        static borderStyleProperty: DepProperty;
+        borderStyle: string;
     }
 }
 declare module layouts {
@@ -608,6 +616,8 @@ declare module layouts.controls {
         private _lastDesiredSize;
         protected measureOverride(constraint: Size): Size;
         protected arrangeOverride(finalSize: Size): Size;
+        getRowFinalHeight(rowIndex: number): number;
+        getColumnFinalWidth(colIndex: number): number;
         static rowsProperty: DepProperty;
         rows: ObservableCollection<GridRow>;
         getRows(): ObservableCollection<GridRow>;
@@ -631,6 +641,21 @@ declare module layouts.controls {
         static getColumnSpan(target: DepObject): number;
         static setColumnSpan(target: DepObject, value: number): void;
         private static spanFromString(value);
+    }
+}
+declare module layouts.controls {
+    class GridSplitter extends Border {
+        static typeName: string;
+        typeName: string;
+        attachVisualOverride(elementContainer: HTMLElement): void;
+        private onSplitterMouseDown(ev);
+        private updateCursor();
+        private _draggingStartPointX;
+        private _draggingStartPointY;
+        private initializeDrag(ev);
+        private onSplitterMouseMove;
+        private onSplitterMouseUp;
+        private dragSplitter(ev);
     }
 }
 declare module layouts.controls {

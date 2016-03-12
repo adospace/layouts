@@ -653,6 +653,7 @@ declare module layouts.controls {
         private _draggingStartPointX;
         private _draggingStartPointY;
         private initializeDrag(ev);
+        private _dragSplitterTimeoutHandle;
         private onSplitterMouseMove;
         private onSplitterMouseUp;
         private dragSplitter(ev);

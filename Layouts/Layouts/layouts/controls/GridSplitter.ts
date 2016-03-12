@@ -81,11 +81,17 @@ module layouts.controls {
             }
         }
 
+        private _dragSplitterTimeoutHandle: number;
+
         private onSplitterMouseMove = (ev: MouseEvent) => {
-            this.dragSplitter(ev);
             if (ev.buttons == 0) {
                 document.removeEventListener("mousemove", this.onSplitterMouseMove, false);
                 document.removeEventListener("mouseup", this.onSplitterMouseUp, false);
+            }
+            else {
+                if (this._dragSplitterTimeoutHandle != 0)
+                    clearTimeout(this._dragSplitterTimeoutHandle);
+                this._dragSplitterTimeoutHandle = setTimeout(() => this.dragSplitter(ev), 10);
             }
             ev.stopPropagation();
         }
@@ -191,7 +197,7 @@ module layouts.controls {
                     //console.log("ev.y=", ev.y);
                                  
                     parentGrid.invalidateMeasure();
-                    LayoutManager.updateLayout();
+                    //LayoutManager.updateLayout();
                 }
                 else { //both are star
 
@@ -244,7 +250,7 @@ module layouts.controls {
                     //console.log("ev.y=", ev.y);
 
                     parentGrid.invalidateMeasure();
-                    LayoutManager.updateLayout();
+                    //LayoutManager.updateLayout();
                 }
             }
             else if (this.horizontalAlignment == HorizontalAlignment.Left ||

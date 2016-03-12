@@ -68,6 +68,8 @@ module layouts.controls {
         private _imgElement: HTMLImageElement;
         attachVisualOverride(elementContainer: HTMLElement) {
             this._visual = this._imgElement = document.createElement("img");
+            this._visual.style.msUserSelect =
+                this._visual.style.webkitUserSelect = "none";
 
             var imgElement = this._imgElement;
             imgElement.onload = (ev) => {
