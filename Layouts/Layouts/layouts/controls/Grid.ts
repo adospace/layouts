@@ -14,6 +14,8 @@ module layouts.controls {
 
     export class GridLength {
         constructor(value: number, type: GridUnitType = GridUnitType.Pixel) {
+            if (value.isCloseTo(0))
+                value = 0;
             this._value = value;
             this._type = type;
         }
@@ -521,7 +523,7 @@ module layouts.controls {
         public getRowFinalHeight(rowIndex: number): number {
             return this._rowDefs[rowIndex].finalHeight;
         }
-        public getColumnfinalWidth(colIndex: number): number {
+        public getColumnFinalWidth(colIndex: number): number {
             return this._columnDefs[colIndex].finalWidth;
         }
 

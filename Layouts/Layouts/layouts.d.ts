@@ -661,7 +661,7 @@ declare module layouts.controls {
         protected measureOverride(constraint: Size): Size;
         protected arrangeOverride(finalSize: Size): Size;
         getRowFinalHeight(rowIndex: number): number;
-        getColumnfinalWidth(colIndex: number): number;
+        getColumnFinalWidth(colIndex: number): number;
         static rowsProperty: DepProperty;
         rows: ObservableCollection<GridRow>;
         getRows(): ObservableCollection<GridRow>;

@@ -106,17 +106,16 @@ module layouts.controls {
                 child.arrange(childRect);
             }
 
-            if (this._visual != null) {
-                
-            }
-
-
-            return innerRect.size;
+            return finalSize;
         }   
 
         protected layoutOverride() {
             super.layoutOverride();
-
+            var borders = this.borderThickness;
+            if (this._visual != null) {
+                this._visual.style.width = (this.renderSize.width - (borders.left + borders.right)).toString() + "px";
+                this._visual.style.height = (this.renderSize.height - (borders.top + borders.bottom)).toString() + "px";
+            }
 
             if (this._child != null)
                 this._child.layout();
