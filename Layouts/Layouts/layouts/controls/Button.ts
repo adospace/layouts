@@ -34,6 +34,8 @@ module layouts.controls {
         attachVisualOverride(elementContainer: HTMLElement) {
 
             this._visual = this._buttonElement = document.createElement("button");
+            this._visual.style.msUserSelect =
+                this._visual.style.webkitUserSelect = "none";
 
             if (this._child != null) {
                 this._child.attachVisual(this._buttonElement);

@@ -14,6 +14,8 @@ module layouts.controls {
         attachVisualOverride(elementContainer: HTMLElement) {
 
             this._visual = this._pElement = document.createElement("p");
+            this._visual.style.msUserSelect =
+                this._visual.style.webkitUserSelect = "none";
             this._pElement.style.whiteSpace = this.whiteSpace;
             var text = this.text;
             var format = this.format;

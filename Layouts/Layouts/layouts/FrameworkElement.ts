@@ -198,16 +198,8 @@ module layouts {
             var clippedInkSize = new Size(Math.min(innerInkSize.width, mm.maxWidth),
                 Math.min(innerInkSize.height, mm.maxHeight));
 
-            //this.needClipBounds = this.needClipBounds ||
-            //    clippedInkSize.width.isCloseTo(innerInkSize.width) || clippedInkSize.width < innerInkSize.width ||
-            //    clippedInkSize.height.isCloseTo(innerInkSize.height) || clippedInkSize.height < innerInkSize.height;
-
             var clientSize = new Size(Math.max(0, finalRect.width - marginWidth),
                 Math.max(0, finalRect.height - marginHeight));
-
-            //this.needClipBounds = this.needClipBounds ||
-            //    clientSize.width.isCloseTo(clippedInkSize.width) || clientSize.width < clippedInkSize.width ||
-            //clientSize.height.isCloseTo(clippedInkSize.height) || clientSize.height < clippedInkSize.height;
 
             var offset = this.computeAlignmentOffset(clientSize, clippedInkSize);
 

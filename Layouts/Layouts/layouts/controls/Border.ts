@@ -112,7 +112,7 @@ module layouts.controls {
         protected layoutOverride() {
             super.layoutOverride();
             var borders = this.borderThickness;
-            if (this._visual != null) {
+            if (this._visual != null && this.renderSize != null) { //renderSize == null if it's hidden
                 this._visual.style.width = (this.renderSize.width - (borders.left + borders.right)).toString() + "px";
                 this._visual.style.height = (this.renderSize.height - (borders.top + borders.bottom)).toString() + "px";
             }
