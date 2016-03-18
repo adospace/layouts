@@ -52,6 +52,12 @@ Number.prototype.isCloseTo = function (other) {
 Number.prototype.minMax = function (min, max) {
     return Math.max(min, Math.min(this, max));
 };
+Number.prototype.isLessThen = function (other) {
+    return (this - other) < 1e-10;
+};
+Number.prototype.isGreaterThen = function (other) {
+    return (this - other) > 1e-10;
+};
 var InstanceLoader = (function () {
     function InstanceLoader(context) {
         this.context = context;
@@ -796,7 +802,7 @@ var layouts;
                 ev.stopPropagation();
                 document.addEventListener("mouseup", function () {
                     this.removeEventListener("mouseup", arguments.callee);
-                    layouts.LayoutManager.closePopup();
+                    layouts.LayoutManager.closePopup(popup);
                 });
             }
         };
@@ -1137,6 +1143,13 @@ var layouts;
             }
             throw new Error("Thickness format error");
         };
+        Object.defineProperty(Thickness.prototype, "isSameWidth", {
+            get: function () {
+                return this.left == this.top && this.left == this.right && this.right == this.bottom;
+            },
+            enumerable: true,
+            configurable: true
+        });
         return Thickness;
     })();
     layouts.Thickness = Thickness;
@@ -1249,13 +1262,7 @@ var layouts;
             this.setActualWidth(innerInkSize.width);
             this.setActualHeight(innerInkSize.height);
             var clippedInkSize = new layouts.Size(Math.min(innerInkSize.width, mm.maxWidth), Math.min(innerInkSize.height, mm.maxHeight));
-            //this.needClipBounds = this.needClipBounds ||
-            //    clippedInkSize.width.isCloseTo(innerInkSize.width) || clippedInkSize.width < innerInkSize.width ||
-            //    clippedInkSize.height.isCloseTo(innerInkSize.height) || clippedInkSize.height < innerInkSize.height;
             var clientSize = new layouts.Size(Math.max(0, finalRect.width - marginWidth), Math.max(0, finalRect.height - marginHeight));
-            //this.needClipBounds = this.needClipBounds ||
-            //    clientSize.width.isCloseTo(clippedInkSize.width) || clientSize.width < clippedInkSize.width ||
-            //clientSize.height.isCloseTo(clippedInkSize.height) || clientSize.height < clippedInkSize.height;
             var offset = this.computeAlignmentOffset(clientSize, clippedInkSize);
             offset.x += finalRect.x + margin.left;
             offset.y += finalRect.y + margin.top;
@@ -1668,6 +1675,8 @@ var layouts;
             var docHeight = window.innerHeight
                 || document.documentElement.clientHeight
                 || document.body.clientHeight;
+            //docWidth /= window.devicePixelRatio || 1;
+            //docHeight /= window.devicePixelRatio || 1;
             if (page != null) {
                 var sizeToContentWidth = page.sizeToContent == layouts.SizeToContent.Both || page.sizeToContent == layouts.SizeToContent.Horizontal;
                 var sizeToContentHeight = page.sizeToContent == layouts.SizeToContent.Both || page.sizeToContent == layouts.SizeToContent.Vertical;
@@ -2159,6 +2168,7 @@ var layouts;
             });
             Border.prototype.attachVisualOverride = function (elementContainer) {
                 this._visual = this._divElement = document.createElement("div");
+                this.updateVisualProperties();
                 if (this._child != null) {
                     this._child.attachVisual(this._divElement);
                 }
@@ -2191,7 +2201,6 @@ var layouts;
                 var borders = this.borderThickness;
                 var boundRect = new layouts.Rect(0, 0, finalSize.width, finalSize.height);
                 var innerRect = new layouts.Rect(boundRect.x + borders.left, boundRect.y + borders.top, Math.max(0.0, boundRect.width - borders.left - borders.right), Math.max(0.0, boundRect.height - borders.top - borders.bottom));
-                var borderBrush = this.borderBrush;
                 //  arrange child
                 var child = this._child;
                 var padding = this.padding;
@@ -2203,11 +2212,36 @@ var layouts;
             };
             Border.prototype.layoutOverride = function () {
                 _super.prototype.layoutOverride.call(this);
-                var background = this.background;
-                if (this._visual.style.background != background)
-                    this._visual.style.background = background;
+                var borders = this.borderThickness;
+                if (this._visual != null && this.renderSize != null) {
+                    this._visual.style.width = (this.renderSize.width - (borders.left + borders.right)).toString() + "px";
+                    this._visual.style.height = (this.renderSize.height - (borders.top + borders.bottom)).toString() + "px";
+                }
                 if (this._child != null)
                     this._child.layout();
+            };
+            Border.prototype.updateVisualProperties = function () {
+                if (this._visual == null)
+                    return;
+                this._visual.style.background = this.background;
+                this._visual.style.borderColor = this.borderBrush;
+                this._visual.style.borderStyle = this.borderStyle;
+                var borderThickness = this.borderThickness;
+                if (borderThickness.isSameWidth)
+                    this._visual.style.borderWidth = borderThickness.left.toString() + "px";
+                else {
+                    this._visual.style.borderLeft = borderThickness.left.toString() + "px";
+                    this._visual.style.borderTop = borderThickness.top.toString() + "px";
+                    this._visual.style.borderRight = borderThickness.right.toString() + "px";
+                    this._visual.style.borderBottom = borderThickness.bottom.toString() + "px";
+                }
+            };
+            Border.prototype.onDependencyPropertyChanged = function (property, value, oldValue) {
+                if (property == Border.borderThicknessProperty ||
+                    property == Border.backgroundProperty ||
+                    property == Border.borderBrushProperty)
+                    this.updateVisualProperties();
+                _super.prototype.onDependencyPropertyChanged.call(this, property, value, oldValue);
             };
             Object.defineProperty(Border.prototype, "borderThickness", {
                 get: function () {
@@ -2249,11 +2283,22 @@ var layouts;
                 enumerable: true,
                 configurable: true
             });
+            Object.defineProperty(Border.prototype, "borderStyle", {
+                get: function () {
+                    return this.getValue(Border.borderStyleProperty);
+                },
+                set: function (value) {
+                    this.setValue(Border.borderStyleProperty, value);
+                },
+                enumerable: true,
+                configurable: true
+            });
             Border.typeName = "layouts.controls.Border";
             Border.borderThicknessProperty = layouts.DepObject.registerProperty(Border.typeName, "BorderThickness", new layouts.Thickness(), layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender, function (v) { return layouts.Thickness.fromString(v); });
             Border.paddingProperty = layouts.DepObject.registerProperty(Border.typeName, "Padding", new layouts.Thickness(), layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender, function (v) { return layouts.Thickness.fromString(v); });
             Border.backgroundProperty = layouts.DepObject.registerProperty(Border.typeName, "Background", null, layouts.FrameworkPropertyMetadataOptions.AffectsRender);
             Border.borderBrushProperty = layouts.DepObject.registerProperty(Border.typeName, "BorderBrush", null, layouts.FrameworkPropertyMetadataOptions.AffectsRender);
+            Border.borderStyleProperty = layouts.DepObject.registerProperty(Border.typeName, "BorderStyle", "solid", layouts.FrameworkPropertyMetadataOptions.AffectsRender);
             return Border;
         })(layouts.FrameworkElement);
         controls.Border = Border;
@@ -2343,6 +2388,8 @@ var layouts;
             });
             Button.prototype.attachVisualOverride = function (elementContainer) {
                 this._visual = this._buttonElement = document.createElement("button");
+                this._visual.style.msUserSelect =
+                    this._visual.style.webkitUserSelect = "none";
                 if (this._child != null) {
                     this._child.attachVisual(this._buttonElement);
                 }
@@ -3080,6 +3127,8 @@ var layouts;
         var GridLength = (function () {
             function GridLength(value, type) {
                 if (type === void 0) { type = GridUnitType.Pixel; }
+                if (value.isCloseTo(0))
+                    value = 0;
                 this._value = value;
                 this._type = type;
             }
@@ -3612,6 +3661,12 @@ var layouts;
                 });
                 return finalSize;
             };
+            Grid.prototype.getRowFinalHeight = function (rowIndex) {
+                return this._rowDefs[rowIndex].finalHeight;
+            };
+            Grid.prototype.getColumnFinalWidth = function (colIndex) {
+                return this._columnDefs[colIndex].finalWidth;
+            };
             Object.defineProperty(Grid.prototype, "rows", {
                 get: function () {
                     return this.getValue(Grid.rowsProperty);
@@ -3723,6 +3778,343 @@ var layouts;
     })(controls = layouts.controls || (layouts.controls = {}));
 })(layouts || (layouts = {}));
 /// <reference path="..\DepProperty.ts" />
+/// <reference path="..\FrameworkElement.ts" /> 
+/// <reference path="Panel.ts" />
+var layouts;
+(function (layouts) {
+    var controls;
+    (function (controls) {
+        var GridSplitter = (function (_super) {
+            __extends(GridSplitter, _super);
+            function GridSplitter() {
+                var _this = this;
+                _super.apply(this, arguments);
+                this.onSplitterMouseMove = function (ev) {
+                    if (ev.buttons == 0) {
+                        document.removeEventListener("mousemove", _this.onSplitterMouseMove, false);
+                        document.removeEventListener("mouseup", _this.onSplitterMouseUp, false);
+                    }
+                    else {
+                        if (_this._dragSplitterTimeoutHandle != 0)
+                            clearTimeout(_this._dragSplitterTimeoutHandle);
+                        _this._dragSplitterTimeoutHandle = setTimeout(function () { return _this.dragSplitter(ev); }, 10);
+                    }
+                    ev.stopPropagation();
+                };
+                this.onSplitterMouseUp = function (ev) {
+                    _this.dragSplitter(ev);
+                    document.removeEventListener("mousemove", _this.onSplitterMouseMove, false);
+                    document.removeEventListener("mouseup", _this.onSplitterMouseUp, false);
+                    ev.stopPropagation();
+                };
+            }
+            Object.defineProperty(GridSplitter.prototype, "typeName", {
+                get: function () {
+                    return GridSplitter.typeName;
+                },
+                enumerable: true,
+                configurable: true
+            });
+            GridSplitter.prototype.attachVisualOverride = function (elementContainer) {
+                var _this = this;
+                _super.prototype.attachVisualOverride.call(this, elementContainer);
+                this._visual.addEventListener("mousedown", function (ev) { return _this.onSplitterMouseDown(ev); }, true);
+                this._visual.tag = this;
+                this._visual.onselectstart = function () { return false; };
+                this.updateCursor();
+            };
+            GridSplitter.prototype.onSplitterMouseDown = function (ev) {
+                this.initializeDrag(ev);
+            };
+            GridSplitter.prototype.updateCursor = function () {
+                if (this._visual == null) {
+                    this._visual.style.cursor = "normal";
+                    return;
+                }
+                if (this.verticalAlignment == layouts.VerticalAlignment.Top ||
+                    this.verticalAlignment == layouts.VerticalAlignment.Bottom)
+                    this._visual.style.cursor = "n-resize";
+                else if (this.horizontalAlignment == layouts.HorizontalAlignment.Left ||
+                    this.horizontalAlignment == layouts.HorizontalAlignment.Right)
+                    this._visual.style.cursor = "e-resize";
+                else
+                    this._visual.style.cursor = layouts.Consts.stringEmpty;
+            };
+            GridSplitter.prototype.initializeDrag = function (ev) {
+                var parentGrid = this.parent;
+                if (parentGrid == null)
+                    return;
+                var dragging = false;
+                if (this.verticalAlignment == layouts.VerticalAlignment.Top) {
+                    var thisRowIndex = controls.Grid.getRow(this);
+                    thisRowIndex = Math.min(thisRowIndex, parentGrid.rows.count - 1);
+                    dragging = thisRowIndex > 0 && parentGrid.rows.count > 1;
+                }
+                else if (this.verticalAlignment == layouts.VerticalAlignment.Bottom) {
+                    var thisRowIndex = controls.Grid.getRow(this);
+                    thisRowIndex = Math.min(thisRowIndex, parentGrid.rows.count - 1);
+                    dragging = thisRowIndex >= 0 && parentGrid.rows.count > 1;
+                }
+                else if (this.horizontalAlignment == layouts.HorizontalAlignment.Left) {
+                    var thisColIndex = controls.Grid.getColumn(this);
+                    thisColIndex = Math.min(thisColIndex, parentGrid.columns.count - 1);
+                    dragging = thisColIndex > 0 && parentGrid.columns.count > 1;
+                }
+                else if (this.horizontalAlignment == layouts.HorizontalAlignment.Right) {
+                    var thisColIndex = controls.Grid.getColumn(this);
+                    thisColIndex = Math.min(thisColIndex, parentGrid.columns.count - 1);
+                    dragging = thisColIndex >= 0 && parentGrid.columns.count > 1;
+                }
+                if (dragging) {
+                    document.addEventListener("mousemove", this.onSplitterMouseMove, false);
+                    document.addEventListener("mouseup", this.onSplitterMouseUp, false);
+                    this._draggingStartPointX = ev.x;
+                    this._draggingStartPointY = ev.y;
+                    //this._draggingSplitter = splitter;
+                    ev.stopPropagation();
+                }
+            };
+            GridSplitter.prototype.dragSplitter = function (ev) {
+                var parentGrid = this.parent;
+                if (parentGrid == null)
+                    return;
+                var saveDraggingStartPoint = true;
+                if (this.verticalAlignment == layouts.VerticalAlignment.Top ||
+                    this.verticalAlignment == layouts.VerticalAlignment.Bottom) {
+                    var thisRowIndex = controls.Grid.getRow(this);
+                    thisRowIndex = Math.min(thisRowIndex, parentGrid.rows.count - 1);
+                    var topRow = parentGrid.rows.elements[this.verticalAlignment == layouts.VerticalAlignment.Top ? thisRowIndex - 1 : thisRowIndex];
+                    var bottomRow = parentGrid.rows.elements[this.verticalAlignment == layouts.VerticalAlignment.Top ? thisRowIndex : thisRowIndex + 1];
+                    if (topRow.height.isAuto || bottomRow.height.isAuto)
+                        return;
+                    if (topRow.height.isFixed || bottomRow.height.isFixed) {
+                        var topRowWasStar = false;
+                        var bottomRowWasStar = false;
+                        if (topRow.height.isStar) {
+                            var topRowHeight = parentGrid.getRowFinalHeight(this.verticalAlignment == layouts.VerticalAlignment.Top ? thisRowIndex - 1 : thisRowIndex);
+                            topRow.height = new controls.GridLength(topRowHeight, controls.GridUnitType.Pixel);
+                            topRowWasStar = true;
+                        }
+                        if (bottomRow.height.isStar) {
+                            var bottomRowHeight = parentGrid.getRowFinalHeight(this.verticalAlignment == layouts.VerticalAlignment.Top ? thisRowIndex : thisRowIndex + 1);
+                            bottomRow.height = new controls.GridLength(bottomRowHeight, controls.GridUnitType.Pixel);
+                            bottomRowWasStar = true;
+                        }
+                        var maxTopRowHeight = topRow.height.value + bottomRow.height.value; //parentGrid.actualHeight - parentGridFixedRowsHeight;
+                        var newTopRowHeight = topRow.height.value + (ev.y - this._draggingStartPointY);
+                        var newBottomRowHeight = bottomRow.height.value - (ev.y - this._draggingStartPointY);
+                        if (newTopRowHeight.isCloseTo(0))
+                            newTopRowHeight = 0;
+                        if (newTopRowHeight.isCloseTo(maxTopRowHeight))
+                            newTopRowHeight = maxTopRowHeight;
+                        if (newBottomRowHeight.isCloseTo(0))
+                            newBottomRowHeight = 0;
+                        if (newBottomRowHeight.isCloseTo(maxTopRowHeight))
+                            newBottomRowHeight = maxTopRowHeight;
+                        if (newTopRowHeight < 0) {
+                            newTopRowHeight = 0;
+                            newBottomRowHeight = maxTopRowHeight;
+                            this._draggingStartPointY += -topRow.height.value;
+                            saveDraggingStartPoint = false;
+                        }
+                        else if (newTopRowHeight > maxTopRowHeight) {
+                            newTopRowHeight = maxTopRowHeight;
+                            newBottomRowHeight = 0;
+                            this._draggingStartPointY += -topRow.height.value + maxTopRowHeight;
+                            saveDraggingStartPoint = false;
+                        }
+                        topRow.height = new controls.GridLength(newTopRowHeight, controls.GridUnitType.Pixel);
+                        bottomRow.height = new controls.GridLength(newBottomRowHeight, controls.GridUnitType.Pixel);
+                        if (bottomRowWasStar || topRowWasStar) {
+                            var oldRowWithStarLen = bottomRowWasStar ? bottomRow : topRow;
+                            var otherRow = bottomRowWasStar ? topRow : bottomRow;
+                            var availTotalHeight = parentGrid.actualHeight;
+                            parentGrid.rows.forEach(function (r, i) {
+                                if (r == otherRow)
+                                    availTotalHeight -= otherRow.height.value;
+                                else if (!r.height.isStar && r != oldRowWithStarLen)
+                                    availTotalHeight -= parentGrid.getRowFinalHeight(i);
+                            });
+                            parentGrid.rows.forEach(function (r, i) {
+                                if (r.height.isStar)
+                                    r.height = new controls.GridLength(parentGrid.getRowFinalHeight(i) / availTotalHeight, controls.GridUnitType.Star);
+                                else if (r == oldRowWithStarLen)
+                                    r.height = new controls.GridLength(oldRowWithStarLen.height.value / availTotalHeight, controls.GridUnitType.Star);
+                            });
+                        }
+                        //console.log("topRow=", topRow.height.value);
+                        //console.log("bottomRow=", bottomRow.height.value);
+                        //parentGrid.rows.forEach((r, i) => {
+                        //    console.log("row=", i);
+                        //    console.log("height=", r.height.value);
+                        //});
+                        //console.log("_draggingStartPointY=", this._draggingStartPointY);
+                        //console.log("ev.y=", ev.y);
+                        parentGrid.invalidateMeasure();
+                    }
+                    else {
+                        var sumFinalHeight = this.verticalAlignment == layouts.VerticalAlignment.Top ?
+                            parentGrid.getRowFinalHeight(thisRowIndex - 1) + parentGrid.getRowFinalHeight(thisRowIndex) :
+                            parentGrid.getRowFinalHeight(thisRowIndex) + parentGrid.getRowFinalHeight(thisRowIndex + 1);
+                        var sumHeight = bottomRow.height.value + topRow.height.value;
+                        var heightFactor = sumHeight / sumFinalHeight;
+                        var heightStarDiff = (ev.y - this._draggingStartPointY) * heightFactor;
+                        var newTopRowHeight = topRow.height.value + heightStarDiff;
+                        var newBottomRowHeight = bottomRow.height.value - heightStarDiff;
+                        if (newTopRowHeight.isCloseTo(0))
+                            newTopRowHeight = 0;
+                        if (newTopRowHeight.isCloseTo(sumHeight))
+                            newTopRowHeight = sumHeight;
+                        if (newBottomRowHeight.isCloseTo(sumHeight))
+                            newBottomRowHeight = sumHeight;
+                        if (newBottomRowHeight.isCloseTo(0))
+                            newBottomRowHeight = 0;
+                        if (newTopRowHeight < 0) {
+                            heightStarDiff = -topRow.height.value;
+                            this._draggingStartPointY = (heightStarDiff / heightFactor) + this._draggingStartPointY;
+                        }
+                        else if (newBottomRowHeight < 0) {
+                            heightStarDiff = bottomRow.height.value;
+                            this._draggingStartPointY = (heightStarDiff / heightFactor) + this._draggingStartPointY;
+                        }
+                        if (newTopRowHeight < 0 || newBottomRowHeight > sumHeight) {
+                            newTopRowHeight = 0;
+                            newBottomRowHeight = sumHeight;
+                            saveDraggingStartPoint = false;
+                        }
+                        else if (newBottomRowHeight < 0 || newTopRowHeight > sumHeight) {
+                            newTopRowHeight = sumHeight;
+                            newBottomRowHeight = 0;
+                            saveDraggingStartPoint = false;
+                        }
+                        topRow.height = new controls.GridLength(newTopRowHeight, controls.GridUnitType.Star);
+                        bottomRow.height = new controls.GridLength(newBottomRowHeight, controls.GridUnitType.Star);
+                        //console.log("topRow=", topRow.height.value);
+                        //console.log("bottomRow=", bottomRow.height.value);
+                        //console.log("_draggingStartPointY=", this._draggingStartPointY);
+                        //console.log("ev.y=", ev.y);
+                        parentGrid.invalidateMeasure();
+                    }
+                }
+                else if (this.horizontalAlignment == layouts.HorizontalAlignment.Left ||
+                    this.horizontalAlignment == layouts.HorizontalAlignment.Right) {
+                    var thisColumnIndex = controls.Grid.getColumn(this);
+                    thisColumnIndex = Math.min(thisColumnIndex, parentGrid.columns.count - 1);
+                    var leftColumn = parentGrid.columns.elements[this.horizontalAlignment == layouts.HorizontalAlignment.Left ? thisColumnIndex - 1 : thisColumnIndex];
+                    var rightColumn = parentGrid.columns.elements[this.horizontalAlignment == layouts.HorizontalAlignment.Left ? thisColumnIndex : thisColumnIndex + 1];
+                    if (leftColumn.width.isAuto || rightColumn.width.isAuto)
+                        return;
+                    if (leftColumn.width.isFixed || rightColumn.width.isFixed) {
+                        var leftColumnWasStar = false;
+                        var rightColumnWasStar = false;
+                        if (leftColumn.width.isStar) {
+                            var leftColumnWidth = parentGrid.getColumnFinalWidth(this.horizontalAlignment == layouts.HorizontalAlignment.Left ? thisColumnIndex - 1 : thisColumnIndex);
+                            leftColumn.width = new controls.GridLength(leftColumnWidth, controls.GridUnitType.Pixel);
+                            leftColumnWasStar = true;
+                        }
+                        if (rightColumn.width.isStar) {
+                            var rightColumnWidth = parentGrid.getColumnFinalWidth(this.horizontalAlignment == layouts.HorizontalAlignment.Left ? thisColumnIndex : thisColumnIndex + 1);
+                            rightColumn.width = new controls.GridLength(rightColumnWidth, controls.GridUnitType.Pixel);
+                            rightColumnWasStar = true;
+                        }
+                        var maxBothColumnWidth = leftColumn.width.value + rightColumn.width.value;
+                        var newLeftColumnWidth = leftColumn.width.value + (ev.x - this._draggingStartPointX);
+                        var newRightColumnWidth = rightColumn.width.value - (ev.x - this._draggingStartPointX);
+                        if (newLeftColumnWidth.isCloseTo(0))
+                            newLeftColumnWidth = 0;
+                        if (newLeftColumnWidth.isCloseTo(maxBothColumnWidth))
+                            newLeftColumnWidth = maxBothColumnWidth;
+                        if (newRightColumnWidth.isCloseTo(0))
+                            newRightColumnWidth = 0;
+                        if (newRightColumnWidth.isCloseTo(maxBothColumnWidth))
+                            newRightColumnWidth = maxBothColumnWidth;
+                        if (newLeftColumnWidth < 0) {
+                            newLeftColumnWidth = 0;
+                            newRightColumnWidth = maxBothColumnWidth;
+                            this._draggingStartPointX += -leftColumn.width.value;
+                            saveDraggingStartPoint = false;
+                        }
+                        else if (newLeftColumnWidth > maxBothColumnWidth) {
+                            newLeftColumnWidth = maxBothColumnWidth;
+                            newRightColumnWidth = 0;
+                            this._draggingStartPointX += -leftColumn.width.value + maxBothColumnWidth;
+                            saveDraggingStartPoint = false;
+                        }
+                        leftColumn.width = new controls.GridLength(newLeftColumnWidth, controls.GridUnitType.Pixel);
+                        rightColumn.width = new controls.GridLength(newRightColumnWidth, controls.GridUnitType.Pixel);
+                        if (rightColumnWasStar || leftColumnWasStar) {
+                            var oldColumnWithStarLen = rightColumnWasStar ? rightColumn : leftColumn;
+                            var otherColumn = rightColumnWasStar ? leftColumn : rightColumn;
+                            var availTotalWidth = parentGrid.actualWidth;
+                            parentGrid.columns.forEach(function (r, i) {
+                                if (r == otherColumn)
+                                    availTotalWidth -= otherColumn.width.value;
+                                else if (!r.width.isStar && r != oldColumnWithStarLen)
+                                    availTotalWidth -= parentGrid.getColumnFinalWidth(i);
+                            });
+                            parentGrid.columns.forEach(function (r, i) {
+                                if (r.width.isStar)
+                                    r.width = new controls.GridLength(parentGrid.getColumnFinalWidth(i) / availTotalWidth, controls.GridUnitType.Star);
+                                else if (r == oldColumnWithStarLen)
+                                    r.width = new controls.GridLength(oldColumnWithStarLen.width.value / availTotalWidth, controls.GridUnitType.Star);
+                            });
+                        }
+                        parentGrid.invalidateMeasure();
+                        layouts.LayoutManager.updateLayout();
+                    }
+                    else {
+                        var sumFinalWidth = this.horizontalAlignment == layouts.HorizontalAlignment.Left ?
+                            parentGrid.getColumnFinalWidth(thisColumnIndex - 1) + parentGrid.getColumnFinalWidth(thisColumnIndex) :
+                            parentGrid.getColumnFinalWidth(thisColumnIndex) + parentGrid.getColumnFinalWidth(thisColumnIndex + 1);
+                        var sumWidth = rightColumn.width.value + leftColumn.width.value;
+                        var widthFactor = sumWidth / sumFinalWidth;
+                        var widthStarDiff = (ev.x - this._draggingStartPointX) * widthFactor;
+                        var newLeftColumnWidth = leftColumn.width.value + widthStarDiff;
+                        var newRightColumnWidth = rightColumn.width.value - widthStarDiff;
+                        if (newLeftColumnWidth.isCloseTo(0))
+                            newLeftColumnWidth = 0;
+                        if (newLeftColumnWidth.isCloseTo(sumWidth))
+                            newLeftColumnWidth = sumWidth;
+                        if (newRightColumnWidth.isCloseTo(sumWidth))
+                            newRightColumnWidth = sumWidth;
+                        if (newRightColumnWidth.isCloseTo(0))
+                            newRightColumnWidth = 0;
+                        if (newLeftColumnWidth < 0) {
+                            widthStarDiff = -leftColumn.width.value;
+                            this._draggingStartPointX = (widthStarDiff / widthFactor) + this._draggingStartPointX;
+                        }
+                        else if (newRightColumnWidth < 0) {
+                            widthStarDiff = rightColumn.width.value;
+                            this._draggingStartPointX = (widthStarDiff / widthFactor) + this._draggingStartPointX;
+                        }
+                        if (newLeftColumnWidth < 0 || newRightColumnWidth > sumWidth) {
+                            newLeftColumnWidth = 0;
+                            newRightColumnWidth = sumWidth;
+                            saveDraggingStartPoint = false;
+                        }
+                        else if (newRightColumnWidth < 0 || newLeftColumnWidth > sumWidth) {
+                            newLeftColumnWidth = sumWidth;
+                            newRightColumnWidth = 0;
+                            saveDraggingStartPoint = false;
+                        }
+                        leftColumn.width = new controls.GridLength(newLeftColumnWidth, controls.GridUnitType.Star);
+                        rightColumn.width = new controls.GridLength(newRightColumnWidth, controls.GridUnitType.Star);
+                        parentGrid.invalidateMeasure();
+                        layouts.LayoutManager.updateLayout();
+                    }
+                }
+                if (saveDraggingStartPoint) {
+                    this._draggingStartPointX = ev.x;
+                    this._draggingStartPointY = ev.y;
+                }
+            };
+            GridSplitter.typeName = "layouts.controls.GridSplitter";
+            return GridSplitter;
+        })(controls.Border);
+        controls.GridSplitter = GridSplitter;
+    })(controls = layouts.controls || (layouts.controls = {}));
+})(layouts || (layouts = {}));
+/// <reference path="..\DepProperty.ts" />
 /// <reference path="..\DepObject.ts" />
 /// <reference path="..\FrameworkElement.ts" /> 
 var layouts;
@@ -3794,6 +4186,8 @@ var layouts;
             Image.prototype.attachVisualOverride = function (elementContainer) {
                 var _this = this;
                 this._visual = this._imgElement = document.createElement("img");
+                this._visual.style.msUserSelect =
+                    this._visual.style.webkitUserSelect = "none";
                 var imgElement = this._imgElement;
                 imgElement.onload = function (ev) {
                     _this.invalidateMeasure();
@@ -3977,6 +4371,88 @@ var layouts;
             return Image;
         })(layouts.FrameworkElement);
         controls.Image = Image;
+    })(controls = layouts.controls || (layouts.controls = {}));
+})(layouts || (layouts = {}));
+var layouts;
+(function (layouts) {
+    var controls;
+    (function (controls) {
+        var MediaTemplateSelector = (function (_super) {
+            __extends(MediaTemplateSelector, _super);
+            function MediaTemplateSelector() {
+                _super.apply(this, arguments);
+            }
+            Object.defineProperty(MediaTemplateSelector.prototype, "typeName", {
+                get: function () {
+                    return MediaTemplateSelector.typeName;
+                },
+                enumerable: true,
+                configurable: true
+            });
+            MediaTemplateSelector.prototype.attachVisualOverride = function (elementContainer) {
+                this._container = elementContainer;
+                this.setupItem();
+                _super.prototype.attachVisualOverride.call(this, elementContainer);
+            };
+            MediaTemplateSelector.prototype.setupItem = function () {
+                if (this._container == null)
+                    return;
+                if (this._element != null) {
+                    this._element.attachVisual(null);
+                    this._element.parent = null;
+                }
+                if (this._templates == null ||
+                    this._templates.count == 0)
+                    return;
+                var templateForItem = controls.DataTemplate.getTemplateForMedia(this._templates.toArray());
+                if (templateForItem == null) {
+                    throw new Error("Unable to find a valid template for this media");
+                }
+                this._element = templateForItem.createElement();
+                if (this._element != null) {
+                    this._element.attachVisual(this._container);
+                    this._element.parent = this;
+                }
+                this.invalidateMeasure();
+            };
+            MediaTemplateSelector.prototype.measureOverride = function (constraint) {
+                var child = this._element;
+                if (child != null) {
+                    child.measure(constraint);
+                    return child.desiredSize;
+                }
+                return new layouts.Size();
+            };
+            MediaTemplateSelector.prototype.arrangeOverride = function (finalSize) {
+                var child = this._element;
+                if (child != null)
+                    child.arrange(finalSize.toRect());
+                return finalSize;
+            };
+            MediaTemplateSelector.prototype.layoutOverride = function () {
+                _super.prototype.layoutOverride.call(this);
+                var child = this._element;
+                if (child != null) {
+                    var childOffset = this.visualOffset;
+                    if (this.relativeOffset != null)
+                        childOffset = childOffset.add(this.relativeOffset);
+                    child.layout(childOffset);
+                }
+            };
+            Object.defineProperty(MediaTemplateSelector.prototype, "templates", {
+                get: function () {
+                    return this._templates;
+                },
+                set: function (value) {
+                    this._templates = value;
+                },
+                enumerable: true,
+                configurable: true
+            });
+            MediaTemplateSelector.typeName = "layouts.controls.MediaTemplateSelector";
+            return MediaTemplateSelector;
+        })(layouts.FrameworkElement);
+        controls.MediaTemplateSelector = MediaTemplateSelector;
     })(controls = layouts.controls || (layouts.controls = {}));
 })(layouts || (layouts = {}));
 /// <reference path="..\DepProperty.ts" />
@@ -4572,6 +5048,8 @@ var layouts;
             });
             TextBlock.prototype.attachVisualOverride = function (elementContainer) {
                 this._visual = this._pElement = document.createElement("p");
+                this._visual.style.msUserSelect =
+                    this._visual.style.webkitUserSelect = "none";
                 this._pElement.style.whiteSpace = this.whiteSpace;
                 var text = this.text;
                 var format = this.format;
@@ -4845,6 +5323,21 @@ var layouts;
                     return foundTemplate;
                 return Enumerable.From(templates).FirstOrDefault(null, function (dt) { return dt.targetType == null; });
             };
+            DataTemplate.getTemplateForMedia = function (templates) {
+                if (templates == null ||
+                    templates.length == 0)
+                    return null;
+                var foundTemplate = Enumerable.From(templates).FirstOrDefault(null, function (template) {
+                    if (template.media == null ||
+                        template.media.trim().length == 0) {
+                        return true;
+                    }
+                    return window.matchMedia(template.media).matches;
+                });
+                if (foundTemplate != null)
+                    return foundTemplate;
+                return Enumerable.From(templates).FirstOrDefault(null, function (dt) { return dt.targetType == null; });
+            };
             Object.defineProperty(DataTemplate.prototype, "targetType", {
                 get: function () {
                     return this.getValue(DataTemplate.targetTypeProperty);
@@ -4865,11 +5358,22 @@ var layouts;
                 enumerable: true,
                 configurable: true
             });
+            Object.defineProperty(DataTemplate.prototype, "media", {
+                get: function () {
+                    return this.getValue(DataTemplate.mediaProperty);
+                },
+                set: function (value) {
+                    this.setValue(DataTemplate.mediaProperty, value);
+                },
+                enumerable: true,
+                configurable: true
+            });
             DataTemplate.typeName = "layouts.controls.DataTemplate";
             ///returns the type datatemplate is suited for
             ///if null it means it's a generic template usable for any object of any type
             DataTemplate.targetTypeProperty = layouts.DepObject.registerProperty(DataTemplate.typeName, "TargetType", null);
             DataTemplate.targetMemberProperty = layouts.DepObject.registerProperty(DataTemplate.typeName, "TargetMember", null);
+            DataTemplate.mediaProperty = layouts.DepObject.registerProperty(DataTemplate.typeName, "Media", null);
             return DataTemplate;
         })(layouts.DepObject);
         controls.DataTemplate = DataTemplate;

@@ -56,7 +56,7 @@
     <None Include="Package.nuspec">
       <SubType>Designer</SubType>
     </None>
-    <Content Include="content\scripts\layouts.js.map" />
+    <None Include="content\scripts\layouts.js.map" />
     <None Include="tools\init.ps1" />
     <None Include="tools\install.ps1" />
     <None Include="tools\uninstall.ps1" />

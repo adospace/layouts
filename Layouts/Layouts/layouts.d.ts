@@ -154,8 +154,8 @@ declare module layouts {
         protected _visual: HTMLElement;
         attachVisual(elementContainer: HTMLElement, showImmediately?: boolean): void;
         protected attachVisualOverride(elementContainer: HTMLElement): void;
-        onMouseDown(ev: MouseEvent): void;
-        onMouseUp(ev: MouseEvent): void;
+        protected onMouseDown(ev: MouseEvent): void;
+        protected onMouseUp(ev: MouseEvent): void;
         getBoundingClientRect(): ClientRect;
         protected visualConnected(elementContainer: HTMLElement): void;
         protected parentVisualConnected(parent: UIElement, elementContainer: HTMLElement): void;

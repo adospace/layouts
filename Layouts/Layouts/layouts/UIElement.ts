@@ -235,9 +235,9 @@ module layouts {
             });
 
             this._visual.style.visibility = this.isVisible ? "" : "hidden"
-            //if (this.command != null)
-            //    this._visual.onmousedown = (ev) => this.onMouseDown(ev);
-            if (this.command != null || this.popup != null)
+            if (this.command != null)
+                this._visual.onmousedown = (ev) => this.onMouseDown(ev);
+            if (this.popup != null)
                 this._visual.onmouseup = (ev) => this.onMouseUp(ev);
 
             var name = this.id;
@@ -249,33 +249,33 @@ module layouts {
                 className != null) {
                 this._visual.className = className;
             }
-            
+
             this._visual.style.position = "absolute";
         }
 
-        onMouseDown(ev: MouseEvent) {
-
-        }
-
-        onMouseUp(ev: MouseEvent) {
-            var popup = this.popup;
-            if (popup != null) {
-                LayoutManager.showPopup(popup);
-                //ev.stopPropagation();
-                document.addEventListener("mousedown", function () {
-                    this.removeEventListener("mousedown", arguments.callee);
-                    LayoutManager.closePopup(popup);
-                });
-            }
-
+        protected onMouseDown(ev: MouseEvent) {
             var command = this.command;
             var commandParameter = this.commandParameter;
             if (command != null && command.canExecute(commandParameter)) {
                 command.execute(commandParameter);
                 this.onCommandCanExecuteChanged(command);
-                //ev.stopPropagation();
+                ev.stopPropagation();
             }
         }
+
+        protected onMouseUp(ev: MouseEvent) {
+            var popup = this.popup;
+            if (popup != null) {
+                LayoutManager.showPopup(popup);
+                ev.stopPropagation();
+                document.addEventListener("mouseup", function () {
+                    this.removeEventListener("mouseup", arguments.callee);
+                    LayoutManager.closePopup(popup);
+                });
+            }
+
+        }
+
 
         getBoundingClientRect(): ClientRect {
             if (this._visual == null)
