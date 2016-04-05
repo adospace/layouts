@@ -301,17 +301,25 @@ window.onload = () => {
 //</Grid>
 //`;
 
+//    var lmlTest = `<?xml version= "1.0" encoding= "utf-8" ?>
+//<Grid Margin="100" Columns="[50,*,] [20,100,] * 50">
+//    <Border Background="Red" Margin="0,0,8,0" BorderBrush="Cyan" BorderThickness="2"/>
+//    <GridSplitter HorizontalAlignment="Right" Width="8" Grid.Column="0" Background="Black"/>
+//    <Border Background="Blue" Grid.Column="1" Margin="0,0,0,0"/>
+//    <GridSplitter HorizontalAlignment="Left" Width="8" Grid.Column="2"/>
+//    <Border Background="Gray" Grid.Column="2" Margin="8,0,0,0"/>
+//    <GridSplitter HorizontalAlignment="Left" Width="8" Grid.Column="3"/>
+//    <Border Background="Green" Grid.Column="3" Margin="8,0,0,0"/>
+//</Grid>
+//`;
     var lmlTest = `<?xml version= "1.0" encoding= "utf-8" ?>
-<Grid Margin="100" Columns="* 100 * 50">
-    <Border Background="Red" Margin="0,0,8,0" BorderBrush="Cyan" BorderThickness="2"/>
-    <GridSplitter HorizontalAlignment="Right" Width="8" Grid.Column="0" Background="Black"/>
-    <Border Background="Blue" Grid.Column="1" Margin="0,0,0,0"/>
-    <GridSplitter HorizontalAlignment="Left" Width="8" Grid.Column="2"/>
-    <Border Background="Gray" Grid.Column="2" Margin="8,0,0,0"/>
-    <GridSplitter HorizontalAlignment="Left" Width="8" Grid.Column="3"/>
-    <Border Background="Green" Grid.Column="3" Margin="8,0,0,0"/>
+<Grid Margin="100" Rows="[50,*,] [50,*,]">
+    <Border Background="Red" Margin="0,0,0,8" BorderBrush="Cyan" BorderThickness="2"/>
+    <GridSplitter VerticalAlignment="Bottom" Height="8"/>
+    <Border Background="Blue" Grid.Row="1" Margin="0,0,0,0"/>
 </Grid>
 `;
+
 
     app.page = lmlReader.Parse(lmlTest);
 //    app.page.dataContext = new TestViewModel();

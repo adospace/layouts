@@ -647,16 +647,21 @@ declare module layouts.controls {
     class GridSplitter extends Border {
         static typeName: string;
         typeName: string;
+        constructor();
         attachVisualOverride(elementContainer: HTMLElement): void;
         private onSplitterMouseDown(ev);
         private updateCursor();
-        private _draggingStartPointX;
-        private _draggingStartPointY;
+        private _draggingCurrentPoint;
+        private _draggingStartPoint;
+        private _draggingVirtualOffset;
+        private _draggingVirtualOffsetMin;
+        private _draggingVirtualOffsetMax;
         private initializeDrag(ev);
         private _dragSplitterTimeoutHandle;
         private onSplitterMouseMove;
+        private moveGhost(ev);
         private onSplitterMouseUp;
-        private dragSplitter(ev);
+        private dragSplitter(evX, evY);
     }
 }
 declare module layouts.controls {

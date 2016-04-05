@@ -9,15 +9,20 @@ module layouts.controls {
             return GridSplitter.typeName;
         }
 
+        constructor() {
+            super();
+            FrameworkElement.classProperty.overrideDefaultValue(GridSplitter.typeName, "gridSplitter");
+        }
+
         attachVisualOverride(elementContainer: HTMLElement) {
             super.attachVisualOverride(elementContainer);
 
+            this._visual.style.zIndex = "10000";
             this._visual.addEventListener("mousedown", (ev) => this.onSplitterMouseDown(ev), true);
             (<any>this._visual).tag = this;
             this._visual.onselectstart = function () { return false };
-
+            
             this.updateCursor();
-
         }
 
         private onSplitterMouseDown(ev: MouseEvent) {
@@ -40,43 +45,85 @@ module layouts.controls {
         }
     
         ///Grid splitter
-        private _draggingStartPointX: number;
-        private _draggingStartPointY: number;
+        private _draggingCurrentPoint = new Vector();
+        private _draggingStartPoint = new Vector();
+        private _draggingVirtualOffset = new Vector();
+        private _draggingVirtualOffsetMin = new Vector();
+        private _draggingVirtualOffsetMax = new Vector();
 
         private initializeDrag(ev: MouseEvent) {
             var parentGrid = <Grid>this.parent;
             if (parentGrid == null)
                 return;
 
+            //if element has no layout, returns
+            if (this.visualOffset == null)
+                return;
+
             var dragging = false;
+            var leftColumnWidth = 0;
+            var rightColumnWidth = 0;
+            var topRowHeight = 0;
+            var bottomRowHeight = 0;
 
             if (this.verticalAlignment == VerticalAlignment.Top) {
                 var thisRowIndex = Grid.getRow(this);
                 thisRowIndex = Math.min(thisRowIndex, parentGrid.rows.count - 1);
                 dragging = thisRowIndex > 0 && parentGrid.rows.count > 1;
+                if (dragging) {
+                    topRowHeight = parentGrid.getRowFinalHeight(thisRowIndex - 1) - parentGrid.getRows().at(thisRowIndex - 1).minHeight;
+                    bottomRowHeight = parentGrid.getRowFinalHeight(thisRowIndex) - parentGrid.getRows().at(thisRowIndex).minHeight;
+                }
             }
             else if (this.verticalAlignment == VerticalAlignment.Bottom) {
                 var thisRowIndex = Grid.getRow(this);
                 thisRowIndex = Math.min(thisRowIndex, parentGrid.rows.count - 1);
                 dragging = thisRowIndex >= 0 && parentGrid.rows.count > 1;
+                if (dragging) {
+                    topRowHeight = parentGrid.getRowFinalHeight(thisRowIndex) - parentGrid.getRows().at(thisRowIndex).minHeight;
+                    bottomRowHeight = parentGrid.getRowFinalHeight(thisRowIndex + 1) - parentGrid.getRows().at(thisRowIndex + 1).minHeight;
+                }
             }
             else if (this.horizontalAlignment == HorizontalAlignment.Left) {
                 var thisColIndex = Grid.getColumn(this);
                 thisColIndex = Math.min(thisColIndex, parentGrid.columns.count - 1);
                 dragging = thisColIndex > 0 && parentGrid.columns.count > 1;
+                if (dragging) {
+                    leftColumnWidth = parentGrid.getColumnFinalWidth(thisColIndex - 1) - parentGrid.getColumns().at(thisColIndex - 1).minWidth;
+                    rightColumnWidth = parentGrid.getColumnFinalWidth(thisColIndex) - parentGrid.getColumns().at(thisColIndex).minWidth;
+                }
             }
             else if (this.horizontalAlignment == HorizontalAlignment.Right) {
                 var thisColIndex = Grid.getColumn(this);
                 thisColIndex = Math.min(thisColIndex, parentGrid.columns.count - 1);
                 dragging = thisColIndex >= 0 && parentGrid.columns.count > 1;
+                if (dragging) {
+                    leftColumnWidth = parentGrid.getColumnFinalWidth(thisColIndex) - parentGrid.getColumns().at(thisColIndex).minWidth;
+                    rightColumnWidth = parentGrid.getColumnFinalWidth(thisColIndex + 1) - parentGrid.getColumns().at(thisColIndex + 1).minWidth;
+                }
             }
 
             if (dragging) {
+                //register to mouse events
                 document.addEventListener("mousemove", this.onSplitterMouseMove, false);
                 document.addEventListener("mouseup", this.onSplitterMouseUp, false);
-                this._draggingStartPointX = ev.x;
-                this._draggingStartPointY = ev.y;
-                //this._draggingSplitter = splitter;
+
+                //calculate starting vectors and min/max values for _draggingCurrentPointX
+                this._draggingStartPoint.x = this._draggingCurrentPoint.x = ev.x;
+                this._draggingStartPoint.y = this._draggingCurrentPoint.y = ev.y;
+                this._draggingVirtualOffset.x = this.visualOffset.x;
+                this._draggingVirtualOffset.y = this.visualOffset.y;
+
+                if (this.horizontalAlignment == HorizontalAlignment.Left ||
+                    this.horizontalAlignment == HorizontalAlignment.Right) {
+                    this._draggingVirtualOffsetMin.x = this.visualOffset.x - leftColumnWidth;
+                    this._draggingVirtualOffsetMax.x = this.visualOffset.x + rightColumnWidth;
+                }
+                else {
+                    this._draggingVirtualOffsetMin.y = this.visualOffset.y - topRowHeight;
+                    this._draggingVirtualOffsetMax.y = this.visualOffset.y + bottomRowHeight;
+                }
+
                 ev.stopPropagation();
             }
         }
@@ -88,22 +135,60 @@ module layouts.controls {
                 document.removeEventListener("mousemove", this.onSplitterMouseMove, false);
                 document.removeEventListener("mouseup", this.onSplitterMouseUp, false);
             }
-            else {
-                if (this._dragSplitterTimeoutHandle != 0)
-                    clearTimeout(this._dragSplitterTimeoutHandle);
-                this._dragSplitterTimeoutHandle = setTimeout(() => this.dragSplitter(ev), 10);
-            }
+            else //if (ev.target == this._visual)
+                this.moveGhost(ev);
+
             ev.stopPropagation();
         }
 
+        private moveGhost(ev: MouseEvent) {
+            var evX = ev.x;
+            var evY = ev.y;
+
+            if (this.horizontalAlignment == HorizontalAlignment.Right ||
+                this.horizontalAlignment == HorizontalAlignment.Left) {
+                var evXmax = this._draggingVirtualOffsetMax.x - this._draggingVirtualOffset.x + this._draggingCurrentPoint.x;
+                var evXmin = this._draggingVirtualOffsetMin.x - this._draggingVirtualOffset.x + this._draggingCurrentPoint.x;
+                if (evX > evXmax)
+                    evX = evXmax;
+                if (evX < evXmin)
+                    evX = evXmin;
+                this._draggingVirtualOffset.x += (evX - this._draggingCurrentPoint.x);
+            }
+            else {
+                var evYmax = this._draggingVirtualOffsetMax.y - this._draggingVirtualOffset.y + this._draggingCurrentPoint.y;
+                var evYmin = this._draggingVirtualOffsetMin.y - this._draggingVirtualOffset.y + this._draggingCurrentPoint.y;
+                if (evY > evYmax)
+                    evY = evYmax;
+                if (evY < evYmin)
+                    evY = evYmin;
+                this._draggingVirtualOffset.y += (evY - this._draggingCurrentPoint.y);
+            }
+
+            if (this.visualOffset != null) {
+                this._visual.style.left = this._draggingVirtualOffset.x.toString() + "px";
+                this._visual.style.top = this._draggingVirtualOffset.y.toString() + "px";
+            }
+
+            this._draggingCurrentPoint.x = evX;
+            this._draggingCurrentPoint.y = evY;
+
+            console.log("this._draggingCurrentPoint.x = ", this._draggingCurrentPoint.x);
+            console.log("this._draggingCurrentPoint.y = ", this._draggingCurrentPoint.y);
+        }
+
+
         private onSplitterMouseUp = (ev: MouseEvent) => {
-            this.dragSplitter(ev);
+            //if (ev.target == this._visual) {
+                this.moveGhost(ev);
+                this.dragSplitter(this._draggingCurrentPoint.x, this._draggingCurrentPoint.y);
+            //}
             document.removeEventListener("mousemove", this.onSplitterMouseMove, false);
             document.removeEventListener("mouseup", this.onSplitterMouseUp, false);
             ev.stopPropagation();
         }
 
-        private dragSplitter(ev: MouseEvent) {
+        private dragSplitter(evX: number, evY: number) {
             var parentGrid = <Grid>this.parent;
             if (parentGrid == null)
                 return;
@@ -137,8 +222,8 @@ module layouts.controls {
 
                     var maxTopRowHeight = topRow.height.value + bottomRow.height.value; //parentGrid.actualHeight - parentGridFixedRowsHeight;
 
-                    var newTopRowHeight = topRow.height.value + (ev.y - this._draggingStartPointY);
-                    var newBottomRowHeight = bottomRow.height.value - (ev.y - this._draggingStartPointY);
+                    var newTopRowHeight = topRow.height.value + (evY - this._draggingStartPoint.y);
+                    var newBottomRowHeight = bottomRow.height.value - (evY - this._draggingStartPoint.y);
 
                     if (newTopRowHeight.isCloseTo(0))
                         newTopRowHeight = 0;
@@ -153,13 +238,13 @@ module layouts.controls {
                     if (newTopRowHeight < 0) {
                         newTopRowHeight = 0;
                         newBottomRowHeight = maxTopRowHeight;
-                        this._draggingStartPointY += - topRow.height.value;
+                        this._draggingStartPoint.y += - topRow.height.value;
                         saveDraggingStartPoint = false;
                     }
                     else if (newTopRowHeight > maxTopRowHeight) {
                         newTopRowHeight = maxTopRowHeight;
                         newBottomRowHeight = 0;
-                        this._draggingStartPointY += - topRow.height.value + maxTopRowHeight;
+                        this._draggingStartPoint.y += - topRow.height.value + maxTopRowHeight;
                         saveDraggingStartPoint = false;
                     }
 
@@ -206,7 +291,7 @@ module layouts.controls {
                         parentGrid.getRowFinalHeight(thisRowIndex) + parentGrid.getRowFinalHeight(thisRowIndex + 1);
                     var sumHeight = bottomRow.height.value + topRow.height.value;
                     var heightFactor = sumHeight / sumFinalHeight;
-                    var heightStarDiff = (ev.y - this._draggingStartPointY) * heightFactor;
+                    var heightStarDiff = (evY - this._draggingStartPoint.y) * heightFactor;
 
                     var newTopRowHeight = topRow.height.value + heightStarDiff;
                     var newBottomRowHeight = bottomRow.height.value - heightStarDiff;
@@ -223,11 +308,11 @@ module layouts.controls {
 
                     if (newTopRowHeight < 0) {
                         heightStarDiff = -topRow.height.value;
-                        this._draggingStartPointY = (heightStarDiff / heightFactor) + this._draggingStartPointY;
+                        this._draggingStartPoint.y = (heightStarDiff / heightFactor) + this._draggingStartPoint.y;
                     }
                     else if (newBottomRowHeight < 0) {
                         heightStarDiff = bottomRow.height.value;
-                        this._draggingStartPointY = (heightStarDiff / heightFactor) + this._draggingStartPointY;
+                        this._draggingStartPoint.y = (heightStarDiff / heightFactor) + this._draggingStartPoint.y;
                     }
 
                     if (newTopRowHeight < 0 || newBottomRowHeight > sumHeight) {
@@ -280,8 +365,8 @@ module layouts.controls {
 
                     var maxBothColumnWidth = leftColumn.width.value + rightColumn.width.value;
 
-                    var newLeftColumnWidth = leftColumn.width.value + (ev.x - this._draggingStartPointX);
-                    var newRightColumnWidth = rightColumn.width.value - (ev.x - this._draggingStartPointX);
+                    var newLeftColumnWidth = leftColumn.width.value + (evX - this._draggingStartPoint.x);
+                    var newRightColumnWidth = rightColumn.width.value - (evX - this._draggingStartPoint.x);
 
                     if (newLeftColumnWidth.isCloseTo(0))
                         newLeftColumnWidth = 0;
@@ -296,13 +381,13 @@ module layouts.controls {
                     if (newLeftColumnWidth < 0) {
                         newLeftColumnWidth = 0;
                         newRightColumnWidth = maxBothColumnWidth;
-                        this._draggingStartPointX += - leftColumn.width.value;
+                        this._draggingStartPoint.x += - leftColumn.width.value;
                         saveDraggingStartPoint = false;
                     }
                     else if (newLeftColumnWidth > maxBothColumnWidth) {
                         newLeftColumnWidth = maxBothColumnWidth;
                         newRightColumnWidth = 0;
-                        this._draggingStartPointX += - leftColumn.width.value + maxBothColumnWidth;
+                        this._draggingStartPoint.x += - leftColumn.width.value + maxBothColumnWidth;
                         saveDraggingStartPoint = false;
                     }
 
@@ -340,7 +425,7 @@ module layouts.controls {
                         parentGrid.getColumnFinalWidth(thisColumnIndex) + parentGrid.getColumnFinalWidth(thisColumnIndex + 1);
                     var sumWidth = rightColumn.width.value + leftColumn.width.value;
                     var widthFactor = sumWidth / sumFinalWidth;
-                    var widthStarDiff = (ev.x - this._draggingStartPointX) * widthFactor;
+                    var widthStarDiff = (evX - this._draggingStartPoint.x) * widthFactor;
 
                     var newLeftColumnWidth = leftColumn.width.value + widthStarDiff;
                     var newRightColumnWidth = rightColumn.width.value - widthStarDiff;
@@ -357,11 +442,11 @@ module layouts.controls {
 
                     if (newLeftColumnWidth < 0) {
                         widthStarDiff = -leftColumn.width.value;
-                        this._draggingStartPointX = (widthStarDiff / widthFactor) + this._draggingStartPointX;
+                        this._draggingStartPoint.x = (widthStarDiff / widthFactor) + this._draggingStartPoint.x;
                     }
                     else if (newRightColumnWidth < 0) {
                         widthStarDiff = rightColumn.width.value;
-                        this._draggingStartPointX = (widthStarDiff / widthFactor) + this._draggingStartPointX;
+                        this._draggingStartPoint.x = (widthStarDiff / widthFactor) + this._draggingStartPoint.x;
                     }
 
                     if (newLeftColumnWidth < 0 || newRightColumnWidth > sumWidth) {
@@ -385,8 +470,8 @@ module layouts.controls {
 
 
             if (saveDraggingStartPoint) {
-                this._draggingStartPointX = ev.x;
-                this._draggingStartPointY = ev.y;
+                this._draggingStartPoint.x = evX;
+                this._draggingStartPoint.y = evY;
             }
         }
 
