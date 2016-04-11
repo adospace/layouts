@@ -44,5 +44,5 @@ window.onload = () => {
     app.page = lmlReader.Parse(lmlTest);
 };
 ```
-Next step is to understand how UIElements work in *layouts*.
+Next step describes how UIElements work in *layouts*.
 
