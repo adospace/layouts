@@ -29,7 +29,7 @@ module layouts {
             if (this.namespaceResolver != null)
                 return this.namespaceResolver(xmlns);
 
-            return null;
+            return xmlns;
         }
 
         Load(xamlNode: Node): any {

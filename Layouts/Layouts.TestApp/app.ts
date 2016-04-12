@@ -198,8 +198,8 @@
 //}
 
 window.onload = () => {
-    var app = new layouts.Application();
-    var lmlReader = new layouts.XamlReader();
+    //var app = new layouts.Application();
+    //var lmlReader = new layouts.XamlReader();
 
     //app.page = new TypeScriptUI.testDialog();
     //var testPage = new layouts.controls.Page();
@@ -312,15 +312,18 @@ window.onload = () => {
 //    <Border Background="Green" Grid.Column="3" Margin="8,0,0,0"/>
 //</Grid>
 //`;
-    var lmlTest = `<?xml version= "1.0" encoding= "utf-8" ?>
-<Grid Margin="100" Rows="[50,*,] [50,*,]">
-    <Border Background="Red" Margin="0,0,0,8" BorderBrush="Cyan" BorderThickness="2"/>
-    <GridSplitter VerticalAlignment="Bottom" Height="8"/>
-    <Border Background="Blue" Grid.Row="1" Margin="0,0,0,0"/>
-</Grid>
-`;
+//    var lmlTest = `<?xml version= "1.0" encoding= "utf-8" ?>
+//<Grid Margin="100" Rows="[50,*,] [50,*,]">
+//    <Border Background="Red" Margin="0,0,0,8" BorderBrush="Cyan" BorderThickness="2"/>
+//    <GridSplitter VerticalAlignment="Bottom" Height="8"/>
+//    <Border Background="Blue" Grid.Row="1" Margin="0,0,0,0"/>
+//</Grid>
+//`;
 
 
-    app.page = lmlReader.Parse(lmlTest);
+//    app.page = lmlReader.Parse(lmlTest);
 //    app.page.dataContext = new TestViewModel();
+
+    layouts.Application.current.page = new app.views.CustomPage();
+
 };

@@ -18,6 +18,18 @@ module layouts.controls {
         get typeName(): string{
             return Page.typeName;
         }
+        
+        private tryLoadChildFromServer() {
+            var req = new XMLHttpRequest();
+            req.onreadystatechange = (ev) => {
+                if (req.readyState == 4 && req.status == 200) {
+                    let loader = new layouts.XamlReader();
+                    this.child = loader.Parse(req.responseText);
+                }
+            }
+            req.open("GET", this.typeName.replace(/\./gi, '/') + ".xml", true);
+            req.send();
+        }
 
         protected _container: HTMLElement;
         attachVisualOverride(elementContainer: HTMLElement) {
@@ -28,6 +40,9 @@ module layouts.controls {
             if (child != null) {
                 child.parent = this;
                 child.attachVisual(this._container);
+            }
+            else {
+                this.tryLoadChildFromServer();
             }
 
             super.attachVisualOverride(elementContainer);

@@ -20,6 +20,9 @@
   </PropertyGroup>
   <ItemGroup>
     <Content Include="app.css" />
+    <Content Include="app\views\CustomPage.xml">
+      <SubType>Designer</SubType>
+    </Content>
     <Content Include="index.html" />
     <Content Include="packages.config" />
     <None Include="Scripts\linq-vsdoc.js" />
@@ -148,6 +151,8 @@
       <Link>layouts\XamlReader.ts</Link>
     </TypeScriptCompile>
     <TypeScriptCompile Include="app.ts" />
+    <TypeScriptCompile Include="app\views\CustomPage.ts" />
+    <TypeScriptCompile Include="app\views\CustomView.ts" />
     <TypeScriptCompile Include="layouts\EventAction.ts" />
   </ItemGroup>
   <ItemGroup>
@@ -159,7 +164,12 @@
       <DependentUpon>web.config</DependentUpon>
     </None>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Content Include="app\views\CustomView.xml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Content>
+  </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">12.0</VisualStudioVersion>
   </PropertyGroup>
