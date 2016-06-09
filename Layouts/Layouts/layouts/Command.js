@@ -2,11 +2,13 @@ var layouts;
 (function (layouts) {
     var Command = (function () {
         function Command(executeHandler, canExecuteHandler) {
-            this.handlers = [];
             this.executeHandler = executeHandler;
             this.canExecuteHandler = canExecuteHandler;
+            this.handlers = [];
         }
         Command.prototype.canExecute = function (parameter) {
+            if (this.executeHandler == null)
+                return false;
             if (this.canExecuteHandler != null)
                 return this.canExecuteHandler(this, parameter);
             return true;
@@ -32,6 +34,6 @@ var layouts;
             });
         };
         return Command;
-    })();
+    }());
     layouts.Command = Command;
 })(layouts || (layouts = {}));

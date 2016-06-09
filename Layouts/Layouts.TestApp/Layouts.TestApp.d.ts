@@ -293,6 +293,8 @@ declare module layouts.controls {
         private static _init;
         private static initProperties();
         constructor();
+        private tryLoadChildFromServer();
+        attachVisualOverride(elementContainer: HTMLElement): void;
         private _child;
         child: UIElement;
         onShow(): void;
@@ -311,8 +313,8 @@ declare module layouts {
     class LayoutManager {
         static updateLayout(): void;
         private static popups;
-        static showPopup(dialog: layouts.controls.Popup): void;
-        static closePopup(dialog?: layouts.controls.Popup): void;
+        static showPopup(popup: layouts.controls.Popup): void;
+        static closePopup(popup?: layouts.controls.Popup): void;
     }
 }
 declare module layouts.controls {
@@ -329,6 +331,7 @@ declare module layouts.controls {
     class Page extends FrameworkElement {
         static typeName: string;
         typeName: string;
+        private tryLoadChildFromServer();
         protected _container: HTMLElement;
         attachVisualOverride(elementContainer: HTMLElement): void;
         protected layoutOverride(): void;
@@ -831,8 +834,10 @@ declare module layouts.controls {
         typeName: string;
         private _content;
         protected initializeComponent(): UIElement;
+        private tryLoadChildFromServer();
         protected _container: HTMLElement;
         attachVisualOverride(elementContainer: HTMLElement): void;
+        private setupChild(content);
         protected measureOverride(constraint: Size): Size;
         protected arrangeOverride(finalSize: Size): Size;
         protected layoutOverride(): void;
@@ -890,6 +895,18 @@ declare module layouts {
         private trySetProperty(obj, propertyName, propertyNameSpace, value);
         private static tryCallMethod(obj, methodName, value);
         private static tryParseBinding(value);
+    }
+}
+declare module app.views {
+    class CustomPage extends layouts.controls.Page {
+        static typeName: string;
+        typeName: string;
+    }
+}
+declare module app.views {
+    class CustomView extends layouts.controls.UserControl {
+        static typeName: string;
+        typeName: string;
     }
 }
 declare module layouts {

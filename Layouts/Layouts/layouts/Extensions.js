@@ -5,13 +5,15 @@ var layouts;
         }
         Ext.hasProperty = function (obj, propertyName) {
             var proto = obj.__proto__ || obj.constructor.prototype;
+            if (proto == "")
+                return;
             return (propertyName in obj) || (propertyName in proto);
         };
         Ext.isString = function (obj) {
             return (typeof obj == "string" || obj instanceof String);
         };
         return Ext;
-    })();
+    }());
     layouts.Ext = Ext;
 })(layouts || (layouts = {}));
 if (!String.prototype.format) {
@@ -34,6 +36,11 @@ if (!String.prototype.toLowerFirstLetter) {
         return this.charAt(0).toLowerCase() + this.slice(1);
     };
 }
+if (!String.prototype.startsWith) {
+    String.prototype.startsWith = function (other) {
+        return this.charAt(0).toLowerCase() + this.slice(1);
+    };
+}
 Number.prototype.isEpsilon = function () {
     return Math.abs(this) < 1e-10;
 };
@@ -44,6 +51,12 @@ Number.prototype.isCloseTo = function (other) {
 };
 Number.prototype.minMax = function (min, max) {
     return Math.max(min, Math.min(this, max));
+};
+Number.prototype.isLessThen = function (other) {
+    return (this - other) < 1e-10;
+};
+Number.prototype.isGreaterThen = function (other) {
+    return (this - other) > 1e-10;
 };
 var InstanceLoader = (function () {
     function InstanceLoader(context) {
@@ -68,4 +81,4 @@ var InstanceLoader = (function () {
         return instance;
     };
     return InstanceLoader;
-})();
+}());

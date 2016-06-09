@@ -1,11 +1,7 @@
-/// <reference path="..\DepProperty.ts" />
-/// <reference path="..\DepObject.ts" />
-/// <reference path="..\FrameworkElement.ts" /> 
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
     function __() { this.constructor = d; }
-    __.prototype = b.prototype;
-    d.prototype = new __();
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
 var layouts;
 (function (layouts) {
@@ -61,7 +57,7 @@ var layouts;
             Frame.typeName = "layouts.controls.Frame";
             Frame.sourceProperty = layouts.DepObject.registerProperty(Frame.typeName, "Source", null, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender);
             return Frame;
-        })(layouts.FrameworkElement);
+        }(layouts.FrameworkElement));
         controls.Frame = Frame;
     })(controls = layouts.controls || (layouts.controls = {}));
 })(layouts || (layouts = {}));

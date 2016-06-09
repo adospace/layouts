@@ -1,11 +1,7 @@
-/// <reference path="..\DepProperty.ts" />
-/// <reference path="..\DepObject.ts" />
-/// <reference path="..\FrameworkElement.ts" /> 
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
     function __() { this.constructor = d; }
-    __.prototype = b.prototype;
-    d.prototype = new __();
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
 var layouts;
 (function (layouts) {
@@ -39,41 +35,40 @@ var layouts;
             Image.prototype.attachVisualOverride = function (elementContainer) {
                 var _this = this;
                 this._visual = this._imgElement = document.createElement("img");
-                this._imgElement.onload = function (ev) {
-                    _this._imgElement.onload = null;
+                this._visual.style.msUserSelect =
+                    this._visual.style.webkitUserSelect = "none";
+                var imgElement = this._imgElement;
+                imgElement.onload = function (ev) {
                     _this.invalidateMeasure();
                 };
+                var source = this.source;
+                if (source != null &&
+                    source.trim().length > 0)
+                    imgElement.src = source;
                 _super.prototype.attachVisualOverride.call(this, elementContainer);
             };
             Image.prototype.measureOverride = function (constraint) {
-                var src = this.source;
-                var mySize = new layouts.Size();
                 var imgElement = this._imgElement;
-                var srcChanged = (imgElement.src != src);
-                if (srcChanged) {
-                    imgElement.src = src;
-                    imgElement.style.width = isFinite(constraint.width) ? constraint.width.toString() + "px" : "auto";
-                    imgElement.style.height = isFinite(constraint.height) ? constraint.height.toString() + "px" : "auto";
-                }
                 if (imgElement.complete &&
                     imgElement.naturalWidth > 0) {
-                    var scaleFactor = Image.computeScaleFactor(constraint, new layouts.Size(imgElement.naturalWidth, imgElement.naturalHeight), this.stretch, this.stretchDirection);
-                    mySize = new layouts.Size(imgElement.naturalWidth * scaleFactor.width, imgElement.naturalHeight * scaleFactor.height);
+                    return new layouts.Size(imgElement.naturalWidth, imgElement.naturalHeight);
                 }
-                if (srcChanged && this.renderSize != null) {
-                    imgElement.style.width = this.renderSize.width.toString() + "px";
-                    imgElement.style.height = this.renderSize.height.toString() + "px";
-                }
-                return mySize;
+                return new layouts.Size();
             };
             Image.prototype.arrangeOverride = function (finalSize) {
                 var imgElement = this._imgElement;
                 if (imgElement.complete &&
                     imgElement.naturalWidth > 0) {
                     var scaleFactor = Image.computeScaleFactor(finalSize, new layouts.Size(imgElement.naturalWidth, imgElement.naturalHeight), this.stretch, this.stretchDirection);
-                    return new layouts.Size(imgElement.naturalWidth * scaleFactor.width, imgElement.naturalHeight * scaleFactor.height);
+                    var scaledSize = new layouts.Size(imgElement.naturalWidth * scaleFactor.width, imgElement.naturalHeight * scaleFactor.height);
+                    if (scaleFactor.width != 1.0 ||
+                        scaleFactor.height != 1.0) {
+                        imgElement.style.width = scaledSize.width.toString() + "px";
+                        imgElement.style.height = scaledSize.height.toString() + "px";
+                    }
+                    return scaledSize;
                 }
-                return finalSize;
+                return _super.prototype.arrangeOverride.call(this, finalSize);
             };
             Image.computeScaleFactor = function (availableSize, contentSize, stretch, stretchDirection) {
                 var scaleX = 1.0;
@@ -127,6 +122,15 @@ var layouts;
                 }
                 return new layouts.Size(scaleX, scaleY);
             };
+            Image.prototype.onDependencyPropertyChanged = function (property, value, oldValue) {
+                if (property == Image.srcProperty) {
+                    var imgElement = this._imgElement;
+                    if (imgElement != null) {
+                        imgElement.src = value == null ? layouts.Consts.stringEmpty : value;
+                    }
+                }
+                _super.prototype.onDependencyPropertyChanged.call(this, property, value, oldValue);
+            };
             Object.defineProperty(Image.prototype, "source", {
                 get: function () {
                     return this.getValue(Image.srcProperty);
@@ -159,10 +163,10 @@ var layouts;
             });
             Image.typeName = "layouts.controls.Image";
             Image.srcProperty = layouts.DepObject.registerProperty(Image.typeName, "Source", null, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender);
-            Image.stretchProperty = layouts.DepObject.registerProperty(Image.typeName, "Stretch", Stretch.None, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender);
-            Image.stretchDirectionProperty = layouts.DepObject.registerProperty(Image.typeName, "StretchDirection", StretchDirection.Both, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender);
+            Image.stretchProperty = layouts.DepObject.registerProperty(Image.typeName, "Stretch", Stretch.None, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender, function (v) { return Stretch[String(v)]; });
+            Image.stretchDirectionProperty = layouts.DepObject.registerProperty(Image.typeName, "StretchDirection", StretchDirection.Both, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender, function (v) { return StretchDirection[String(v)]; });
             return Image;
-        })(layouts.FrameworkElement);
+        }(layouts.FrameworkElement));
         controls.Image = Image;
     })(controls = layouts.controls || (layouts.controls = {}));
 })(layouts || (layouts = {}));

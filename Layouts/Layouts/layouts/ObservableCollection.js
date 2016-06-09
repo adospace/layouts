@@ -64,6 +64,6 @@ var layouts;
             }
         };
         return ObservableCollection;
-    })();
+    }());
     layouts.ObservableCollection = ObservableCollection;
 })(layouts || (layouts = {}));

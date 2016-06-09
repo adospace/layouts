@@ -25,7 +25,7 @@ var layouts;
                     bottomleft = this.topleft;
             }
             return CornerRadius;
-        })();
+        }());
         controls.CornerRadius = CornerRadius;
         var Border = (function (_super) {
             __extends(Border, _super);
@@ -63,6 +63,7 @@ var layouts;
             });
             Border.prototype.attachVisualOverride = function (elementContainer) {
                 this._visual = this._divElement = document.createElement("div");
+                this.updateVisualProperties();
                 if (this._child != null) {
                     this._child.attachVisual(this._divElement);
                 }
@@ -89,7 +90,6 @@ var layouts;
                 var borders = this.borderThickness;
                 var boundRect = new layouts.Rect(0, 0, finalSize.width, finalSize.height);
                 var innerRect = new layouts.Rect(boundRect.x + borders.left, boundRect.y + borders.top, Math.max(0.0, boundRect.width - borders.left - borders.right), Math.max(0.0, boundRect.height - borders.top - borders.bottom));
-                var borderBrush = this.borderBrush;
                 var child = this._child;
                 var padding = this.padding;
                 if (child != null) {
@@ -100,11 +100,36 @@ var layouts;
             };
             Border.prototype.layoutOverride = function () {
                 _super.prototype.layoutOverride.call(this);
-                var background = this.background;
-                if (this._visual.style.background != background)
-                    this._visual.style.background = background;
+                var borders = this.borderThickness;
+                if (this._visual != null && this.renderSize != null) {
+                    this._visual.style.width = (this.renderSize.width - (borders.left + borders.right)).toString() + "px";
+                    this._visual.style.height = (this.renderSize.height - (borders.top + borders.bottom)).toString() + "px";
+                }
                 if (this._child != null)
                     this._child.layout();
+            };
+            Border.prototype.updateVisualProperties = function () {
+                if (this._visual == null)
+                    return;
+                this._visual.style.background = this.background;
+                this._visual.style.borderColor = this.borderBrush;
+                this._visual.style.borderStyle = this.borderStyle;
+                var borderThickness = this.borderThickness;
+                if (borderThickness.isSameWidth)
+                    this._visual.style.borderWidth = borderThickness.left.toString() + "px";
+                else {
+                    this._visual.style.borderLeft = borderThickness.left.toString() + "px";
+                    this._visual.style.borderTop = borderThickness.top.toString() + "px";
+                    this._visual.style.borderRight = borderThickness.right.toString() + "px";
+                    this._visual.style.borderBottom = borderThickness.bottom.toString() + "px";
+                }
+            };
+            Border.prototype.onDependencyPropertyChanged = function (property, value, oldValue) {
+                if (property == Border.borderThicknessProperty ||
+                    property == Border.backgroundProperty ||
+                    property == Border.borderBrushProperty)
+                    this.updateVisualProperties();
+                _super.prototype.onDependencyPropertyChanged.call(this, property, value, oldValue);
             };
             Object.defineProperty(Border.prototype, "borderThickness", {
                 get: function () {
@@ -146,13 +171,24 @@ var layouts;
                 enumerable: true,
                 configurable: true
             });
+            Object.defineProperty(Border.prototype, "borderStyle", {
+                get: function () {
+                    return this.getValue(Border.borderStyleProperty);
+                },
+                set: function (value) {
+                    this.setValue(Border.borderStyleProperty, value);
+                },
+                enumerable: true,
+                configurable: true
+            });
             Border.typeName = "layouts.controls.Border";
             Border.borderThicknessProperty = layouts.DepObject.registerProperty(Border.typeName, "BorderThickness", new layouts.Thickness(), layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender, function (v) { return layouts.Thickness.fromString(v); });
             Border.paddingProperty = layouts.DepObject.registerProperty(Border.typeName, "Padding", new layouts.Thickness(), layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender, function (v) { return layouts.Thickness.fromString(v); });
             Border.backgroundProperty = layouts.DepObject.registerProperty(Border.typeName, "Background", null, layouts.FrameworkPropertyMetadataOptions.AffectsRender);
             Border.borderBrushProperty = layouts.DepObject.registerProperty(Border.typeName, "BorderBrush", null, layouts.FrameworkPropertyMetadataOptions.AffectsRender);
+            Border.borderStyleProperty = layouts.DepObject.registerProperty(Border.typeName, "BorderStyle", "solid", layouts.FrameworkPropertyMetadataOptions.AffectsRender);
             return Border;
-        })(layouts.FrameworkElement);
+        }(layouts.FrameworkElement));
         controls.Border = Border;
     })(controls = layouts.controls || (layouts.controls = {}));
 })(layouts || (layouts = {}));

@@ -1,11 +1,7 @@
-/// <reference path="DepProperty.ts" />
-/// <reference path="DepObject.ts" />
-/// <reference path="UIElement.ts" />
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
     function __() { this.constructor = d; }
-    __.prototype = b.prototype;
-    d.prototype = new __();
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
 var layouts;
 (function (layouts) {
@@ -58,8 +54,15 @@ var layouts;
             }
             throw new Error("Thickness format error");
         };
+        Object.defineProperty(Thickness.prototype, "isSameWidth", {
+            get: function () {
+                return this.left == this.top && this.left == this.right && this.right == this.bottom;
+            },
+            enumerable: true,
+            configurable: true
+        });
         return Thickness;
-    })();
+    }());
     layouts.Thickness = Thickness;
     var MinMax = (function () {
         function MinMax(e) {
@@ -79,12 +82,12 @@ var layouts;
             this.minWidth = Math.max(Math.min(this.maxWidth, this.width), this.minWidth);
         }
         return MinMax;
-    })();
+    }());
     var FrameworkElement = (function (_super) {
         __extends(FrameworkElement, _super);
         function FrameworkElement() {
             _super.apply(this, arguments);
-            this.visualOffset = new layouts.Vector();
+            this.visualOffset = null;
         }
         Object.defineProperty(FrameworkElement.prototype, "typeName", {
             get: function () {
@@ -104,24 +107,19 @@ var layouts;
             var desideredSize = this.measureOverride(frameworkAvailableSize);
             desideredSize = new layouts.Size(Math.max(desideredSize.width, mm.minWidth), Math.max(desideredSize.height, mm.minHeight));
             this.unclippedDesiredSize = desideredSize;
-            var clipped = false;
             if (desideredSize.width > mm.maxWidth) {
                 desideredSize.width = mm.maxWidth;
-                clipped = true;
             }
             if (desideredSize.height > mm.maxHeight) {
                 desideredSize.height = mm.maxHeight;
-                clipped = true;
             }
             var clippedDesiredWidth = desideredSize.width + marginWidth;
             var clippedDesiredHeight = desideredSize.height + marginHeight;
             if (clippedDesiredWidth > availableSize.width) {
                 clippedDesiredWidth = availableSize.width;
-                clipped = true;
             }
             if (clippedDesiredHeight > availableSize.height) {
                 clippedDesiredHeight = availableSize.height;
-                clipped = true;
             }
             return new layouts.Size(Math.max(0, clippedDesiredWidth), Math.max(0, clippedDesiredHeight));
         };
@@ -173,10 +171,9 @@ var layouts;
             offset.x += finalRect.x + margin.left;
             offset.y += finalRect.y + margin.top;
             var oldOffset = this.visualOffset;
-            if (!oldOffset.x.isCloseTo(offset.x) ||
-                !oldOffset.y.isCloseTo(offset.y)) {
+            if (oldOffset == null ||
+                (!oldOffset.x.isCloseTo(offset.x) || !oldOffset.y.isCloseTo(offset.y)))
                 this.visualOffset = offset;
-            }
         };
         FrameworkElement.prototype.computeAlignmentOffset = function (clientSize, inkSize) {
             var offset = new layouts.Vector();
@@ -216,24 +213,20 @@ var layouts;
             return finalSize;
         };
         FrameworkElement.prototype.layoutOverride = function () {
-            //if (this._visual != null)
-            //    this._visual.style.cssText = this.cssStyle;
             _super.prototype.layoutOverride.call(this);
-            if (this._visual != null) {
-                this._visual.style.position = "absolute";
-                this._visual.style.visibility = this.isVisible ? "visible" : "collapsed";
-                this._visual.style.overflowX = this.overflowX;
-                this._visual.style.overflowY = this.overflowY;
-                this._visual.style.top = this.visualOffset.y.toString() + "px";
+            if (this._visual == null)
+                return;
+            this._visual.style.visibility = this.isVisible ? "" : "collapsed";
+            this._visual.style.overflowX = this.overflowX;
+            this._visual.style.overflowY = this.overflowY;
+            if (this.visualOffset != null) {
                 this._visual.style.left = this.visualOffset.x.toString() + "px";
-                if (this.renderSize != null) {
-                    this._visual.style.width = this.renderSize.width.toString() + "px";
-                    this._visual.style.height = this.renderSize.height.toString() + "px";
-                }
+                this._visual.style.top = this.visualOffset.y.toString() + "px";
             }
-        };
-        FrameworkElement.prototype.attachVisualOverride = function (elementContainer) {
-            _super.prototype.attachVisualOverride.call(this, elementContainer);
+            if (this.renderSize != null) {
+                this._visual.style.width = this.renderSize.width.toString() + "px";
+                this._visual.style.height = this.renderSize.height.toString() + "px";
+            }
         };
         Object.defineProperty(FrameworkElement.prototype, "width", {
             get: function () {
@@ -355,6 +348,24 @@ var layouts;
             enumerable: true,
             configurable: true
         });
+        Object.defineProperty(FrameworkElement.prototype, "parentDataContext", {
+            get: function () {
+                if (this.parent != null)
+                    return this.parent.getValue(FrameworkElement.dataContextProperty);
+                return null;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        FrameworkElement.prototype.onDependencyPropertyChanged = function (property, value, oldValue) {
+            _super.prototype.onDependencyPropertyChanged.call(this, property, value, oldValue);
+            if (property == FrameworkElement.dataContextProperty)
+                _super.prototype.onPropertyChanged.call(this, "parentDataContext", this.parentDataContext, null);
+        };
+        FrameworkElement.prototype.onParentChanged = function (oldParent, newParent) {
+            _super.prototype.onParentChanged.call(this, oldParent, newParent);
+            _super.prototype.onPropertyChanged.call(this, "parentDataContext", newParent, oldParent);
+        };
         Object.defineProperty(FrameworkElement.prototype, "tag", {
             get: function () {
                 return this.getValue(FrameworkElement.tagProperty);
@@ -402,6 +413,6 @@ var layouts;
         FrameworkElement.overflowXProperty = layouts.DepObject.registerProperty(FrameworkElement.typeName, "OverflowX", "hidden", layouts.FrameworkPropertyMetadataOptions.AffectsRender);
         FrameworkElement.overflowYProperty = layouts.DepObject.registerProperty(FrameworkElement.typeName, "OverflowY", "hidden", layouts.FrameworkPropertyMetadataOptions.AffectsRender);
         return FrameworkElement;
-    })(layouts.UIElement);
+    }(layouts.UIElement));
     layouts.FrameworkElement = FrameworkElement;
 })(layouts || (layouts = {}));

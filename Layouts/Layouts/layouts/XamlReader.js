@@ -1,10 +1,10 @@
-/// <reference path="IConverter.ts" />
 var layouts;
 (function (layouts) {
     var XamlReader = (function () {
         function XamlReader(instanceLoader, namespaceResolver) {
             this.instanceLoader = instanceLoader;
             this.namespaceResolver = namespaceResolver;
+            this._createdObjectsWithId = {};
             if (this.instanceLoader == null)
                 this.instanceLoader = new InstanceLoader(window);
         }
@@ -19,7 +19,7 @@ var layouts;
                 return "layouts.controls";
             if (this.namespaceResolver != null)
                 return this.namespaceResolver(xmlns);
-            return null;
+            return xmlns;
         };
         XamlReader.prototype.Load = function (xamlNode) {
             var _this = this;
@@ -35,6 +35,8 @@ var layouts;
                     if (!this.trySetProperty(containerObject, propertyName, this.resolveNameSpace(att.namespaceURI), att.value))
                         if (containerObject["addExtentedProperty"] != null)
                             containerObject["addExtentedProperty"](propertyName, att.value);
+                    if (propertyName == "id")
+                        this._createdObjectsWithId[att.value] = containerObject;
                 }
             }
             var childrenProperties = Enumerable.From(xamlNode.childNodes).Where(function (_) { return _.nodeType == 1 && _.localName.indexOf(".") > -1; });
@@ -124,11 +126,26 @@ var layouts;
                 else
                     depProperty = layouts.DepObject.lookupProperty(depObject, propertyName);
                 if (depProperty != null) {
-                    var bingingDef = layouts.Ext.isString(value) ? XamlReader.tryParseBinding(value) : null;
-                    if (bingingDef != null) {
-                        var converter = bingingDef.converter == null ? null : this.instanceLoader.getInstance(bingingDef.converter);
-                        var bindingPath = bingingDef.source == "self" ? bingingDef.path : "DataContext." + bingingDef.path;
-                        depObject.bind(depProperty, bindingPath, bingingDef.twoway, depObject, converter);
+                    var bindingDef = layouts.Ext.isString(value) ? XamlReader.tryParseBinding(value) : null;
+                    if (bindingDef != null) {
+                        var converter = bindingDef.converter == null ? null : this.instanceLoader.getInstance(bindingDef.converter);
+                        if (converter == null &&
+                            bindingDef.converter != null)
+                            throw new Error("Unable to create converter from '{0}'".format(bindingDef.converter));
+                        var isDCProperty = depProperty == layouts.FrameworkElement.dataContextProperty;
+                        var isElementNameDefined = bindingDef.element != null;
+                        var bindingPath = bindingDef.source == "self" || isElementNameDefined ? bindingDef.path :
+                            isDCProperty ? "parentDataContext." + bindingDef.path :
+                                bindingDef.path == "." ? "DataContext" :
+                                    "DataContext." + bindingDef.path;
+                        var source = depObject;
+                        if (isElementNameDefined) {
+                            if (!(bindingDef.element in this._createdObjectsWithId))
+                                console.log("[Bindings] Unable to find element with id '{0}'".format(bindingDef.element));
+                            else
+                                source = this._createdObjectsWithId[bindingDef.element];
+                        }
+                        depObject.bind(depProperty, bindingPath, bindingDef.mode != null && bindingDef.mode.toLowerCase() == "twoway", source, converter, bindingDef.converterParameter, bindingDef.format);
                     }
                     else
                         depObject.setValue(depProperty, value);
@@ -161,17 +178,34 @@ var layouts;
             if (bindingValue.length >= 3 &&
                 bindingValue[0] == '{' &&
                 bindingValue[bindingValue.length - 1] == '}') {
-                var tokens = bindingValue.substr(1, bindingValue.length - 2).split(",");
-                var path = tokens[0];
-                var twoway = tokens.length > 1 ? (tokens[1] == "twoway") : false;
-                var source = tokens.length > 2 ? tokens[2] : null;
-                var converter = tokens.length > 3 ? tokens[3] : null;
-                return { path: path, twoway: twoway, source: source, converter: converter };
+                try {
+                    var bindingDef = new Object();
+                    var tokens = bindingValue.substr(1, bindingValue.length - 2).split(",");
+                    tokens.forEach(function (t) {
+                        var keyValue = t.split(":");
+                        if (keyValue.length == 2) {
+                            var value = keyValue[1].trim();
+                            if (value.length > 2 &&
+                                value[0] == '\'' &&
+                                value[value.length - 1] == '\'')
+                                value = value.substr(1, value.length - 2);
+                            bindingDef[keyValue[0].trim()] = value;
+                        }
+                        else if (keyValue.length == 1)
+                            bindingDef["path"] = keyValue[0].trim();
+                        else
+                            throw Error("syntax error");
+                    });
+                    return bindingDef;
+                }
+                catch (e) {
+                    console.log("[Bindings] Unable to parse '{0}' as binding definition".format(bindingValue));
+                }
             }
             return null;
         };
         XamlReader.DefaultNamespace = "http://schemas.layouts.com/";
         return XamlReader;
-    })();
+    }());
     layouts.XamlReader = XamlReader;
 })(layouts || (layouts = {}));

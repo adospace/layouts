@@ -293,6 +293,8 @@ declare module layouts.controls {
         private static _init;
         private static initProperties();
         constructor();
+        private tryLoadChildFromServer();
+        attachVisualOverride(elementContainer: HTMLElement): void;
         private _child;
         child: UIElement;
         onShow(): void;
@@ -311,8 +313,8 @@ declare module layouts {
     class LayoutManager {
         static updateLayout(): void;
         private static popups;
-        static showPopup(dialog: layouts.controls.Popup): void;
-        static closePopup(dialog?: layouts.controls.Popup): void;
+        static showPopup(popup: layouts.controls.Popup): void;
+        static closePopup(popup?: layouts.controls.Popup): void;
     }
 }
 declare module layouts.controls {
@@ -329,6 +331,7 @@ declare module layouts.controls {
     class Page extends FrameworkElement {
         static typeName: string;
         typeName: string;
+        private tryLoadChildFromServer();
         protected _container: HTMLElement;
         attachVisualOverride(elementContainer: HTMLElement): void;
         protected layoutOverride(): void;
@@ -647,16 +650,21 @@ declare module layouts.controls {
     class GridSplitter extends Border {
         static typeName: string;
         typeName: string;
+        constructor();
         attachVisualOverride(elementContainer: HTMLElement): void;
         private onSplitterMouseDown(ev);
         private updateCursor();
-        private _draggingStartPointX;
-        private _draggingStartPointY;
+        private _draggingCurrentPoint;
+        private _draggingStartPoint;
+        private _draggingVirtualOffset;
+        private _draggingVirtualOffsetMin;
+        private _draggingVirtualOffsetMax;
         private initializeDrag(ev);
         private _dragSplitterTimeoutHandle;
         private onSplitterMouseMove;
+        private moveGhost(ev);
         private onSplitterMouseUp;
-        private dragSplitter(ev);
+        private dragSplitter(evX, evY);
     }
 }
 declare module layouts.controls {
@@ -841,8 +849,10 @@ declare module layouts.controls {
         typeName: string;
         private _content;
         protected initializeComponent(): UIElement;
+        private tryLoadChildFromServer();
         protected _container: HTMLElement;
         attachVisualOverride(elementContainer: HTMLElement): void;
+        private setupChild(content);
         protected measureOverride(constraint: Size): Size;
         protected arrangeOverride(finalSize: Size): Size;
         protected layoutOverride(): void;

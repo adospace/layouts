@@ -1,12 +1,7 @@
-/// <reference path="..\DepProperty.ts" />
-/// <reference path="..\DepObject.ts" />
-/// <reference path="..\FrameworkElement.ts" /> 
-/// <reference path="..\ISupport.ts" /> 
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
     function __() { this.constructor = d; }
-    __.prototype = b.prototype;
-    d.prototype = new __();
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
 var layouts;
 (function (layouts) {
@@ -39,7 +34,7 @@ var layouts;
             ItemsControl.prototype.measureOverride = function (constraint) {
                 if (this.itemsPanel != null) {
                     this.itemsPanel.measure(constraint);
-                    return this.itemsPanel.desideredSize;
+                    return this.itemsPanel.desiredSize;
                 }
                 return new layouts.Size();
             };
@@ -82,7 +77,9 @@ var layouts;
                     if (this.itemsPanel == null)
                         return;
                     added.forEach(function (item) {
-                        var templateForItem = _this.getTemplateForItem(item);
+                        if (item == null)
+                            throw new Error("Unable to render null items");
+                        var templateForItem = controls.DataTemplate.getTemplateForItem(_this._templates.toArray(), item);
                         if (templateForItem == null) {
                             throw new Error("Unable to find a valid template for item");
                         }
@@ -91,7 +88,7 @@ var layouts;
                         _this.itemsPanel.children.add(newElement);
                     });
                     removed.forEach(function (item) {
-                        _this.itemsPanel.children.remove(_this.itemsPanel.children.at(startRemoveIndex));
+                        _this.itemsPanel.children.remove(_this.itemsPanel.children.at(startRemoveIndex++));
                     });
                 }
                 this.invalidateMeasure();
@@ -118,12 +115,12 @@ var layouts;
             });
             ItemsControl.prototype.onDependencyPropertyChanged = function (property, value, oldValue) {
                 if (property == ItemsControl.itemsSourceProperty) {
-                    if (oldValue != null) {
+                    if (oldValue != null && oldValue["offChangeNotify"] != null) {
                         var oldItmesSource = oldValue;
                         oldItmesSource.offChangeNotify(this);
                     }
                     this.setupItems();
-                    if (value != null) {
+                    if (value != null && value["onChangeNotify"] != null) {
                         var newItemsSource = value;
                         newItemsSource.onChangeNotify(this);
                     }
@@ -146,18 +143,6 @@ var layouts;
                     this.setupItems();
                 _super.prototype.onDependencyPropertyChanged.call(this, property, value, oldValue);
             };
-            ItemsControl.prototype.getTemplateForItem = function (item) {
-                if (this._templates == null ||
-                    this._templates.count == 0)
-                    return null;
-                var typeName = null;
-                if (layouts.Ext.hasProperty(item, "typeName"))
-                    typeName = item["typeName"];
-                var defaultTemplate = Enumerable.From(this.templates.elements).FirstOrDefault(null, function (dt) { return dt.targetType == null; });
-                if (typeName != null)
-                    return Enumerable.From(this.templates.elements).FirstOrDefault(defaultTemplate, function (dt) { return dt.targetType == typeName; });
-                return defaultTemplate;
-            };
             ItemsControl.prototype.setupItems = function () {
                 var _this = this;
                 if (this._elements != null) {
@@ -169,9 +154,16 @@ var layouts;
                     return;
                 var itemsSource = this.itemsSource;
                 if (itemsSource != null) {
+                    var elements = null;
+                    if (Object.prototype.toString.call(itemsSource) == '[object Array]')
+                        elements = itemsSource;
+                    else
+                        elements = itemsSource["elements"];
+                    if (elements == null)
+                        throw new Error("Unable to get list of elements from itemsSource");
                     this._elements =
-                        Enumerable.From(itemsSource.elements).Select(function (item) {
-                            var templateForItem = _this.getTemplateForItem(item);
+                        Enumerable.From(elements).Select(function (item) {
+                            var templateForItem = controls.DataTemplate.getTemplateForItem(_this._templates.toArray(), item);
                             if (templateForItem == null) {
                                 throw new Error("Unable to find a valid template for item");
                             }
@@ -196,7 +188,7 @@ var layouts;
             ItemsControl.itemsSourceProperty = layouts.DepObject.registerProperty(ItemsControl.typeName, "ItemsSource", null, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender);
             ItemsControl.itemsPanelProperty = layouts.DepObject.registerProperty(ItemsControl.typeName, "ItemsPanel", null, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender);
             return ItemsControl;
-        })(layouts.FrameworkElement);
+        }(layouts.FrameworkElement));
         controls.ItemsControl = ItemsControl;
     })(controls = layouts.controls || (layouts.controls = {}));
 })(layouts || (layouts = {}));

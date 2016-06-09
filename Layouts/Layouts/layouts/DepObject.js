@@ -1,7 +1,3 @@
-/// <reference path="DepProperty.ts" />
-/// <reference path="PropertyMap.ts" />
-/// <reference path="Consts.ts" />
-/// <reference path="IConverter.ts" />
 var layouts;
 (function (layouts) {
     var DepObject = (function () {
@@ -14,7 +10,7 @@ var layouts;
         DepObject.registerProperty = function (typeName, name, defaultValue, options, converter) {
             if (DepObject.globalPropertyMap[typeName] == null)
                 DepObject.globalPropertyMap[typeName] = new layouts.PropertyMap();
-            var newProperty = new layouts.DepProperty(name, defaultValue, options, converter);
+            var newProperty = new layouts.DepProperty(name, typeName, defaultValue, options, converter);
             DepObject.globalPropertyMap[typeName].register(name, newProperty);
             return newProperty;
         };
@@ -50,27 +46,30 @@ var layouts;
             return property;
         };
         DepObject.prototype.getValue = function (property) {
-            if (this.localPropertyValueMap[property.name] == null) {
-                return property.getDefaultValue(this);
+            if (property.name in this.localPropertyValueMap) {
+                return this.localPropertyValueMap[property.name];
             }
-            return this.localPropertyValueMap[property.name];
+            return property.getDefaultValue(this);
         };
         DepObject.prototype.setValue = function (property, value) {
-            if (value != this.localPropertyValueMap[property.name]) {
-                var valueToSet = property.converter != null && layouts.Ext.isString(value) ? property.converter(value) : value;
-                var oldValue = this.localPropertyValueMap[property.name];
+            var oldValue = this.getValue(property);
+            var valueToSet = property.converter != null && layouts.Ext.isString(value) ? property.converter(value) : value;
+            if (oldValue != valueToSet) {
                 this.localPropertyValueMap[property.name] = valueToSet;
                 this.onDependencyPropertyChanged(property, valueToSet, oldValue);
+            }
+        };
+        DepObject.prototype.resetValue = function (property) {
+            if (property.name in this.localPropertyValueMap) {
+                var oldValue = this.getValue(property);
+                delete this.localPropertyValueMap[property.name];
+                this.onDependencyPropertyChanged(property, null, oldValue);
             }
         };
         DepObject.prototype.onDependencyPropertyChanged = function (property, value, oldValue) {
             var _this = this;
             this.dpcHandlers.forEach(function (h) {
-                h.onChangeDependencyProperty(_this, property, value);
-            });
-            this.bindings.forEach(function (b) {
-                if (b.twoWay && b.targetProperty == property)
-                    b.path.setValue(value);
+                h.onDependencyPropertyChanged(_this, property);
             });
         };
         DepObject.prototype.subscribeDependencyPropertyChanges = function (observer) {
@@ -99,25 +98,32 @@ var layouts;
                 this.pcHandlers.splice(index, 1);
             }
         };
-        DepObject.prototype.bind = function (property, propertyPath, twoway, source, converter) {
-            var newBinding = new Binding(this, property, propertyPath, source, twoway, converter);
+        DepObject.prototype.bind = function (property, propertyPath, twoway, source, converter, converterParameter, format) {
+            var newBinding = new Binding(this, property, propertyPath, source, twoway, converter, converterParameter, format);
             this.bindings.push(newBinding);
         };
         DepObject.globalPropertyMap = {};
+        DepObject.logBindingTraceToConsole = false;
         return DepObject;
-    })();
+    }());
     layouts.DepObject = DepObject;
     var Binding = (function () {
-        function Binding(target, targetProperty, propertyPath, source, twoWay, converter) {
+        function Binding(target, targetProperty, propertyPath, source, twoWay, converter, converterParameter, format) {
             if (twoWay === void 0) { twoWay = false; }
             if (converter === void 0) { converter = null; }
+            if (converterParameter === void 0) { converterParameter = null; }
+            if (format === void 0) { format = null; }
             this.twoWay = false;
             this.converter = null;
+            this.converterParameter = null;
+            this.format = null;
             this.target = target;
             this.targetProperty = targetProperty;
             this.path = new PropertyPath(this, propertyPath, source);
             this.twoWay = twoWay;
             this.converter = converter;
+            this.converterParameter = converterParameter;
+            this.format = format;
             this.updateTarget();
             if (this.twoWay)
                 this.target.subscribeDependencyPropertyChanges(this);
@@ -127,18 +133,37 @@ var layouts;
             if (retValue.success) {
                 this.source = retValue.source;
                 this.sourceProperty = retValue.sourceProperty;
-                this.target.setValue(this.targetProperty, this.converter != null ? this.converter.convert(retValue.value, null) : retValue.value);
+                var valueToSet = this.converter != null ? this.converter.convert(retValue.value, {
+                    source: this.source,
+                    sourceProperty: this.sourceProperty,
+                    target: this.target,
+                    targetProperty: this.targetProperty,
+                    parameter: this.converterParameter
+                }) : retValue.value;
+                this.target.setValue(this.targetProperty, this.format != null ? this.format.format(valueToSet) : valueToSet);
+            }
+            else if (this.source != null) {
+                this.target.resetValue(this.targetProperty);
+                this.source = null;
+                this.sourceProperty = null;
             }
         };
-        Binding.prototype.onChangeDependencyProperty = function (depObject, depProperty, value) {
+        Binding.prototype.onDependencyPropertyChanged = function (depObject, depProperty) {
             if (depObject == this.target &&
                 depProperty == this.targetProperty &&
                 this.twoWay) {
-                this.path.setValue(this.converter != null ? this.converter.convertBack(value, null) : value);
+                var value = depObject.getValue(depProperty);
+                this.path.setValue(this.converter != null ? this.converter.convertBack(value, {
+                    source: this.source,
+                    sourceProperty: this.sourceProperty,
+                    target: this.target,
+                    targetProperty: this.targetProperty,
+                    parameter: this.converterParameter
+                }) : value);
             }
         };
         return Binding;
-    })();
+    }());
     var PropertyPath = (function () {
         function PropertyPath(owner, path, source) {
             this.owner = owner;
@@ -148,14 +173,40 @@ var layouts;
             this.attachShource();
         }
         PropertyPath.prototype.attachShource = function () {
-            if (this.sourceProperty == null)
-                this.source.subscribePropertyChanges(this);
-            else
+            if (this.sourceProperty == null) {
+                if (this.source.subscribePropertyChanges != null)
+                    this.source.subscribePropertyChanges(this);
+            }
+            else if (this.source["unsubscribeDependencyPropertyChanges"] != null)
                 this.source.subscribeDependencyPropertyChanges(this);
         };
         PropertyPath.prototype.detachSource = function () {
-            this.source.unsubscribePropertyChanges(this);
-            this.source.unsubscribeDependencyPropertyChanges(this);
+            if (this.source.unsubscribePropertyChanges != null)
+                this.source.unsubscribePropertyChanges(this);
+            if (this.source["unsubscribeDependencyPropertyChanges"] != null)
+                this.source.unsubscribeDependencyPropertyChanges(this);
+        };
+        PropertyPath.prototype.lookForIndexers = function () {
+            var re = /([\w_]+)(\[([\w_]+)\])/gmi;
+            var m;
+            var nameStr = this.name;
+            if ((m = re.exec(nameStr)) !== null) {
+                if (m.index === re.lastIndex) {
+                    re.lastIndex++;
+                }
+                this.name = m[1];
+                this.indexers = [];
+                this.indexers.push(m[3]);
+                re = /([\w_]+)(\[([\w_]+)\])(\[([\w_]+)\])/gmi;
+                if ((m = re.exec(nameStr)) !== null) {
+                    if (m.index === re.lastIndex) {
+                        re.lastIndex++;
+                    }
+                    this.indexers.push(m[5]);
+                }
+            }
+            else
+                this.indexers = null;
         };
         PropertyPath.prototype.build = function () {
             var oldNext = this.next;
@@ -172,10 +223,16 @@ var layouts;
                 var dotIndex = this.path.indexOf(".");
                 if (dotIndex > -1) {
                     this.name = this.path.substring(0, dotIndex);
+                    this.lookForIndexers();
                     this.sourceProperty = DepObject.lookupProperty(this.source, this.name);
                     var sourcePropertyValue = (this.sourceProperty != null) ?
                         this.source.getValue(this.sourceProperty) :
                         this.source[this.name];
+                    if (this.indexers != null && sourcePropertyValue != null) {
+                        sourcePropertyValue = sourcePropertyValue[this.indexers[0]];
+                        if (this.indexers.length > 1 && sourcePropertyValue != null)
+                            sourcePropertyValue = sourcePropertyValue[this.indexers[1]];
+                    }
                     if (sourcePropertyValue != null) {
                         var nextPath = this.path.substring(dotIndex + 1);
                         if (this.next == null ||
@@ -185,11 +242,13 @@ var layouts;
                         else if (this.next != null)
                             this.next.build();
                     }
-                    else
+                    else {
                         this.next = null;
+                    }
                 }
                 else {
                     this.name = this.path;
+                    this.lookForIndexers();
                     this.sourceProperty = DepObject.lookupProperty(this.source, this.name);
                     this.next = null;
                 }
@@ -218,13 +277,25 @@ var layouts;
                     source: this.source,
                     property: null
                 };
-            else if (this.name != null && this.path.indexOf(".") == -1)
+            else if (this.name != null && this.path.indexOf(".") == -1) {
+                if (DepObject.logBindingTraceToConsole)
+                    if (this.sourceProperty == null && (!(this.name in this.source)))
+                        console.log("[Bindings] Unable to find property '{0}' on type '{1}'".format(this.name, this.source["typeName"] == null ? "<noneType>" : this.source["typeName"]));
+                var sourcePropertyValue = (this.sourceProperty != null) ?
+                    this.source.getValue(this.sourceProperty) :
+                    this.source[this.name];
+                if (this.indexers != null && sourcePropertyValue != null) {
+                    sourcePropertyValue = sourcePropertyValue[this.indexers[0]];
+                    if (this.indexers.length > 1 && sourcePropertyValue != null)
+                        sourcePropertyValue = sourcePropertyValue[this.indexers[1]];
+                }
                 return {
                     success: true,
-                    value: this.sourceProperty != null ? this.source.getValue(this.sourceProperty) : this.source[this.name],
+                    value: sourcePropertyValue,
                     source: this.source,
                     property: this.sourceProperty
                 };
+            }
             else
                 return {
                     success: false
@@ -234,13 +305,15 @@ var layouts;
             if (this.next != null)
                 this.next.setValue(value);
             else if (this.name != null && this.path.indexOf(".") == -1) {
+                if (this.indexers != null)
+                    throw new Error("Unable to update source when indexers are specified in binding path");
                 if (this.sourceProperty != null)
                     this.source.setValue(this.sourceProperty, value);
                 else
                     this.source[this.name] = value;
             }
         };
-        PropertyPath.prototype.onChangeDependencyProperty = function (depObject, depProperty, value) {
+        PropertyPath.prototype.onDependencyPropertyChanged = function (depObject, depProperty) {
             if (depObject == this.source &&
                 depProperty.name == this.name) {
                 this.build();
@@ -255,5 +328,5 @@ var layouts;
             }
         };
         return PropertyPath;
-    })();
+    }());
 })(layouts || (layouts = {}));

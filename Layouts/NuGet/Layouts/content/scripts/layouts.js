@@ -1,3 +1,8 @@
+var __extends = (this && this.__extends) || function (d, b) {
+    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+    function __() { this.constructor = d; }
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+};
 var layouts;
 (function (layouts) {
     var Ext = (function () {
@@ -13,7 +18,7 @@ var layouts;
             return (typeof obj == "string" || obj instanceof String);
         };
         return Ext;
-    })();
+    }());
     layouts.Ext = Ext;
 })(layouts || (layouts = {}));
 if (!String.prototype.format) {
@@ -82,7 +87,7 @@ var InstanceLoader = (function () {
         return instance;
     };
     return InstanceLoader;
-})();
+}());
 var layouts;
 (function (layouts) {
     var DepProperty = (function () {
@@ -111,7 +116,7 @@ var layouts;
             return this._defaultValue;
         };
         return DepProperty;
-    })();
+    }());
     layouts.DepProperty = DepProperty;
 })(layouts || (layouts = {}));
 var layouts;
@@ -134,7 +139,7 @@ var layouts;
             this.propertyMap[name] = property;
         };
         return PropertyMap;
-    })();
+    }());
     layouts.PropertyMap = PropertyMap;
 })(layouts || (layouts = {}));
 var layouts;
@@ -144,7 +149,7 @@ var layouts;
         }
         Consts.stringEmpty = "";
         return Consts;
-    })();
+    }());
     layouts.Consts = Consts;
 })(layouts || (layouts = {}));
 var layouts;
@@ -158,7 +163,7 @@ var layouts;
             this.parameter = parameter;
         }
         return ConverterContext;
-    })();
+    }());
     layouts.ConverterContext = ConverterContext;
 })(layouts || (layouts = {}));
 /// <reference path="DepProperty.ts" />
@@ -287,7 +292,7 @@ var layouts;
         DepObject.globalPropertyMap = {};
         DepObject.logBindingTraceToConsole = false;
         return DepObject;
-    })();
+    }());
     layouts.DepObject = DepObject;
     var Binding = (function () {
         function Binding(target, targetProperty, propertyPath, source, twoWay, converter, converterParameter, format) {
@@ -350,7 +355,7 @@ var layouts;
             }
         };
         return Binding;
-    })();
+    }());
     var PropertyPath = (function () {
         function PropertyPath(owner, path, source) {
             this.owner = owner;
@@ -532,15 +537,10 @@ var layouts;
             }
         };
         return PropertyPath;
-    })();
+    }());
 })(layouts || (layouts = {}));
 /// <reference path="DepProperty.ts" />
 /// <reference path="DepObject.ts" />
-var __extends = (this && this.__extends) || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-};
 var layouts;
 (function (layouts) {
     var Size = (function () {
@@ -554,7 +554,7 @@ var layouts;
             return new Rect(0, 0, this.width, this.height);
         };
         return Size;
-    })();
+    }());
     layouts.Size = Size;
     var Rect = (function () {
         function Rect(x, y, width, height) {
@@ -575,7 +575,7 @@ var layouts;
             configurable: true
         });
         return Rect;
-    })();
+    }());
     layouts.Rect = Rect;
     var Vector = (function () {
         function Vector(x, y) {
@@ -595,7 +595,7 @@ var layouts;
             return new Vector(this.x + other.x, this.y + other.y);
         };
         return Vector;
-    })();
+    }());
     layouts.Vector = Vector;
     (function (FrameworkPropertyMetadataOptions) {
         /// No flags
@@ -628,7 +628,7 @@ var layouts;
             this.value = value;
         }
         return ExtendedProperty;
-    })();
+    }());
     layouts.ExtendedProperty = ExtendedProperty;
     var UIElement = (function (_super) {
         __extends(UIElement, _super);
@@ -1086,7 +1086,7 @@ var layouts;
         UIElement.popupProperty = layouts.DepObject.registerProperty(UIElement.typeName, "Popup", null, FrameworkPropertyMetadataOptions.AffectsRender);
         UIElement.layoutUpdatedProperty = layouts.DepObject.registerProperty(UIElement.typeName, "LayoutUpdated", null, FrameworkPropertyMetadataOptions.None);
         return UIElement;
-    })(layouts.DepObject);
+    }(layouts.DepObject));
     layouts.UIElement = UIElement;
 })(layouts || (layouts = {}));
 /// <reference path="DepProperty.ts" />
@@ -1151,7 +1151,7 @@ var layouts;
             configurable: true
         });
         return Thickness;
-    })();
+    }());
     layouts.Thickness = Thickness;
     var MinMax = (function () {
         function MinMax(e) {
@@ -1171,7 +1171,7 @@ var layouts;
             this.minWidth = Math.max(Math.min(this.maxWidth, this.width), this.minWidth);
         }
         return MinMax;
-    })();
+    }());
     var FrameworkElement = (function (_super) {
         __extends(FrameworkElement, _super);
         function FrameworkElement() {
@@ -1532,7 +1532,7 @@ var layouts;
         //by default content is clipped so overflowY is set to hidden
         FrameworkElement.overflowYProperty = layouts.DepObject.registerProperty(FrameworkElement.typeName, "OverflowY", "hidden", layouts.FrameworkPropertyMetadataOptions.AffectsRender);
         return FrameworkElement;
-    })(layouts.UIElement);
+    }(layouts.UIElement));
     layouts.FrameworkElement = FrameworkElement;
 })(layouts || (layouts = {}));
 /// <reference path="..\DepProperty.ts" />
@@ -1562,7 +1562,6 @@ var layouts;
             __extends(Popup, _super);
             function Popup() {
                 _super.call(this);
-                this.child = this.initializeComponent();
             }
             Object.defineProperty(Popup.prototype, "typeName", {
                 get: function () {
@@ -1574,6 +1573,25 @@ var layouts;
             Popup.initProperties = function () {
                 layouts.FrameworkElement.horizontalAlignmentProperty.overrideDefaultValue(Popup.typeName, "Center");
                 layouts.FrameworkElement.verticalAlignmentProperty.overrideDefaultValue(Popup.typeName, "Center");
+            };
+            Popup.prototype.tryLoadChildFromServer = function () {
+                var _this = this;
+                var req = new XMLHttpRequest();
+                req.onreadystatechange = function (ev) {
+                    if (req.readyState == 4 && req.status == 200) {
+                        var loader = new layouts.XamlReader();
+                        _this._child = loader.Parse(req.responseText);
+                        if (_this._child != null) {
+                            _this._child.parent = _this;
+                            _this._child.attachVisual(document.body);
+                        }
+                    }
+                };
+                req.open("GET", this.typeName.replace(/\./gi, '/') + ".xml", true);
+                req.send();
+            };
+            Popup.prototype.attachVisualOverride = function (elementContainer) {
+                _super.prototype.attachVisualOverride.call(this, elementContainer);
             };
             Object.defineProperty(Popup.prototype, "child", {
                 get: function () {
@@ -1589,10 +1607,14 @@ var layouts;
                 configurable: true
             });
             Popup.prototype.onShow = function () {
+                if (this._child == null)
+                    this._child = this.initializeComponent();
                 if (this._child != null) {
                     this._child.parent = this;
                     this._child.attachVisual(document.body);
                 }
+                else
+                    this.tryLoadChildFromServer();
             };
             Popup.prototype.onClose = function () {
                 if (this._child != null && this._child.parent == this) {
@@ -1655,7 +1677,7 @@ var layouts;
             Popup.sizeToContentProperty = layouts.DepObject.registerProperty(Popup.typeName, "SizeToContent", layouts.SizeToContent.Both, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender, function (v) { return layouts.SizeToContent[String(v)]; });
             Popup.positionProperty = layouts.DepObject.registerProperty(Popup.typeName, "Position", PopupPosition.Center, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender, function (v) { return PopupPosition[String(v)]; });
             return Popup;
-        })(layouts.FrameworkElement);
+        }(layouts.FrameworkElement));
         controls.Popup = Popup;
     })(controls = layouts.controls || (layouts.controls = {}));
 })(layouts || (layouts = {}));
@@ -1747,24 +1769,24 @@ var layouts;
                 popup.layout();
             });
         };
-        LayoutManager.showPopup = function (dialog) {
-            if (LayoutManager.popups.indexOf(dialog) == -1) {
-                LayoutManager.popups.push(dialog);
-                dialog.onShow();
+        LayoutManager.showPopup = function (popup) {
+            if (LayoutManager.popups.indexOf(popup) == -1) {
+                LayoutManager.popups.push(popup);
+                popup.onShow();
                 LayoutManager.updateLayout();
             }
         };
-        LayoutManager.closePopup = function (dialog) {
-            var indexOfElement = dialog == null ? LayoutManager.popups.length - 1 : LayoutManager.popups.indexOf(dialog);
+        LayoutManager.closePopup = function (popup) {
+            var indexOfElement = popup == null ? LayoutManager.popups.length - 1 : LayoutManager.popups.indexOf(popup);
             if (indexOfElement > -1) {
-                dialog = LayoutManager.popups.splice(indexOfElement)[0];
-                dialog.onClose();
+                popup = LayoutManager.popups.splice(indexOfElement)[0];
+                popup.onClose();
                 LayoutManager.updateLayout();
             }
         };
         LayoutManager.popups = [];
         return LayoutManager;
-    })();
+    }());
     layouts.LayoutManager = LayoutManager;
     window.onresize = function () {
         LayoutManager.updateLayout();
@@ -1788,7 +1810,7 @@ var layouts;
                 this.returnUri = null;
             }
             return NavigationContext;
-        })();
+        }());
         controls.NavigationContext = NavigationContext;
         var Page = (function (_super) {
             __extends(Page, _super);
@@ -1805,12 +1827,27 @@ var layouts;
                 enumerable: true,
                 configurable: true
             });
+            Page.prototype.tryLoadChildFromServer = function () {
+                var _this = this;
+                var req = new XMLHttpRequest();
+                req.onreadystatechange = function (ev) {
+                    if (req.readyState == 4 && req.status == 200) {
+                        var loader = new layouts.XamlReader();
+                        _this.child = loader.Parse(req.responseText);
+                    }
+                };
+                req.open("GET", this.typeName.replace(/\./gi, '/') + ".xml", true);
+                req.send();
+            };
             Page.prototype.attachVisualOverride = function (elementContainer) {
                 this._container = elementContainer;
                 var child = this.child;
                 if (child != null) {
                     child.parent = this;
                     child.attachVisual(this._container);
+                }
+                else {
+                    this.tryLoadChildFromServer();
                 }
                 _super.prototype.attachVisualOverride.call(this, elementContainer);
             };
@@ -1880,7 +1917,7 @@ var layouts;
             //SizeToContent property
             Page.sizeToContentProperty = layouts.DepObject.registerProperty(Page.typeName, "SizeToContent", layouts.SizeToContent.None, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender, function (v) { return layouts.SizeToContent[String(v)]; });
             return Page;
-        })(layouts.FrameworkElement);
+        }(layouts.FrameworkElement));
         controls.Page = Page;
     })(controls = layouts.controls || (layouts.controls = {}));
 })(layouts || (layouts = {}));
@@ -1950,14 +1987,14 @@ var layouts;
         };
         UriMapping._rxMapping = new RegExp("\{([\w\d_&$]+)\}", "gi");
         return UriMapping;
-    })();
+    }());
     layouts.UriMapping = UriMapping;
     var NavigationItem = (function () {
         function NavigationItem(uri) {
             this.uri = uri;
         }
         return NavigationItem;
-    })();
+    }());
     var Application = (function () {
         function Application() {
             var _this = this;
@@ -2101,7 +2138,7 @@ var layouts;
         };
         Application._beginInvokeActions = [];
         return Application;
-    })();
+    }());
     layouts.Application = Application;
 })(layouts || (layouts = {}));
 /// <reference path="..\DepProperty.ts" />
@@ -2130,7 +2167,7 @@ var layouts;
                     bottomleft = this.topleft;
             }
             return CornerRadius;
-        })();
+        }());
         controls.CornerRadius = CornerRadius;
         var Border = (function (_super) {
             __extends(Border, _super);
@@ -2300,7 +2337,7 @@ var layouts;
             Border.borderBrushProperty = layouts.DepObject.registerProperty(Border.typeName, "BorderBrush", null, layouts.FrameworkPropertyMetadataOptions.AffectsRender);
             Border.borderStyleProperty = layouts.DepObject.registerProperty(Border.typeName, "BorderStyle", "solid", layouts.FrameworkPropertyMetadataOptions.AffectsRender);
             return Border;
-        })(layouts.FrameworkElement);
+        }(layouts.FrameworkElement));
         controls.Border = Border;
     })(controls = layouts.controls || (layouts.controls = {}));
 })(layouts || (layouts = {}));
@@ -2342,7 +2379,7 @@ var layouts;
             });
         };
         return Command;
-    })();
+    }());
     layouts.Command = Command;
 })(layouts || (layouts = {}));
 /// <reference path="..\DepProperty.ts" />
@@ -2518,7 +2555,7 @@ var layouts;
             Button.whiteSpaceProperty = layouts.DepObject.registerProperty(Button.typeName, "WhiteSpace", "pre", layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender);
             Button.isEnabledProperty = layouts.DepObject.registerProperty(Button.typeName, "IsEnabled", true, layouts.FrameworkPropertyMetadataOptions.AffectsRender);
             return Button;
-        })(layouts.FrameworkElement);
+        }(layouts.FrameworkElement));
         controls.Button = Button;
     })(controls = layouts.controls || (layouts.controls = {}));
 })(layouts || (layouts = {}));
@@ -2629,7 +2666,7 @@ var layouts;
             Panel.typeName = "layouts.controls.Panel";
             Panel.backgroundProperty = layouts.DepObject.registerProperty(Panel.typeName, "Background", null, layouts.FrameworkPropertyMetadataOptions.AffectsRender);
             return Panel;
-        })(layouts.FrameworkElement);
+        }(layouts.FrameworkElement));
         controls.Panel = Panel;
     })(controls = layouts.controls || (layouts.controls = {}));
 })(layouts || (layouts = {}));
@@ -2722,7 +2759,7 @@ var layouts;
             //Canvas.Bottom property
             Canvas.bottomProperty = layouts.DepObject.registerProperty(Canvas.typeName, "Canvas#Bottom", NaN, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure, function (v) { return parseFloat(v); });
             return Canvas;
-        })(controls.Panel);
+        }(controls.Panel));
         controls.Canvas = Canvas;
     })(controls = layouts.controls || (layouts.controls = {}));
 })(layouts || (layouts = {}));
@@ -2829,7 +2866,7 @@ var layouts;
             ContentTemplate.typeName = "layouts.controls.ContentTemplate";
             ContentTemplate.contentProperty = layouts.DepObject.registerProperty(ContentTemplate.typeName, "Content", null, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender);
             return ContentTemplate;
-        })(layouts.FrameworkElement);
+        }(layouts.FrameworkElement));
         controls.ContentTemplate = ContentTemplate;
     })(controls = layouts.controls || (layouts.controls = {}));
 })(layouts || (layouts = {}));
@@ -2917,7 +2954,7 @@ var layouts;
             ControlTemplate.typeName = "layouts.controls.ControlTemplate";
             ControlTemplate.contentProperty = layouts.DepObject.registerProperty(ControlTemplate.typeName, "Content", null, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender);
             return ControlTemplate;
-        })(layouts.FrameworkElement);
+        }(layouts.FrameworkElement));
         controls.ControlTemplate = ControlTemplate;
     })(controls = layouts.controls || (layouts.controls = {}));
 })(layouts || (layouts = {}));
@@ -3043,7 +3080,7 @@ var layouts;
             ControlTemplateSelector.typeName = "layouts.controls.ControlTemplateSelector";
             ControlTemplateSelector.contentSourceProperty = layouts.DepObject.registerProperty(ControlTemplateSelector.typeName, "ContentSource", null, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender);
             return ControlTemplateSelector;
-        })(layouts.FrameworkElement);
+        }(layouts.FrameworkElement));
         controls.ControlTemplateSelector = ControlTemplateSelector;
     })(controls = layouts.controls || (layouts.controls = {}));
 })(layouts || (layouts = {}));
@@ -3104,7 +3141,7 @@ var layouts;
             Frame.typeName = "layouts.controls.Frame";
             Frame.sourceProperty = layouts.DepObject.registerProperty(Frame.typeName, "Source", null, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender);
             return Frame;
-        })(layouts.FrameworkElement);
+        }(layouts.FrameworkElement));
         controls.Frame = Frame;
     })(controls = layouts.controls || (layouts.controls = {}));
 })(layouts || (layouts = {}));
@@ -3225,7 +3262,7 @@ var layouts;
                 configurable: true
             });
             return GridLength;
-        })();
+        }());
         controls.GridLength = GridLength;
         var GridRow = (function () {
             function GridRow(height, minHeight, maxHeight) {
@@ -3237,7 +3274,7 @@ var layouts;
                 this.maxHeight = maxHeight;
             }
             return GridRow;
-        })();
+        }());
         controls.GridRow = GridRow;
         var GridColumn = (function () {
             function GridColumn(width, minWidth, maxWidth) {
@@ -3249,7 +3286,7 @@ var layouts;
                 this.maxWidth = maxWidth;
             }
             return GridColumn;
-        })();
+        }());
         controls.GridColumn = GridColumn;
         var RowDef = (function () {
             function RowDef(row, index, vSizeToContent) {
@@ -3305,7 +3342,7 @@ var layouts;
                 configurable: true
             });
             return RowDef;
-        })();
+        }());
         var ColumnDef = (function () {
             function ColumnDef(column, index, hSizeToContent) {
                 this.column = column;
@@ -3360,7 +3397,7 @@ var layouts;
                 configurable: true
             });
             return ColumnDef;
-        })();
+        }());
         var ElementDef = (function () {
             function ElementDef(element, row, column, rowSpan, columnSpan) {
                 this.element = element;
@@ -3410,7 +3447,7 @@ var layouts;
                 this._availHeight[row - this.row] = value;
             };
             return ElementDef;
-        })();
+        }());
         var Grid = (function (_super) {
             __extends(Grid, _super);
             function Grid() {
@@ -3773,7 +3810,7 @@ var layouts;
             //Grid.ColumnSpan property
             Grid.columnSpanProperty = layouts.DepObject.registerProperty(Grid.typeName, "Grid#ColumnSpan", 1, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure, function (v) { return Grid.spanFromString(v); });
             return Grid;
-        })(controls.Panel);
+        }(controls.Panel));
         controls.Grid = Grid;
     })(controls = layouts.controls || (layouts.controls = {}));
 })(layouts || (layouts = {}));
@@ -3788,25 +3825,32 @@ var layouts;
             __extends(GridSplitter, _super);
             function GridSplitter() {
                 var _this = this;
-                _super.apply(this, arguments);
+                _super.call(this);
+                ///Grid splitter
+                this._draggingCurrentPoint = new layouts.Vector();
+                this._draggingStartPoint = new layouts.Vector();
+                this._draggingVirtualOffset = new layouts.Vector();
+                this._draggingVirtualOffsetMin = new layouts.Vector();
+                this._draggingVirtualOffsetMax = new layouts.Vector();
                 this.onSplitterMouseMove = function (ev) {
                     if (ev.buttons == 0) {
                         document.removeEventListener("mousemove", _this.onSplitterMouseMove, false);
                         document.removeEventListener("mouseup", _this.onSplitterMouseUp, false);
                     }
-                    else {
-                        if (_this._dragSplitterTimeoutHandle != 0)
-                            clearTimeout(_this._dragSplitterTimeoutHandle);
-                        _this._dragSplitterTimeoutHandle = setTimeout(function () { return _this.dragSplitter(ev); }, 10);
-                    }
+                    else
+                        _this.moveGhost(ev);
                     ev.stopPropagation();
                 };
                 this.onSplitterMouseUp = function (ev) {
-                    _this.dragSplitter(ev);
+                    //if (ev.target == this._visual) {
+                    _this.moveGhost(ev);
+                    _this.dragSplitter(_this._draggingCurrentPoint.x, _this._draggingCurrentPoint.y);
+                    //}
                     document.removeEventListener("mousemove", _this.onSplitterMouseMove, false);
                     document.removeEventListener("mouseup", _this.onSplitterMouseUp, false);
                     ev.stopPropagation();
                 };
+                layouts.FrameworkElement.classProperty.overrideDefaultValue(GridSplitter.typeName, "gridSplitter");
             }
             Object.defineProperty(GridSplitter.prototype, "typeName", {
                 get: function () {
@@ -3818,6 +3862,7 @@ var layouts;
             GridSplitter.prototype.attachVisualOverride = function (elementContainer) {
                 var _this = this;
                 _super.prototype.attachVisualOverride.call(this, elementContainer);
+                this._visual.style.zIndex = "10000";
                 this._visual.addEventListener("mousedown", function (ev) { return _this.onSplitterMouseDown(ev); }, true);
                 this._visual.tag = this;
                 this._visual.onselectstart = function () { return false; };
@@ -3844,37 +3889,103 @@ var layouts;
                 var parentGrid = this.parent;
                 if (parentGrid == null)
                     return;
+                //if element has no layout, returns
+                if (this.visualOffset == null)
+                    return;
                 var dragging = false;
+                var leftColumnWidth = 0;
+                var rightColumnWidth = 0;
+                var topRowHeight = 0;
+                var bottomRowHeight = 0;
                 if (this.verticalAlignment == layouts.VerticalAlignment.Top) {
                     var thisRowIndex = controls.Grid.getRow(this);
                     thisRowIndex = Math.min(thisRowIndex, parentGrid.rows.count - 1);
                     dragging = thisRowIndex > 0 && parentGrid.rows.count > 1;
+                    if (dragging) {
+                        topRowHeight = parentGrid.getRowFinalHeight(thisRowIndex - 1) - parentGrid.getRows().at(thisRowIndex - 1).minHeight;
+                        bottomRowHeight = parentGrid.getRowFinalHeight(thisRowIndex) - parentGrid.getRows().at(thisRowIndex).minHeight;
+                    }
                 }
                 else if (this.verticalAlignment == layouts.VerticalAlignment.Bottom) {
                     var thisRowIndex = controls.Grid.getRow(this);
                     thisRowIndex = Math.min(thisRowIndex, parentGrid.rows.count - 1);
                     dragging = thisRowIndex >= 0 && parentGrid.rows.count > 1;
+                    if (dragging) {
+                        topRowHeight = parentGrid.getRowFinalHeight(thisRowIndex) - parentGrid.getRows().at(thisRowIndex).minHeight;
+                        bottomRowHeight = parentGrid.getRowFinalHeight(thisRowIndex + 1) - parentGrid.getRows().at(thisRowIndex + 1).minHeight;
+                    }
                 }
                 else if (this.horizontalAlignment == layouts.HorizontalAlignment.Left) {
                     var thisColIndex = controls.Grid.getColumn(this);
                     thisColIndex = Math.min(thisColIndex, parentGrid.columns.count - 1);
                     dragging = thisColIndex > 0 && parentGrid.columns.count > 1;
+                    if (dragging) {
+                        leftColumnWidth = parentGrid.getColumnFinalWidth(thisColIndex - 1) - parentGrid.getColumns().at(thisColIndex - 1).minWidth;
+                        rightColumnWidth = parentGrid.getColumnFinalWidth(thisColIndex) - parentGrid.getColumns().at(thisColIndex).minWidth;
+                    }
                 }
                 else if (this.horizontalAlignment == layouts.HorizontalAlignment.Right) {
                     var thisColIndex = controls.Grid.getColumn(this);
                     thisColIndex = Math.min(thisColIndex, parentGrid.columns.count - 1);
                     dragging = thisColIndex >= 0 && parentGrid.columns.count > 1;
+                    if (dragging) {
+                        leftColumnWidth = parentGrid.getColumnFinalWidth(thisColIndex) - parentGrid.getColumns().at(thisColIndex).minWidth;
+                        rightColumnWidth = parentGrid.getColumnFinalWidth(thisColIndex + 1) - parentGrid.getColumns().at(thisColIndex + 1).minWidth;
+                    }
                 }
                 if (dragging) {
+                    //register to mouse events
                     document.addEventListener("mousemove", this.onSplitterMouseMove, false);
                     document.addEventListener("mouseup", this.onSplitterMouseUp, false);
-                    this._draggingStartPointX = ev.x;
-                    this._draggingStartPointY = ev.y;
-                    //this._draggingSplitter = splitter;
+                    //calculate starting vectors and min/max values for _draggingCurrentPointX
+                    this._draggingStartPoint.x = this._draggingCurrentPoint.x = ev.x;
+                    this._draggingStartPoint.y = this._draggingCurrentPoint.y = ev.y;
+                    this._draggingVirtualOffset.x = this.visualOffset.x;
+                    this._draggingVirtualOffset.y = this.visualOffset.y;
+                    if (this.horizontalAlignment == layouts.HorizontalAlignment.Left ||
+                        this.horizontalAlignment == layouts.HorizontalAlignment.Right) {
+                        this._draggingVirtualOffsetMin.x = this.visualOffset.x - leftColumnWidth;
+                        this._draggingVirtualOffsetMax.x = this.visualOffset.x + rightColumnWidth;
+                    }
+                    else {
+                        this._draggingVirtualOffsetMin.y = this.visualOffset.y - topRowHeight;
+                        this._draggingVirtualOffsetMax.y = this.visualOffset.y + bottomRowHeight;
+                    }
                     ev.stopPropagation();
                 }
             };
-            GridSplitter.prototype.dragSplitter = function (ev) {
+            GridSplitter.prototype.moveGhost = function (ev) {
+                var evX = ev.x;
+                var evY = ev.y;
+                if (this.horizontalAlignment == layouts.HorizontalAlignment.Right ||
+                    this.horizontalAlignment == layouts.HorizontalAlignment.Left) {
+                    var evXmax = this._draggingVirtualOffsetMax.x - this._draggingVirtualOffset.x + this._draggingCurrentPoint.x;
+                    var evXmin = this._draggingVirtualOffsetMin.x - this._draggingVirtualOffset.x + this._draggingCurrentPoint.x;
+                    if (evX > evXmax)
+                        evX = evXmax;
+                    if (evX < evXmin)
+                        evX = evXmin;
+                    this._draggingVirtualOffset.x += (evX - this._draggingCurrentPoint.x);
+                }
+                else {
+                    var evYmax = this._draggingVirtualOffsetMax.y - this._draggingVirtualOffset.y + this._draggingCurrentPoint.y;
+                    var evYmin = this._draggingVirtualOffsetMin.y - this._draggingVirtualOffset.y + this._draggingCurrentPoint.y;
+                    if (evY > evYmax)
+                        evY = evYmax;
+                    if (evY < evYmin)
+                        evY = evYmin;
+                    this._draggingVirtualOffset.y += (evY - this._draggingCurrentPoint.y);
+                }
+                if (this.visualOffset != null) {
+                    this._visual.style.left = this._draggingVirtualOffset.x.toString() + "px";
+                    this._visual.style.top = this._draggingVirtualOffset.y.toString() + "px";
+                }
+                this._draggingCurrentPoint.x = evX;
+                this._draggingCurrentPoint.y = evY;
+                console.log("this._draggingCurrentPoint.x = ", this._draggingCurrentPoint.x);
+                console.log("this._draggingCurrentPoint.y = ", this._draggingCurrentPoint.y);
+            };
+            GridSplitter.prototype.dragSplitter = function (evX, evY) {
                 var parentGrid = this.parent;
                 if (parentGrid == null)
                     return;
@@ -3901,8 +4012,8 @@ var layouts;
                             bottomRowWasStar = true;
                         }
                         var maxTopRowHeight = topRow.height.value + bottomRow.height.value; //parentGrid.actualHeight - parentGridFixedRowsHeight;
-                        var newTopRowHeight = topRow.height.value + (ev.y - this._draggingStartPointY);
-                        var newBottomRowHeight = bottomRow.height.value - (ev.y - this._draggingStartPointY);
+                        var newTopRowHeight = topRow.height.value + (evY - this._draggingStartPoint.y);
+                        var newBottomRowHeight = bottomRow.height.value - (evY - this._draggingStartPoint.y);
                         if (newTopRowHeight.isCloseTo(0))
                             newTopRowHeight = 0;
                         if (newTopRowHeight.isCloseTo(maxTopRowHeight))
@@ -3914,13 +4025,13 @@ var layouts;
                         if (newTopRowHeight < 0) {
                             newTopRowHeight = 0;
                             newBottomRowHeight = maxTopRowHeight;
-                            this._draggingStartPointY += -topRow.height.value;
+                            this._draggingStartPoint.y += -topRow.height.value;
                             saveDraggingStartPoint = false;
                         }
                         else if (newTopRowHeight > maxTopRowHeight) {
                             newTopRowHeight = maxTopRowHeight;
                             newBottomRowHeight = 0;
-                            this._draggingStartPointY += -topRow.height.value + maxTopRowHeight;
+                            this._draggingStartPoint.y += -topRow.height.value + maxTopRowHeight;
                             saveDraggingStartPoint = false;
                         }
                         topRow.height = new controls.GridLength(newTopRowHeight, controls.GridUnitType.Pixel);
@@ -3958,7 +4069,7 @@ var layouts;
                             parentGrid.getRowFinalHeight(thisRowIndex) + parentGrid.getRowFinalHeight(thisRowIndex + 1);
                         var sumHeight = bottomRow.height.value + topRow.height.value;
                         var heightFactor = sumHeight / sumFinalHeight;
-                        var heightStarDiff = (ev.y - this._draggingStartPointY) * heightFactor;
+                        var heightStarDiff = (evY - this._draggingStartPoint.y) * heightFactor;
                         var newTopRowHeight = topRow.height.value + heightStarDiff;
                         var newBottomRowHeight = bottomRow.height.value - heightStarDiff;
                         if (newTopRowHeight.isCloseTo(0))
@@ -3971,11 +4082,11 @@ var layouts;
                             newBottomRowHeight = 0;
                         if (newTopRowHeight < 0) {
                             heightStarDiff = -topRow.height.value;
-                            this._draggingStartPointY = (heightStarDiff / heightFactor) + this._draggingStartPointY;
+                            this._draggingStartPoint.y = (heightStarDiff / heightFactor) + this._draggingStartPoint.y;
                         }
                         else if (newBottomRowHeight < 0) {
                             heightStarDiff = bottomRow.height.value;
-                            this._draggingStartPointY = (heightStarDiff / heightFactor) + this._draggingStartPointY;
+                            this._draggingStartPoint.y = (heightStarDiff / heightFactor) + this._draggingStartPoint.y;
                         }
                         if (newTopRowHeight < 0 || newBottomRowHeight > sumHeight) {
                             newTopRowHeight = 0;
@@ -4018,8 +4129,8 @@ var layouts;
                             rightColumnWasStar = true;
                         }
                         var maxBothColumnWidth = leftColumn.width.value + rightColumn.width.value;
-                        var newLeftColumnWidth = leftColumn.width.value + (ev.x - this._draggingStartPointX);
-                        var newRightColumnWidth = rightColumn.width.value - (ev.x - this._draggingStartPointX);
+                        var newLeftColumnWidth = leftColumn.width.value + (evX - this._draggingStartPoint.x);
+                        var newRightColumnWidth = rightColumn.width.value - (evX - this._draggingStartPoint.x);
                         if (newLeftColumnWidth.isCloseTo(0))
                             newLeftColumnWidth = 0;
                         if (newLeftColumnWidth.isCloseTo(maxBothColumnWidth))
@@ -4031,13 +4142,13 @@ var layouts;
                         if (newLeftColumnWidth < 0) {
                             newLeftColumnWidth = 0;
                             newRightColumnWidth = maxBothColumnWidth;
-                            this._draggingStartPointX += -leftColumn.width.value;
+                            this._draggingStartPoint.x += -leftColumn.width.value;
                             saveDraggingStartPoint = false;
                         }
                         else if (newLeftColumnWidth > maxBothColumnWidth) {
                             newLeftColumnWidth = maxBothColumnWidth;
                             newRightColumnWidth = 0;
-                            this._draggingStartPointX += -leftColumn.width.value + maxBothColumnWidth;
+                            this._draggingStartPoint.x += -leftColumn.width.value + maxBothColumnWidth;
                             saveDraggingStartPoint = false;
                         }
                         leftColumn.width = new controls.GridLength(newLeftColumnWidth, controls.GridUnitType.Pixel);
@@ -4068,7 +4179,7 @@ var layouts;
                             parentGrid.getColumnFinalWidth(thisColumnIndex) + parentGrid.getColumnFinalWidth(thisColumnIndex + 1);
                         var sumWidth = rightColumn.width.value + leftColumn.width.value;
                         var widthFactor = sumWidth / sumFinalWidth;
-                        var widthStarDiff = (ev.x - this._draggingStartPointX) * widthFactor;
+                        var widthStarDiff = (evX - this._draggingStartPoint.x) * widthFactor;
                         var newLeftColumnWidth = leftColumn.width.value + widthStarDiff;
                         var newRightColumnWidth = rightColumn.width.value - widthStarDiff;
                         if (newLeftColumnWidth.isCloseTo(0))
@@ -4081,11 +4192,11 @@ var layouts;
                             newRightColumnWidth = 0;
                         if (newLeftColumnWidth < 0) {
                             widthStarDiff = -leftColumn.width.value;
-                            this._draggingStartPointX = (widthStarDiff / widthFactor) + this._draggingStartPointX;
+                            this._draggingStartPoint.x = (widthStarDiff / widthFactor) + this._draggingStartPoint.x;
                         }
                         else if (newRightColumnWidth < 0) {
                             widthStarDiff = rightColumn.width.value;
-                            this._draggingStartPointX = (widthStarDiff / widthFactor) + this._draggingStartPointX;
+                            this._draggingStartPoint.x = (widthStarDiff / widthFactor) + this._draggingStartPoint.x;
                         }
                         if (newLeftColumnWidth < 0 || newRightColumnWidth > sumWidth) {
                             newLeftColumnWidth = 0;
@@ -4104,13 +4215,13 @@ var layouts;
                     }
                 }
                 if (saveDraggingStartPoint) {
-                    this._draggingStartPointX = ev.x;
-                    this._draggingStartPointY = ev.y;
+                    this._draggingStartPoint.x = evX;
+                    this._draggingStartPoint.y = evY;
                 }
             };
             GridSplitter.typeName = "layouts.controls.GridSplitter";
             return GridSplitter;
-        })(controls.Border);
+        }(controls.Border));
         controls.GridSplitter = GridSplitter;
     })(controls = layouts.controls || (layouts.controls = {}));
 })(layouts || (layouts = {}));
@@ -4369,7 +4480,7 @@ var layouts;
             Image.stretchProperty = layouts.DepObject.registerProperty(Image.typeName, "Stretch", Stretch.None, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender, function (v) { return Stretch[String(v)]; });
             Image.stretchDirectionProperty = layouts.DepObject.registerProperty(Image.typeName, "StretchDirection", StretchDirection.Both, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender, function (v) { return StretchDirection[String(v)]; });
             return Image;
-        })(layouts.FrameworkElement);
+        }(layouts.FrameworkElement));
         controls.Image = Image;
     })(controls = layouts.controls || (layouts.controls = {}));
 })(layouts || (layouts = {}));
@@ -4451,7 +4562,7 @@ var layouts;
             });
             MediaTemplateSelector.typeName = "layouts.controls.MediaTemplateSelector";
             return MediaTemplateSelector;
-        })(layouts.FrameworkElement);
+        }(layouts.FrameworkElement));
         controls.MediaTemplateSelector = MediaTemplateSelector;
     })(controls = layouts.controls || (layouts.controls = {}));
 })(layouts || (layouts = {}));
@@ -4503,7 +4614,7 @@ var layouts;
             };
             div.typeName = "layouts.controls.div";
             return div;
-        })(layouts.FrameworkElement);
+        }(layouts.FrameworkElement));
         controls.div = div;
     })(controls = layouts.controls || (layouts.controls = {}));
 })(layouts || (layouts = {}));
@@ -4724,7 +4835,7 @@ var layouts;
             //itemsPanel property
             ItemsControl.itemsPanelProperty = layouts.DepObject.registerProperty(ItemsControl.typeName, "ItemsPanel", null, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender);
             return ItemsControl;
-        })(layouts.FrameworkElement);
+        }(layouts.FrameworkElement));
         controls.ItemsControl = ItemsControl;
     })(controls = layouts.controls || (layouts.controls = {}));
 })(layouts || (layouts = {}));
@@ -4914,7 +5025,7 @@ var layouts;
             //selectMember property
             ComboBox.selectMemberProperty = layouts.DepObject.registerProperty(ComboBox.typeName, "SelectMember", null, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender);
             return ComboBox;
-        })(layouts.FrameworkElement);
+        }(layouts.FrameworkElement));
         controls.ComboBox = ComboBox;
     })(controls = layouts.controls || (layouts.controls = {}));
 })(layouts || (layouts = {}));
@@ -5023,7 +5134,7 @@ var layouts;
             Stack.typeName = "layouts.controls.Stack";
             Stack.orientationProperty = layouts.DepObject.registerProperty(Stack.typeName, "Orientation", Orientation.Vertical, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure, function (v) { return Orientation[String(v)]; });
             return Stack;
-        })(controls.Panel);
+        }(controls.Panel));
         controls.Stack = Stack;
     })(controls = layouts.controls || (layouts.controls = {}));
 })(layouts || (layouts = {}));
@@ -5128,7 +5239,7 @@ var layouts;
             TextBlock.whiteSpaceProperty = layouts.DepObject.registerProperty(TextBlock.typeName, "WhiteSpace", "pre", layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender);
             TextBlock.formatProperty = layouts.DepObject.registerProperty(TextBlock.typeName, "Format", null, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender, function (v) { return String(v); });
             return TextBlock;
-        })(layouts.FrameworkElement);
+        }(layouts.FrameworkElement));
         controls.TextBlock = TextBlock;
     })(controls = layouts.controls || (layouts.controls = {}));
 })(layouts || (layouts = {}));
@@ -5263,7 +5374,7 @@ var layouts;
             TextBox.typeProperty = layouts.DepObject.registerProperty(TextBox.typeName, "Type", "text", layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender);
             TextBox.isReadonlyProperty = layouts.DepObject.registerProperty(TextBox.typeName, "IsReadonly", false);
             return TextBox;
-        })(layouts.FrameworkElement);
+        }(layouts.FrameworkElement));
         controls.TextBox = TextBox;
     })(controls = layouts.controls || (layouts.controls = {}));
 })(layouts || (layouts = {}));
@@ -5375,7 +5486,7 @@ var layouts;
             DataTemplate.targetMemberProperty = layouts.DepObject.registerProperty(DataTemplate.typeName, "TargetMember", null);
             DataTemplate.mediaProperty = layouts.DepObject.registerProperty(DataTemplate.typeName, "Media", null);
             return DataTemplate;
-        })(layouts.DepObject);
+        }(layouts.DepObject));
         controls.DataTemplate = DataTemplate;
     })(controls = layouts.controls || (layouts.controls = {}));
 })(layouts || (layouts = {}));
@@ -5401,18 +5512,44 @@ var layouts;
             UserControl.prototype.initializeComponent = function () {
                 return null;
             };
+            UserControl.prototype.tryLoadChildFromServer = function () {
+                var _this = this;
+                var req = new XMLHttpRequest();
+                req.onreadystatechange = function (ev) {
+                    if (req.readyState == 4 && req.status == 200) {
+                        var loader = new layouts.XamlReader();
+                        //loader.namespaceResolver = (ns) => {
+                        //    if (ns == "localViews")
+                        //        return "app.views";
+                        //    return null;
+                        //};
+                        _this.setupChild(loader.Parse(req.responseText));
+                    }
+                };
+                //req.open("GET", "data/records.txt", true);
+                //app.views.CustomView
+                req.open("GET", this.typeName.replace(/\./gi, '/') + ".xml", true);
+                req.send();
+            };
             UserControl.prototype.attachVisualOverride = function (elementContainer) {
                 this._container = elementContainer;
+                this.setupChild(this.initializeComponent());
+                _super.prototype.attachVisualOverride.call(this, elementContainer);
+            };
+            UserControl.prototype.setupChild = function (content) {
                 var child = this._content;
                 if (child == null) {
-                    this._content = child = this.initializeComponent();
+                    this._content = child = content;
                     if (child != null)
                         child.parent = this;
                 }
+                child = this._content;
                 if (child != null) {
                     child.attachVisual(this._container);
                 }
-                _super.prototype.attachVisualOverride.call(this, elementContainer);
+                else {
+                    this.tryLoadChildFromServer();
+                }
             };
             UserControl.prototype.measureOverride = function (constraint) {
                 var child = this._content;
@@ -5440,7 +5577,7 @@ var layouts;
             };
             UserControl.typeName = "layouts.controls.UserControl";
             return UserControl;
-        })(layouts.FrameworkElement);
+        }(layouts.FrameworkElement));
         controls.UserControl = UserControl;
     })(controls = layouts.controls || (layouts.controls = {}));
 })(layouts || (layouts = {}));
@@ -5454,7 +5591,7 @@ var layouts;
             this.invokeHandler(this, parameter);
         };
         return EventAction;
-    })();
+    }());
     layouts.EventAction = EventAction;
 })(layouts || (layouts = {}));
 var layouts;
@@ -5530,7 +5667,7 @@ var layouts;
             }
         };
         return ObservableCollection;
-    })();
+    }());
     layouts.ObservableCollection = ObservableCollection;
 })(layouts || (layouts = {}));
 /// <reference path="IConverter.ts" />
@@ -5555,7 +5692,7 @@ var layouts;
                 return "layouts.controls";
             if (this.namespaceResolver != null)
                 return this.namespaceResolver(xmlns);
-            return null;
+            return xmlns;
         };
         XamlReader.prototype.Load = function (xamlNode) {
             var _this = this;
@@ -5766,7 +5903,7 @@ var layouts;
         };
         XamlReader.DefaultNamespace = "http://schemas.layouts.com/";
         return XamlReader;
-    })();
+    }());
     layouts.XamlReader = XamlReader;
 })(layouts || (layouts = {}));
 var layouts;
@@ -5793,7 +5930,7 @@ var layouts;
             }
         };
         return Timer;
-    })();
+    }());
     layouts.Timer = Timer;
 })(layouts || (layouts = {}));
 //# sourceMappingURL=layouts.js.map

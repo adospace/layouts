@@ -34,8 +34,31 @@ module layouts.controls {
 
         constructor() {
             super();
-            this.child = this.initializeComponent();
         }
+
+        private tryLoadChildFromServer() {
+            var req = new XMLHttpRequest();
+            req.onreadystatechange = (ev) => {
+                if (req.readyState == 4 && req.status == 200) {
+                    let loader = new layouts.XamlReader();
+                    this._child = loader.Parse(req.responseText);
+                    if (this._child != null) {
+                        this._child.parent = this;
+                        this._child.attachVisual(document.body);
+                    }
+                }
+            }
+            req.open("GET", this.typeName.replace(/\./gi, '/') + ".xml", true);
+            req.send();
+        }
+
+        attachVisualOverride(elementContainer: HTMLElement) {
+
+
+
+            super.attachVisualOverride(elementContainer);
+        }
+
 
         private _child: UIElement;
         get child(): UIElement {
@@ -49,10 +72,14 @@ module layouts.controls {
         }
 
         onShow() {
+            if (this._child == null)
+                this._child = this.initializeComponent();
             if (this._child != null) {
                 this._child.parent = this;
                 this._child.attachVisual(document.body);
             }
+            else
+                this.tryLoadChildFromServer();
         }
 
         onClose() {

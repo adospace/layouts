@@ -100,7 +100,7 @@ var layouts;
             Panel.typeName = "layouts.controls.Panel";
             Panel.backgroundProperty = layouts.DepObject.registerProperty(Panel.typeName, "Background", null, layouts.FrameworkPropertyMetadataOptions.AffectsRender);
             return Panel;
-        })(layouts.FrameworkElement);
+        }(layouts.FrameworkElement));
         controls.Panel = Panel;
     })(controls = layouts.controls || (layouts.controls = {}));
 })(layouts || (layouts = {}));

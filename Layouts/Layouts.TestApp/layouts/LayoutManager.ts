@@ -96,19 +96,19 @@ module layouts {
 
 
         private static popups: layouts.controls.Popup[] = [];
-        static showPopup(dialog: layouts.controls.Popup) {
-            if (LayoutManager.popups.indexOf(dialog) == -1) {
-                LayoutManager.popups.push(dialog);
-                dialog.onShow();
+        static showPopup(popup: layouts.controls.Popup) {
+            if (LayoutManager.popups.indexOf(popup) == -1) {
+                LayoutManager.popups.push(popup);
+                popup.onShow();
                 LayoutManager.updateLayout();
             }
         }
 
-        static closePopup(dialog?: layouts.controls.Popup) {
-            var indexOfElement = dialog == null ? LayoutManager.popups.length - 1 : LayoutManager.popups.indexOf(dialog);
+        static closePopup(popup?: layouts.controls.Popup) {
+            var indexOfElement = popup == null ? LayoutManager.popups.length - 1 : LayoutManager.popups.indexOf(popup);
             if (indexOfElement > -1) {
-                dialog = LayoutManager.popups.splice(indexOfElement)[0];
-                dialog.onClose();
+                popup = LayoutManager.popups.splice(indexOfElement)[0];
+                popup.onClose();
                 LayoutManager.updateLayout();
             }
         }

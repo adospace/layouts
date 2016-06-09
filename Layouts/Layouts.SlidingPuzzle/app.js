@@ -34,7 +34,7 @@ var Game = (function (_super) {
         configurable: true
     });
     return Game;
-})(layouts.DepObject);
+}(layouts.DepObject));
 var Pad = (function (_super) {
     __extends(Pad, _super);
     function Pad() {
@@ -130,7 +130,7 @@ var Pad = (function (_super) {
             alert("GREAT! Game completed in {0} moves".format(this.moves.toString()));
     };
     return Pad;
-})(layouts.DepObject);
+}(layouts.DepObject));
 var Tile = (function (_super) {
     __extends(Tile, _super);
     function Tile(num, pad) {
@@ -184,8 +184,7 @@ var Tile = (function (_super) {
         return this.pad.canMove(this);
     };
     return Tile;
-})(layouts.DepObject);
-// http://stackoverflow.com/questions/962802#962890
+}(layouts.DepObject));
 function shuffle(array) {
     var tmp, current, top = array.length;
     if (top)
@@ -204,4 +203,3 @@ window.onload = function () {
     app.page = loader.Parse(lmlTest);
     app.page.dataContext = new Game();
 };
-//# sourceMappingURL=app.js.map

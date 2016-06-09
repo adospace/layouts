@@ -1,3 +1,8 @@
+var __extends = (this && this.__extends) || function (d, b) {
+    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+    function __() { this.constructor = d; }
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+};
 var layouts;
 (function (layouts) {
     var Ext = (function () {
@@ -13,7 +18,7 @@ var layouts;
             return (typeof obj == "string" || obj instanceof String);
         };
         return Ext;
-    })();
+    }());
     layouts.Ext = Ext;
 })(layouts || (layouts = {}));
 if (!String.prototype.format) {
@@ -82,7 +87,7 @@ var InstanceLoader = (function () {
         return instance;
     };
     return InstanceLoader;
-})();
+}());
 var layouts;
 (function (layouts) {
     var DepProperty = (function () {
@@ -111,7 +116,7 @@ var layouts;
             return this._defaultValue;
         };
         return DepProperty;
-    })();
+    }());
     layouts.DepProperty = DepProperty;
 })(layouts || (layouts = {}));
 var layouts;
@@ -134,7 +139,7 @@ var layouts;
             this.propertyMap[name] = property;
         };
         return PropertyMap;
-    })();
+    }());
     layouts.PropertyMap = PropertyMap;
 })(layouts || (layouts = {}));
 var layouts;
@@ -144,7 +149,7 @@ var layouts;
         }
         Consts.stringEmpty = "";
         return Consts;
-    })();
+    }());
     layouts.Consts = Consts;
 })(layouts || (layouts = {}));
 var layouts;
@@ -158,7 +163,7 @@ var layouts;
             this.parameter = parameter;
         }
         return ConverterContext;
-    })();
+    }());
     layouts.ConverterContext = ConverterContext;
 })(layouts || (layouts = {}));
 /// <reference path="DepProperty.ts" />
@@ -287,7 +292,7 @@ var layouts;
         DepObject.globalPropertyMap = {};
         DepObject.logBindingTraceToConsole = false;
         return DepObject;
-    })();
+    }());
     layouts.DepObject = DepObject;
     var Binding = (function () {
         function Binding(target, targetProperty, propertyPath, source, twoWay, converter, converterParameter, format) {
@@ -350,7 +355,7 @@ var layouts;
             }
         };
         return Binding;
-    })();
+    }());
     var PropertyPath = (function () {
         function PropertyPath(owner, path, source) {
             this.owner = owner;
@@ -532,15 +537,10 @@ var layouts;
             }
         };
         return PropertyPath;
-    })();
+    }());
 })(layouts || (layouts = {}));
 /// <reference path="DepProperty.ts" />
 /// <reference path="DepObject.ts" />
-var __extends = (this && this.__extends) || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-};
 var layouts;
 (function (layouts) {
     var Size = (function () {
@@ -554,7 +554,7 @@ var layouts;
             return new Rect(0, 0, this.width, this.height);
         };
         return Size;
-    })();
+    }());
     layouts.Size = Size;
     var Rect = (function () {
         function Rect(x, y, width, height) {
@@ -575,7 +575,7 @@ var layouts;
             configurable: true
         });
         return Rect;
-    })();
+    }());
     layouts.Rect = Rect;
     var Vector = (function () {
         function Vector(x, y) {
@@ -595,7 +595,7 @@ var layouts;
             return new Vector(this.x + other.x, this.y + other.y);
         };
         return Vector;
-    })();
+    }());
     layouts.Vector = Vector;
     (function (FrameworkPropertyMetadataOptions) {
         /// No flags
@@ -628,7 +628,7 @@ var layouts;
             this.value = value;
         }
         return ExtendedProperty;
-    })();
+    }());
     layouts.ExtendedProperty = ExtendedProperty;
     var UIElement = (function (_super) {
         __extends(UIElement, _super);
@@ -1086,7 +1086,7 @@ var layouts;
         UIElement.popupProperty = layouts.DepObject.registerProperty(UIElement.typeName, "Popup", null, FrameworkPropertyMetadataOptions.AffectsRender);
         UIElement.layoutUpdatedProperty = layouts.DepObject.registerProperty(UIElement.typeName, "LayoutUpdated", null, FrameworkPropertyMetadataOptions.None);
         return UIElement;
-    })(layouts.DepObject);
+    }(layouts.DepObject));
     layouts.UIElement = UIElement;
 })(layouts || (layouts = {}));
 /// <reference path="DepProperty.ts" />
@@ -1151,7 +1151,7 @@ var layouts;
             configurable: true
         });
         return Thickness;
-    })();
+    }());
     layouts.Thickness = Thickness;
     var MinMax = (function () {
         function MinMax(e) {
@@ -1171,7 +1171,7 @@ var layouts;
             this.minWidth = Math.max(Math.min(this.maxWidth, this.width), this.minWidth);
         }
         return MinMax;
-    })();
+    }());
     var FrameworkElement = (function (_super) {
         __extends(FrameworkElement, _super);
         function FrameworkElement() {
@@ -1532,7 +1532,7 @@ var layouts;
         //by default content is clipped so overflowY is set to hidden
         FrameworkElement.overflowYProperty = layouts.DepObject.registerProperty(FrameworkElement.typeName, "OverflowY", "hidden", layouts.FrameworkPropertyMetadataOptions.AffectsRender);
         return FrameworkElement;
-    })(layouts.UIElement);
+    }(layouts.UIElement));
     layouts.FrameworkElement = FrameworkElement;
 })(layouts || (layouts = {}));
 /// <reference path="..\DepProperty.ts" />
@@ -1562,7 +1562,6 @@ var layouts;
             __extends(Popup, _super);
             function Popup() {
                 _super.call(this);
-                this.child = this.initializeComponent();
             }
             Object.defineProperty(Popup.prototype, "typeName", {
                 get: function () {
@@ -1574,6 +1573,25 @@ var layouts;
             Popup.initProperties = function () {
                 layouts.FrameworkElement.horizontalAlignmentProperty.overrideDefaultValue(Popup.typeName, "Center");
                 layouts.FrameworkElement.verticalAlignmentProperty.overrideDefaultValue(Popup.typeName, "Center");
+            };
+            Popup.prototype.tryLoadChildFromServer = function () {
+                var _this = this;
+                var req = new XMLHttpRequest();
+                req.onreadystatechange = function (ev) {
+                    if (req.readyState == 4 && req.status == 200) {
+                        var loader = new layouts.XamlReader();
+                        _this._child = loader.Parse(req.responseText);
+                        if (_this._child != null) {
+                            _this._child.parent = _this;
+                            _this._child.attachVisual(document.body);
+                        }
+                    }
+                };
+                req.open("GET", this.typeName.replace(/\./gi, '/') + ".xml", true);
+                req.send();
+            };
+            Popup.prototype.attachVisualOverride = function (elementContainer) {
+                _super.prototype.attachVisualOverride.call(this, elementContainer);
             };
             Object.defineProperty(Popup.prototype, "child", {
                 get: function () {
@@ -1589,10 +1607,14 @@ var layouts;
                 configurable: true
             });
             Popup.prototype.onShow = function () {
+                if (this._child == null)
+                    this._child = this.initializeComponent();
                 if (this._child != null) {
                     this._child.parent = this;
                     this._child.attachVisual(document.body);
                 }
+                else
+                    this.tryLoadChildFromServer();
             };
             Popup.prototype.onClose = function () {
                 if (this._child != null && this._child.parent == this) {
@@ -1655,7 +1677,7 @@ var layouts;
             Popup.sizeToContentProperty = layouts.DepObject.registerProperty(Popup.typeName, "SizeToContent", layouts.SizeToContent.Both, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender, function (v) { return layouts.SizeToContent[String(v)]; });
             Popup.positionProperty = layouts.DepObject.registerProperty(Popup.typeName, "Position", PopupPosition.Center, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender, function (v) { return PopupPosition[String(v)]; });
             return Popup;
-        })(layouts.FrameworkElement);
+        }(layouts.FrameworkElement));
         controls.Popup = Popup;
     })(controls = layouts.controls || (layouts.controls = {}));
 })(layouts || (layouts = {}));
@@ -1747,24 +1769,24 @@ var layouts;
                 popup.layout();
             });
         };
-        LayoutManager.showPopup = function (dialog) {
-            if (LayoutManager.popups.indexOf(dialog) == -1) {
-                LayoutManager.popups.push(dialog);
-                dialog.onShow();
+        LayoutManager.showPopup = function (popup) {
+            if (LayoutManager.popups.indexOf(popup) == -1) {
+                LayoutManager.popups.push(popup);
+                popup.onShow();
                 LayoutManager.updateLayout();
             }
         };
-        LayoutManager.closePopup = function (dialog) {
-            var indexOfElement = dialog == null ? LayoutManager.popups.length - 1 : LayoutManager.popups.indexOf(dialog);
+        LayoutManager.closePopup = function (popup) {
+            var indexOfElement = popup == null ? LayoutManager.popups.length - 1 : LayoutManager.popups.indexOf(popup);
             if (indexOfElement > -1) {
-                dialog = LayoutManager.popups.splice(indexOfElement)[0];
-                dialog.onClose();
+                popup = LayoutManager.popups.splice(indexOfElement)[0];
+                popup.onClose();
                 LayoutManager.updateLayout();
             }
         };
         LayoutManager.popups = [];
         return LayoutManager;
-    })();
+    }());
     layouts.LayoutManager = LayoutManager;
     window.onresize = function () {
         LayoutManager.updateLayout();
@@ -1788,7 +1810,7 @@ var layouts;
                 this.returnUri = null;
             }
             return NavigationContext;
-        })();
+        }());
         controls.NavigationContext = NavigationContext;
         var Page = (function (_super) {
             __extends(Page, _super);
@@ -1805,12 +1827,27 @@ var layouts;
                 enumerable: true,
                 configurable: true
             });
+            Page.prototype.tryLoadChildFromServer = function () {
+                var _this = this;
+                var req = new XMLHttpRequest();
+                req.onreadystatechange = function (ev) {
+                    if (req.readyState == 4 && req.status == 200) {
+                        var loader = new layouts.XamlReader();
+                        _this.child = loader.Parse(req.responseText);
+                    }
+                };
+                req.open("GET", this.typeName.replace(/\./gi, '/') + ".xml", true);
+                req.send();
+            };
             Page.prototype.attachVisualOverride = function (elementContainer) {
                 this._container = elementContainer;
                 var child = this.child;
                 if (child != null) {
                     child.parent = this;
                     child.attachVisual(this._container);
+                }
+                else {
+                    this.tryLoadChildFromServer();
                 }
                 _super.prototype.attachVisualOverride.call(this, elementContainer);
             };
@@ -1880,7 +1917,7 @@ var layouts;
             //SizeToContent property
             Page.sizeToContentProperty = layouts.DepObject.registerProperty(Page.typeName, "SizeToContent", layouts.SizeToContent.None, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender, function (v) { return layouts.SizeToContent[String(v)]; });
             return Page;
-        })(layouts.FrameworkElement);
+        }(layouts.FrameworkElement));
         controls.Page = Page;
     })(controls = layouts.controls || (layouts.controls = {}));
 })(layouts || (layouts = {}));
@@ -1950,14 +1987,14 @@ var layouts;
         };
         UriMapping._rxMapping = new RegExp("\{([\w\d_&$]+)\}", "gi");
         return UriMapping;
-    })();
+    }());
     layouts.UriMapping = UriMapping;
     var NavigationItem = (function () {
         function NavigationItem(uri) {
             this.uri = uri;
         }
         return NavigationItem;
-    })();
+    }());
     var Application = (function () {
         function Application() {
             var _this = this;
@@ -2101,7 +2138,7 @@ var layouts;
         };
         Application._beginInvokeActions = [];
         return Application;
-    })();
+    }());
     layouts.Application = Application;
 })(layouts || (layouts = {}));
 var layouts;
@@ -2142,7 +2179,7 @@ var layouts;
             });
         };
         return Command;
-    })();
+    }());
     layouts.Command = Command;
 })(layouts || (layouts = {}));
 /// <reference path="..\DepProperty.ts" />
@@ -2171,7 +2208,7 @@ var layouts;
                     bottomleft = this.topleft;
             }
             return CornerRadius;
-        })();
+        }());
         controls.CornerRadius = CornerRadius;
         var Border = (function (_super) {
             __extends(Border, _super);
@@ -2341,7 +2378,7 @@ var layouts;
             Border.borderBrushProperty = layouts.DepObject.registerProperty(Border.typeName, "BorderBrush", null, layouts.FrameworkPropertyMetadataOptions.AffectsRender);
             Border.borderStyleProperty = layouts.DepObject.registerProperty(Border.typeName, "BorderStyle", "solid", layouts.FrameworkPropertyMetadataOptions.AffectsRender);
             return Border;
-        })(layouts.FrameworkElement);
+        }(layouts.FrameworkElement));
         controls.Border = Border;
     })(controls = layouts.controls || (layouts.controls = {}));
 })(layouts || (layouts = {}));
@@ -2518,7 +2555,7 @@ var layouts;
             Button.whiteSpaceProperty = layouts.DepObject.registerProperty(Button.typeName, "WhiteSpace", "pre", layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender);
             Button.isEnabledProperty = layouts.DepObject.registerProperty(Button.typeName, "IsEnabled", true, layouts.FrameworkPropertyMetadataOptions.AffectsRender);
             return Button;
-        })(layouts.FrameworkElement);
+        }(layouts.FrameworkElement));
         controls.Button = Button;
     })(controls = layouts.controls || (layouts.controls = {}));
 })(layouts || (layouts = {}));
@@ -2629,7 +2666,7 @@ var layouts;
             Panel.typeName = "layouts.controls.Panel";
             Panel.backgroundProperty = layouts.DepObject.registerProperty(Panel.typeName, "Background", null, layouts.FrameworkPropertyMetadataOptions.AffectsRender);
             return Panel;
-        })(layouts.FrameworkElement);
+        }(layouts.FrameworkElement));
         controls.Panel = Panel;
     })(controls = layouts.controls || (layouts.controls = {}));
 })(layouts || (layouts = {}));
@@ -2722,7 +2759,7 @@ var layouts;
             //Canvas.Bottom property
             Canvas.bottomProperty = layouts.DepObject.registerProperty(Canvas.typeName, "Canvas#Bottom", NaN, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure, function (v) { return parseFloat(v); });
             return Canvas;
-        })(controls.Panel);
+        }(controls.Panel));
         controls.Canvas = Canvas;
     })(controls = layouts.controls || (layouts.controls = {}));
 })(layouts || (layouts = {}));
@@ -2912,7 +2949,7 @@ var layouts;
             //selectMember property
             ComboBox.selectMemberProperty = layouts.DepObject.registerProperty(ComboBox.typeName, "SelectMember", null, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender);
             return ComboBox;
-        })(layouts.FrameworkElement);
+        }(layouts.FrameworkElement));
         controls.ComboBox = ComboBox;
     })(controls = layouts.controls || (layouts.controls = {}));
 })(layouts || (layouts = {}));
@@ -3019,7 +3056,7 @@ var layouts;
             ContentTemplate.typeName = "layouts.controls.ContentTemplate";
             ContentTemplate.contentProperty = layouts.DepObject.registerProperty(ContentTemplate.typeName, "Content", null, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender);
             return ContentTemplate;
-        })(layouts.FrameworkElement);
+        }(layouts.FrameworkElement));
         controls.ContentTemplate = ContentTemplate;
     })(controls = layouts.controls || (layouts.controls = {}));
 })(layouts || (layouts = {}));
@@ -3107,7 +3144,7 @@ var layouts;
             ControlTemplate.typeName = "layouts.controls.ControlTemplate";
             ControlTemplate.contentProperty = layouts.DepObject.registerProperty(ControlTemplate.typeName, "Content", null, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender);
             return ControlTemplate;
-        })(layouts.FrameworkElement);
+        }(layouts.FrameworkElement));
         controls.ControlTemplate = ControlTemplate;
     })(controls = layouts.controls || (layouts.controls = {}));
 })(layouts || (layouts = {}));
@@ -3233,7 +3270,7 @@ var layouts;
             ControlTemplateSelector.typeName = "layouts.controls.ControlTemplateSelector";
             ControlTemplateSelector.contentSourceProperty = layouts.DepObject.registerProperty(ControlTemplateSelector.typeName, "ContentSource", null, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender);
             return ControlTemplateSelector;
-        })(layouts.FrameworkElement);
+        }(layouts.FrameworkElement));
         controls.ControlTemplateSelector = ControlTemplateSelector;
     })(controls = layouts.controls || (layouts.controls = {}));
 })(layouts || (layouts = {}));
@@ -3345,7 +3382,7 @@ var layouts;
             DataTemplate.targetMemberProperty = layouts.DepObject.registerProperty(DataTemplate.typeName, "TargetMember", null);
             DataTemplate.mediaProperty = layouts.DepObject.registerProperty(DataTemplate.typeName, "Media", null);
             return DataTemplate;
-        })(layouts.DepObject);
+        }(layouts.DepObject));
         controls.DataTemplate = DataTemplate;
     })(controls = layouts.controls || (layouts.controls = {}));
 })(layouts || (layouts = {}));
@@ -3406,7 +3443,7 @@ var layouts;
             Frame.typeName = "layouts.controls.Frame";
             Frame.sourceProperty = layouts.DepObject.registerProperty(Frame.typeName, "Source", null, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender);
             return Frame;
-        })(layouts.FrameworkElement);
+        }(layouts.FrameworkElement));
         controls.Frame = Frame;
     })(controls = layouts.controls || (layouts.controls = {}));
 })(layouts || (layouts = {}));
@@ -3527,7 +3564,7 @@ var layouts;
                 configurable: true
             });
             return GridLength;
-        })();
+        }());
         controls.GridLength = GridLength;
         var GridRow = (function () {
             function GridRow(height, minHeight, maxHeight) {
@@ -3539,7 +3576,7 @@ var layouts;
                 this.maxHeight = maxHeight;
             }
             return GridRow;
-        })();
+        }());
         controls.GridRow = GridRow;
         var GridColumn = (function () {
             function GridColumn(width, minWidth, maxWidth) {
@@ -3551,7 +3588,7 @@ var layouts;
                 this.maxWidth = maxWidth;
             }
             return GridColumn;
-        })();
+        }());
         controls.GridColumn = GridColumn;
         var RowDef = (function () {
             function RowDef(row, index, vSizeToContent) {
@@ -3607,7 +3644,7 @@ var layouts;
                 configurable: true
             });
             return RowDef;
-        })();
+        }());
         var ColumnDef = (function () {
             function ColumnDef(column, index, hSizeToContent) {
                 this.column = column;
@@ -3662,7 +3699,7 @@ var layouts;
                 configurable: true
             });
             return ColumnDef;
-        })();
+        }());
         var ElementDef = (function () {
             function ElementDef(element, row, column, rowSpan, columnSpan) {
                 this.element = element;
@@ -3712,7 +3749,7 @@ var layouts;
                 this._availHeight[row - this.row] = value;
             };
             return ElementDef;
-        })();
+        }());
         var Grid = (function (_super) {
             __extends(Grid, _super);
             function Grid() {
@@ -4075,7 +4112,7 @@ var layouts;
             //Grid.ColumnSpan property
             Grid.columnSpanProperty = layouts.DepObject.registerProperty(Grid.typeName, "Grid#ColumnSpan", 1, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure, function (v) { return Grid.spanFromString(v); });
             return Grid;
-        })(controls.Panel);
+        }(controls.Panel));
         controls.Grid = Grid;
     })(controls = layouts.controls || (layouts.controls = {}));
 })(layouts || (layouts = {}));
@@ -4486,7 +4523,7 @@ var layouts;
             };
             GridSplitter.typeName = "layouts.controls.GridSplitter";
             return GridSplitter;
-        })(controls.Border);
+        }(controls.Border));
         controls.GridSplitter = GridSplitter;
     })(controls = layouts.controls || (layouts.controls = {}));
 })(layouts || (layouts = {}));
@@ -4745,7 +4782,7 @@ var layouts;
             Image.stretchProperty = layouts.DepObject.registerProperty(Image.typeName, "Stretch", Stretch.None, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender, function (v) { return Stretch[String(v)]; });
             Image.stretchDirectionProperty = layouts.DepObject.registerProperty(Image.typeName, "StretchDirection", StretchDirection.Both, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender, function (v) { return StretchDirection[String(v)]; });
             return Image;
-        })(layouts.FrameworkElement);
+        }(layouts.FrameworkElement));
         controls.Image = Image;
     })(controls = layouts.controls || (layouts.controls = {}));
 })(layouts || (layouts = {}));
@@ -4966,7 +5003,7 @@ var layouts;
             //itemsPanel property
             ItemsControl.itemsPanelProperty = layouts.DepObject.registerProperty(ItemsControl.typeName, "ItemsPanel", null, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender);
             return ItemsControl;
-        })(layouts.FrameworkElement);
+        }(layouts.FrameworkElement));
         controls.ItemsControl = ItemsControl;
     })(controls = layouts.controls || (layouts.controls = {}));
 })(layouts || (layouts = {}));
@@ -5018,7 +5055,7 @@ var layouts;
             };
             div.typeName = "layouts.controls.div";
             return div;
-        })(layouts.FrameworkElement);
+        }(layouts.FrameworkElement));
         controls.div = div;
     })(controls = layouts.controls || (layouts.controls = {}));
 })(layouts || (layouts = {}));
@@ -5127,7 +5164,7 @@ var layouts;
             Stack.typeName = "layouts.controls.Stack";
             Stack.orientationProperty = layouts.DepObject.registerProperty(Stack.typeName, "Orientation", Orientation.Vertical, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure, function (v) { return Orientation[String(v)]; });
             return Stack;
-        })(controls.Panel);
+        }(controls.Panel));
         controls.Stack = Stack;
     })(controls = layouts.controls || (layouts.controls = {}));
 })(layouts || (layouts = {}));
@@ -5232,7 +5269,7 @@ var layouts;
             TextBlock.whiteSpaceProperty = layouts.DepObject.registerProperty(TextBlock.typeName, "WhiteSpace", "pre", layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender);
             TextBlock.formatProperty = layouts.DepObject.registerProperty(TextBlock.typeName, "Format", null, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender, function (v) { return String(v); });
             return TextBlock;
-        })(layouts.FrameworkElement);
+        }(layouts.FrameworkElement));
         controls.TextBlock = TextBlock;
     })(controls = layouts.controls || (layouts.controls = {}));
 })(layouts || (layouts = {}));
@@ -5367,7 +5404,7 @@ var layouts;
             TextBox.typeProperty = layouts.DepObject.registerProperty(TextBox.typeName, "Type", "text", layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender);
             TextBox.isReadonlyProperty = layouts.DepObject.registerProperty(TextBox.typeName, "IsReadonly", false);
             return TextBox;
-        })(layouts.FrameworkElement);
+        }(layouts.FrameworkElement));
         controls.TextBox = TextBox;
     })(controls = layouts.controls || (layouts.controls = {}));
 })(layouts || (layouts = {}));
@@ -5393,18 +5430,44 @@ var layouts;
             UserControl.prototype.initializeComponent = function () {
                 return null;
             };
+            UserControl.prototype.tryLoadChildFromServer = function () {
+                var _this = this;
+                var req = new XMLHttpRequest();
+                req.onreadystatechange = function (ev) {
+                    if (req.readyState == 4 && req.status == 200) {
+                        var loader = new layouts.XamlReader();
+                        //loader.namespaceResolver = (ns) => {
+                        //    if (ns == "localViews")
+                        //        return "app.views";
+                        //    return null;
+                        //};
+                        _this.setupChild(loader.Parse(req.responseText));
+                    }
+                };
+                //req.open("GET", "data/records.txt", true);
+                //app.views.CustomView
+                req.open("GET", this.typeName.replace(/\./gi, '/') + ".xml", true);
+                req.send();
+            };
             UserControl.prototype.attachVisualOverride = function (elementContainer) {
                 this._container = elementContainer;
+                this.setupChild(this.initializeComponent());
+                _super.prototype.attachVisualOverride.call(this, elementContainer);
+            };
+            UserControl.prototype.setupChild = function (content) {
                 var child = this._content;
                 if (child == null) {
-                    this._content = child = this.initializeComponent();
+                    this._content = child = content;
                     if (child != null)
                         child.parent = this;
                 }
+                child = this._content;
                 if (child != null) {
                     child.attachVisual(this._container);
                 }
-                _super.prototype.attachVisualOverride.call(this, elementContainer);
+                else {
+                    this.tryLoadChildFromServer();
+                }
             };
             UserControl.prototype.measureOverride = function (constraint) {
                 var child = this._content;
@@ -5432,7 +5495,7 @@ var layouts;
             };
             UserControl.typeName = "layouts.controls.UserControl";
             return UserControl;
-        })(layouts.FrameworkElement);
+        }(layouts.FrameworkElement));
         controls.UserControl = UserControl;
     })(controls = layouts.controls || (layouts.controls = {}));
 })(layouts || (layouts = {}));
@@ -5509,7 +5572,7 @@ var layouts;
             }
         };
         return ObservableCollection;
-    })();
+    }());
     layouts.ObservableCollection = ObservableCollection;
 })(layouts || (layouts = {}));
 var layouts;
@@ -5536,7 +5599,7 @@ var layouts;
             }
         };
         return Timer;
-    })();
+    }());
     layouts.Timer = Timer;
 })(layouts || (layouts = {}));
 /// <reference path="IConverter.ts" />
@@ -5561,7 +5624,7 @@ var layouts;
                 return "layouts.controls";
             if (this.namespaceResolver != null)
                 return this.namespaceResolver(xmlns);
-            return null;
+            return xmlns;
         };
         XamlReader.prototype.Load = function (xamlNode) {
             var _this = this;
@@ -5772,7 +5835,7 @@ var layouts;
         };
         XamlReader.DefaultNamespace = "http://schemas.layouts.com/";
         return XamlReader;
-    })();
+    }());
     layouts.XamlReader = XamlReader;
 })(layouts || (layouts = {}));
 //class TestViewModelItem extends layouts.DepObject {
@@ -5945,8 +6008,8 @@ var layouts;
 //    }
 //}
 window.onload = function () {
-    var app = new layouts.Application();
-    var lmlReader = new layouts.XamlReader();
+    //var app = new layouts.Application();
+    //var lmlReader = new layouts.XamlReader();
     //app.page = new TypeScriptUI.testDialog();
     //var testPage = new layouts.controls.Page();
     //testPage.sizeToContent = layouts.controls.SizeToContent.Both;
@@ -6049,10 +6112,61 @@ window.onload = function () {
     //    <Border Background="Green" Grid.Column="3" Margin="8,0,0,0"/>
     //</Grid>
     //`;
-    var lmlTest = "<?xml version= \"1.0\" encoding= \"utf-8\" ?>\n<Grid Margin=\"100\" Rows=\"[50,*,] [50,*,]\">\n    <Border Background=\"Red\" Margin=\"0,0,0,8\" BorderBrush=\"Cyan\" BorderThickness=\"2\"/>\n    <GridSplitter VerticalAlignment=\"Bottom\" Height=\"8\"/>\n    <Border Background=\"Blue\" Grid.Row=\"1\" Margin=\"0,0,0,0\"/>\n</Grid>\n";
-    app.page = lmlReader.Parse(lmlTest);
+    //    var lmlTest = `<?xml version= "1.0" encoding= "utf-8" ?>
+    //<Grid Margin="100" Rows="[50,*,] [50,*,]">
+    //    <Border Background="Red" Margin="0,0,0,8" BorderBrush="Cyan" BorderThickness="2"/>
+    //    <GridSplitter VerticalAlignment="Bottom" Height="8"/>
+    //    <Border Background="Blue" Grid.Row="1" Margin="0,0,0,0"/>
+    //</Grid>
+    //`;
+    //    app.page = lmlReader.Parse(lmlTest);
     //    app.page.dataContext = new TestViewModel();
+    layouts.Application.current.page = new app.views.CustomPage();
 };
+var app;
+(function (app) {
+    var views;
+    (function (views) {
+        var CustomPage = (function (_super) {
+            __extends(CustomPage, _super);
+            function CustomPage() {
+                _super.apply(this, arguments);
+            }
+            Object.defineProperty(CustomPage.prototype, "typeName", {
+                get: function () {
+                    return CustomPage.typeName;
+                },
+                enumerable: true,
+                configurable: true
+            });
+            CustomPage.typeName = "app.views.CustomPage";
+            return CustomPage;
+        }(layouts.controls.Page));
+        views.CustomPage = CustomPage;
+    })(views = app.views || (app.views = {}));
+})(app || (app = {}));
+var app;
+(function (app) {
+    var views;
+    (function (views) {
+        var CustomView = (function (_super) {
+            __extends(CustomView, _super);
+            function CustomView() {
+                _super.apply(this, arguments);
+            }
+            Object.defineProperty(CustomView.prototype, "typeName", {
+                get: function () {
+                    return CustomView.typeName;
+                },
+                enumerable: true,
+                configurable: true
+            });
+            CustomView.typeName = "app.views.CustomView";
+            return CustomView;
+        }(layouts.controls.UserControl));
+        views.CustomView = CustomView;
+    })(views = app.views || (app.views = {}));
+})(app || (app = {}));
 var layouts;
 (function (layouts) {
     var EventAction = (function () {
@@ -6063,7 +6177,7 @@ var layouts;
             this.invokeHandler(this, parameter);
         };
         return EventAction;
-    })();
+    }());
     layouts.EventAction = EventAction;
 })(layouts || (layouts = {}));
 //# sourceMappingURL=Layouts.TestApp.js.map

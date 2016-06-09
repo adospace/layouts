@@ -18,6 +18,6 @@ var layouts;
             this.propertyMap[name] = property;
         };
         return PropertyMap;
-    })();
+    }());
     layouts.PropertyMap = PropertyMap;
 })(layouts || (layouts = {}));

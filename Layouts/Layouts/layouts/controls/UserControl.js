@@ -1,11 +1,7 @@
-/// <reference path="..\DepProperty.ts" />
-/// <reference path="..\DepObject.ts" />
-/// <reference path="..\FrameworkElement.ts" /> 
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
     function __() { this.constructor = d; }
-    __.prototype = b.prototype;
-    d.prototype = new __();
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
 var layouts;
 (function (layouts) {
@@ -26,24 +22,43 @@ var layouts;
             UserControl.prototype.initializeComponent = function () {
                 return null;
             };
+            UserControl.prototype.tryLoadChildFromServer = function () {
+                var _this = this;
+                var req = new XMLHttpRequest();
+                req.onreadystatechange = function (ev) {
+                    if (req.readyState == 4 && req.status == 200) {
+                        var loader = new layouts.XamlReader();
+                        _this.setupChild(loader.Parse(req.responseText));
+                    }
+                };
+                req.open("GET", this.typeName.replace(/\./gi, '/') + ".xml", true);
+                req.send();
+            };
             UserControl.prototype.attachVisualOverride = function (elementContainer) {
                 this._container = elementContainer;
+                this.setupChild(this.initializeComponent());
+                _super.prototype.attachVisualOverride.call(this, elementContainer);
+            };
+            UserControl.prototype.setupChild = function (content) {
                 var child = this._content;
                 if (child == null) {
-                    this._content = child = this.initializeComponent();
+                    this._content = child = content;
                     if (child != null)
                         child.parent = this;
                 }
+                child = this._content;
                 if (child != null) {
                     child.attachVisual(this._container);
                 }
-                _super.prototype.attachVisualOverride.call(this, elementContainer);
+                else {
+                    this.tryLoadChildFromServer();
+                }
             };
             UserControl.prototype.measureOverride = function (constraint) {
                 var child = this._content;
                 if (child != null) {
                     child.measure(constraint);
-                    return child.desideredSize;
+                    return child.desiredSize;
                 }
                 return new layouts.Size();
             };
@@ -56,12 +71,16 @@ var layouts;
             UserControl.prototype.layoutOverride = function () {
                 _super.prototype.layoutOverride.call(this);
                 var child = this._content;
-                if (child != null)
-                    child.layout(this.visualOffset);
+                if (child != null) {
+                    var childOffset = this.visualOffset;
+                    if (this.relativeOffset != null)
+                        childOffset = childOffset.add(this.relativeOffset);
+                    child.layout(childOffset);
+                }
             };
             UserControl.typeName = "layouts.controls.UserControl";
             return UserControl;
-        })(layouts.FrameworkElement);
+        }(layouts.FrameworkElement));
         controls.UserControl = UserControl;
     })(controls = layouts.controls || (layouts.controls = {}));
 })(layouts || (layouts = {}));

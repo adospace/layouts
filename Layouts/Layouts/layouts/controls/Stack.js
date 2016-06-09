@@ -1,11 +1,7 @@
-/// <reference path="..\DepProperty.ts" />
-/// <reference path="..\FrameworkElement.ts" /> 
-/// <reference path="Panel.ts" />
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
     function __() { this.constructor = d; }
-    __.prototype = b.prototype;
-    d.prototype = new __();
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
 var layouts;
 (function (layouts) {
@@ -36,13 +32,13 @@ var layouts;
                 this.children.forEach(function (child) {
                     if (orientation == Orientation.Horizontal) {
                         child.measure(new layouts.Size(Infinity, constraint.height));
-                        mySize.width += child.desideredSize.width;
-                        mySize.height = Math.max(mySize.height, child.desideredSize.height);
+                        mySize.width += child.desiredSize.width;
+                        mySize.height = Math.max(mySize.height, child.desiredSize.height);
                     }
                     else {
                         child.measure(new layouts.Size(constraint.width, Infinity));
-                        mySize.width = Math.max(mySize.width, child.desideredSize.width);
-                        mySize.height += child.desideredSize.height;
+                        mySize.width = Math.max(mySize.width, child.desiredSize.width);
+                        mySize.height += child.desiredSize.height;
                     }
                 });
                 if (this.virtualItemCount > this.children.count) {
@@ -61,12 +57,12 @@ var layouts;
                     this.children.forEach(function (child) {
                         var sizeChild = new layouts.Size();
                         if (orientation == Orientation.Horizontal) {
-                            sizeChild.width = child.desideredSize.width;
-                            sizeChild.height = Math.max(finalSize.height, child.desideredSize.height);
+                            sizeChild.width = child.desiredSize.width;
+                            sizeChild.height = Math.max(finalSize.height, child.desiredSize.height);
                         }
                         else {
-                            sizeChild.height = child.desideredSize.height;
-                            sizeChild.width = Math.max(finalSize.width, child.desideredSize.width);
+                            sizeChild.height = child.desiredSize.height;
+                            sizeChild.width = Math.max(finalSize.width, child.desiredSize.width);
                         }
                         child.arrange(new layouts.Rect(posChild.x, posChild.y, sizeChild.width, sizeChild.height));
                         if (orientation == Orientation.Horizontal) {
@@ -99,7 +95,7 @@ var layouts;
             Stack.typeName = "layouts.controls.Stack";
             Stack.orientationProperty = layouts.DepObject.registerProperty(Stack.typeName, "Orientation", Orientation.Vertical, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure, function (v) { return Orientation[String(v)]; });
             return Stack;
-        })(controls.Panel);
+        }(controls.Panel));
         controls.Stack = Stack;
     })(controls = layouts.controls || (layouts.controls = {}));
 })(layouts || (layouts = {}));

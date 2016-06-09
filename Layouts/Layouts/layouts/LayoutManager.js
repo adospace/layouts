@@ -81,24 +81,24 @@ var layouts;
                 popup.layout();
             });
         };
-        LayoutManager.showPopup = function (dialog) {
-            if (LayoutManager.popups.indexOf(dialog) == -1) {
-                LayoutManager.popups.push(dialog);
-                dialog.onShow();
+        LayoutManager.showPopup = function (popup) {
+            if (LayoutManager.popups.indexOf(popup) == -1) {
+                LayoutManager.popups.push(popup);
+                popup.onShow();
                 LayoutManager.updateLayout();
             }
         };
-        LayoutManager.closePopup = function (dialog) {
-            var indexOfElement = dialog == null ? LayoutManager.popups.length - 1 : LayoutManager.popups.indexOf(dialog);
+        LayoutManager.closePopup = function (popup) {
+            var indexOfElement = popup == null ? LayoutManager.popups.length - 1 : LayoutManager.popups.indexOf(popup);
             if (indexOfElement > -1) {
-                dialog = LayoutManager.popups.splice(indexOfElement)[0];
-                dialog.onClose();
+                popup = LayoutManager.popups.splice(indexOfElement)[0];
+                popup.onClose();
                 LayoutManager.updateLayout();
             }
         };
         LayoutManager.popups = [];
         return LayoutManager;
-    })();
+    }());
     layouts.LayoutManager = LayoutManager;
     window.onresize = function () {
         LayoutManager.updateLayout();

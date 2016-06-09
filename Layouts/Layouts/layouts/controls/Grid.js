@@ -16,6 +16,8 @@ var layouts;
         var GridLength = (function () {
             function GridLength(value, type) {
                 if (type === void 0) { type = GridUnitType.Pixel; }
+                if (value.isCloseTo(0))
+                    value = 0;
                 this._value = value;
                 this._type = type;
             }
@@ -100,7 +102,7 @@ var layouts;
                 configurable: true
             });
             return GridLength;
-        })();
+        }());
         controls.GridLength = GridLength;
         var GridRow = (function () {
             function GridRow(height, minHeight, maxHeight) {
@@ -112,7 +114,7 @@ var layouts;
                 this.maxHeight = maxHeight;
             }
             return GridRow;
-        })();
+        }());
         controls.GridRow = GridRow;
         var GridColumn = (function () {
             function GridColumn(width, minWidth, maxWidth) {
@@ -124,7 +126,7 @@ var layouts;
                 this.maxWidth = maxWidth;
             }
             return GridColumn;
-        })();
+        }());
         controls.GridColumn = GridColumn;
         var RowDef = (function () {
             function RowDef(row, index, vSizeToContent) {
@@ -180,7 +182,7 @@ var layouts;
                 configurable: true
             });
             return RowDef;
-        })();
+        }());
         var ColumnDef = (function () {
             function ColumnDef(column, index, hSizeToContent) {
                 this.column = column;
@@ -235,7 +237,7 @@ var layouts;
                 configurable: true
             });
             return ColumnDef;
-        })();
+        }());
         var ElementDef = (function () {
             function ElementDef(element, row, column, rowSpan, columnSpan) {
                 this.element = element;
@@ -285,7 +287,7 @@ var layouts;
                 this._availHeight[row - this.row] = value;
             };
             return ElementDef;
-        })();
+        }());
         var Grid = (function (_super) {
             __extends(Grid, _super);
             function Grid() {
@@ -522,6 +524,12 @@ var layouts;
                 });
                 return finalSize;
             };
+            Grid.prototype.getRowFinalHeight = function (rowIndex) {
+                return this._rowDefs[rowIndex].finalHeight;
+            };
+            Grid.prototype.getColumnFinalWidth = function (colIndex) {
+                return this._columnDefs[colIndex].finalWidth;
+            };
             Object.defineProperty(Grid.prototype, "rows", {
                 get: function () {
                     return this.getValue(Grid.rowsProperty);
@@ -621,7 +629,7 @@ var layouts;
             Grid.rowSpanProperty = layouts.DepObject.registerProperty(Grid.typeName, "Grid#RowSpan", 1, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure, function (v) { return Grid.spanFromString(v); });
             Grid.columnSpanProperty = layouts.DepObject.registerProperty(Grid.typeName, "Grid#ColumnSpan", 1, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure, function (v) { return Grid.spanFromString(v); });
             return Grid;
-        })(controls.Panel);
+        }(controls.Panel));
         controls.Grid = Grid;
     })(controls = layouts.controls || (layouts.controls = {}));
 })(layouts || (layouts = {}));

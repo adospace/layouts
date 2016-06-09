@@ -22,6 +22,6 @@ var layouts;
             }
         };
         return Timer;
-    })();
+    }());
     layouts.Timer = Timer;
 })(layouts || (layouts = {}));

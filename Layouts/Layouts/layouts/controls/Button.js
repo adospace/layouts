@@ -1,13 +1,7 @@
-/// <reference path="..\DepProperty.ts" />
-/// <reference path="..\DepObject.ts" />
-/// <reference path="..\FrameworkElement.ts" /> 
-/// <reference path="..\ISupport.ts" /> 
-/// <reference path="..\Command.ts" /> 
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
     function __() { this.constructor = d; }
-    __.prototype = b.prototype;
-    d.prototype = new __();
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
 var layouts;
 (function (layouts) {
@@ -46,22 +40,23 @@ var layouts;
                 configurable: true
             });
             Button.prototype.attachVisualOverride = function (elementContainer) {
-                var _this = this;
                 this._visual = this._buttonElement = document.createElement("button");
+                this._visual.style.msUserSelect =
+                    this._visual.style.webkitUserSelect = "none";
                 if (this._child != null) {
                     this._child.attachVisual(this._buttonElement);
                 }
-                this._buttonElement.onclick = function (ev) { return _this.onClick(ev); };
+                this._buttonElement.disabled = !this.isEnabled;
                 _super.prototype.attachVisualOverride.call(this, elementContainer);
             };
             Button.prototype.measureOverride = function (constraint) {
-                this._buttonElement.disabled = this.command == null || !this.command.canExecute(this.commandParameter);
+                this.isEnabled = this.popup != null || (this.command != null && this.command.canExecute(this.commandParameter));
                 var mySize = new layouts.Size();
                 var padding = new layouts.Size(this.padding.left + this.padding.right, this.padding.top + this.padding.bottom);
                 if (this._child != null) {
                     var childConstraint = new layouts.Size(Math.max(0.0, constraint.width - padding.width), Math.max(0.0, constraint.height - padding.height));
                     this._child.measure(childConstraint);
-                    var childSize = this._child.desideredSize;
+                    var childSize = this._child.desiredSize;
                     mySize.width = childSize.width + padding.width;
                     mySize.height = childSize.height + padding.height;
                 }
@@ -69,7 +64,7 @@ var layouts;
                     var text = this.text;
                     var mySize = new layouts.Size();
                     var pElement = this._buttonElement;
-                    var txtChanged = (pElement.innerText != text);
+                    var txtChanged = (pElement.innerText !== text);
                     if (isFinite(constraint.width))
                         pElement.style.maxWidth = constraint.width + "px";
                     if (isFinite(constraint.height))
@@ -113,11 +108,14 @@ var layouts;
                     if (value != null)
                         value.onCanExecuteChangeNotify(this);
                 }
+                else if (property == Button.isEnabledProperty) {
+                    if (this._buttonElement != null)
+                        this._buttonElement.disabled = !value;
+                }
                 _super.prototype.onDependencyPropertyChanged.call(this, property, value, oldValue);
             };
             Button.prototype.onCommandCanExecuteChanged = function (command) {
-                if (this._buttonElement != null)
-                    this._buttonElement.disabled = this.command == null || !this.command.canExecute(this.commandParameter);
+                this.isEnabled = this.popup != null || (this.command != null && this.command.canExecute(this.commandParameter));
             };
             Object.defineProperty(Button.prototype, "padding", {
                 get: function () {
@@ -139,26 +137,6 @@ var layouts;
                 enumerable: true,
                 configurable: true
             });
-            Object.defineProperty(Button.prototype, "command", {
-                get: function () {
-                    return this.getValue(Button.commandProperty);
-                },
-                set: function (value) {
-                    this.setValue(Button.commandProperty, value);
-                },
-                enumerable: true,
-                configurable: true
-            });
-            Object.defineProperty(Button.prototype, "commandParameter", {
-                get: function () {
-                    return this.getValue(Button.commandParameterProperty);
-                },
-                set: function (value) {
-                    this.setValue(Button.commandParameterProperty, value);
-                },
-                enumerable: true,
-                configurable: true
-            });
             Object.defineProperty(Button.prototype, "whiteSpace", {
                 get: function () {
                     return this.getValue(Button.whiteSpaceProperty);
@@ -169,14 +147,23 @@ var layouts;
                 enumerable: true,
                 configurable: true
             });
+            Object.defineProperty(Button.prototype, "isEnabled", {
+                get: function () {
+                    return this.getValue(Button.isEnabledProperty);
+                },
+                set: function (value) {
+                    this.setValue(Button.isEnabledProperty, value);
+                },
+                enumerable: true,
+                configurable: true
+            });
             Button.typeName = "layouts.controls.Button";
             Button.paddingProperty = layouts.DepObject.registerProperty(Button.typeName, "Padding", new layouts.Thickness(), layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender);
             Button.textProperty = layouts.DepObject.registerProperty(Button.typeName, "Text", null, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender);
-            Button.commandProperty = layouts.DepObject.registerProperty(Button.typeName, "Command", null, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender);
-            Button.commandParameterProperty = layouts.DepObject.registerProperty(Button.typeName, "commandParameter", null, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender);
             Button.whiteSpaceProperty = layouts.DepObject.registerProperty(Button.typeName, "WhiteSpace", "pre", layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender);
+            Button.isEnabledProperty = layouts.DepObject.registerProperty(Button.typeName, "IsEnabled", true, layouts.FrameworkPropertyMetadataOptions.AffectsRender);
             return Button;
-        })(layouts.FrameworkElement);
+        }(layouts.FrameworkElement));
         controls.Button = Button;
     })(controls = layouts.controls || (layouts.controls = {}));
 })(layouts || (layouts = {}));

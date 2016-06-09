@@ -1,12 +1,7 @@
-/// <reference path="..\DepProperty.ts" />
-/// <reference path="..\DepObject.ts" />
-/// <reference path="..\FrameworkElement.ts" /> 
-/// <reference path="..\ISupport.ts" /> 
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
     function __() { this.constructor = d; }
-    __.prototype = b.prototype;
-    d.prototype = new __();
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
 var layouts;
 (function (layouts) {
@@ -28,6 +23,7 @@ var layouts;
                 this._container = elementContainer;
                 var child = this.content;
                 if (child != null) {
+                    child.parent = this;
                     child.attachVisual(this._container);
                 }
                 _super.prototype.attachVisualOverride.call(this, elementContainer);
@@ -36,7 +32,7 @@ var layouts;
                 var child = this.content;
                 if (child != null) {
                     child.measure(constraint);
-                    return child.desideredSize;
+                    return child.desiredSize;
                 }
                 return new layouts.Size();
             };
@@ -49,8 +45,28 @@ var layouts;
             ControlTemplate.prototype.layoutOverride = function () {
                 _super.prototype.layoutOverride.call(this);
                 var child = this.content;
-                if (child != null)
-                    child.layout();
+                if (child != null) {
+                    var childOffset = this.visualOffset;
+                    if (this.relativeOffset != null)
+                        childOffset = childOffset.add(this.relativeOffset);
+                    child.layout(childOffset);
+                }
+            };
+            ControlTemplate.prototype.onDependencyPropertyChanged = function (property, value, oldValue) {
+                if (property == ControlTemplate.contentProperty) {
+                    var oldChild = oldValue;
+                    if (oldChild != null && oldChild.parent == this) {
+                        oldChild.attachVisual(null);
+                        oldChild.parent = null;
+                    }
+                    var newChild = value;
+                    if (newChild != null) {
+                        if (this._container != null)
+                            newChild.attachVisual(this._container);
+                        newChild.parent = this;
+                    }
+                }
+                _super.prototype.onDependencyPropertyChanged.call(this, property, value, oldValue);
             };
             Object.defineProperty(ControlTemplate.prototype, "content", {
                 get: function () {
@@ -62,26 +78,10 @@ var layouts;
                 enumerable: true,
                 configurable: true
             });
-            ControlTemplate.prototype.onDependencyPropertyChanged = function (property, value, oldValue) {
-                if (property == ControlTemplate.contentProperty) {
-                    var oldChild = oldValue;
-                    if (oldChild != null && oldChild.parent == this) {
-                        oldChild.parent = null;
-                        oldChild.attachVisual(null);
-                    }
-                    var newChild = value;
-                    if (newChild != null) {
-                        newChild.parent = this;
-                        if (this._container != null)
-                            newChild.attachVisual(this._container);
-                    }
-                }
-                _super.prototype.onDependencyPropertyChanged.call(this, property, value, oldValue);
-            };
             ControlTemplate.typeName = "layouts.controls.ControlTemplate";
             ControlTemplate.contentProperty = layouts.DepObject.registerProperty(ControlTemplate.typeName, "Content", null, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender);
             return ControlTemplate;
-        })(layouts.FrameworkElement);
+        }(layouts.FrameworkElement));
         controls.ControlTemplate = ControlTemplate;
     })(controls = layouts.controls || (layouts.controls = {}));
 })(layouts || (layouts = {}));

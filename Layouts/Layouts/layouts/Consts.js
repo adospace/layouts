@@ -5,6 +5,6 @@ var layouts;
         }
         Consts.stringEmpty = "";
         return Consts;
-    })();
+    }());
     layouts.Consts = Consts;
 })(layouts || (layouts = {}));

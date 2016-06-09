@@ -14,23 +14,52 @@ module layouts.controls {
             return null;
         }
 
+        private tryLoadChildFromServer() {
+            var req = new XMLHttpRequest();
+            req.onreadystatechange = (ev) => {
+                if (req.readyState == 4 && req.status == 200) {
+                    let loader = new layouts.XamlReader();
+                    //loader.namespaceResolver = (ns) => {
+                    //    if (ns == "localViews")
+                    //        return "app.views";
+
+                    //    return null;
+                    //};
+                    this.setupChild(loader.Parse(req.responseText));
+                }
+            }
+            //req.open("GET", "data/records.txt", true);
+            //app.views.CustomView
+            req.open("GET", this.typeName.replace(/\./gi, '/') + ".xml", true);
+            req.send();
+        }
+
         protected _container: HTMLElement;
         attachVisualOverride(elementContainer: HTMLElement) {
 
             this._container = elementContainer;
 
+            this.setupChild(this.initializeComponent());
+
+            super.attachVisualOverride(elementContainer);
+        }
+
+        private setupChild(content: UIElement) {
             var child = this._content;
             if (child == null) {
-                this._content = child = this.initializeComponent();
+                this._content = child = content;
+
                 if (child != null)
                     child.parent = this;
             }
 
+            child = this._content;
             if (child != null) {
                 child.attachVisual(this._container);
             }
-
-            super.attachVisualOverride(elementContainer);
+            else {
+                this.tryLoadChildFromServer();
+            }
         }
 
         protected measureOverride(constraint: Size): Size {

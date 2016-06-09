@@ -1,11 +1,7 @@
-/// <reference path="..\DepProperty.ts" />
-/// <reference path="..\DepObject.ts" />
-/// <reference path="..\FrameworkElement.ts" /> 
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
     function __() { this.constructor = d; }
-    __.prototype = b.prototype;
-    d.prototype = new __();
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
 var layouts;
 (function (layouts) {
@@ -25,33 +21,50 @@ var layouts;
             });
             TextBlock.prototype.attachVisualOverride = function (elementContainer) {
                 this._visual = this._pElement = document.createElement("p");
+                this._visual.style.msUserSelect =
+                    this._visual.style.webkitUserSelect = "none";
+                this._pElement.style.whiteSpace = this.whiteSpace;
+                var text = this.text;
+                var format = this.format;
+                text = format != null && text != null && text != layouts.Consts.stringEmpty ? format.format(text) : text;
+                this._pElement.innerHTML = text == null ? layouts.Consts.stringEmpty : text;
                 _super.prototype.attachVisualOverride.call(this, elementContainer);
             };
-            TextBlock.prototype.layoutOverride = function () {
-                _super.prototype.layoutOverride.call(this);
-                this._pElement.style.whiteSpace = this.whiteSpace;
-            };
             TextBlock.prototype.measureOverride = function (constraint) {
-                var text = this.text;
-                var mySize = new layouts.Size();
                 var pElement = this._pElement;
-                var txtChanged = (pElement.innerText != text);
-                if (isFinite(constraint.width))
-                    pElement.style.maxWidth = constraint.width + "px";
-                if (isFinite(constraint.height))
-                    pElement.style.maxHeight = constraint.height + "px";
-                pElement.style.width = "auto";
-                pElement.style.height = "auto";
-                pElement.style.whiteSpace = this.whiteSpace;
-                if (txtChanged) {
-                    pElement.innerHTML = this.text;
+                if (this._measuredSize == null) {
+                    pElement.style.width = "";
+                    pElement.style.height = "";
+                    this._measuredSize = new layouts.Size(pElement.clientWidth, pElement.clientHeight);
                 }
-                mySize = new layouts.Size(pElement.clientWidth, pElement.clientHeight);
-                if (txtChanged && this.renderSize != null) {
-                    pElement.style.width = this.renderSize.width.toString() + "px";
-                    pElement.style.height = this.renderSize.height.toString() + "px";
+                return new layouts.Size(Math.min(constraint.width, this._measuredSize.width), Math.min(constraint.height, this._measuredSize.height));
+            };
+            TextBlock.prototype.arrangeOverride = function (finalSize) {
+                var pElement = this._pElement;
+                pElement.style.width = finalSize.width.toString() + "px";
+                pElement.style.height = finalSize.height.toString() + "px";
+                return finalSize;
+            };
+            TextBlock.prototype.onDependencyPropertyChanged = function (property, value, oldValue) {
+                if (property == TextBlock.textProperty ||
+                    property == TextBlock.formatProperty) {
+                    var pElement = this._pElement;
+                    var text = value;
+                    var format = this.format;
+                    text = format != null && text != null && text != layouts.Consts.stringEmpty ? format.format(text) : text;
+                    if (pElement != null) {
+                        pElement.innerHTML = text == null ? layouts.Consts.stringEmpty : text;
+                        this._measuredSize = null;
+                    }
                 }
-                return mySize;
+                else if (property == TextBlock.whiteSpaceProperty) {
+                    var pElement = this._pElement;
+                    if (pElement != null) {
+                        pElement.style.whiteSpace = value;
+                        this._measuredSize = null;
+                    }
+                }
+                _super.prototype.onDependencyPropertyChanged.call(this, property, value, oldValue);
             };
             Object.defineProperty(TextBlock.prototype, "text", {
                 get: function () {
@@ -73,11 +86,22 @@ var layouts;
                 enumerable: true,
                 configurable: true
             });
+            Object.defineProperty(TextBlock.prototype, "format", {
+                get: function () {
+                    return this.getValue(TextBlock.formatProperty);
+                },
+                set: function (value) {
+                    this.setValue(TextBlock.formatProperty, value);
+                },
+                enumerable: true,
+                configurable: true
+            });
             TextBlock.typeName = "layouts.controls.TextBlock";
             TextBlock.textProperty = layouts.DepObject.registerProperty(TextBlock.typeName, "Text", null, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender, function (v) { return String(v); });
             TextBlock.whiteSpaceProperty = layouts.DepObject.registerProperty(TextBlock.typeName, "WhiteSpace", "pre", layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender);
+            TextBlock.formatProperty = layouts.DepObject.registerProperty(TextBlock.typeName, "Format", null, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender, function (v) { return String(v); });
             return TextBlock;
-        })(layouts.FrameworkElement);
+        }(layouts.FrameworkElement));
         controls.TextBlock = TextBlock;
     })(controls = layouts.controls || (layouts.controls = {}));
 })(layouts || (layouts = {}));
