@@ -513,6 +513,28 @@ declare module layouts.controls {
     }
 }
 declare module layouts.controls {
+    class CheckBox extends FrameworkElement {
+        static typeName: string;
+        typeName: string;
+        private _pElement;
+        private _pElementInput;
+        attachVisualOverride(elementContainer: HTMLElement): void;
+        onCheckChanged(): void;
+        private _measuredSize;
+        protected measureOverride(constraint: Size): Size;
+        protected onDependencyPropertyChanged(property: DepProperty, value: any, oldValue: any): void;
+        static textProperty: DepProperty;
+        text: string;
+        static isCheckedProperty: DepProperty;
+        isChecked: boolean;
+        static nameProperty: DepProperty;
+        name: string;
+        placeholder: string;
+        static typeProperty: DepProperty;
+        type: string;
+    }
+}
+declare module layouts.controls {
     class ComboBox extends FrameworkElement implements ISupportCollectionChanged {
         static typeName: string;
         typeName: string;

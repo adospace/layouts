@@ -51,6 +51,9 @@
     <TypeScriptCompile Include="..\Layouts\layouts\controls\Canvas.ts">
       <Link>layouts\controls\Canvas.ts</Link>
     </TypeScriptCompile>
+    <TypeScriptCompile Include="..\Layouts\layouts\controls\CheckBox.ts">
+      <Link>layouts\controls\CheckBox.ts</Link>
+    </TypeScriptCompile>
     <TypeScriptCompile Include="..\Layouts\layouts\controls\ComboBox.ts">
       <Link>layouts\controls\ComboBox.ts</Link>
     </TypeScriptCompile>

@@ -43,7 +43,7 @@ if (!String.prototype.toLowerFirstLetter) {
 }
 if (!String.prototype.startsWith) {
     String.prototype.startsWith = function (other) {
-        return this.charAt(0).toLowerCase() + this.slice(1);
+        return this.lastIndexOf(other, 0) == 0;
     };
 }
 Number.prototype.isEpsilon = function () {
