@@ -10,20 +10,14 @@ module layouts.controls {
         }
 
 
-        private _pElement: HTMLLabelElement;
         private _pElementInput: HTMLInputElement;
 
 
         attachVisualOverride(elementContainer: HTMLElement) {
 
-            this._visual = this._pElement = document.createElement("label");
-            this._pElementInput = document.createElement("input");
-
-            this._pElement.appendChild(this._pElementInput);
-            this._pElement.appendChild(document.createTextNode(this.text));
+            this._visual = this._pElementInput = document.createElement("input");
 
             this._pElementInput.type = this.type;
-            this._pElementInput.value = this.text;
             this._pElementInput.checked = this.isChecked;
             this._pElementInput.onclick = (ev) => this.onCheckChanged();
 
@@ -37,7 +31,7 @@ module layouts.controls {
         private _measuredSize: Size;
 
         protected measureOverride(constraint: Size): Size {
-            var pElement = this._pElement;
+            var pElement = this._pElementInput;
             if (this._measuredSize == null) {
                 pElement.style.width = "";
                 pElement.style.height = "";
@@ -60,31 +54,22 @@ module layouts.controls {
         //}
 
         protected onDependencyPropertyChanged(property: DepProperty, value: any, oldValue: any) {
-            if (property == CheckBox.textProperty) {
-                var pElement = this._pElement;
-                if (pElement != null) {
-                    this._pElement.removeChild(this._pElement.lastChild);
-                    this._pElement.appendChild(document.createTextNode(<string>value));
-                    this._pElementInput.value = <string>value;
-                    this._measuredSize = null;
-                }
-            }
-            else if (property == CheckBox.nameProperty) {
-                var pElement = this._pElement;
+            if (property == CheckBox.nameProperty) {
+                var pElement = this._pElementInput;
                 if (pElement != null) {
                     this._pElementInput.name = <string>value;
                     this._measuredSize = null;
                 }
             }
             else if (property == CheckBox.typeProperty) {
-                var pElement = this._pElement;
+                var pElement = this._pElementInput;
                 if (pElement != null) {
                     this._pElementInput.type = <string>value;
                     this._measuredSize = null;
                 }
             }
             else if (property == CheckBox.isCheckedProperty) {
-                var pElement = this._pElement;
+                var pElement = this._pElementInput;
                 if (pElement != null) {
                     this._pElementInput.checked = <boolean>value;
                 }
@@ -92,14 +77,6 @@ module layouts.controls {
 
 
             super.onDependencyPropertyChanged(property, value, oldValue);
-        }
-
-        static textProperty = DepObject.registerProperty(CheckBox.typeName, "Text", null, FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender);
-        get text(): string {
-            return <string>this.getValue(CheckBox.textProperty);
-        }
-        set text(value: string) {
-            this.setValue(CheckBox.textProperty, value);
         }
 
         static isCheckedProperty = DepObject.registerProperty(CheckBox.typeName, "IsChecked", false, FrameworkPropertyMetadataOptions.None);
