@@ -10,10 +10,15 @@ module layouts.controls {
         }
 
 
-        private _pElement: HTMLParagraphElement;
+        private _pElement: HTMLElement;
+
+        protected createElement(elementContainer: HTMLElement): HTMLElement {
+            return document.createElement("p");
+        }
+
         attachVisualOverride(elementContainer: HTMLElement) {
 
-            this._visual = this._pElement = document.createElement("p");
+            this._visual = this._pElement = this.createElement(elementContainer);
             this._visual.style.msUserSelect =
                 this._visual.style.webkitUserSelect = "none";
             this._pElement.style.whiteSpace = this.whiteSpace;

@@ -2763,6 +2763,122 @@ var layouts;
         controls.Canvas = Canvas;
     })(controls = layouts.controls || (layouts.controls = {}));
 })(layouts || (layouts = {}));
+/// <reference path="..\DepProperty.ts" />
+/// <reference path="..\DepObject.ts" />
+/// <reference path="..\FrameworkElement.ts" /> 
+var layouts;
+(function (layouts) {
+    var controls;
+    (function (controls) {
+        var CheckBox = (function (_super) {
+            __extends(CheckBox, _super);
+            function CheckBox() {
+                _super.apply(this, arguments);
+            }
+            Object.defineProperty(CheckBox.prototype, "typeName", {
+                get: function () {
+                    return CheckBox.typeName;
+                },
+                enumerable: true,
+                configurable: true
+            });
+            CheckBox.prototype.attachVisualOverride = function (elementContainer) {
+                var _this = this;
+                this._visual = this._pElementInput = document.createElement("input");
+                this._pElementInput.type = this.type;
+                this._pElementInput.checked = this.isChecked;
+                this._pElementInput.onclick = function (ev) { return _this.onCheckChanged(); };
+                _super.prototype.attachVisualOverride.call(this, elementContainer);
+            };
+            CheckBox.prototype.onCheckChanged = function () {
+                this.isChecked = this._pElementInput.checked;
+            };
+            CheckBox.prototype.measureOverride = function (constraint) {
+                var pElement = this._pElementInput;
+                if (this._measuredSize == null) {
+                    pElement.style.width = "";
+                    pElement.style.height = "";
+                    this._measuredSize = new layouts.Size(pElement.offsetWidth, pElement.offsetHeight);
+                }
+                return new layouts.Size(Math.min(constraint.width, this._measuredSize.width), Math.min(constraint.height, this._measuredSize.height));
+            };
+            //protected layoutOverride() {
+            //    super.layoutOverride();
+            //    //layoutOverride above set style.width and styl.height
+            //    //at that point browser compute new offsetWidth and offetHeight
+            //    //we need to reset style.width/height so that textbox don't exceed space
+            //    //that out parent has reserved for this control
+            //    if (this.renderSize != null) {
+            //        this._pElement.style.width = (this.renderSize.width - (this._pElement.offsetWidth - this.renderSize.width)) + "px";
+            //        this._pElement.style.height = (this.renderSize.height - (this._pElement.offsetHeight - this.renderSize.height)) + "px";
+            //    }
+            //}
+            CheckBox.prototype.onDependencyPropertyChanged = function (property, value, oldValue) {
+                if (property == CheckBox.nameProperty) {
+                    var pElement = this._pElementInput;
+                    if (pElement != null) {
+                        this._pElementInput.name = value;
+                        this._measuredSize = null;
+                    }
+                }
+                else if (property == CheckBox.typeProperty) {
+                    var pElement = this._pElementInput;
+                    if (pElement != null) {
+                        this._pElementInput.type = value;
+                        this._measuredSize = null;
+                    }
+                }
+                else if (property == CheckBox.isCheckedProperty) {
+                    var pElement = this._pElementInput;
+                    if (pElement != null) {
+                        this._pElementInput.checked = value;
+                    }
+                }
+                _super.prototype.onDependencyPropertyChanged.call(this, property, value, oldValue);
+            };
+            Object.defineProperty(CheckBox.prototype, "isChecked", {
+                get: function () {
+                    return this.getValue(CheckBox.isCheckedProperty);
+                },
+                set: function (value) {
+                    this.setValue(CheckBox.isCheckedProperty, value);
+                },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(CheckBox.prototype, "name", {
+                get: function () {
+                    return this.getValue(CheckBox.nameProperty);
+                },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(CheckBox.prototype, "placeholder", {
+                set: function (value) {
+                    this.setValue(CheckBox.nameProperty, value);
+                },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(CheckBox.prototype, "type", {
+                get: function () {
+                    return this.getValue(CheckBox.typeProperty);
+                },
+                set: function (value) {
+                    this.setValue(CheckBox.typeProperty, value);
+                },
+                enumerable: true,
+                configurable: true
+            });
+            CheckBox.typeName = "layouts.controls.CheckBox";
+            CheckBox.isCheckedProperty = layouts.DepObject.registerProperty(CheckBox.typeName, "IsChecked", false, layouts.FrameworkPropertyMetadataOptions.None);
+            CheckBox.nameProperty = layouts.DepObject.registerProperty(CheckBox.typeName, "Name", "", layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender);
+            CheckBox.typeProperty = layouts.DepObject.registerProperty(CheckBox.typeName, "Type", "checkbox", layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender);
+            return CheckBox;
+        }(layouts.FrameworkElement));
+        controls.CheckBox = CheckBox;
+    })(controls = layouts.controls || (layouts.controls = {}));
+})(layouts || (layouts = {}));
 var layouts;
 (function (layouts) {
     var controls;
@@ -4888,6 +5004,155 @@ var layouts;
 (function (layouts) {
     var controls;
     (function (controls) {
+        var TextBlock = (function (_super) {
+            __extends(TextBlock, _super);
+            function TextBlock() {
+                _super.apply(this, arguments);
+            }
+            Object.defineProperty(TextBlock.prototype, "typeName", {
+                get: function () {
+                    return TextBlock.typeName;
+                },
+                enumerable: true,
+                configurable: true
+            });
+            TextBlock.prototype.createElement = function (elementContainer) {
+                return document.createElement("p");
+            };
+            TextBlock.prototype.attachVisualOverride = function (elementContainer) {
+                this._visual = this._pElement = this.createElement(elementContainer);
+                this._visual.style.msUserSelect =
+                    this._visual.style.webkitUserSelect = "none";
+                this._pElement.style.whiteSpace = this.whiteSpace;
+                var text = this.text;
+                var format = this.format;
+                text = format != null && text != null && text != layouts.Consts.stringEmpty ? format.format(text) : text;
+                this._pElement.innerHTML = text == null ? layouts.Consts.stringEmpty : text;
+                _super.prototype.attachVisualOverride.call(this, elementContainer);
+            };
+            TextBlock.prototype.measureOverride = function (constraint) {
+                var pElement = this._pElement;
+                if (this._measuredSize == null) {
+                    pElement.style.width = "";
+                    pElement.style.height = "";
+                    this._measuredSize = new layouts.Size(pElement.clientWidth, pElement.clientHeight);
+                }
+                return new layouts.Size(Math.min(constraint.width, this._measuredSize.width), Math.min(constraint.height, this._measuredSize.height));
+            };
+            TextBlock.prototype.arrangeOverride = function (finalSize) {
+                var pElement = this._pElement;
+                pElement.style.width = finalSize.width.toString() + "px";
+                pElement.style.height = finalSize.height.toString() + "px";
+                return finalSize;
+            };
+            TextBlock.prototype.onDependencyPropertyChanged = function (property, value, oldValue) {
+                if (property == TextBlock.textProperty ||
+                    property == TextBlock.formatProperty) {
+                    var pElement = this._pElement;
+                    var text = value;
+                    var format = this.format;
+                    text = format != null && text != null && text != layouts.Consts.stringEmpty ? format.format(text) : text;
+                    if (pElement != null) {
+                        pElement.innerHTML = text == null ? layouts.Consts.stringEmpty : text;
+                        this._measuredSize = null;
+                    }
+                }
+                else if (property == TextBlock.whiteSpaceProperty) {
+                    var pElement = this._pElement;
+                    if (pElement != null) {
+                        pElement.style.whiteSpace = value;
+                        this._measuredSize = null;
+                    }
+                }
+                _super.prototype.onDependencyPropertyChanged.call(this, property, value, oldValue);
+            };
+            Object.defineProperty(TextBlock.prototype, "text", {
+                get: function () {
+                    return this.getValue(TextBlock.textProperty);
+                },
+                set: function (value) {
+                    this.setValue(TextBlock.textProperty, value);
+                },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(TextBlock.prototype, "whiteSpace", {
+                get: function () {
+                    return this.getValue(TextBlock.whiteSpaceProperty);
+                },
+                set: function (value) {
+                    this.setValue(TextBlock.whiteSpaceProperty, value);
+                },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(TextBlock.prototype, "format", {
+                get: function () {
+                    return this.getValue(TextBlock.formatProperty);
+                },
+                set: function (value) {
+                    this.setValue(TextBlock.formatProperty, value);
+                },
+                enumerable: true,
+                configurable: true
+            });
+            TextBlock.typeName = "layouts.controls.TextBlock";
+            TextBlock.textProperty = layouts.DepObject.registerProperty(TextBlock.typeName, "Text", null, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender, function (v) { return String(v); });
+            TextBlock.whiteSpaceProperty = layouts.DepObject.registerProperty(TextBlock.typeName, "WhiteSpace", "pre", layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender);
+            TextBlock.formatProperty = layouts.DepObject.registerProperty(TextBlock.typeName, "Format", null, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender, function (v) { return String(v); });
+            return TextBlock;
+        }(layouts.FrameworkElement));
+        controls.TextBlock = TextBlock;
+    })(controls = layouts.controls || (layouts.controls = {}));
+})(layouts || (layouts = {}));
+/// <reference path="..\DepProperty.ts" />
+/// <reference path="..\DepObject.ts" />
+/// <reference path="TextBlock.ts" /> 
+var layouts;
+(function (layouts) {
+    var controls;
+    (function (controls) {
+        var Label = (function (_super) {
+            __extends(Label, _super);
+            function Label() {
+                _super.apply(this, arguments);
+            }
+            Object.defineProperty(Label.prototype, "typeName", {
+                get: function () {
+                    return Label.typeName;
+                },
+                enumerable: true,
+                configurable: true
+            });
+            Label.prototype.createElement = function (elementContainer) {
+                var label = document.createElement("label");
+                label.htmlFor = this.htmlFor;
+                return label;
+            };
+            Object.defineProperty(Label.prototype, "htmlFor", {
+                get: function () {
+                    return this.getValue(Label.htmlForProperty);
+                },
+                set: function (value) {
+                    this.setValue(Label.htmlForProperty, value);
+                },
+                enumerable: true,
+                configurable: true
+            });
+            Label.typeName = "layouts.controls.Label";
+            Label.htmlForProperty = layouts.DepObject.registerProperty(Label.typeName, "For", null, layouts.FrameworkPropertyMetadataOptions.None, function (v) { return String(v); });
+            return Label;
+        }(controls.TextBlock));
+        controls.Label = Label;
+    })(controls = layouts.controls || (layouts.controls = {}));
+})(layouts || (layouts = {}));
+/// <reference path="..\DepProperty.ts" />
+/// <reference path="..\DepObject.ts" />
+/// <reference path="..\FrameworkElement.ts" /> 
+var layouts;
+(function (layouts) {
+    var controls;
+    (function (controls) {
         var div = (function (_super) {
             __extends(div, _super);
             function div() {
@@ -5040,111 +5305,6 @@ var layouts;
             return Stack;
         }(controls.Panel));
         controls.Stack = Stack;
-    })(controls = layouts.controls || (layouts.controls = {}));
-})(layouts || (layouts = {}));
-/// <reference path="..\DepProperty.ts" />
-/// <reference path="..\DepObject.ts" />
-/// <reference path="..\FrameworkElement.ts" /> 
-var layouts;
-(function (layouts) {
-    var controls;
-    (function (controls) {
-        var TextBlock = (function (_super) {
-            __extends(TextBlock, _super);
-            function TextBlock() {
-                _super.apply(this, arguments);
-            }
-            Object.defineProperty(TextBlock.prototype, "typeName", {
-                get: function () {
-                    return TextBlock.typeName;
-                },
-                enumerable: true,
-                configurable: true
-            });
-            TextBlock.prototype.attachVisualOverride = function (elementContainer) {
-                this._visual = this._pElement = document.createElement("p");
-                this._visual.style.msUserSelect =
-                    this._visual.style.webkitUserSelect = "none";
-                this._pElement.style.whiteSpace = this.whiteSpace;
-                var text = this.text;
-                var format = this.format;
-                text = format != null && text != null && text != layouts.Consts.stringEmpty ? format.format(text) : text;
-                this._pElement.innerHTML = text == null ? layouts.Consts.stringEmpty : text;
-                _super.prototype.attachVisualOverride.call(this, elementContainer);
-            };
-            TextBlock.prototype.measureOverride = function (constraint) {
-                var pElement = this._pElement;
-                if (this._measuredSize == null) {
-                    pElement.style.width = "";
-                    pElement.style.height = "";
-                    this._measuredSize = new layouts.Size(pElement.clientWidth, pElement.clientHeight);
-                }
-                return new layouts.Size(Math.min(constraint.width, this._measuredSize.width), Math.min(constraint.height, this._measuredSize.height));
-            };
-            TextBlock.prototype.arrangeOverride = function (finalSize) {
-                var pElement = this._pElement;
-                pElement.style.width = finalSize.width.toString() + "px";
-                pElement.style.height = finalSize.height.toString() + "px";
-                return finalSize;
-            };
-            TextBlock.prototype.onDependencyPropertyChanged = function (property, value, oldValue) {
-                if (property == TextBlock.textProperty ||
-                    property == TextBlock.formatProperty) {
-                    var pElement = this._pElement;
-                    var text = value;
-                    var format = this.format;
-                    text = format != null && text != null && text != layouts.Consts.stringEmpty ? format.format(text) : text;
-                    if (pElement != null) {
-                        pElement.innerHTML = text == null ? layouts.Consts.stringEmpty : text;
-                        this._measuredSize = null;
-                    }
-                }
-                else if (property == TextBlock.whiteSpaceProperty) {
-                    var pElement = this._pElement;
-                    if (pElement != null) {
-                        pElement.style.whiteSpace = value;
-                        this._measuredSize = null;
-                    }
-                }
-                _super.prototype.onDependencyPropertyChanged.call(this, property, value, oldValue);
-            };
-            Object.defineProperty(TextBlock.prototype, "text", {
-                get: function () {
-                    return this.getValue(TextBlock.textProperty);
-                },
-                set: function (value) {
-                    this.setValue(TextBlock.textProperty, value);
-                },
-                enumerable: true,
-                configurable: true
-            });
-            Object.defineProperty(TextBlock.prototype, "whiteSpace", {
-                get: function () {
-                    return this.getValue(TextBlock.whiteSpaceProperty);
-                },
-                set: function (value) {
-                    this.setValue(TextBlock.whiteSpaceProperty, value);
-                },
-                enumerable: true,
-                configurable: true
-            });
-            Object.defineProperty(TextBlock.prototype, "format", {
-                get: function () {
-                    return this.getValue(TextBlock.formatProperty);
-                },
-                set: function (value) {
-                    this.setValue(TextBlock.formatProperty, value);
-                },
-                enumerable: true,
-                configurable: true
-            });
-            TextBlock.typeName = "layouts.controls.TextBlock";
-            TextBlock.textProperty = layouts.DepObject.registerProperty(TextBlock.typeName, "Text", null, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender, function (v) { return String(v); });
-            TextBlock.whiteSpaceProperty = layouts.DepObject.registerProperty(TextBlock.typeName, "WhiteSpace", "pre", layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender);
-            TextBlock.formatProperty = layouts.DepObject.registerProperty(TextBlock.typeName, "Format", null, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender, function (v) { return String(v); });
-            return TextBlock;
-        }(layouts.FrameworkElement));
-        controls.TextBlock = TextBlock;
     })(controls = layouts.controls || (layouts.controls = {}));
 })(layouts || (layouts = {}));
 /// <reference path="..\DepProperty.ts" />
@@ -5715,7 +5875,7 @@ var layouts;
 window.onload = function () {
     var app = new layouts.Application();
     var loader = new layouts.XamlReader();
-    var lmlTest = "<?xml version=\"1.0\" encoding=\"utf-8\" ?>\n<Page Name=\"testPage\">\n    <Stack VerticalAlignment=\"Center\" HorizontalAlignment=\"Right\" Orientation=\"Horizontal\" Margin=\"10,20\">\n        <Button Text=\"Test Popup\">\n            <Button.Popup>\n                <Popup Position=\"Bottom\">\n                    <Stack class=\"popup\">\n                        <TextBlock Text=\"{title}\" Command=\"{myCommand}\" Margin=\"8\"/>\n                        <TextBlock Text=\"Menu2\" Margin=\"8\"/>\n                        <TextBlock Text=\"Menu3\" Margin=\"8\"/>\n                    </Stack>\n                </Popup>\n            </Button.Popup>\n        </Button>\n    </Stack>\n</Page>";
+    var lmlTest = "<?xml version=\"1.0\" encoding=\"utf-8\" ?>\n<Page Name=\"testPage\">\n    <Stack VerticalAlignment=\"Center\" HorizontalAlignment=\"Center\" Orientation=\"Vertical\" Margin=\"10,20\">\n        <Button Text=\"Test Popup\">\n            <Button.Popup>\n                <Popup Position=\"Bottom\">\n                    <Stack class=\"popup\">\n                        <!--TextBlock Text=\"{title}\" Command=\"{myCommand}\" Margin=\"8\"/-->\n                        <TextBlock Text=\"Menu2\" Command=\"{myCommand}\"  IsVisible=\"{IsEnabled,source:self}\" Margin=\"8\"/>\n                        <TextBlock Text=\"Menu3\" Margin=\"8\"/>\n                    </Stack>\n                </Popup>\n            </Button.Popup>\n        </Button>\n        <Stack HorizontalAlignment=\"Center\" Orientation=\"Horizontal\">\n            <Label For=\"ch\" Text=\"Enable/Disable Command\" Margin=\"4\"/>\n            <CheckBox id=\"ch\" IsChecked=\"{cmdEnabled,mode:twoway}\"/>\n        </Stack>\n    </Stack>\n</Page>";
     loader.namespaceResolver = function (ns) {
         if (ns == "localControls")
             return "app";
@@ -5728,6 +5888,7 @@ var TestViewModel = (function (_super) {
     __extends(TestViewModel, _super);
     function TestViewModel() {
         _super.apply(this, arguments);
+        this._cmdEnabled = true;
     }
     Object.defineProperty(TestViewModel.prototype, "typeName", {
         get: function () {
@@ -5747,14 +5908,30 @@ var TestViewModel = (function (_super) {
         get: function () {
             var _this = this;
             if (this._myCommand == null)
-                this._myCommand = new layouts.Command(function (cmd, p) { return _this.onMyCommand(); }, function (cmd, p) { return true; });
+                this._myCommand = new layouts.Command(function (cmd, p) { return _this.onMyCommand(); }, function (cmd, p) { return _this.cmdEnabled; });
             return this._myCommand;
         },
         enumerable: true,
         configurable: true
     });
     TestViewModel.prototype.onMyCommand = function () {
+        alert("OnMyCommand!");
     };
+    Object.defineProperty(TestViewModel.prototype, "cmdEnabled", {
+        get: function () {
+            return this._cmdEnabled;
+        },
+        set: function (value) {
+            if (this._cmdEnabled != value) {
+                var oldValue = this._cmdEnabled;
+                this._cmdEnabled = value;
+                this.onPropertyChanged("cmdEnabled", value, oldValue);
+                this.myCommand.canExecuteChanged();
+            }
+        },
+        enumerable: true,
+        configurable: true
+    });
     TestViewModel.typeName = "TestViewModel";
     return TestViewModel;
 }(layouts.DepObject));

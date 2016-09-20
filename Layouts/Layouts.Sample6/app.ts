@@ -5,18 +5,22 @@ window.onload = () => {
 
     var lmlTest = `<?xml version="1.0" encoding="utf-8" ?>
 <Page Name="testPage">
-    <Stack VerticalAlignment="Center" HorizontalAlignment="Right" Orientation="Horizontal" Margin="10,20">
+    <Stack VerticalAlignment="Center" HorizontalAlignment="Center" Orientation="Vertical" Margin="10,20">
         <Button Text="Test Popup">
             <Button.Popup>
                 <Popup Position="Bottom">
                     <Stack class="popup">
-                        <TextBlock Text="{title}" Command="{myCommand}" Margin="8"/>
-                        <TextBlock Text="Menu2" Margin="8"/>
+                        <!--TextBlock Text="{title}" Command="{myCommand}" Margin="8"/-->
+                        <TextBlock Text="Menu2" Command="{myCommand}"  IsVisible="{IsEnabled,source:self}" Margin="8"/>
                         <TextBlock Text="Menu3" Margin="8"/>
                     </Stack>
                 </Popup>
             </Button.Popup>
         </Button>
+        <Stack HorizontalAlignment="Center" Orientation="Horizontal">
+            <Label For="ch" Text="Enable/Disable Command" Margin="4"/>
+            <CheckBox id="ch" IsChecked="{cmdEnabled,mode:twoway}"/>
+        </Stack>
     </Stack>
 </Page>`;
 

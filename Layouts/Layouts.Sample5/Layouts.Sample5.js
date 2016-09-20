@@ -1,8 +1,3 @@
-var __extends = (this && this.__extends) || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-};
 var layouts;
 (function (layouts) {
     var Ext = (function () {
@@ -541,6 +536,11 @@ var layouts;
 })(layouts || (layouts = {}));
 /// <reference path="DepProperty.ts" />
 /// <reference path="DepObject.ts" />
+var __extends = (this && this.__extends) || function (d, b) {
+    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+    function __() { this.constructor = d; }
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+};
 var layouts;
 (function (layouts) {
     var Size = (function () {
@@ -4871,8 +4871,11 @@ var layouts;
                 enumerable: true,
                 configurable: true
             });
+            TextBlock.prototype.createElement = function (elementContainer) {
+                return document.createElement("p");
+            };
             TextBlock.prototype.attachVisualOverride = function (elementContainer) {
-                this._visual = this._pElement = document.createElement("p");
+                this._visual = this._pElement = this.createElement(elementContainer);
                 this._visual.style.msUserSelect =
                     this._visual.style.webkitUserSelect = "none";
                 this._pElement.style.whiteSpace = this.whiteSpace;

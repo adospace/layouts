@@ -2784,12 +2784,8 @@ var layouts;
             });
             CheckBox.prototype.attachVisualOverride = function (elementContainer) {
                 var _this = this;
-                this._visual = this._pElement = document.createElement("label");
-                this._pElementInput = document.createElement("input");
-                this._pElement.appendChild(this._pElementInput);
-                this._pElement.appendChild(document.createTextNode(this.text));
+                this._visual = this._pElementInput = document.createElement("input");
                 this._pElementInput.type = this.type;
-                this._pElementInput.value = this.text;
                 this._pElementInput.checked = this.isChecked;
                 this._pElementInput.onclick = function (ev) { return _this.onCheckChanged(); };
                 _super.prototype.attachVisualOverride.call(this, elementContainer);
@@ -2798,7 +2794,7 @@ var layouts;
                 this.isChecked = this._pElementInput.checked;
             };
             CheckBox.prototype.measureOverride = function (constraint) {
-                var pElement = this._pElement;
+                var pElement = this._pElementInput;
                 if (this._measuredSize == null) {
                     pElement.style.width = "";
                     pElement.style.height = "";
@@ -2818,47 +2814,28 @@ var layouts;
             //    }
             //}
             CheckBox.prototype.onDependencyPropertyChanged = function (property, value, oldValue) {
-                if (property == CheckBox.textProperty) {
-                    var pElement = this._pElement;
-                    if (pElement != null) {
-                        this._pElement.removeChild(this._pElement.lastChild);
-                        this._pElement.appendChild(document.createTextNode(value));
-                        this._pElementInput.value = value;
-                        this._measuredSize = null;
-                    }
-                }
-                else if (property == CheckBox.nameProperty) {
-                    var pElement = this._pElement;
+                if (property == CheckBox.nameProperty) {
+                    var pElement = this._pElementInput;
                     if (pElement != null) {
                         this._pElementInput.name = value;
                         this._measuredSize = null;
                     }
                 }
                 else if (property == CheckBox.typeProperty) {
-                    var pElement = this._pElement;
+                    var pElement = this._pElementInput;
                     if (pElement != null) {
                         this._pElementInput.type = value;
                         this._measuredSize = null;
                     }
                 }
                 else if (property == CheckBox.isCheckedProperty) {
-                    var pElement = this._pElement;
+                    var pElement = this._pElementInput;
                     if (pElement != null) {
                         this._pElementInput.checked = value;
                     }
                 }
                 _super.prototype.onDependencyPropertyChanged.call(this, property, value, oldValue);
             };
-            Object.defineProperty(CheckBox.prototype, "text", {
-                get: function () {
-                    return this.getValue(CheckBox.textProperty);
-                },
-                set: function (value) {
-                    this.setValue(CheckBox.textProperty, value);
-                },
-                enumerable: true,
-                configurable: true
-            });
             Object.defineProperty(CheckBox.prototype, "isChecked", {
                 get: function () {
                     return this.getValue(CheckBox.isCheckedProperty);
@@ -2894,7 +2871,6 @@ var layouts;
                 configurable: true
             });
             CheckBox.typeName = "layouts.controls.CheckBox";
-            CheckBox.textProperty = layouts.DepObject.registerProperty(CheckBox.typeName, "Text", null, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender);
             CheckBox.isCheckedProperty = layouts.DepObject.registerProperty(CheckBox.typeName, "IsChecked", false, layouts.FrameworkPropertyMetadataOptions.None);
             CheckBox.nameProperty = layouts.DepObject.registerProperty(CheckBox.typeName, "Name", "", layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender);
             CheckBox.typeProperty = layouts.DepObject.registerProperty(CheckBox.typeName, "Type", "checkbox", layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender);
@@ -5327,8 +5303,11 @@ var layouts;
                 enumerable: true,
                 configurable: true
             });
+            TextBlock.prototype.createElement = function (elementContainer) {
+                return document.createElement("p");
+            };
             TextBlock.prototype.attachVisualOverride = function (elementContainer) {
-                this._visual = this._pElement = document.createElement("p");
+                this._visual = this._pElement = this.createElement(elementContainer);
                 this._visual.style.msUserSelect =
                     this._visual.style.webkitUserSelect = "none";
                 this._pElement.style.whiteSpace = this.whiteSpace;

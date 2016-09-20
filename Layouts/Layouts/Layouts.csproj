@@ -32,6 +32,7 @@
     <TypeScriptCompile Include="layouts\controls\Grid.ts" />
     <TypeScriptCompile Include="layouts\controls\GridSplitter.ts" />
     <TypeScriptCompile Include="layouts\controls\Image.ts" />
+    <TypeScriptCompile Include="layouts\controls\Label.ts" />
     <TypeScriptCompile Include="layouts\controls\MediaTemplateSelector.ts" />
     <TypeScriptCompile Include="layouts\controls\NativeElements.ts" />
     <TypeScriptCompile Include="layouts\controls\ItemsControl.ts" />

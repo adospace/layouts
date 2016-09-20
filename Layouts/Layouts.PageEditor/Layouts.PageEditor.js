@@ -4610,8 +4610,11 @@ var layouts;
                 enumerable: true,
                 configurable: true
             });
+            TextBlock.prototype.createElement = function (elementContainer) {
+                return document.createElement("p");
+            };
             TextBlock.prototype.attachVisualOverride = function (elementContainer) {
-                this._visual = this._pElement = document.createElement("p");
+                this._visual = this._pElement = this.createElement(elementContainer);
                 this._visual.style.msUserSelect =
                     this._visual.style.webkitUserSelect = "none";
                 this._pElement.style.whiteSpace = this.whiteSpace;

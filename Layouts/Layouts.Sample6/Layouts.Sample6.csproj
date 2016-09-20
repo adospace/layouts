@@ -46,6 +46,9 @@
     <TypeScriptCompile Include="..\Layouts\layouts\controls\Canvas.ts">
       <Link>layouts\controls\Canvas.ts</Link>
     </TypeScriptCompile>
+    <TypeScriptCompile Include="..\Layouts\layouts\controls\CheckBox.ts">
+      <Link>layouts\controls\CheckBox.ts</Link>
+    </TypeScriptCompile>
     <TypeScriptCompile Include="..\Layouts\layouts\controls\ComboBox.ts">
       <Link>layouts\controls\ComboBox.ts</Link>
     </TypeScriptCompile>
@@ -72,6 +75,9 @@
     </TypeScriptCompile>
     <TypeScriptCompile Include="..\Layouts\layouts\controls\ItemsControl.ts">
       <Link>layouts\controls\ItemsControl.ts</Link>
+    </TypeScriptCompile>
+    <TypeScriptCompile Include="..\Layouts\layouts\controls\Label.ts">
+      <Link>layouts\controls\Label.ts</Link>
     </TypeScriptCompile>
     <TypeScriptCompile Include="..\Layouts\layouts\controls\NativeElements.ts">
       <Link>layouts\controls\NativeElements.ts</Link>
