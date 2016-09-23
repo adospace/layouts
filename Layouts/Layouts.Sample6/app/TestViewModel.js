@@ -7,6 +7,7 @@ var TestViewModel = (function (_super) {
     __extends(TestViewModel, _super);
     function TestViewModel() {
         _super.apply(this, arguments);
+        this._cmdEnabled = true;
     }
     Object.defineProperty(TestViewModel.prototype, "typeName", {
         get: function () {
@@ -26,14 +27,30 @@ var TestViewModel = (function (_super) {
         get: function () {
             var _this = this;
             if (this._myCommand == null)
-                this._myCommand = new layouts.Command(function (cmd, p) { return _this.onMyCommand(); }, function (cmd, p) { return true; });
+                this._myCommand = new layouts.Command(function (cmd, p) { return _this.onMyCommand(); }, function (cmd, p) { return _this.cmdEnabled; });
             return this._myCommand;
         },
         enumerable: true,
         configurable: true
     });
     TestViewModel.prototype.onMyCommand = function () {
+        alert("OnMyCommand!");
     };
+    Object.defineProperty(TestViewModel.prototype, "cmdEnabled", {
+        get: function () {
+            return this._cmdEnabled;
+        },
+        set: function (value) {
+            if (this._cmdEnabled != value) {
+                var oldValue = this._cmdEnabled;
+                this._cmdEnabled = value;
+                this.onPropertyChanged("cmdEnabled", value, oldValue);
+                this.myCommand.canExecuteChanged();
+            }
+        },
+        enumerable: true,
+        configurable: true
+    });
     TestViewModel.typeName = "TestViewModel";
     return TestViewModel;
 }(layouts.DepObject));
