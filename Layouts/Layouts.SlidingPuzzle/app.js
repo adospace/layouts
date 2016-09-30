@@ -185,6 +185,7 @@ var Tile = (function (_super) {
     };
     return Tile;
 }(layouts.DepObject));
+// http://stackoverflow.com/questions/962802#962890
 function shuffle(array) {
     var tmp, current, top = array.length;
     if (top)
@@ -203,3 +204,4 @@ window.onload = function () {
     app.page = loader.Parse(lmlTest);
     app.page.dataContext = new Game();
 };
+//# sourceMappingURL=app.js.map

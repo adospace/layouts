@@ -759,15 +759,61 @@ declare module layouts.controls {
     }
 }
 declare module layouts.controls {
-    class div extends FrameworkElement {
+    class NativeElement extends FrameworkElement {
+        elementType: string;
         static typeName: string;
         typeName: string;
+        constructor(elementType: string);
+        private _child;
+        child: UIElement;
+        invalidateMeasure(): void;
         attachVisualOverride(elementContainer: HTMLElement): void;
-        private _innerXaml;
-        setInnerXaml(value: string): void;
+        protected onDependencyPropertyChanged(property: DepProperty, value: any, oldValue: any): void;
         private _measuredSize;
         protected measureOverride(constraint: Size): Size;
         protected arrangeOverride(finalSize: Size): Size;
+        static textProperty: DepProperty;
+        text: string;
+    }
+    class div extends NativeElement {
+        static typeName: string;
+        typeName: string;
+        constructor();
+    }
+    class a extends NativeElement {
+        static typeName: string;
+        typeName: string;
+        constructor();
+    }
+    class img extends NativeElement {
+        static typeName: string;
+        typeName: string;
+        constructor();
+    }
+    class i extends NativeElement {
+        static typeName: string;
+        typeName: string;
+        constructor();
+    }
+    class ul extends NativeElement {
+        static typeName: string;
+        typeName: string;
+        constructor();
+    }
+    class li extends NativeElement {
+        static typeName: string;
+        typeName: string;
+        constructor();
+    }
+    class nav extends NativeElement {
+        static typeName: string;
+        typeName: string;
+        constructor();
+    }
+    class span extends NativeElement {
+        static typeName: string;
+        typeName: string;
+        constructor();
     }
 }
 declare module layouts.controls {

@@ -230,8 +230,11 @@ module layouts {
                 return;
             
             //apply extended properties to html element
-            this._extendedProperties.forEach(ep=> {
-                this._visual.style[ep.name] = ep.value;
+            this._extendedProperties.forEach(ep => {
+                if (ep.name in this._visual)
+                    this._visual[ep.name] = ep.value;
+                else
+                    this._visual.style[ep.name] = ep.value;
             });
 
             this._visual.style.visibility = this.isVisible ? "" : "hidden"

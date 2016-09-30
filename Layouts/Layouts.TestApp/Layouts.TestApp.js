@@ -768,7 +768,10 @@ var layouts;
                 return;
             //apply extended properties to html element
             this._extendedProperties.forEach(function (ep) {
-                _this._visual.style[ep.name] = ep.value;
+                if (ep.name in _this._visual)
+                    _this._visual[ep.name] = ep.value;
+                else
+                    _this._visual.style[ep.name] = ep.value;
             });
             this._visual.style.visibility = this.isVisible ? "" : "hidden";
             if (this.command != null)
@@ -5130,30 +5133,62 @@ var layouts;
 (function (layouts) {
     var controls;
     (function (controls) {
-        var div = (function (_super) {
-            __extends(div, _super);
-            function div() {
-                _super.apply(this, arguments);
+        var NativeElement = (function (_super) {
+            __extends(NativeElement, _super);
+            function NativeElement(elementType) {
+                _super.call(this);
+                this.elementType = elementType;
             }
-            Object.defineProperty(div.prototype, "typeName", {
+            Object.defineProperty(NativeElement.prototype, "typeName", {
                 get: function () {
-                    return div.typeName;
+                    return NativeElement.typeName;
                 },
                 enumerable: true,
                 configurable: true
             });
-            //constructor(public tagName: string) {
-            //    super();
-            //}
-            div.prototype.attachVisualOverride = function (elementContainer) {
-                this._visual = document.createElement("div");
-                this._visual.innerHTML = this._innerXaml;
+            Object.defineProperty(NativeElement.prototype, "child", {
+                get: function () {
+                    return this._child;
+                },
+                set: function (value) {
+                    if (this._child != value) {
+                        if (this._child != null && this._child.parent == this) {
+                            this._child.parent = null;
+                            this._child.attachVisual(null);
+                        }
+                        this._child = value;
+                        if (this._child != null) {
+                            this._child.parent = this;
+                            if (this._visual != null)
+                                this._child.attachVisual(this._visual, true);
+                        }
+                        this.invalidateMeasure();
+                    }
+                },
+                enumerable: true,
+                configurable: true
+            });
+            NativeElement.prototype.invalidateMeasure = function () {
+                this._measuredSize = null;
+                _super.prototype.invalidateMeasure.call(this);
+            };
+            NativeElement.prototype.attachVisualOverride = function (elementContainer) {
+                this._visual = document.createElement(this.elementType);
+                this._visual.innerHTML = this.text;
+                if (this._child != null) {
+                    this._child.attachVisual(this._visual, true);
+                }
                 _super.prototype.attachVisualOverride.call(this, elementContainer);
             };
-            div.prototype.setInnerXaml = function (value) {
-                this._innerXaml = value;
+            NativeElement.prototype.onDependencyPropertyChanged = function (property, value, oldValue) {
+                if (property == NativeElement.textProperty) {
+                    this._visual.innerHTML = value;
+                }
+                _super.prototype.onDependencyPropertyChanged.call(this, property, value, oldValue);
             };
-            div.prototype.measureOverride = function (constraint) {
+            NativeElement.prototype.measureOverride = function (constraint) {
+                //if (this._child != null)
+                //    this._child.measure(constraint);
                 var pElement = this._visual;
                 ;
                 if (this._measuredSize == null) {
@@ -5163,16 +5198,159 @@ var layouts;
                 }
                 return new layouts.Size(Math.min(constraint.width, this._measuredSize.width), Math.min(constraint.height, this._measuredSize.height));
             };
-            div.prototype.arrangeOverride = function (finalSize) {
-                var pElement = this._visual;
-                pElement.style.width = finalSize.width.toString() + "px";
-                pElement.style.height = finalSize.height.toString() + "px";
-                return finalSize;
-            };
+            Object.defineProperty(NativeElement.prototype, "text", {
+                get: function () {
+                    return this.getValue(NativeElement.textProperty);
+                },
+                set: function (value) {
+                    this.setValue(NativeElement.textProperty, value);
+                },
+                enumerable: true,
+                configurable: true
+            });
+            NativeElement.typeName = "layouts.controls.NativeElement";
+            //protected arrangeOverride(finalSize: Size): Size {
+            //    var pElement = this._visual;
+            //    pElement.style.width = finalSize.width.toString() + "px";
+            //    pElement.style.height = finalSize.height.toString() + "px";
+            //    var child = this.child;
+            //    if (child != null) {
+            //        child.arrange(new Rect(0, 0, finalSize.width, finalSize.height));
+            //    }
+            //    return finalSize;
+            //}
+            NativeElement.textProperty = layouts.DepObject.registerProperty(NativeElement.typeName, "Text", "", layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender, function (v) { return String(v); });
+            return NativeElement;
+        }(layouts.FrameworkElement));
+        controls.NativeElement = NativeElement;
+        var div = (function (_super) {
+            __extends(div, _super);
+            function div() {
+                _super.call(this, "div");
+            }
+            Object.defineProperty(div.prototype, "typeName", {
+                get: function () {
+                    return div.typeName;
+                },
+                enumerable: true,
+                configurable: true
+            });
             div.typeName = "layouts.controls.div";
             return div;
-        }(layouts.FrameworkElement));
+        }(NativeElement));
         controls.div = div;
+        var a = (function (_super) {
+            __extends(a, _super);
+            function a() {
+                _super.call(this, "a");
+            }
+            Object.defineProperty(a.prototype, "typeName", {
+                get: function () {
+                    return a.typeName;
+                },
+                enumerable: true,
+                configurable: true
+            });
+            a.typeName = "layouts.controls.a";
+            return a;
+        }(NativeElement));
+        controls.a = a;
+        var img = (function (_super) {
+            __extends(img, _super);
+            function img() {
+                _super.call(this, "img");
+            }
+            Object.defineProperty(img.prototype, "typeName", {
+                get: function () {
+                    return img.typeName;
+                },
+                enumerable: true,
+                configurable: true
+            });
+            img.typeName = "layouts.controls.img";
+            return img;
+        }(NativeElement));
+        controls.img = img;
+        var i = (function (_super) {
+            __extends(i, _super);
+            function i() {
+                _super.call(this, "i");
+            }
+            Object.defineProperty(i.prototype, "typeName", {
+                get: function () {
+                    return i.typeName;
+                },
+                enumerable: true,
+                configurable: true
+            });
+            i.typeName = "layouts.controls.i";
+            return i;
+        }(NativeElement));
+        controls.i = i;
+        var ul = (function (_super) {
+            __extends(ul, _super);
+            function ul() {
+                _super.call(this, "ul");
+            }
+            Object.defineProperty(ul.prototype, "typeName", {
+                get: function () {
+                    return ul.typeName;
+                },
+                enumerable: true,
+                configurable: true
+            });
+            ul.typeName = "layouts.controls.ul";
+            return ul;
+        }(NativeElement));
+        controls.ul = ul;
+        var li = (function (_super) {
+            __extends(li, _super);
+            function li() {
+                _super.call(this, "li");
+            }
+            Object.defineProperty(li.prototype, "typeName", {
+                get: function () {
+                    return li.typeName;
+                },
+                enumerable: true,
+                configurable: true
+            });
+            li.typeName = "layouts.controls.li";
+            return li;
+        }(NativeElement));
+        controls.li = li;
+        var nav = (function (_super) {
+            __extends(nav, _super);
+            function nav() {
+                _super.call(this, "nav");
+            }
+            Object.defineProperty(nav.prototype, "typeName", {
+                get: function () {
+                    return nav.typeName;
+                },
+                enumerable: true,
+                configurable: true
+            });
+            nav.typeName = "layouts.controls.nav";
+            return nav;
+        }(NativeElement));
+        controls.nav = nav;
+        var span = (function (_super) {
+            __extends(span, _super);
+            function span() {
+                _super.call(this, "span");
+            }
+            Object.defineProperty(span.prototype, "typeName", {
+                get: function () {
+                    return span.typeName;
+                },
+                enumerable: true,
+                configurable: true
+            });
+            span.typeName = "layouts.controls.span";
+            return span;
+        }(NativeElement));
+        controls.span = span;
     })(controls = layouts.controls || (layouts.controls = {}));
 })(layouts || (layouts = {}));
 /// <reference path="..\DepProperty.ts" />

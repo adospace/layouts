@@ -4,5 +4,6 @@
   <TextBox Text="56" Placeholder="User name (test)" Margin="8" Width="Auto"/>
   <TextBox Text="{password,mode:twoway}" Type="password" Placeholder="Password (test)" Margin="8"/>
   <CheckBox Text="Test CheckBox" IsChecked="true" Margin="8"/>
-  <Button Text="Sign In" Command="{loginCommand}" Margin="8,16,8,8"/>
+  <Button Text="Sign In" Command="{loginCommand}" src="asdjas" Margin="8,16,8,8"/>
+  <img src="C:/Users/adosp/Downloads/themeforest-metronic/metronic_v4.7/theme/assets/layouts/layout/img/logo.png" Margin="5"/>
 </Stack>

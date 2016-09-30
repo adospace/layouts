@@ -3,29 +3,71 @@
 /// <reference path="..\FrameworkElement.ts" /> 
 
 module layouts.controls {
-    export class div extends FrameworkElement {
-        static typeName: string = "layouts.controls.div";
+    export class NativeElement extends FrameworkElement {
+        static typeName: string = "layouts.controls.NativeElement";
         get typeName(): string {
-            return div.typeName;
+            return NativeElement.typeName;
         }
 
-        //constructor(public tagName: string) {
-        //    super();
-        //}
+        public constructor(public elementType: string) {
+            super();
+        }
+
+        private _child: UIElement;
+        get child(): UIElement {
+            return this._child;
+        }
+        set child(value: UIElement) {
+            if (this._child != value) {
+                if (this._child != null && this._child.parent == this) {
+                    this._child.parent = null;
+                    this._child.attachVisual(null);
+                }
+                this._child = value;
+                if (this._child != null) {
+                    this._child.parent = this;
+                    if (this._visual != null)
+                        this._child.attachVisual(this._visual, true);
+                }
+                this.invalidateMeasure();
+            }
+        }
+
+        invalidateMeasure(): void {
+            this._measuredSize = null;
+            super.invalidateMeasure();
+        }
 
         attachVisualOverride(elementContainer: HTMLElement) {
-            this._visual = document.createElement("div");
-            this._visual.innerHTML = this._innerXaml;
+            this._visual = document.createElement(this.elementType);
+            this._visual.innerHTML = this.text;
+
+            if (this._child != null) {
+                this._child.attachVisual(this._visual, true);
+            }
+
             super.attachVisualOverride(elementContainer);
         }
 
-        private _innerXaml: string;
-        setInnerXaml(value: string) {
-            this._innerXaml = value;
+        protected onDependencyPropertyChanged(property: DepProperty, value: any, oldValue: any) {
+
+            if (property == NativeElement.textProperty) {
+                this._visual.innerHTML = value;
+            }
+
+            super.onDependencyPropertyChanged(property, value, oldValue);
         }
+
+
+        //private _innerXaml: string;
+        //setInnerXaml(value: string) {
+        //    this._innerXaml = value;
+        //}
 
         private _measuredSize: Size;
         protected measureOverride(constraint: Size): Size {
+            if (this._child != null)
+                this._child.measure(constraint);
             var pElement = this._visual;;
             if (this._measuredSize == null) {
                 pElement.style.width = "";
@@ -41,7 +83,20 @@ module layouts.controls {
             pElement.style.width = finalSize.width.toString() + "px";
             pElement.style.height = finalSize.height.toString() + "px";
 
+            var child = this.child;
+            if (child != null) {
+                child.arrange(new Rect(0, 0, finalSize.width, finalSize.height));
+            }
+
             return finalSize;
+        }
+
+        static textProperty = DepObject.registerProperty(NativeElement.typeName, "Text", "", FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender, (v) => String(v));
+        get text(): string {
+            return <string>this.getValue(NativeElement.textProperty);
+        }
+        set text(value: string) {
+            this.setValue(NativeElement.textProperty, value);
         }
 
         //protected measureOverride(constraint: Size): Size {
@@ -69,61 +124,93 @@ module layouts.controls {
 
     }
 
-    //export class i extends NativeElement {
-    //    static typeName: string = "layouts.controls.i";
-    //    get typeName(): string {
-    //        return i.typeName;
-    //    }
+    export class div extends NativeElement {
+        static typeName: string = "layouts.controls.div";
+        get typeName(): string {
+            return div.typeName;
+        }
 
-    //    constructor() {
-    //        super("i");
-    //    }
-    //}
+        constructor() {
+            super("div");
+        }
+    }
 
-    //export class ul extends NativeElement {
-    //    static typeName: string = "layouts.controls.ul";
-    //    get typeName(): string {
-    //        return ul.typeName;
-    //    }
+    export class a extends NativeElement {
+        static typeName: string = "layouts.controls.a";
+        get typeName(): string {
+            return a.typeName;
+        }
 
-    //    constructor() {
-    //        super("ul");
-    //    }
+        constructor() {
+            super("a");
+        }
+    }
 
-    //}
+    export class img extends NativeElement {
+        static typeName: string = "layouts.controls.img";
+        get typeName(): string {
+            return img.typeName;
+        }
 
-    //export class li extends NativeElement {
-    //    static typeName: string = "layouts.controls.li";
-    //    get typeName(): string {
-    //        return li.typeName;
-    //    }
+        constructor() {
+            super("img");
+        }
+    }
 
-    //    constructor() {
-    //        super("li");
-    //    }
-    //}
+    export class i extends NativeElement {
+        static typeName: string = "layouts.controls.i";
+        get typeName(): string {
+            return i.typeName;
+        }
 
-    //export class nav extends NativeElement {
-    //    static typeName: string = "layouts.controls.nav";
-    //    get typeName(): string {
-    //        return nav.typeName;
-    //    }
+        constructor() {
+            super("i");
+        }
+    }
 
-    //    constructor() {
-    //        super("nav");
-    //    }
-    //}
+    export class ul extends NativeElement {
+        static typeName: string = "layouts.controls.ul";
+        get typeName(): string {
+            return ul.typeName;
+        }
 
-    //export class span extends NativeElement {
-    //    static typeName: string = "layouts.controls.span";
-    //    get typeName(): string {
-    //        return span.typeName;
-    //    }
+        constructor() {
+            super("ul");
+        }
+    }
 
-    //    constructor() {
-    //        super("span");
-    //    }
-    //}
+    export class li extends NativeElement {
+        static typeName: string = "layouts.controls.li";
+        get typeName(): string {
+            return li.typeName;
+        }
+
+        constructor() {
+            super("li");
+        }
+    }
+
+    export class nav extends NativeElement {
+        static typeName: string = "layouts.controls.nav";
+        get typeName(): string {
+            return nav.typeName;
+        }
+
+        constructor() {
+            super("nav");
+        }
+    }
+
+    export class span extends NativeElement {
+        static typeName: string = "layouts.controls.span";
+        get typeName(): string {
+            return span.typeName;
+        }
+
+        constructor() {
+            super("span");
+        }
+    }
 
     //export class div extends NativeElement {
     //    static typeName: string = "layouts.controls.div";
