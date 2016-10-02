@@ -34,7 +34,7 @@ var layouts;
                         if (this._child != null) {
                             this._child.parent = this;
                             if (this._visual != null)
-                                this._child.attachVisual(this._visual);
+                                this._child.attachVisual(this._visual, true);
                         }
                         this.invalidateMeasure();
                     }
@@ -50,7 +50,7 @@ var layouts;
                 this._visual = document.createElement(this.elementType);
                 this._visual.innerHTML = this.text;
                 if (this._child != null) {
-                    this._child.attachVisual(this._visual);
+                    this._child.attachVisual(this._visual, true);
                 }
                 _super.prototype.attachVisualOverride.call(this, elementContainer);
             };
@@ -61,6 +61,8 @@ var layouts;
                 _super.prototype.onDependencyPropertyChanged.call(this, property, value, oldValue);
             };
             NativeElement.prototype.measureOverride = function (constraint) {
+                if (this._child != null)
+                    this._child.measure(constraint);
                 var pElement = this._visual;
                 ;
                 if (this._measuredSize == null) {
@@ -74,20 +76,24 @@ var layouts;
                 var pElement = this._visual;
                 pElement.style.width = finalSize.width.toString() + "px";
                 pElement.style.height = finalSize.height.toString() + "px";
+                var child = this.child;
+                if (child != null) {
+                    child.arrange(new layouts.Rect(0, 0, finalSize.width, finalSize.height));
+                }
                 return finalSize;
             };
             Object.defineProperty(NativeElement.prototype, "text", {
                 get: function () {
-                    return this.getValue(a.textProperty);
+                    return this.getValue(NativeElement.textProperty);
                 },
                 set: function (value) {
-                    this.setValue(a.textProperty, value);
+                    this.setValue(NativeElement.textProperty, value);
                 },
                 enumerable: true,
                 configurable: true
             });
             NativeElement.typeName = "layouts.controls.NativeElement";
-            NativeElement.textProperty = layouts.DepObject.registerProperty(a.typeName, "Text", null, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender, function (v) { return String(v); });
+            NativeElement.textProperty = layouts.DepObject.registerProperty(NativeElement.typeName, "Text", "", layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender, function (v) { return String(v); });
             return NativeElement;
         }(layouts.FrameworkElement));
         controls.NativeElement = NativeElement;
@@ -98,7 +104,7 @@ var layouts;
             }
             Object.defineProperty(div.prototype, "typeName", {
                 get: function () {
-                    return i.typeName;
+                    return div.typeName;
                 },
                 enumerable: true,
                 configurable: true
@@ -114,7 +120,7 @@ var layouts;
             }
             Object.defineProperty(a.prototype, "typeName", {
                 get: function () {
-                    return i.typeName;
+                    return a.typeName;
                 },
                 enumerable: true,
                 configurable: true
@@ -123,6 +129,22 @@ var layouts;
             return a;
         }(NativeElement));
         controls.a = a;
+        var img = (function (_super) {
+            __extends(img, _super);
+            function img() {
+                _super.call(this, "img");
+            }
+            Object.defineProperty(img.prototype, "typeName", {
+                get: function () {
+                    return img.typeName;
+                },
+                enumerable: true,
+                configurable: true
+            });
+            img.typeName = "layouts.controls.img";
+            return img;
+        }(NativeElement));
+        controls.img = img;
         var i = (function (_super) {
             __extends(i, _super);
             function i() {
@@ -203,5 +225,85 @@ var layouts;
             return span;
         }(NativeElement));
         controls.span = span;
+        var h1 = (function (_super) {
+            __extends(h1, _super);
+            function h1() {
+                _super.call(this, "h1");
+            }
+            Object.defineProperty(h1.prototype, "typeName", {
+                get: function () {
+                    return h1.typeName;
+                },
+                enumerable: true,
+                configurable: true
+            });
+            h1.typeName = "layouts.controls.h1";
+            return h1;
+        }(NativeElement));
+        controls.h1 = h1;
+        var h2 = (function (_super) {
+            __extends(h2, _super);
+            function h2() {
+                _super.call(this, "h2");
+            }
+            Object.defineProperty(h2.prototype, "typeName", {
+                get: function () {
+                    return h2.typeName;
+                },
+                enumerable: true,
+                configurable: true
+            });
+            h2.typeName = "layouts.controls.h2";
+            return h2;
+        }(NativeElement));
+        controls.h2 = h2;
+        var h3 = (function (_super) {
+            __extends(h3, _super);
+            function h3() {
+                _super.call(this, "h3");
+            }
+            Object.defineProperty(h3.prototype, "typeName", {
+                get: function () {
+                    return h3.typeName;
+                },
+                enumerable: true,
+                configurable: true
+            });
+            h3.typeName = "layouts.controls.h3";
+            return h3;
+        }(NativeElement));
+        controls.h3 = h3;
+        var h4 = (function (_super) {
+            __extends(h4, _super);
+            function h4() {
+                _super.call(this, "h4");
+            }
+            Object.defineProperty(h4.prototype, "typeName", {
+                get: function () {
+                    return h4.typeName;
+                },
+                enumerable: true,
+                configurable: true
+            });
+            h4.typeName = "layouts.controls.h4";
+            return h4;
+        }(NativeElement));
+        controls.h4 = h4;
+        var h5 = (function (_super) {
+            __extends(h5, _super);
+            function h5() {
+                _super.call(this, "h5");
+            }
+            Object.defineProperty(h5.prototype, "typeName", {
+                get: function () {
+                    return h5.typeName;
+                },
+                enumerable: true,
+                configurable: true
+            });
+            h5.typeName = "layouts.controls.h5";
+            return h5;
+        }(NativeElement));
+        controls.h5 = h5;
     })(controls = layouts.controls || (layouts.controls = {}));
 })(layouts || (layouts = {}));

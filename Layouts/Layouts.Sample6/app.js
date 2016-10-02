@@ -768,7 +768,10 @@ var layouts;
                 return;
             //apply extended properties to html element
             this._extendedProperties.forEach(function (ep) {
-                _this._visual.style[ep.name] = ep.value;
+                if (ep.name in _this._visual)
+                    _this._visual[ep.name] = ep.value;
+                else
+                    _this._visual.style[ep.name] = ep.value;
             });
             this._visual.style.visibility = this.isVisible ? "" : "hidden";
             if (this.command != null)
@@ -5180,7 +5183,7 @@ var layouts;
                         if (this._child != null) {
                             this._child.parent = this;
                             if (this._visual != null)
-                                this._child.attachVisual(this._visual);
+                                this._child.attachVisual(this._visual, true);
                         }
                         this.invalidateMeasure();
                     }
@@ -5196,12 +5199,12 @@ var layouts;
                 this._visual = document.createElement(this.elementType);
                 this._visual.innerHTML = this.text;
                 if (this._child != null) {
-                    this._child.attachVisual(this._visual);
+                    this._child.attachVisual(this._visual, true);
                 }
                 _super.prototype.attachVisualOverride.call(this, elementContainer);
             };
             NativeElement.prototype.onDependencyPropertyChanged = function (property, value, oldValue) {
-                if (property == NativeElement.textProperty) {
+                if (property == NativeElement.textProperty && this._visual != null) {
                     this._visual.innerHTML = value;
                 }
                 _super.prototype.onDependencyPropertyChanged.call(this, property, value, oldValue);
@@ -5218,6 +5221,16 @@ var layouts;
                 }
                 return new layouts.Size(Math.min(constraint.width, this._measuredSize.width), Math.min(constraint.height, this._measuredSize.height));
             };
+            NativeElement.prototype.arrangeOverride = function (finalSize) {
+                var pElement = this._visual;
+                pElement.style.width = finalSize.width.toString() + "px";
+                pElement.style.height = finalSize.height.toString() + "px";
+                var child = this.child;
+                if (child != null) {
+                    child.arrange(new layouts.Rect(0, 0, finalSize.width, finalSize.height));
+                }
+                return finalSize;
+            };
             Object.defineProperty(NativeElement.prototype, "text", {
                 get: function () {
                     return this.getValue(NativeElement.textProperty);
@@ -5229,19 +5242,6 @@ var layouts;
                 configurable: true
             });
             NativeElement.typeName = "layouts.controls.NativeElement";
-            //protected arrangeOverride(finalSize: Size): Size {
-            //    var pElement = this._visual;
-            //    pElement.style.width = finalSize.width.toString() + "px";
-            //    pElement.style.height = finalSize.height.toString() + "px";
-            //    if (child != null) {
-            //        var childRect = new Rect(innerRect.x + padding.left,
-            //            innerRect.y + padding.top,
-            //            Math.max(0.0, innerRect.width - padding.left - padding.right),
-            //            Math.max(0.0, innerRect.height - padding.top - padding.bottom));
-            //        child.arrange(childRect);
-            //    }
-            //    return finalSize;
-            //}
             NativeElement.textProperty = layouts.DepObject.registerProperty(NativeElement.typeName, "Text", "", layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender, function (v) { return String(v); });
             return NativeElement;
         }(layouts.FrameworkElement));
@@ -5374,6 +5374,86 @@ var layouts;
             return span;
         }(NativeElement));
         controls.span = span;
+        var h1 = (function (_super) {
+            __extends(h1, _super);
+            function h1() {
+                _super.call(this, "h1");
+            }
+            Object.defineProperty(h1.prototype, "typeName", {
+                get: function () {
+                    return h1.typeName;
+                },
+                enumerable: true,
+                configurable: true
+            });
+            h1.typeName = "layouts.controls.h1";
+            return h1;
+        }(NativeElement));
+        controls.h1 = h1;
+        var h2 = (function (_super) {
+            __extends(h2, _super);
+            function h2() {
+                _super.call(this, "h2");
+            }
+            Object.defineProperty(h2.prototype, "typeName", {
+                get: function () {
+                    return h2.typeName;
+                },
+                enumerable: true,
+                configurable: true
+            });
+            h2.typeName = "layouts.controls.h2";
+            return h2;
+        }(NativeElement));
+        controls.h2 = h2;
+        var h3 = (function (_super) {
+            __extends(h3, _super);
+            function h3() {
+                _super.call(this, "h3");
+            }
+            Object.defineProperty(h3.prototype, "typeName", {
+                get: function () {
+                    return h3.typeName;
+                },
+                enumerable: true,
+                configurable: true
+            });
+            h3.typeName = "layouts.controls.h3";
+            return h3;
+        }(NativeElement));
+        controls.h3 = h3;
+        var h4 = (function (_super) {
+            __extends(h4, _super);
+            function h4() {
+                _super.call(this, "h4");
+            }
+            Object.defineProperty(h4.prototype, "typeName", {
+                get: function () {
+                    return h4.typeName;
+                },
+                enumerable: true,
+                configurable: true
+            });
+            h4.typeName = "layouts.controls.h4";
+            return h4;
+        }(NativeElement));
+        controls.h4 = h4;
+        var h5 = (function (_super) {
+            __extends(h5, _super);
+            function h5() {
+                _super.call(this, "h5");
+            }
+            Object.defineProperty(h5.prototype, "typeName", {
+                get: function () {
+                    return h5.typeName;
+                },
+                enumerable: true,
+                configurable: true
+            });
+            h5.typeName = "layouts.controls.h5";
+            return h5;
+        }(NativeElement));
+        controls.h5 = h5;
     })(controls = layouts.controls || (layouts.controls = {}));
 })(layouts || (layouts = {}));
 /// <reference path="..\DepProperty.ts" />
@@ -6053,7 +6133,7 @@ var layouts;
 window.onload = function () {
     var app = new layouts.Application();
     var loader = new layouts.XamlReader();
-    var lmlTest = "<?xml version=\"1.0\" encoding=\"utf-8\" ?>\n<Page Name=\"testPage\">\n    <Stack VerticalAlignment=\"Center\" HorizontalAlignment=\"Center\" Orientation=\"Vertical\" Margin=\"10,20\">\n        <Button Text=\"Test Popup\">\n            <Button.Popup>\n                <Popup Position=\"Bottom\">\n                    <Stack class=\"popup\">\n                        <!--TextBlock Text=\"{title}\" Command=\"{myCommand}\" Margin=\"8\"/-->\n                        <TextBlock Text=\"Menu2\" Command=\"{myCommand}\"  IsVisible=\"{IsEnabled,source:self}\" Margin=\"8\"/>\n                        <TextBlock Text=\"Menu3\" Margin=\"8\"/>\n                    </Stack>\n                </Popup>\n            </Button.Popup>\n        </Button>\n        <Stack HorizontalAlignment=\"Center\" Orientation=\"Horizontal\">\n            <Label For=\"ch\" Text=\"Enable/Disable Command\" Margin=\"4\"/>\n            <CheckBox id=\"ch\" IsChecked=\"{cmdEnabled,mode:twoway}\"/>\n        </Stack>\n    </Stack>\n</Page>";
+    var lmlTest = "<?xml version=\"1.0\" encoding=\"utf-8\" ?>\n<Page Name=\"testPage\">\n    <Stack VerticalAlignment=\"Center\" HorizontalAlignment=\"Center\" Orientation=\"Vertical\" Margin=\"10,20\">\n        <Button Text=\"Test Popup\">\n            <Button.Popup>\n                <Popup Position=\"Bottom\">\n                    <Stack class=\"popup\">\n                        <!--TextBlock Text=\"{title}\" Command=\"{myCommand}\" Margin=\"8\"/-->\n                        <TextBlock Text=\"Menu2\" Command=\"{myCommand}\"  IsVisible=\"{IsEnabled,source:self}\" Margin=\"8\"/>\n                        <TextBlock Text=\"Menu3\" Margin=\"8\"/>\n                    </Stack>\n                </Popup>\n            </Button.Popup>\n        </Button>\n        <Stack HorizontalAlignment=\"Center\" Orientation=\"Horizontal\">\n            <Label For=\"ch\" Text=\"Enable/Disable Command\" Margin=\"4\"/>\n            <CheckBox id=\"ch\" IsChecked=\"{cmdEnabled,mode:twoway}\"/>\n            <h1 Text=\"h1 text\"/>\n        </Stack>\n    </Stack>\n</Page>";
     loader.namespaceResolver = function (ns) {
         if (ns == "localControls")
             return "app";

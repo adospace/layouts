@@ -5412,7 +5412,7 @@ var layouts;
                 _super.prototype.attachVisualOverride.call(this, elementContainer);
             };
             NativeElement.prototype.onDependencyPropertyChanged = function (property, value, oldValue) {
-                if (property == NativeElement.textProperty) {
+                if (property == NativeElement.textProperty && this._visual != null) {
                     this._visual.innerHTML = value;
                 }
                 _super.prototype.onDependencyPropertyChanged.call(this, property, value, oldValue);

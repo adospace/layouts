@@ -193,7 +193,10 @@ var layouts;
             if (this._visual == null)
                 return;
             this._extendedProperties.forEach(function (ep) {
-                _this._visual.style[ep.name] = ep.value;
+                if (ep.name in _this._visual)
+                    _this._visual[ep.name] = ep.value;
+                else
+                    _this._visual.style[ep.name] = ep.value;
             });
             this._visual.style.visibility = this.isVisible ? "" : "hidden";
             if (this.command != null)

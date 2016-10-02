@@ -51,7 +51,7 @@ module layouts.controls {
 
         protected onDependencyPropertyChanged(property: DepProperty, value: any, oldValue: any) {
 
-            if (property == NativeElement.textProperty) {
+            if (property == NativeElement.textProperty && this._visual != null) {
                 this._visual.innerHTML = value;
             }
 
