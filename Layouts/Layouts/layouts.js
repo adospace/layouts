@@ -2218,7 +2218,10 @@ var layouts;
             Border.prototype.measureOverride = function (constraint) {
                 var mySize = new layouts.Size();
                 // Compute the chrome size added by the various elements
-                var border = new layouts.Size(this.borderThickness.left + this.borderThickness.right, this.borderThickness.top + this.borderThickness.bottom);
+                var borderThickness = this.borderThickness;
+                if (borderThickness == null)
+                    borderThickness = new layouts.Thickness();
+                var border = new layouts.Size(borderThickness.left + borderThickness.right, borderThickness.top + borderThickness.bottom);
                 var padding = new layouts.Size(this.padding.left + this.padding.right, this.padding.top + this.padding.bottom);
                 //If we have a child
                 if (this._child != null) {
@@ -2239,9 +2242,11 @@ var layouts;
                 return mySize;
             };
             Border.prototype.arrangeOverride = function (finalSize) {
-                var borders = this.borderThickness;
+                var borderThickness = this.borderThickness;
+                if (borderThickness == null)
+                    borderThickness = new layouts.Thickness();
                 var boundRect = new layouts.Rect(0, 0, finalSize.width, finalSize.height);
-                var innerRect = new layouts.Rect(boundRect.x + borders.left, boundRect.y + borders.top, Math.max(0.0, boundRect.width - borders.left - borders.right), Math.max(0.0, boundRect.height - borders.top - borders.bottom));
+                var innerRect = new layouts.Rect(boundRect.x + borderThickness.left, boundRect.y + borderThickness.top, Math.max(0.0, boundRect.width - borderThickness.left - borderThickness.right), Math.max(0.0, boundRect.height - borderThickness.top - borderThickness.bottom));
                 //  arrange child
                 var child = this._child;
                 var padding = this.padding;
@@ -2253,10 +2258,12 @@ var layouts;
             };
             Border.prototype.layoutOverride = function () {
                 _super.prototype.layoutOverride.call(this);
-                var borders = this.borderThickness;
+                var borderThickness = this.borderThickness;
+                if (borderThickness == null)
+                    borderThickness = new layouts.Thickness();
                 if (this._visual != null && this.renderSize != null) {
-                    this._visual.style.width = (this.renderSize.width - (borders.left + borders.right)).toString() + "px";
-                    this._visual.style.height = (this.renderSize.height - (borders.top + borders.bottom)).toString() + "px";
+                    this._visual.style.width = (this.renderSize.width - (borderThickness.left + borderThickness.right)).toString() + "px";
+                    this._visual.style.height = (this.renderSize.height - (borderThickness.top + borderThickness.bottom)).toString() + "px";
                 }
                 if (this._child != null)
                     this._child.layout();
@@ -2265,16 +2272,20 @@ var layouts;
                 if (this._visual == null)
                     return;
                 this._visual.style.background = this.background;
-                this._visual.style.borderColor = this.borderBrush;
-                this._visual.style.borderStyle = this.borderStyle;
+                if (this.borderBrush != null)
+                    this._visual.style.borderColor = this.borderBrush;
+                if (this.borderStyle != null)
+                    this._visual.style.borderStyle = this.borderStyle;
                 var borderThickness = this.borderThickness;
-                if (borderThickness.isSameWidth)
-                    this._visual.style.borderWidth = borderThickness.left.toString() + "px";
-                else {
-                    this._visual.style.borderLeft = borderThickness.left.toString() + "px";
-                    this._visual.style.borderTop = borderThickness.top.toString() + "px";
-                    this._visual.style.borderRight = borderThickness.right.toString() + "px";
-                    this._visual.style.borderBottom = borderThickness.bottom.toString() + "px";
+                if (borderThickness != null) {
+                    if (borderThickness.isSameWidth)
+                        this._visual.style.borderWidth = borderThickness.left.toString() + "px";
+                    else {
+                        this._visual.style.borderLeft = borderThickness.left.toString() + "px";
+                        this._visual.style.borderTop = borderThickness.top.toString() + "px";
+                        this._visual.style.borderRight = borderThickness.right.toString() + "px";
+                        this._visual.style.borderBottom = borderThickness.bottom.toString() + "px";
+                    }
                 }
             };
             Border.prototype.onDependencyPropertyChanged = function (property, value, oldValue) {
@@ -2335,11 +2346,11 @@ var layouts;
                 configurable: true
             });
             Border.typeName = "layouts.controls.Border";
-            Border.borderThicknessProperty = layouts.DepObject.registerProperty(Border.typeName, "BorderThickness", new layouts.Thickness(), layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender, function (v) { return layouts.Thickness.fromString(v); });
+            Border.borderThicknessProperty = layouts.DepObject.registerProperty(Border.typeName, "BorderThickness", null, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender, function (v) { return layouts.Thickness.fromString(v); });
             Border.paddingProperty = layouts.DepObject.registerProperty(Border.typeName, "Padding", new layouts.Thickness(), layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender, function (v) { return layouts.Thickness.fromString(v); });
             Border.backgroundProperty = layouts.DepObject.registerProperty(Border.typeName, "Background", null, layouts.FrameworkPropertyMetadataOptions.AffectsRender);
             Border.borderBrushProperty = layouts.DepObject.registerProperty(Border.typeName, "BorderBrush", null, layouts.FrameworkPropertyMetadataOptions.AffectsRender);
-            Border.borderStyleProperty = layouts.DepObject.registerProperty(Border.typeName, "BorderStyle", "solid", layouts.FrameworkPropertyMetadataOptions.AffectsRender);
+            Border.borderStyleProperty = layouts.DepObject.registerProperty(Border.typeName, "BorderStyle", null, layouts.FrameworkPropertyMetadataOptions.AffectsRender);
             return Border;
         }(layouts.FrameworkElement));
         controls.Border = Border;
@@ -5739,21 +5750,18 @@ var layouts;
                     var pElement = this._pElement;
                     if (pElement != null) {
                         this._pElement.value = value;
-                        this._measuredSize = null;
                     }
                 }
                 else if (property == TextBox.placeholderProperty) {
                     var pElement = this._pElement;
                     if (pElement != null) {
                         pElement.placeholder = value;
-                        this._measuredSize = null;
                     }
                 }
                 else if (property == TextBox.typeProperty) {
                     var pElement = this._pElement;
                     if (pElement != null) {
                         pElement.type = value;
-                        this._measuredSize = null;
                     }
                 }
                 else if (property == TextBox.isReadonlyProperty) {

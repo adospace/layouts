@@ -58,7 +58,11 @@ module layouts.controls {
             var mySize = new Size();
 
             // Compute the chrome size added by the various elements
-            var border = new Size(this.borderThickness.left + this.borderThickness.right, this.borderThickness.top + this.borderThickness.bottom);
+            var borderThickness = this.borderThickness;
+            if (borderThickness == null)
+                borderThickness = new layouts.Thickness();
+
+            var border = new Size(borderThickness.left + borderThickness.right, borderThickness.top + borderThickness.bottom);
             var padding = new Size(this.padding.left + this.padding.right, this.padding.top + this.padding.bottom);
 
             //If we have a child
@@ -87,12 +91,14 @@ module layouts.controls {
         }    
 
         protected arrangeOverride(finalSize: Size): Size {
-            var borders = this.borderThickness;
+            var borderThickness = this.borderThickness;
+            if (borderThickness == null)
+                borderThickness = new layouts.Thickness();
             var boundRect = new Rect(0,0,finalSize.width, finalSize.height);
-            var innerRect = new Rect(boundRect.x + borders.left,
-                boundRect.y + borders.top,
-                Math.max(0.0, boundRect.width - borders.left - borders.right),
-                Math.max(0.0, boundRect.height - borders.top - borders.bottom));
+            var innerRect = new Rect(boundRect.x + borderThickness.left,
+                boundRect.y + borderThickness.top,
+                Math.max(0.0, boundRect.width - borderThickness.left - borderThickness.right),
+                Math.max(0.0, boundRect.height - borderThickness.top - borderThickness.bottom));
 
             //  arrange child
             var child = this._child;
@@ -111,10 +117,12 @@ module layouts.controls {
 
         protected layoutOverride() {
             super.layoutOverride();
-            var borders = this.borderThickness;
+            var borderThickness = this.borderThickness;
+            if (borderThickness == null)
+                borderThickness = new layouts.Thickness();
             if (this._visual != null && this.renderSize != null) { //renderSize == null if it's hidden
-                this._visual.style.width = (this.renderSize.width - (borders.left + borders.right)).toString() + "px";
-                this._visual.style.height = (this.renderSize.height - (borders.top + borders.bottom)).toString() + "px";
+                this._visual.style.width = (this.renderSize.width - (borderThickness.left + borderThickness.right)).toString() + "px";
+                this._visual.style.height = (this.renderSize.height - (borderThickness.top + borderThickness.bottom)).toString() + "px";
             }
 
             if (this._child != null)
@@ -125,16 +133,20 @@ module layouts.controls {
             if (this._visual == null)
                 return;
             this._visual.style.background = this.background;
-            this._visual.style.borderColor = this.borderBrush;
-            this._visual.style.borderStyle = this.borderStyle;
+            if (this.borderBrush != null)
+                this._visual.style.borderColor = this.borderBrush;
+            if (this.borderStyle != null)
+                this._visual.style.borderStyle = this.borderStyle;
             var borderThickness = this.borderThickness;
-            if (borderThickness.isSameWidth)
-                this._visual.style.borderWidth = borderThickness.left.toString() + "px";
-            else {
-                this._visual.style.borderLeft = borderThickness.left.toString() + "px";
-                this._visual.style.borderTop = borderThickness.top.toString() + "px";
-                this._visual.style.borderRight = borderThickness.right.toString() + "px";
-                this._visual.style.borderBottom = borderThickness.bottom.toString() + "px";
+            if (borderThickness != null) {
+                if (borderThickness.isSameWidth)
+                    this._visual.style.borderWidth = borderThickness.left.toString() + "px";
+                else {
+                    this._visual.style.borderLeft = borderThickness.left.toString() + "px";
+                    this._visual.style.borderTop = borderThickness.top.toString() + "px";
+                    this._visual.style.borderRight = borderThickness.right.toString() + "px";
+                    this._visual.style.borderBottom = borderThickness.bottom.toString() + "px";
+                }
             }
         }
 
@@ -148,7 +160,7 @@ module layouts.controls {
             super.onDependencyPropertyChanged(property, value, oldValue);
         }
 
-        static borderThicknessProperty = DepObject.registerProperty(Border.typeName, "BorderThickness", new Thickness(), FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender, (v) => Thickness.fromString(v));
+        static borderThicknessProperty = DepObject.registerProperty(Border.typeName, "BorderThickness", null, FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender, (v) => Thickness.fromString(v));
         get borderThickness(): Thickness {
             return <Thickness>this.getValue(Border.borderThicknessProperty);
         }
@@ -180,7 +192,7 @@ module layouts.controls {
             this.setValue(Border.borderBrushProperty, value);
         }
 
-        static borderStyleProperty = DepObject.registerProperty(Border.typeName, "BorderStyle", "solid", FrameworkPropertyMetadataOptions.AffectsRender);
+        static borderStyleProperty = DepObject.registerProperty(Border.typeName, "BorderStyle", null, FrameworkPropertyMetadataOptions.AffectsRender);
         get borderStyle(): string {
             return <string>this.getValue(Border.borderStyleProperty);
         }

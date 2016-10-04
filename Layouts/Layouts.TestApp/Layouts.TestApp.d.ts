@@ -795,6 +795,7 @@ declare module layouts.controls {
         protected onDependencyPropertyChanged(property: DepProperty, value: any, oldValue: any): void;
         private _measuredSize;
         protected measureOverride(constraint: Size): Size;
+        protected arrangeOverride(finalSize: Size): Size;
         static textProperty: DepProperty;
         text: string;
     }
@@ -834,6 +835,31 @@ declare module layouts.controls {
         constructor();
     }
     class span extends NativeElement {
+        static typeName: string;
+        typeName: string;
+        constructor();
+    }
+    class h1 extends NativeElement {
+        static typeName: string;
+        typeName: string;
+        constructor();
+    }
+    class h2 extends NativeElement {
+        static typeName: string;
+        typeName: string;
+        constructor();
+    }
+    class h3 extends NativeElement {
+        static typeName: string;
+        typeName: string;
+        constructor();
+    }
+    class h4 extends NativeElement {
+        static typeName: string;
+        typeName: string;
+        constructor();
+    }
+    class h5 extends NativeElement {
         static typeName: string;
         typeName: string;
         constructor();
