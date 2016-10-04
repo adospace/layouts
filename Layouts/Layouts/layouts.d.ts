@@ -152,7 +152,7 @@ declare module layouts {
         layout(relativeOffset?: Vector): void;
         protected layoutOverride(): void;
         protected _visual: HTMLElement;
-        attachVisual(elementContainer: HTMLElement, showImmediately?: boolean): void;
+        attachVisual(elementContainer: HTMLElement, showImmediately?: boolean): HTMLElement;
         protected attachVisualOverride(elementContainer: HTMLElement): void;
         protected onMouseDown(ev: MouseEvent): void;
         protected onMouseUp(ev: MouseEvent): void;
@@ -383,27 +383,6 @@ declare module layouts {
     }
 }
 declare module layouts {
-    class Command {
-        executeHandler: {
-            (command: Command, parameter: any): void;
-        };
-        canExecuteHandler: {
-            (command: Command, parameter: any): boolean;
-        };
-        constructor(executeHandler?: {
-            (command: Command, parameter: any): void;
-        }, canExecuteHandler?: {
-            (command: Command, parameter: any): boolean;
-        });
-        canExecute(parameter: any): boolean;
-        execute(parameter: any): void;
-        private handlers;
-        onCanExecuteChangeNotify(handler: ISupportCommandCanExecuteChanged): void;
-        offCanExecuteChangeNotify(handler: ISupportCommandCanExecuteChanged): void;
-        canExecuteChanged(): void;
-    }
-}
-declare module layouts {
     interface ISupportDependencyPropertyChange {
         onDependencyPropertyChanged(depObject: DepObject, depProperty: DepProperty): any;
     }
@@ -451,6 +430,27 @@ declare module layouts.controls {
         borderBrush: string;
         static borderStyleProperty: DepProperty;
         borderStyle: string;
+    }
+}
+declare module layouts {
+    class Command {
+        executeHandler: {
+            (command: Command, parameter: any): void;
+        };
+        canExecuteHandler: {
+            (command: Command, parameter: any): boolean;
+        };
+        constructor(executeHandler?: {
+            (command: Command, parameter: any): void;
+        }, canExecuteHandler?: {
+            (command: Command, parameter: any): boolean;
+        });
+        canExecute(parameter: any): boolean;
+        execute(parameter: any): void;
+        private handlers;
+        onCanExecuteChangeNotify(handler: ISupportCommandCanExecuteChanged): void;
+        offCanExecuteChangeNotify(handler: ISupportCommandCanExecuteChanged): void;
+        canExecuteChanged(): void;
     }
 }
 declare module layouts.controls {
@@ -532,31 +532,6 @@ declare module layouts.controls {
     }
 }
 declare module layouts.controls {
-    class ComboBox extends FrameworkElement implements ISupportCollectionChanged {
-        static typeName: string;
-        typeName: string;
-        private _selectElement;
-        private _elements;
-        attachVisualOverride(elementContainer: HTMLElement): void;
-        onSelectionChanged(): void;
-        protected arrangeOverride(finalSize: Size): Size;
-        private selectItem(item);
-        protected onDependencyPropertyChanged(property: DepProperty, value: any, oldValue: any): void;
-        private setupItems();
-        onCollectionChanged(collection: any, added: Object[], removed: Object[], startRemoveIndex: number): void;
-        static itemsSourceProperty: DepProperty;
-        itemsSource: any;
-        static selectedItemProperty: DepProperty;
-        selectedItem: any;
-        static displayMemberProperty: DepProperty;
-        displayMember: string;
-        static selectedValueProperty: DepProperty;
-        selectedValue: any;
-        static selectMemberProperty: DepProperty;
-        selectMember: string;
-    }
-}
-declare module layouts.controls {
     class ContentTemplate extends FrameworkElement {
         static typeName: string;
         typeName: string;
@@ -607,25 +582,6 @@ declare module layouts.controls {
         private _templates;
         templates: ObservableCollection<DataTemplate>;
         onCollectionChanged(collection: any, added: Object[], removed: Object[], startRemoveIndex: number): void;
-    }
-}
-declare module layouts.controls {
-    class DataTemplate extends DepObject {
-        static typeName: string;
-        typeName: string;
-        private _innerXaml;
-        setInnerXaml(value: string): void;
-        private _xamlLoader;
-        setXamlLoader(loader: XamlReader): void;
-        createElement(): UIElement;
-        static getTemplateForItem(templates: DataTemplate[], item: any): DataTemplate;
-        static getTemplateForMedia(templates: DataTemplate[]): DataTemplate;
-        static targetTypeProperty: DepProperty;
-        targetType: string;
-        static targetMemberProperty: DepProperty;
-        targetMember: string;
-        static mediaProperty: DepProperty;
-        media: string;
     }
 }
 declare module layouts.controls {
@@ -760,29 +716,6 @@ declare module layouts.controls {
     }
 }
 declare module layouts.controls {
-    class ItemsControl extends FrameworkElement implements ISupportCollectionChanged {
-        static typeName: string;
-        typeName: string;
-        private static _init;
-        private static initProperties();
-        protected _elements: Array<UIElement>;
-        protected _divElement: HTMLDivElement;
-        attachVisualOverride(elementContainer: HTMLElement): void;
-        protected measureOverride(constraint: Size): Size;
-        protected arrangeOverride(finalSize: Size): Size;
-        protected layoutOverride(): void;
-        private _templates;
-        templates: ObservableCollection<DataTemplate>;
-        onCollectionChanged(collection: any, added: Object[], removed: Object[], startRemoveIndex: number): void;
-        static itemsSourceProperty: DepProperty;
-        itemsSource: any;
-        static itemsPanelProperty: DepProperty;
-        itemsPanel: Panel;
-        protected onDependencyPropertyChanged(property: DepProperty, value: any, oldValue: any): void;
-        private setupItems();
-    }
-}
-declare module layouts.controls {
     class TextBlock extends FrameworkElement {
         static typeName: string;
         typeName: string;
@@ -841,6 +774,8 @@ declare module layouts.controls {
         protected arrangeOverride(finalSize: Size): Size;
         static textProperty: DepProperty;
         text: string;
+        static arrangeChildProperty: DepProperty;
+        arrangeChild: boolean;
     }
     class div extends NativeElement {
         static typeName: string;
@@ -909,6 +844,54 @@ declare module layouts.controls {
     }
 }
 declare module layouts.controls {
+    class ItemsControl extends FrameworkElement implements ISupportCollectionChanged {
+        static typeName: string;
+        typeName: string;
+        private static _init;
+        private static initProperties();
+        protected _elements: Array<UIElement>;
+        protected _divElement: HTMLDivElement;
+        attachVisualOverride(elementContainer: HTMLElement): void;
+        protected measureOverride(constraint: Size): Size;
+        protected arrangeOverride(finalSize: Size): Size;
+        protected layoutOverride(): void;
+        private _templates;
+        templates: ObservableCollection<DataTemplate>;
+        onCollectionChanged(collection: any, added: Object[], removed: Object[], startRemoveIndex: number): void;
+        static itemsSourceProperty: DepProperty;
+        itemsSource: any;
+        static itemsPanelProperty: DepProperty;
+        itemsPanel: Panel;
+        protected onDependencyPropertyChanged(property: DepProperty, value: any, oldValue: any): void;
+        private setupItems();
+    }
+}
+declare module layouts.controls {
+    class ComboBox extends FrameworkElement implements ISupportCollectionChanged {
+        static typeName: string;
+        typeName: string;
+        private _selectElement;
+        private _elements;
+        attachVisualOverride(elementContainer: HTMLElement): void;
+        onSelectionChanged(): void;
+        protected arrangeOverride(finalSize: Size): Size;
+        private selectItem(item);
+        protected onDependencyPropertyChanged(property: DepProperty, value: any, oldValue: any): void;
+        private setupItems();
+        onCollectionChanged(collection: any, added: Object[], removed: Object[], startRemoveIndex: number): void;
+        static itemsSourceProperty: DepProperty;
+        itemsSource: any;
+        static selectedItemProperty: DepProperty;
+        selectedItem: any;
+        static displayMemberProperty: DepProperty;
+        displayMember: string;
+        static selectedValueProperty: DepProperty;
+        selectedValue: any;
+        static selectMemberProperty: DepProperty;
+        selectMember: string;
+    }
+}
+declare module layouts.controls {
     enum Orientation {
         Horizontal = 0,
         Vertical = 1,
@@ -941,6 +924,25 @@ declare module layouts.controls {
         type: string;
         static isReadonlyProperty: DepProperty;
         isReadonly: boolean;
+    }
+}
+declare module layouts.controls {
+    class DataTemplate extends DepObject {
+        static typeName: string;
+        typeName: string;
+        private _innerXaml;
+        setInnerXaml(value: string): void;
+        private _xamlLoader;
+        setXamlLoader(loader: XamlReader): void;
+        createElement(): UIElement;
+        static getTemplateForItem(templates: DataTemplate[], item: any): DataTemplate;
+        static getTemplateForMedia(templates: DataTemplate[]): DataTemplate;
+        static targetTypeProperty: DepProperty;
+        targetType: string;
+        static targetMemberProperty: DepProperty;
+        targetMember: string;
+        static mediaProperty: DepProperty;
+        media: string;
     }
 }
 declare module layouts.controls {
@@ -994,16 +996,6 @@ declare module layouts {
     }
 }
 declare module layouts {
-    class Timer {
-        handler: (timer: Timer) => void;
-        millisecond: number;
-        constructor(handler: (timer: Timer) => void, millisecond: number);
-        private timerId;
-        start(): void;
-        stop(): void;
-    }
-}
-declare module layouts {
     class XamlReader {
         instanceLoader: InstanceLoader;
         namespaceResolver: {
@@ -1021,5 +1013,15 @@ declare module layouts {
         private trySetProperty(obj, propertyName, propertyNameSpace, value);
         private static tryCallMethod(obj, methodName, value);
         private static tryParseBinding(value);
+    }
+}
+declare module layouts {
+    class Timer {
+        handler: (timer: Timer) => void;
+        millisecond: number;
+        constructor(handler: (timer: Timer) => void, millisecond: number);
+        private timerId;
+        start(): void;
+        stop(): void;
     }
 }

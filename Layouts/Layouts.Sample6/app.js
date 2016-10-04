@@ -731,7 +731,7 @@ var layouts;
                 this.attachVisualOverride(null);
             //2. if visual is still null we have done
             if (this._visual == null)
-                return;
+                return null;
             //3. if visual is not under container...
             if (elementContainer != this._visual.parentElement) {
                 //4. remove visual from old container 
@@ -761,6 +761,7 @@ var layouts;
                         this.visualConnected(elementContainer);
                 }
             }
+            return this._visual;
         };
         UIElement.prototype.attachVisualOverride = function (elementContainer) {
             var _this = this;
@@ -5199,7 +5200,9 @@ var layouts;
                 this._visual = document.createElement(this.elementType);
                 this._visual.innerHTML = this.text;
                 if (this._child != null) {
-                    this._child.attachVisual(this._visual, true);
+                    var childVisual = this._child.attachVisual(this._visual, true);
+                    if (childVisual != null && !this.arrangeChild)
+                        childVisual.style.position = layouts.Consts.stringEmpty;
                 }
                 _super.prototype.attachVisualOverride.call(this, elementContainer);
             };
@@ -5210,8 +5213,10 @@ var layouts;
                 _super.prototype.onDependencyPropertyChanged.call(this, property, value, oldValue);
             };
             NativeElement.prototype.measureOverride = function (constraint) {
-                if (this._child != null)
-                    this._child.measure(constraint);
+                if (this.arrangeChild) {
+                    if (this._child != null)
+                        this._child.measure(constraint);
+                }
                 var pElement = this._visual;
                 ;
                 if (this._measuredSize == null) {
@@ -5225,9 +5230,11 @@ var layouts;
                 var pElement = this._visual;
                 pElement.style.width = finalSize.width.toString() + "px";
                 pElement.style.height = finalSize.height.toString() + "px";
-                var child = this.child;
-                if (child != null) {
-                    child.arrange(new layouts.Rect(0, 0, finalSize.width, finalSize.height));
+                if (this.arrangeChild) {
+                    var child = this.child;
+                    if (child != null) {
+                        child.arrange(new layouts.Rect(0, 0, finalSize.width, finalSize.height));
+                    }
                 }
                 return finalSize;
             };
@@ -5241,8 +5248,19 @@ var layouts;
                 enumerable: true,
                 configurable: true
             });
+            Object.defineProperty(NativeElement.prototype, "arrangeChild", {
+                get: function () {
+                    return this.getValue(NativeElement.arrangeChildProperty);
+                },
+                set: function (value) {
+                    this.setValue(NativeElement.arrangeChildProperty, value);
+                },
+                enumerable: true,
+                configurable: true
+            });
             NativeElement.typeName = "layouts.controls.NativeElement";
             NativeElement.textProperty = layouts.DepObject.registerProperty(NativeElement.typeName, "Text", "", layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender, function (v) { return String(v); });
+            NativeElement.arrangeChildProperty = layouts.DepObject.registerProperty(NativeElement.typeName, "ArrangeChild", true, layouts.FrameworkPropertyMetadataOptions.None, function (v) { return v != null && v.trim().toLowerCase() == "true"; });
             return NativeElement;
         }(layouts.FrameworkElement));
         controls.NativeElement = NativeElement;
@@ -6133,7 +6151,7 @@ var layouts;
 window.onload = function () {
     var app = new layouts.Application();
     var loader = new layouts.XamlReader();
-    var lmlTest = "<?xml version=\"1.0\" encoding=\"utf-8\" ?>\n<Page Name=\"testPage\">\n    <Stack VerticalAlignment=\"Center\" HorizontalAlignment=\"Center\" Orientation=\"Vertical\" Margin=\"10,20\">\n        <Button Text=\"Test Popup\">\n            <Button.Popup>\n                <Popup Position=\"Bottom\">\n                    <Stack class=\"popup\">\n                        <!--TextBlock Text=\"{title}\" Command=\"{myCommand}\" Margin=\"8\"/-->\n                        <TextBlock Text=\"Menu2\" Command=\"{myCommand}\"  IsVisible=\"{IsEnabled,source:self}\" Margin=\"8\"/>\n                        <TextBlock Text=\"Menu3\" Margin=\"8\"/>\n                    </Stack>\n                </Popup>\n            </Button.Popup>\n        </Button>\n        <Stack HorizontalAlignment=\"Center\" Orientation=\"Horizontal\">\n            <Label For=\"ch\" Text=\"Enable/Disable Command\" Margin=\"4\"/>\n            <CheckBox id=\"ch\" IsChecked=\"{cmdEnabled,mode:twoway}\"/>\n            <h1 Text=\"h1 text\"/>\n        </Stack>\n    </Stack>\n</Page>";
+    var lmlTest = "<?xml version=\"1.0\" encoding=\"utf-8\" ?>\n<Page Name=\"testPage\">\n    <Stack VerticalAlignment=\"Center\" HorizontalAlignment=\"Center\" Orientation=\"Vertical\" Margin=\"10,20\">\n        <Button Text=\"Test Popup\">\n            <Button.Popup>\n                <Popup Position=\"Bottom\">\n                    <Stack class=\"popup\">\n                        <!--TextBlock Text=\"{title}\" Command=\"{myCommand}\" Margin=\"8\"/-->\n                        <TextBlock Text=\"Menu2\" Command=\"{myCommand}\"  IsVisible=\"{IsEnabled,source:self}\" Margin=\"8\"/>\n                        <TextBlock Text=\"Menu3\" Margin=\"8\"/>\n                    </Stack>\n                </Popup>\n            </Button.Popup>\n        </Button>\n        <Stack HorizontalAlignment=\"Center\" Orientation=\"Horizontal\">\n            <Label For=\"ch\" Text=\"Enable/Disable Command\" Margin=\"4\"/>\n            <CheckBox id=\"ch\" IsChecked=\"{cmdEnabled,mode:twoway}\"/>\n            <div Command=\"{toggleSideBarCommand}\" ArrangeChild=\"false\">\n              <span/>\n            </div>\n        </Stack>\n    </Stack>\n</Page>";
     loader.namespaceResolver = function (ns) {
         if (ns == "localControls")
             return "app";

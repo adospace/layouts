@@ -1,3 +1,225 @@
+var __extends = (this && this.__extends) || function (d, b) {
+    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+    function __() { this.constructor = d; }
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+};
+var app;
+(function (app) {
+    var Login = (function (_super) {
+        __extends(Login, _super);
+        function Login() {
+            _super.call(this);
+            this.dataContext = new app.LoginViewModel(this);
+            this.initializeComponent();
+        }
+        Object.defineProperty(Login.prototype, "typeName", {
+            get: function () {
+                return Login.typeName;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(Login, "PAGE_DEFINITION", {
+            get: function () {
+                return "<?xml version=\"1.0\" encoding=\"utf-8\" ?>\n<Stack Orientation=\"Vertical\" VerticalAlignment=\"Center\" HorizontalAlignment=\"Center\">\n    <TextBlock Text=\"Welcome to Login Page\" Margin=\"8\"/>\n    <TextBox Text=\"{path:username,mode:twoway}\" Placeholder=\"User name (test)\" Margin=\"8\"/>\n    <TextBox Text=\"{path:password,mode:twoway}\" Type=\"password\" Placeholder=\"Password (test)\" Margin=\"8\"/>\n    <Button Text=\"Sign In\" Command=\"{path:loginCommand}\" Margin=\"8,16,8,8\"/>\n</Stack>";
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Login.prototype.initializeComponent = function () {
+            var loader = new layouts.XamlReader();
+            this.child = loader.Parse(Login.PAGE_DEFINITION);
+        };
+        Login.prototype.onNavigate = function (context) {
+        };
+        Login.typeName = "app.Login";
+        return Login;
+    }(layouts.controls.Page));
+    app.Login = Login;
+})(app || (app = {}));
+var app;
+(function (app) {
+    var LoginViewModel = (function (_super) {
+        __extends(LoginViewModel, _super);
+        function LoginViewModel(view) {
+            _super.call(this);
+            this.view = view;
+        }
+        Object.defineProperty(LoginViewModel.prototype, "typeName", {
+            get: function () {
+                return LoginViewModel.typeName;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(LoginViewModel.prototype, "username", {
+            get: function () {
+                return this._username;
+            },
+            set: function (value) {
+                var _this = this;
+                if (this._username != value) {
+                    var oldValue = this._username;
+                    this._username = value;
+                    this.onPropertyChanged("username", value, oldValue);
+                    layouts.Application.beginInvoke(function () {
+                        return _this._loginCommand.canExecuteChanged();
+                    });
+                }
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(LoginViewModel.prototype, "password", {
+            get: function () {
+                return this._password;
+            },
+            set: function (value) {
+                if (this._password != value) {
+                    var oldValue = this._password;
+                    this._password = value;
+                    this.onPropertyChanged("password", value, oldValue);
+                    this._loginCommand.canExecuteChanged();
+                }
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(LoginViewModel.prototype, "loginCommand", {
+            get: function () {
+                var _this = this;
+                if (this._loginCommand == null)
+                    this._loginCommand = new layouts.Command(function (cmd, p) { return _this.onLogin(); }, function (cmd, p) { return _this.canLogin(); });
+                return this._loginCommand;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        LoginViewModel.prototype.onLogin = function () {
+            if (this._username == "test" &&
+                this._password == "test") {
+                userLogged = true;
+                layouts.Application.current.navigate("/page1/" + this._username);
+            }
+            else
+                alert("Unable to login!");
+        };
+        LoginViewModel.prototype.canLogin = function () {
+            return this._username != null && this._username.trim().length > 0 &&
+                this._password != null && this._password.trim().length > 0;
+        };
+        LoginViewModel.typeName = "app.LoginViewModel";
+        return LoginViewModel;
+    }(layouts.DepObject));
+    app.LoginViewModel = LoginViewModel;
+})(app || (app = {}));
+var app;
+(function (app) {
+    var Page1 = (function (_super) {
+        __extends(Page1, _super);
+        function Page1() {
+            _super.call(this);
+            this.initializeComponent();
+        }
+        Object.defineProperty(Page1.prototype, "typeName", {
+            get: function () {
+                return Page1.typeName;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(Page1, "PAGE_DEFINITION", {
+            get: function () {
+                return "<?xml version=\"1.0\" encoding=\"utf-8\" ?>\n<Stack Orientation=\"Vertical\" VerticalAlignment=\"Center\" HorizontalAlignment=\"Center\">\n    <TextBlock Text=\"{path:username}\" Format=\"Welcome to Page1 user {0}\" Margin=\"8\"/>\n    <TextBox Text=\"{path:parameter,twoway}\" Placeholder=\"Parameter for page 2\" Margin=\"8\"/>\n    <Button Text=\"Goto Page 2\" Command=\"{path:gotoPage2Command}\" Margin=\"8,16,8,8\"/>\n</Stack>";
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Page1.prototype.initializeComponent = function () {
+            var loader = new layouts.XamlReader();
+            this.child = loader.Parse(Page1.PAGE_DEFINITION);
+        };
+        Page1.prototype.onNavigate = function (context) {
+            this.dataContext = new app.Page1ViewModel(this, context.queryString["user"]);
+        };
+        Page1.typeName = "app.Page1";
+        return Page1;
+    }(layouts.controls.Page));
+    app.Page1 = Page1;
+})(app || (app = {}));
+var app;
+(function (app) {
+    var Page1ViewModel = (function (_super) {
+        __extends(Page1ViewModel, _super);
+        function Page1ViewModel(view, username) {
+            _super.call(this);
+            this.view = view;
+            this._username = username;
+        }
+        Object.defineProperty(Page1ViewModel.prototype, "typeName", {
+            get: function () {
+                return Page1ViewModel.typeName;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(Page1ViewModel.prototype, "username", {
+            get: function () {
+                return this._username;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(Page1ViewModel.prototype, "parameter", {
+            get: function () {
+                return this._parameter;
+            },
+            set: function (value) {
+                if (this._parameter != value) {
+                    var oldValue = this._parameter;
+                    this._parameter = value;
+                    this.onPropertyChanged("parameter", value, oldValue);
+                    this._gotoPage2Command.canExecuteChanged();
+                }
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(Page1ViewModel.prototype, "gotoPage2Command", {
+            get: function () {
+                var _this = this;
+                if (this._gotoPage2Command == null)
+                    this._gotoPage2Command = new layouts.Command(function (cmd, p) { return _this.onGotoPage2(); }, function (cmd, p) { return _this.parameter != null && _this.parameter.trim().length > 0; });
+                return this._gotoPage2Command;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Page1ViewModel.prototype.onGotoPage2 = function () {
+            layouts.Application.current.navigate("/Page2/" + this.parameter);
+        };
+        Page1ViewModel.typeName = "app.Page1ViewModel";
+        return Page1ViewModel;
+    }(layouts.DepObject));
+    app.Page1ViewModel = Page1ViewModel;
+})(app || (app = {}));
+//easiest way to save user logged-in state
+var userLogged = false;
+window.onload = function () {
+    var app = layouts.Application.current;
+    app.map("/login", "app/Login"); //mapping is case sensitive
+    app.map("/page1/{user}", "app/Page1");
+    app.map("/page2/{parameter}", "app/Page2");
+    app.onBeforeNavigate = function (ctx) {
+        if (ctx.nextUri != "/login" &&
+            !userLogged) {
+            ctx.cancel = true;
+            //user must be logged in before go ahead
+            app.navigate("/login");
+        }
+    };
+    app.navigate("/page1/myuser&-test"); //"/page1/pippo");
+};
 var layouts;
 (function (layouts) {
     var Ext = (function () {
@@ -536,11 +758,6 @@ var layouts;
 })(layouts || (layouts = {}));
 /// <reference path="DepProperty.ts" />
 /// <reference path="DepObject.ts" />
-var __extends = (this && this.__extends) || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-};
 var layouts;
 (function (layouts) {
     var Size = (function () {
@@ -731,7 +948,7 @@ var layouts;
                 this.attachVisualOverride(null);
             //2. if visual is still null we have done
             if (this._visual == null)
-                return;
+                return null;
             //3. if visual is not under container...
             if (elementContainer != this._visual.parentElement) {
                 //4. remove visual from old container 
@@ -761,6 +978,7 @@ var layouts;
                         this.visualConnected(elementContainer);
                 }
             }
+            return this._visual;
         };
         UIElement.prototype.attachVisualOverride = function (elementContainer) {
             var _this = this;
@@ -768,7 +986,10 @@ var layouts;
                 return;
             //apply extended properties to html element
             this._extendedProperties.forEach(function (ep) {
-                _this._visual.style[ep.name] = ep.value;
+                if (ep.name in _this._visual)
+                    _this._visual[ep.name] = ep.value;
+                else
+                    _this._visual.style[ep.name] = ep.value;
             });
             this._visual.style.visibility = this.isVisible ? "" : "hidden";
             if (this.command != null)
@@ -4725,7 +4946,7 @@ var layouts;
                         if (this._child != null) {
                             this._child.parent = this;
                             if (this._visual != null)
-                                this._child.attachVisual(this._visual);
+                                this._child.attachVisual(this._visual, true);
                         }
                         this.invalidateMeasure();
                     }
@@ -4741,19 +4962,23 @@ var layouts;
                 this._visual = document.createElement(this.elementType);
                 this._visual.innerHTML = this.text;
                 if (this._child != null) {
-                    this._child.attachVisual(this._visual);
+                    var childVisual = this._child.attachVisual(this._visual, true);
+                    if (childVisual != null && !this.arrangeChild)
+                        childVisual.style.position = layouts.Consts.stringEmpty;
                 }
                 _super.prototype.attachVisualOverride.call(this, elementContainer);
             };
             NativeElement.prototype.onDependencyPropertyChanged = function (property, value, oldValue) {
-                if (property == NativeElement.textProperty) {
+                if (property == NativeElement.textProperty && this._visual != null) {
                     this._visual.innerHTML = value;
                 }
                 _super.prototype.onDependencyPropertyChanged.call(this, property, value, oldValue);
             };
             NativeElement.prototype.measureOverride = function (constraint) {
-                if (this._child != null)
-                    this._child.measure(constraint);
+                if (this.arrangeChild) {
+                    if (this._child != null)
+                        this._child.measure(constraint);
+                }
                 var pElement = this._visual;
                 ;
                 if (this._measuredSize == null) {
@@ -4762,6 +4987,18 @@ var layouts;
                     this._measuredSize = new layouts.Size(pElement.clientWidth, pElement.clientHeight);
                 }
                 return new layouts.Size(Math.min(constraint.width, this._measuredSize.width), Math.min(constraint.height, this._measuredSize.height));
+            };
+            NativeElement.prototype.arrangeOverride = function (finalSize) {
+                var pElement = this._visual;
+                pElement.style.width = finalSize.width.toString() + "px";
+                pElement.style.height = finalSize.height.toString() + "px";
+                if (this.arrangeChild) {
+                    var child = this.child;
+                    if (child != null) {
+                        child.arrange(new layouts.Rect(0, 0, finalSize.width, finalSize.height));
+                    }
+                }
+                return finalSize;
             };
             Object.defineProperty(NativeElement.prototype, "text", {
                 get: function () {
@@ -4773,21 +5010,19 @@ var layouts;
                 enumerable: true,
                 configurable: true
             });
+            Object.defineProperty(NativeElement.prototype, "arrangeChild", {
+                get: function () {
+                    return this.getValue(NativeElement.arrangeChildProperty);
+                },
+                set: function (value) {
+                    this.setValue(NativeElement.arrangeChildProperty, value);
+                },
+                enumerable: true,
+                configurable: true
+            });
             NativeElement.typeName = "layouts.controls.NativeElement";
-            //protected arrangeOverride(finalSize: Size): Size {
-            //    var pElement = this._visual;
-            //    pElement.style.width = finalSize.width.toString() + "px";
-            //    pElement.style.height = finalSize.height.toString() + "px";
-            //    if (child != null) {
-            //        var childRect = new Rect(innerRect.x + padding.left,
-            //            innerRect.y + padding.top,
-            //            Math.max(0.0, innerRect.width - padding.left - padding.right),
-            //            Math.max(0.0, innerRect.height - padding.top - padding.bottom));
-            //        child.arrange(childRect);
-            //    }
-            //    return finalSize;
-            //}
             NativeElement.textProperty = layouts.DepObject.registerProperty(NativeElement.typeName, "Text", "", layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender, function (v) { return String(v); });
+            NativeElement.arrangeChildProperty = layouts.DepObject.registerProperty(NativeElement.typeName, "ArrangeChild", true, layouts.FrameworkPropertyMetadataOptions.None, function (v) { return v != null && v.trim().toLowerCase() == "true"; });
             return NativeElement;
         }(layouts.FrameworkElement));
         controls.NativeElement = NativeElement;
@@ -4919,6 +5154,86 @@ var layouts;
             return span;
         }(NativeElement));
         controls.span = span;
+        var h1 = (function (_super) {
+            __extends(h1, _super);
+            function h1() {
+                _super.call(this, "h1");
+            }
+            Object.defineProperty(h1.prototype, "typeName", {
+                get: function () {
+                    return h1.typeName;
+                },
+                enumerable: true,
+                configurable: true
+            });
+            h1.typeName = "layouts.controls.h1";
+            return h1;
+        }(NativeElement));
+        controls.h1 = h1;
+        var h2 = (function (_super) {
+            __extends(h2, _super);
+            function h2() {
+                _super.call(this, "h2");
+            }
+            Object.defineProperty(h2.prototype, "typeName", {
+                get: function () {
+                    return h2.typeName;
+                },
+                enumerable: true,
+                configurable: true
+            });
+            h2.typeName = "layouts.controls.h2";
+            return h2;
+        }(NativeElement));
+        controls.h2 = h2;
+        var h3 = (function (_super) {
+            __extends(h3, _super);
+            function h3() {
+                _super.call(this, "h3");
+            }
+            Object.defineProperty(h3.prototype, "typeName", {
+                get: function () {
+                    return h3.typeName;
+                },
+                enumerable: true,
+                configurable: true
+            });
+            h3.typeName = "layouts.controls.h3";
+            return h3;
+        }(NativeElement));
+        controls.h3 = h3;
+        var h4 = (function (_super) {
+            __extends(h4, _super);
+            function h4() {
+                _super.call(this, "h4");
+            }
+            Object.defineProperty(h4.prototype, "typeName", {
+                get: function () {
+                    return h4.typeName;
+                },
+                enumerable: true,
+                configurable: true
+            });
+            h4.typeName = "layouts.controls.h4";
+            return h4;
+        }(NativeElement));
+        controls.h4 = h4;
+        var h5 = (function (_super) {
+            __extends(h5, _super);
+            function h5() {
+                _super.call(this, "h5");
+            }
+            Object.defineProperty(h5.prototype, "typeName", {
+                get: function () {
+                    return h5.typeName;
+                },
+                enumerable: true,
+                configurable: true
+            });
+            h5.typeName = "layouts.controls.h5";
+            return h5;
+        }(NativeElement));
+        controls.h5 = h5;
     })(controls = layouts.controls || (layouts.controls = {}));
 })(layouts || (layouts = {}));
 /// <reference path="..\DepProperty.ts" />
@@ -5716,221 +6031,4 @@ var layouts;
     }());
     layouts.XamlReader = XamlReader;
 })(layouts || (layouts = {}));
-//easiest way to save user logged-in state
-var userLogged = false;
-window.onload = function () {
-    var app = layouts.Application.current;
-    app.map("/login", "app/Login"); //mapping is case sensitive
-    app.map("/page1/{user}", "app/Page1");
-    app.map("/page2/{parameter}", "app/Page2");
-    app.onBeforeNavigate = function (ctx) {
-        if (ctx.nextUri != "/login" &&
-            !userLogged) {
-            ctx.cancel = true;
-            //user must be logged in before go ahead
-            app.navigate("/login");
-        }
-    };
-    app.navigate("/page1/myuser&-test"); //"/page1/pippo");
-};
-var app;
-(function (app) {
-    var Page1 = (function (_super) {
-        __extends(Page1, _super);
-        function Page1() {
-            _super.call(this);
-            this.initializeComponent();
-        }
-        Object.defineProperty(Page1.prototype, "typeName", {
-            get: function () {
-                return Page1.typeName;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Page1, "PAGE_DEFINITION", {
-            get: function () {
-                return "<?xml version=\"1.0\" encoding=\"utf-8\" ?>\n<Stack Orientation=\"Vertical\" VerticalAlignment=\"Center\" HorizontalAlignment=\"Center\">\n    <TextBlock Text=\"{path:username}\" Format=\"Welcome to Page1 user {0}\" Margin=\"8\"/>\n    <TextBox Text=\"{path:parameter,twoway}\" Placeholder=\"Parameter for page 2\" Margin=\"8\"/>\n    <Button Text=\"Goto Page 2\" Command=\"{path:gotoPage2Command}\" Margin=\"8,16,8,8\"/>\n</Stack>";
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Page1.prototype.initializeComponent = function () {
-            var loader = new layouts.XamlReader();
-            this.child = loader.Parse(Page1.PAGE_DEFINITION);
-        };
-        Page1.prototype.onNavigate = function (context) {
-            this.dataContext = new app.Page1ViewModel(this, context.queryString["user"]);
-        };
-        Page1.typeName = "app.Page1";
-        return Page1;
-    }(layouts.controls.Page));
-    app.Page1 = Page1;
-})(app || (app = {}));
-var app;
-(function (app) {
-    var Login = (function (_super) {
-        __extends(Login, _super);
-        function Login() {
-            _super.call(this);
-            this.dataContext = new app.LoginViewModel(this);
-            this.initializeComponent();
-        }
-        Object.defineProperty(Login.prototype, "typeName", {
-            get: function () {
-                return Login.typeName;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Login, "PAGE_DEFINITION", {
-            get: function () {
-                return "<?xml version=\"1.0\" encoding=\"utf-8\" ?>\n<Stack Orientation=\"Vertical\" VerticalAlignment=\"Center\" HorizontalAlignment=\"Center\">\n    <TextBlock Text=\"Welcome to Login Page\" Margin=\"8\"/>\n    <TextBox Text=\"{path:username,mode:twoway}\" Placeholder=\"User name (test)\" Margin=\"8\"/>\n    <TextBox Text=\"{path:password,mode:twoway}\" Type=\"password\" Placeholder=\"Password (test)\" Margin=\"8\"/>\n    <Button Text=\"Sign In\" Command=\"{path:loginCommand}\" Margin=\"8,16,8,8\"/>\n</Stack>";
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Login.prototype.initializeComponent = function () {
-            var loader = new layouts.XamlReader();
-            this.child = loader.Parse(Login.PAGE_DEFINITION);
-        };
-        Login.prototype.onNavigate = function (context) {
-        };
-        Login.typeName = "app.Login";
-        return Login;
-    }(layouts.controls.Page));
-    app.Login = Login;
-})(app || (app = {}));
-var app;
-(function (app) {
-    var Page1ViewModel = (function (_super) {
-        __extends(Page1ViewModel, _super);
-        function Page1ViewModel(view, username) {
-            _super.call(this);
-            this.view = view;
-            this._username = username;
-        }
-        Object.defineProperty(Page1ViewModel.prototype, "typeName", {
-            get: function () {
-                return Page1ViewModel.typeName;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Page1ViewModel.prototype, "username", {
-            get: function () {
-                return this._username;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Page1ViewModel.prototype, "parameter", {
-            get: function () {
-                return this._parameter;
-            },
-            set: function (value) {
-                if (this._parameter != value) {
-                    var oldValue = this._parameter;
-                    this._parameter = value;
-                    this.onPropertyChanged("parameter", value, oldValue);
-                    this._gotoPage2Command.canExecuteChanged();
-                }
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Page1ViewModel.prototype, "gotoPage2Command", {
-            get: function () {
-                var _this = this;
-                if (this._gotoPage2Command == null)
-                    this._gotoPage2Command = new layouts.Command(function (cmd, p) { return _this.onGotoPage2(); }, function (cmd, p) { return _this.parameter != null && _this.parameter.trim().length > 0; });
-                return this._gotoPage2Command;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Page1ViewModel.prototype.onGotoPage2 = function () {
-            layouts.Application.current.navigate("/Page2/" + this.parameter);
-        };
-        Page1ViewModel.typeName = "app.Page1ViewModel";
-        return Page1ViewModel;
-    }(layouts.DepObject));
-    app.Page1ViewModel = Page1ViewModel;
-})(app || (app = {}));
-var app;
-(function (app) {
-    var LoginViewModel = (function (_super) {
-        __extends(LoginViewModel, _super);
-        function LoginViewModel(view) {
-            _super.call(this);
-            this.view = view;
-        }
-        Object.defineProperty(LoginViewModel.prototype, "typeName", {
-            get: function () {
-                return LoginViewModel.typeName;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(LoginViewModel.prototype, "username", {
-            get: function () {
-                return this._username;
-            },
-            set: function (value) {
-                var _this = this;
-                if (this._username != value) {
-                    var oldValue = this._username;
-                    this._username = value;
-                    this.onPropertyChanged("username", value, oldValue);
-                    layouts.Application.beginInvoke(function () {
-                        return _this._loginCommand.canExecuteChanged();
-                    });
-                }
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(LoginViewModel.prototype, "password", {
-            get: function () {
-                return this._password;
-            },
-            set: function (value) {
-                if (this._password != value) {
-                    var oldValue = this._password;
-                    this._password = value;
-                    this.onPropertyChanged("password", value, oldValue);
-                    this._loginCommand.canExecuteChanged();
-                }
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(LoginViewModel.prototype, "loginCommand", {
-            get: function () {
-                var _this = this;
-                if (this._loginCommand == null)
-                    this._loginCommand = new layouts.Command(function (cmd, p) { return _this.onLogin(); }, function (cmd, p) { return _this.canLogin(); });
-                return this._loginCommand;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        LoginViewModel.prototype.onLogin = function () {
-            if (this._username == "test" &&
-                this._password == "test") {
-                userLogged = true;
-                layouts.Application.current.navigate("/page1/" + this._username);
-            }
-            else
-                alert("Unable to login!");
-        };
-        LoginViewModel.prototype.canLogin = function () {
-            return this._username != null && this._username.trim().length > 0 &&
-                this._password != null && this._password.trim().length > 0;
-        };
-        LoginViewModel.typeName = "app.LoginViewModel";
-        return LoginViewModel;
-    }(layouts.DepObject));
-    app.LoginViewModel = LoginViewModel;
-})(app || (app = {}));
 //# sourceMappingURL=Layouts.Sample5.js.map

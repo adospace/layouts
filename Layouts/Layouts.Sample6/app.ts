@@ -20,7 +20,9 @@ window.onload = () => {
         <Stack HorizontalAlignment="Center" Orientation="Horizontal">
             <Label For="ch" Text="Enable/Disable Command" Margin="4"/>
             <CheckBox id="ch" IsChecked="{cmdEnabled,mode:twoway}"/>
-            <h1 Text="h1 text"/>
+            <div Command="{toggleSideBarCommand}" ArrangeChild="false">
+              <span/>
+            </div>
         </Stack>
     </Stack>
 </Page>`;
