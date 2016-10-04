@@ -60,21 +60,21 @@ module layouts.controls {
                 var pElement = this._pElement;
                 if (pElement != null) {
                     this._pElement.value = <string>value;
-                    this._measuredSize = null;
+                    //this._measuredSize = null;
                 }
             }
             else if (property == TextBox.placeholderProperty) {
                 var pElement = this._pElement;
                 if (pElement != null) {
                     pElement.placeholder = <string>value;
-                    this._measuredSize = null;
+                    //this._measuredSize = null;
                 }
             }
             else if (property == TextBox.typeProperty) {
                 var pElement = this._pElement;
                 if (pElement != null) {
                     pElement.type = <string>value;
-                    this._measuredSize = null;
+                    //this._measuredSize = null;
                 }
             }
             else if (property == TextBox.isReadonlyProperty) {

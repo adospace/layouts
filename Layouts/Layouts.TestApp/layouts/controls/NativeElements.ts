@@ -51,7 +51,7 @@ module layouts.controls {
 
         protected onDependencyPropertyChanged(property: DepProperty, value: any, oldValue: any) {
 
-            if (property == NativeElement.textProperty) {
+            if (property == NativeElement.textProperty && this._visual != null) {
                 this._visual.innerHTML = value;
             }
 
@@ -66,8 +66,8 @@ module layouts.controls {
 
         private _measuredSize: Size;
         protected measureOverride(constraint: Size): Size {
-            //if (this._child != null)
-            //    this._child.measure(constraint);
+            if (this._child != null)
+                this._child.measure(constraint);
             var pElement = this._visual;;
             if (this._measuredSize == null) {
                 pElement.style.width = "";
@@ -77,19 +77,19 @@ module layouts.controls {
             return new Size(Math.min(constraint.width, this._measuredSize.width), Math.min(constraint.height, this._measuredSize.height));
         }
 
-        //protected arrangeOverride(finalSize: Size): Size {
+        protected arrangeOverride(finalSize: Size): Size {
 
-        //    var pElement = this._visual;
-        //    pElement.style.width = finalSize.width.toString() + "px";
-        //    pElement.style.height = finalSize.height.toString() + "px";
+            var pElement = this._visual;
+            pElement.style.width = finalSize.width.toString() + "px";
+            pElement.style.height = finalSize.height.toString() + "px";
 
-        //    var child = this.child;
-        //    if (child != null) {
-        //        child.arrange(new Rect(0, 0, finalSize.width, finalSize.height));
-        //    }
+            var child = this.child;
+            if (child != null) {
+                child.arrange(new Rect(0, 0, finalSize.width, finalSize.height));
+            }
 
-        //    return finalSize;
-        //}
+            return finalSize;
+        }
 
         static textProperty = DepObject.registerProperty(NativeElement.typeName, "Text", "", FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender, (v) => String(v));
         get text(): string {
@@ -209,6 +209,61 @@ module layouts.controls {
 
         constructor() {
             super("span");
+        }
+    }
+    
+    export class h1 extends NativeElement {
+        static typeName: string = "layouts.controls.h1";
+        get typeName(): string {
+            return h1.typeName;
+        }
+
+        constructor() {
+            super("h1");
+        }
+    }
+
+    export class h2 extends NativeElement {
+        static typeName: string = "layouts.controls.h2";
+        get typeName(): string {
+            return h2.typeName;
+        }
+
+        constructor() {
+            super("h2");
+        }
+    }
+
+    export class h3 extends NativeElement {
+        static typeName: string = "layouts.controls.h3";
+        get typeName(): string {
+            return h3.typeName;
+        }
+
+        constructor() {
+            super("h3");
+        }
+    }
+
+    export class h4 extends NativeElement {
+        static typeName: string = "layouts.controls.h4";
+        get typeName(): string {
+            return h4.typeName;
+        }
+
+        constructor() {
+            super("h4");
+        }
+    }
+
+    export class h5 extends NativeElement {
+        static typeName: string = "layouts.controls.h5";
+        get typeName(): string {
+            return h5.typeName;
+        }
+
+        constructor() {
+            super("h5");
         }
     }
 
