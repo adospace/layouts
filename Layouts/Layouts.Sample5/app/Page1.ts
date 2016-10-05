@@ -9,6 +9,7 @@ module app {
         constructor() {
             super();
             this.initializeComponent();
+            this.cachePage = true;
         }
 
         public static get PAGE_DEFINITION(): string {

@@ -373,9 +373,9 @@ declare module layouts {
         private _mappings;
         mappings: UriMapping[];
         map(uri: string, mappedUri: string): UriMapping;
-        private _navigationStack;
-        private _currentNavigationitem;
+        private _currentUri;
         private _returnUri;
+        private _cachedPages;
         onBeforeNavigate: (ctx: controls.NavigationContext) => void;
         onAfterNavigate: (ctx: controls.NavigationContext) => void;
         navigate(uri?: string, loader?: InstanceLoader): boolean;

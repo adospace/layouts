@@ -7,14 +7,16 @@ window.onload = () => {
     app.map("/page1/{user}", "app/Page1");
     app.map("/page2/{parameter}", "app/Page2");
 
-    app.onBeforeNavigate = (ctx) => {
-        if (ctx.nextUri != "/login" &&
-            !userLogged) {
-            ctx.cancel = true;
-            //user must be logged in before go ahead
-            app.navigate("/login");
-        }
-    };
+    //app.onBeforeNavigate = (ctx) => {
+    //    if (ctx.nextUri != "/login" &&
+    //        !userLogged) {
+    //        ctx.cancel = true;
+    //        //user must be logged in before go ahead
+    //        app.navigate("/login");
+    //    }
+    //};
 
     app.navigate("/page1/myuser&-test");//"/page1/pippo");
+    app.navigate("/page1/john");//"/page1/pippo");
+
 };

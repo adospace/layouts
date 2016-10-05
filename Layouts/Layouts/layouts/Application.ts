@@ -166,9 +166,11 @@ module layouts {
             return uriMapping;
         }
 
-        private _navigationStack: NavigationItem[] = new Array<NavigationItem>();
-        private _currentNavigationitem: NavigationItem;
+        //private _navigationStack: NavigationItem[] = new Array<NavigationItem>();
+        //private _currentNavigationitem: NavigationItem;
+        private _currentUri: string;
         private _returnUri: string;
+        private _cachedPages = {};
 
         public onBeforeNavigate: (ctx: controls.NavigationContext) => void;
         public onAfterNavigate: (ctx: controls.NavigationContext) => void;
@@ -179,8 +181,7 @@ module layouts {
                     window.location.hash.slice(1) : Consts.stringEmpty;
             }
 
-            if (this._currentNavigationitem != null &&
-                this._currentNavigationitem.uri == uri)
+            if (this._currentUri == uri)
                 return true;
 
             var mappings = Enumerable.From(this._mappings);
@@ -189,30 +190,40 @@ module layouts {
             if (uriMapping != null) {
                 var queryString = uriMapping.resolve(uri);
 
-                if (this._currentNavigationitem != null) {
-                    var currentNavigationItem = this._currentNavigationitem;
-                    var navigationStack = this._navigationStack;
+                //if (this._currentNavigationitem != null) {
+                //    var currentNavigationItem = this._currentNavigationitem;
+                //    var navigationStack = this._navigationStack;
 
-                    while (navigationStack.length > 0 &&
-                        navigationStack[navigationStack.length - 1] != currentNavigationItem) {
-                        navigationStack.pop();
-                    }
+                //    while (navigationStack.length > 0 &&
+                //        navigationStack[navigationStack.length - 1] != currentNavigationItem) {
+                //        navigationStack.pop();
+                //    }
 
-                    //save page if required
-                    if (this.page.cachePage)
-                        this._currentNavigationitem.cachedPage = this.page;
-                }
+                //    //save page if required
+                //    if (this.page.cachePage)
+                //        this._currentNavigationitem.cachedPage = this.page;
+                //}
 
                 var previousPage = this.page;
-                var previousUri = this._currentNavigationitem != null ? this._currentNavigationitem.uri : null;                
+                var previousUri = this._currentUri;                
+                var targetPage = null;
 
-                if (loader == null)
-                    loader = new InstanceLoader(window);
+                if (uriMapping.mapping in this._cachedPages)
+                    targetPage = this._cachedPages[uriMapping.mapping];
+                else {
+                    if (loader == null)
+                        loader = new InstanceLoader(window);
 
-                var targetPage = loader.getInstance(uriMapping.mapping);
+                    targetPage = loader.getInstance(uriMapping.mapping);
 
-                if (targetPage == null) {
-                    throw new Error("Unable to navigate to page '{0}'".format(uriMapping.mapping));
+                    if (targetPage == null) {
+                        throw new Error("Unable to navigate to page '{0}'".format(uriMapping.mapping));
+                    }
+                }
+
+                if (targetPage.cachePage) {
+                    if (!(targetPage.typeName in this._cachedPages))
+                        this._cachedPages[uriMapping.mapping] = targetPage;
                 }
 
                 var navContext = new controls.NavigationContext(
@@ -238,9 +249,9 @@ module layouts {
                     }
                 }
 
-                this._currentNavigationitem = new NavigationItem(uri);
-                this._navigationStack.push(this._currentNavigationitem);
-
+                //this._currentNavigationitem = new NavigationItem(uri);
+                //this._navigationStack.push(this._currentNavigationitem);
+                this._currentUri = uri;
                 this.page = targetPage;
                 this.page.onNavigate(navContext);
 
