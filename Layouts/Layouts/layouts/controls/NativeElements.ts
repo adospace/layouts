@@ -40,7 +40,9 @@ module layouts.controls {
 
         attachVisualOverride(elementContainer: HTMLElement) {
             this._visual = document.createElement(this.elementType);
-            this._visual.innerHTML = this.text;
+            var text = this.text;
+            if (text != null)
+                this._visual.innerHTML = text;
 
             if (this._child != null) {
                 var childVisual = this._child.attachVisual(this._visual, true);
@@ -92,7 +94,7 @@ module layouts.controls {
             return finalSize;
         }
 
-        static textProperty = DepObject.registerProperty(NativeElement.typeName, "Text", "", FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender, (v) => String(v));
+        static textProperty = DepObject.registerProperty(NativeElement.typeName, "Text", null, FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender, (v) => String(v));
         get text(): string {
             return <string>this.getValue(NativeElement.textProperty);
         }

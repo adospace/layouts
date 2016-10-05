@@ -20,9 +20,13 @@ window.onload = () => {
         <Stack HorizontalAlignment="Center" Orientation="Horizontal">
             <Label For="ch" Text="Enable/Disable Command" Margin="4"/>
             <CheckBox id="ch" IsChecked="{cmdEnabled,mode:twoway}"/>
-            <div Command="{toggleSideBarCommand}" ArrangeChild="false">
-              <span/>
-            </div>
+            <a Command="{toggleSideBarCommand}" ArrangeChild="false">
+              <Stack Orientation="Horizontal">
+                <Image class="img-circle" Source="../Images/people/user-14.png" Width="32" Stretch="Uniform"/>
+                <span class="font-grey-cararra" Text="{securityService.user.matricola}" Margin="2,0" VerticalAlignment="Center"/>
+                <i class="fa fa-angle-down font-grey-cararra" VerticalAlignment="Center"/>
+              </Stack>
+            </a>
         </Stack>
     </Stack>
 </Page>`;

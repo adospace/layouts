@@ -62,6 +62,30 @@ module layouts.controls {
             }
         }
 
+        invalidateMeasure(): void {
+            super.invalidateMeasure();
+            var child = this._content;
+            if (child != null) {
+                child.invalidateMeasure();
+            }
+        }
+
+        invalidateArrange(): void {
+            super.invalidateArrange();
+            var child = this._content;
+            if (child != null) {
+                child.invalidateArrange();
+            }
+        }
+
+        invalidateLayout(): void {
+            super.invalidateLayout();
+            var child = this._content;
+            if (child != null) {
+                child.invalidateLayout();
+            }
+        }
+
         protected measureOverride(constraint: Size): Size {
 
             var child = this._content;
@@ -75,8 +99,11 @@ module layouts.controls {
 
         protected arrangeOverride(finalSize: Size): Size {
             var child = this._content;
-            if (child != null)
+            if (child != null) {
                 child.arrange(finalSize.toRect());
+            }
+
+            this.invalidateLayout();
 
             return finalSize;
         }

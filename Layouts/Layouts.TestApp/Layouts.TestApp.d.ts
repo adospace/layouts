@@ -152,7 +152,7 @@ declare module layouts {
         layout(relativeOffset?: Vector): void;
         protected layoutOverride(): void;
         protected _visual: HTMLElement;
-        attachVisual(elementContainer: HTMLElement, showImmediately?: boolean): void;
+        attachVisual(elementContainer: HTMLElement, showImmediately?: boolean): HTMLElement;
         protected attachVisualOverride(elementContainer: HTMLElement): void;
         protected onMouseDown(ev: MouseEvent): void;
         protected onMouseUp(ev: MouseEvent): void;
@@ -798,6 +798,8 @@ declare module layouts.controls {
         protected arrangeOverride(finalSize: Size): Size;
         static textProperty: DepProperty;
         text: string;
+        static arrangeChildProperty: DepProperty;
+        arrangeChild: boolean;
     }
     class div extends NativeElement {
         static typeName: string;
@@ -929,6 +931,9 @@ declare module layouts.controls {
         protected _container: HTMLElement;
         attachVisualOverride(elementContainer: HTMLElement): void;
         private setupChild(content);
+        invalidateMeasure(): void;
+        invalidateArrange(): void;
+        invalidateLayout(): void;
         protected measureOverride(constraint: Size): Size;
         protected arrangeOverride(finalSize: Size): Size;
         protected layoutOverride(): void;

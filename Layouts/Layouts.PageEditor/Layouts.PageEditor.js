@@ -731,7 +731,7 @@ var layouts;
                 this.attachVisualOverride(null);
             //2. if visual is still null we have done
             if (this._visual == null)
-                return;
+                return null;
             //3. if visual is not under container...
             if (elementContainer != this._visual.parentElement) {
                 //4. remove visual from old container 
@@ -761,6 +761,7 @@ var layouts;
                         this.visualConnected(elementContainer);
                 }
             }
+            return this._visual;
         };
         UIElement.prototype.attachVisualOverride = function (elementContainer) {
             var _this = this;
@@ -768,7 +769,10 @@ var layouts;
                 return;
             //apply extended properties to html element
             this._extendedProperties.forEach(function (ep) {
-                _this._visual.style[ep.name] = ep.value;
+                if (ep.name in _this._visual)
+                    _this._visual[ep.name] = ep.value;
+                else
+                    _this._visual.style[ep.name] = ep.value;
             });
             this._visual.style.visibility = this.isVisible ? "" : "hidden";
             if (this.command != null)
@@ -901,18 +905,18 @@ var layouts;
             return this.localPropertyValueMap[property.name];
         };
         UIElement.prototype.invalidateMeasure = function () {
+            this.arrangeDirty = true;
+            this.layoutInvalid = true;
             if (!this.measureDirty) {
                 this.measureDirty = true;
-                this.arrangeDirty = true;
-                this.layoutInvalid = true;
                 if (this._parent != null)
                     this._parent.invalidateMeasure();
             }
         };
         UIElement.prototype.invalidateArrange = function () {
+            this.layoutInvalid = true;
             if (!this.arrangeDirty) {
                 this.arrangeDirty = true;
-                this.layoutInvalid = true;
                 if (this._parent != null)
                     this._parent.invalidateArrange();
             }
@@ -2255,7 +2259,10 @@ var layouts;
             Border.prototype.measureOverride = function (constraint) {
                 var mySize = new layouts.Size();
                 // Compute the chrome size added by the various elements
-                var border = new layouts.Size(this.borderThickness.left + this.borderThickness.right, this.borderThickness.top + this.borderThickness.bottom);
+                var borderThickness = this.borderThickness;
+                if (borderThickness == null)
+                    borderThickness = new layouts.Thickness();
+                var border = new layouts.Size(borderThickness.left + borderThickness.right, borderThickness.top + borderThickness.bottom);
                 var padding = new layouts.Size(this.padding.left + this.padding.right, this.padding.top + this.padding.bottom);
                 //If we have a child
                 if (this._child != null) {
@@ -2276,9 +2283,11 @@ var layouts;
                 return mySize;
             };
             Border.prototype.arrangeOverride = function (finalSize) {
-                var borders = this.borderThickness;
+                var borderThickness = this.borderThickness;
+                if (borderThickness == null)
+                    borderThickness = new layouts.Thickness();
                 var boundRect = new layouts.Rect(0, 0, finalSize.width, finalSize.height);
-                var innerRect = new layouts.Rect(boundRect.x + borders.left, boundRect.y + borders.top, Math.max(0.0, boundRect.width - borders.left - borders.right), Math.max(0.0, boundRect.height - borders.top - borders.bottom));
+                var innerRect = new layouts.Rect(boundRect.x + borderThickness.left, boundRect.y + borderThickness.top, Math.max(0.0, boundRect.width - borderThickness.left - borderThickness.right), Math.max(0.0, boundRect.height - borderThickness.top - borderThickness.bottom));
                 //  arrange child
                 var child = this._child;
                 var padding = this.padding;
@@ -2290,10 +2299,12 @@ var layouts;
             };
             Border.prototype.layoutOverride = function () {
                 _super.prototype.layoutOverride.call(this);
-                var borders = this.borderThickness;
+                var borderThickness = this.borderThickness;
+                if (borderThickness == null)
+                    borderThickness = new layouts.Thickness();
                 if (this._visual != null && this.renderSize != null) {
-                    this._visual.style.width = (this.renderSize.width - (borders.left + borders.right)).toString() + "px";
-                    this._visual.style.height = (this.renderSize.height - (borders.top + borders.bottom)).toString() + "px";
+                    this._visual.style.width = (this.renderSize.width - (borderThickness.left + borderThickness.right)).toString() + "px";
+                    this._visual.style.height = (this.renderSize.height - (borderThickness.top + borderThickness.bottom)).toString() + "px";
                 }
                 if (this._child != null)
                     this._child.layout();
@@ -2302,16 +2313,20 @@ var layouts;
                 if (this._visual == null)
                     return;
                 this._visual.style.background = this.background;
-                this._visual.style.borderColor = this.borderBrush;
-                this._visual.style.borderStyle = this.borderStyle;
+                if (this.borderBrush != null)
+                    this._visual.style.borderColor = this.borderBrush;
+                if (this.borderStyle != null)
+                    this._visual.style.borderStyle = this.borderStyle;
                 var borderThickness = this.borderThickness;
-                if (borderThickness.isSameWidth)
-                    this._visual.style.borderWidth = borderThickness.left.toString() + "px";
-                else {
-                    this._visual.style.borderLeft = borderThickness.left.toString() + "px";
-                    this._visual.style.borderTop = borderThickness.top.toString() + "px";
-                    this._visual.style.borderRight = borderThickness.right.toString() + "px";
-                    this._visual.style.borderBottom = borderThickness.bottom.toString() + "px";
+                if (borderThickness != null) {
+                    if (borderThickness.isSameWidth)
+                        this._visual.style.borderWidth = borderThickness.left.toString() + "px";
+                    else {
+                        this._visual.style.borderLeft = borderThickness.left.toString() + "px";
+                        this._visual.style.borderTop = borderThickness.top.toString() + "px";
+                        this._visual.style.borderRight = borderThickness.right.toString() + "px";
+                        this._visual.style.borderBottom = borderThickness.bottom.toString() + "px";
+                    }
                 }
             };
             Border.prototype.onDependencyPropertyChanged = function (property, value, oldValue) {
@@ -2372,11 +2387,11 @@ var layouts;
                 configurable: true
             });
             Border.typeName = "layouts.controls.Border";
-            Border.borderThicknessProperty = layouts.DepObject.registerProperty(Border.typeName, "BorderThickness", new layouts.Thickness(), layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender, function (v) { return layouts.Thickness.fromString(v); });
+            Border.borderThicknessProperty = layouts.DepObject.registerProperty(Border.typeName, "BorderThickness", null, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender, function (v) { return layouts.Thickness.fromString(v); });
             Border.paddingProperty = layouts.DepObject.registerProperty(Border.typeName, "Padding", new layouts.Thickness(), layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender, function (v) { return layouts.Thickness.fromString(v); });
             Border.backgroundProperty = layouts.DepObject.registerProperty(Border.typeName, "Background", null, layouts.FrameworkPropertyMetadataOptions.AffectsRender);
             Border.borderBrushProperty = layouts.DepObject.registerProperty(Border.typeName, "BorderBrush", null, layouts.FrameworkPropertyMetadataOptions.AffectsRender);
-            Border.borderStyleProperty = layouts.DepObject.registerProperty(Border.typeName, "BorderStyle", "solid", layouts.FrameworkPropertyMetadataOptions.AffectsRender);
+            Border.borderStyleProperty = layouts.DepObject.registerProperty(Border.typeName, "BorderStyle", null, layouts.FrameworkPropertyMetadataOptions.AffectsRender);
             return Border;
         }(layouts.FrameworkElement));
         controls.Border = Border;
@@ -4464,7 +4479,7 @@ var layouts;
                         if (this._child != null) {
                             this._child.parent = this;
                             if (this._visual != null)
-                                this._child.attachVisual(this._visual);
+                                this._child.attachVisual(this._visual, true);
                         }
                         this.invalidateMeasure();
                     }
@@ -4478,21 +4493,27 @@ var layouts;
             };
             NativeElement.prototype.attachVisualOverride = function (elementContainer) {
                 this._visual = document.createElement(this.elementType);
-                this._visual.innerHTML = this.text;
+                var text = this.text;
+                if (text != null)
+                    this._visual.innerHTML = text;
                 if (this._child != null) {
-                    this._child.attachVisual(this._visual);
+                    var childVisual = this._child.attachVisual(this._visual, true);
+                    if (childVisual != null && !this.arrangeChild)
+                        childVisual.style.position = layouts.Consts.stringEmpty;
                 }
                 _super.prototype.attachVisualOverride.call(this, elementContainer);
             };
             NativeElement.prototype.onDependencyPropertyChanged = function (property, value, oldValue) {
-                if (property == NativeElement.textProperty) {
+                if (property == NativeElement.textProperty && this._visual != null) {
                     this._visual.innerHTML = value;
                 }
                 _super.prototype.onDependencyPropertyChanged.call(this, property, value, oldValue);
             };
             NativeElement.prototype.measureOverride = function (constraint) {
-                if (this._child != null)
-                    this._child.measure(constraint);
+                if (this.arrangeChild) {
+                    if (this._child != null)
+                        this._child.measure(constraint);
+                }
                 var pElement = this._visual;
                 ;
                 if (this._measuredSize == null) {
@@ -4501,6 +4522,18 @@ var layouts;
                     this._measuredSize = new layouts.Size(pElement.clientWidth, pElement.clientHeight);
                 }
                 return new layouts.Size(Math.min(constraint.width, this._measuredSize.width), Math.min(constraint.height, this._measuredSize.height));
+            };
+            NativeElement.prototype.arrangeOverride = function (finalSize) {
+                var pElement = this._visual;
+                pElement.style.width = finalSize.width.toString() + "px";
+                pElement.style.height = finalSize.height.toString() + "px";
+                if (this.arrangeChild) {
+                    var child = this.child;
+                    if (child != null) {
+                        child.arrange(new layouts.Rect(0, 0, finalSize.width, finalSize.height));
+                    }
+                }
+                return finalSize;
             };
             Object.defineProperty(NativeElement.prototype, "text", {
                 get: function () {
@@ -4512,21 +4545,19 @@ var layouts;
                 enumerable: true,
                 configurable: true
             });
+            Object.defineProperty(NativeElement.prototype, "arrangeChild", {
+                get: function () {
+                    return this.getValue(NativeElement.arrangeChildProperty);
+                },
+                set: function (value) {
+                    this.setValue(NativeElement.arrangeChildProperty, value);
+                },
+                enumerable: true,
+                configurable: true
+            });
             NativeElement.typeName = "layouts.controls.NativeElement";
-            //protected arrangeOverride(finalSize: Size): Size {
-            //    var pElement = this._visual;
-            //    pElement.style.width = finalSize.width.toString() + "px";
-            //    pElement.style.height = finalSize.height.toString() + "px";
-            //    if (child != null) {
-            //        var childRect = new Rect(innerRect.x + padding.left,
-            //            innerRect.y + padding.top,
-            //            Math.max(0.0, innerRect.width - padding.left - padding.right),
-            //            Math.max(0.0, innerRect.height - padding.top - padding.bottom));
-            //        child.arrange(childRect);
-            //    }
-            //    return finalSize;
-            //}
-            NativeElement.textProperty = layouts.DepObject.registerProperty(NativeElement.typeName, "Text", "", layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender, function (v) { return String(v); });
+            NativeElement.textProperty = layouts.DepObject.registerProperty(NativeElement.typeName, "Text", null, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender, function (v) { return String(v); });
+            NativeElement.arrangeChildProperty = layouts.DepObject.registerProperty(NativeElement.typeName, "ArrangeChild", true, layouts.FrameworkPropertyMetadataOptions.None, function (v) { return v != null && v.trim().toLowerCase() == "true"; });
             return NativeElement;
         }(layouts.FrameworkElement));
         controls.NativeElement = NativeElement;
@@ -4658,6 +4689,86 @@ var layouts;
             return span;
         }(NativeElement));
         controls.span = span;
+        var h1 = (function (_super) {
+            __extends(h1, _super);
+            function h1() {
+                _super.call(this, "h1");
+            }
+            Object.defineProperty(h1.prototype, "typeName", {
+                get: function () {
+                    return h1.typeName;
+                },
+                enumerable: true,
+                configurable: true
+            });
+            h1.typeName = "layouts.controls.h1";
+            return h1;
+        }(NativeElement));
+        controls.h1 = h1;
+        var h2 = (function (_super) {
+            __extends(h2, _super);
+            function h2() {
+                _super.call(this, "h2");
+            }
+            Object.defineProperty(h2.prototype, "typeName", {
+                get: function () {
+                    return h2.typeName;
+                },
+                enumerable: true,
+                configurable: true
+            });
+            h2.typeName = "layouts.controls.h2";
+            return h2;
+        }(NativeElement));
+        controls.h2 = h2;
+        var h3 = (function (_super) {
+            __extends(h3, _super);
+            function h3() {
+                _super.call(this, "h3");
+            }
+            Object.defineProperty(h3.prototype, "typeName", {
+                get: function () {
+                    return h3.typeName;
+                },
+                enumerable: true,
+                configurable: true
+            });
+            h3.typeName = "layouts.controls.h3";
+            return h3;
+        }(NativeElement));
+        controls.h3 = h3;
+        var h4 = (function (_super) {
+            __extends(h4, _super);
+            function h4() {
+                _super.call(this, "h4");
+            }
+            Object.defineProperty(h4.prototype, "typeName", {
+                get: function () {
+                    return h4.typeName;
+                },
+                enumerable: true,
+                configurable: true
+            });
+            h4.typeName = "layouts.controls.h4";
+            return h4;
+        }(NativeElement));
+        controls.h4 = h4;
+        var h5 = (function (_super) {
+            __extends(h5, _super);
+            function h5() {
+                _super.call(this, "h5");
+            }
+            Object.defineProperty(h5.prototype, "typeName", {
+                get: function () {
+                    return h5.typeName;
+                },
+                enumerable: true,
+                configurable: true
+            });
+            h5.typeName = "layouts.controls.h5";
+            return h5;
+        }(NativeElement));
+        controls.h5 = h5;
     })(controls = layouts.controls || (layouts.controls = {}));
 })(layouts || (layouts = {}));
 /// <reference path="..\DepProperty.ts" />
@@ -4937,21 +5048,18 @@ var layouts;
                     var pElement = this._pElement;
                     if (pElement != null) {
                         this._pElement.value = value;
-                        this._measuredSize = null;
                     }
                 }
                 else if (property == TextBox.placeholderProperty) {
                     var pElement = this._pElement;
                     if (pElement != null) {
                         pElement.placeholder = value;
-                        this._measuredSize = null;
                     }
                 }
                 else if (property == TextBox.typeProperty) {
                     var pElement = this._pElement;
                     if (pElement != null) {
                         pElement.type = value;
-                        this._measuredSize = null;
                     }
                 }
                 else if (property == TextBox.isReadonlyProperty) {

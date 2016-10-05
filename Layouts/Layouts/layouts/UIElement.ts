@@ -389,10 +389,10 @@ module layouts {
 
         private measureDirty: boolean = true;
         invalidateMeasure(): void {
+            this.arrangeDirty = true;
+            this.layoutInvalid = true;
             if (!this.measureDirty) {
                 this.measureDirty = true;
-                this.arrangeDirty = true;
-                this.layoutInvalid = true;
                 if (this._parent != null)
                     this._parent.invalidateMeasure();
             }
@@ -400,9 +400,9 @@ module layouts {
 
         private arrangeDirty: boolean = true;
         invalidateArrange(): void {
+            this.layoutInvalid = true;
             if (!this.arrangeDirty) {
                 this.arrangeDirty = true;
-                this.layoutInvalid = true;
                 if (this._parent != null)
                     this._parent.invalidateArrange();
             }

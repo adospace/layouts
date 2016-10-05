@@ -731,7 +731,7 @@ var layouts;
                 this.attachVisualOverride(null);
             //2. if visual is still null we have done
             if (this._visual == null)
-                return;
+                return null;
             //3. if visual is not under container...
             if (elementContainer != this._visual.parentElement) {
                 //4. remove visual from old container 
@@ -761,6 +761,7 @@ var layouts;
                         this.visualConnected(elementContainer);
                 }
             }
+            return this._visual;
         };
         UIElement.prototype.attachVisualOverride = function (elementContainer) {
             var _this = this;
@@ -904,18 +905,18 @@ var layouts;
             return this.localPropertyValueMap[property.name];
         };
         UIElement.prototype.invalidateMeasure = function () {
+            this.arrangeDirty = true;
+            this.layoutInvalid = true;
             if (!this.measureDirty) {
                 this.measureDirty = true;
-                this.arrangeDirty = true;
-                this.layoutInvalid = true;
                 if (this._parent != null)
                     this._parent.invalidateMeasure();
             }
         };
         UIElement.prototype.invalidateArrange = function () {
+            this.layoutInvalid = true;
             if (!this.arrangeDirty) {
                 this.arrangeDirty = true;
-                this.layoutInvalid = true;
                 if (this._parent != null)
                     this._parent.invalidateArrange();
             }
@@ -5185,9 +5186,13 @@ var layouts;
             };
             NativeElement.prototype.attachVisualOverride = function (elementContainer) {
                 this._visual = document.createElement(this.elementType);
-                this._visual.innerHTML = this.text;
+                var text = this.text;
+                if (text != null)
+                    this._visual.innerHTML = text;
                 if (this._child != null) {
-                    this._child.attachVisual(this._visual, true);
+                    var childVisual = this._child.attachVisual(this._visual, true);
+                    if (childVisual != null && !this.arrangeChild)
+                        childVisual.style.position = layouts.Consts.stringEmpty;
                 }
                 _super.prototype.attachVisualOverride.call(this, elementContainer);
             };
@@ -5198,8 +5203,10 @@ var layouts;
                 _super.prototype.onDependencyPropertyChanged.call(this, property, value, oldValue);
             };
             NativeElement.prototype.measureOverride = function (constraint) {
-                if (this._child != null)
-                    this._child.measure(constraint);
+                if (this.arrangeChild) {
+                    if (this._child != null)
+                        this._child.measure(constraint);
+                }
                 var pElement = this._visual;
                 ;
                 if (this._measuredSize == null) {
@@ -5213,9 +5220,11 @@ var layouts;
                 var pElement = this._visual;
                 pElement.style.width = finalSize.width.toString() + "px";
                 pElement.style.height = finalSize.height.toString() + "px";
-                var child = this.child;
-                if (child != null) {
-                    child.arrange(new layouts.Rect(0, 0, finalSize.width, finalSize.height));
+                if (this.arrangeChild) {
+                    var child = this.child;
+                    if (child != null) {
+                        child.arrange(new layouts.Rect(0, 0, finalSize.width, finalSize.height));
+                    }
                 }
                 return finalSize;
             };
@@ -5229,8 +5238,19 @@ var layouts;
                 enumerable: true,
                 configurable: true
             });
+            Object.defineProperty(NativeElement.prototype, "arrangeChild", {
+                get: function () {
+                    return this.getValue(NativeElement.arrangeChildProperty);
+                },
+                set: function (value) {
+                    this.setValue(NativeElement.arrangeChildProperty, value);
+                },
+                enumerable: true,
+                configurable: true
+            });
             NativeElement.typeName = "layouts.controls.NativeElement";
-            NativeElement.textProperty = layouts.DepObject.registerProperty(NativeElement.typeName, "Text", "", layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender, function (v) { return String(v); });
+            NativeElement.textProperty = layouts.DepObject.registerProperty(NativeElement.typeName, "Text", null, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender, function (v) { return String(v); });
+            NativeElement.arrangeChildProperty = layouts.DepObject.registerProperty(NativeElement.typeName, "ArrangeChild", true, layouts.FrameworkPropertyMetadataOptions.None, function (v) { return v != null && v.trim().toLowerCase() == "true"; });
             return NativeElement;
         }(layouts.FrameworkElement));
         controls.NativeElement = NativeElement;
@@ -5854,6 +5874,27 @@ var layouts;
                     this.tryLoadChildFromServer();
                 }
             };
+            UserControl.prototype.invalidateMeasure = function () {
+                _super.prototype.invalidateMeasure.call(this);
+                var child = this._content;
+                if (child != null) {
+                    child.invalidateMeasure();
+                }
+            };
+            UserControl.prototype.invalidateArrange = function () {
+                _super.prototype.invalidateArrange.call(this);
+                var child = this._content;
+                if (child != null) {
+                    child.invalidateArrange();
+                }
+            };
+            UserControl.prototype.invalidateLayout = function () {
+                _super.prototype.invalidateLayout.call(this);
+                var child = this._content;
+                if (child != null) {
+                    child.invalidateLayout();
+                }
+            };
             UserControl.prototype.measureOverride = function (constraint) {
                 var child = this._content;
                 if (child != null) {
@@ -5864,8 +5905,10 @@ var layouts;
             };
             UserControl.prototype.arrangeOverride = function (finalSize) {
                 var child = this._content;
-                if (child != null)
+                if (child != null) {
                     child.arrange(finalSize.toRect());
+                }
+                this.invalidateLayout();
                 return finalSize;
             };
             UserControl.prototype.layoutOverride = function () {

@@ -955,6 +955,9 @@ declare module layouts.controls {
         protected _container: HTMLElement;
         attachVisualOverride(elementContainer: HTMLElement): void;
         private setupChild(content);
+        invalidateMeasure(): void;
+        invalidateArrange(): void;
+        invalidateLayout(): void;
         protected measureOverride(constraint: Size): Size;
         protected arrangeOverride(finalSize: Size): Size;
         protected layoutOverride(): void;

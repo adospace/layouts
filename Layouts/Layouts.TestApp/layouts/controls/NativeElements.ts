@@ -40,11 +40,16 @@ module layouts.controls {
 
         attachVisualOverride(elementContainer: HTMLElement) {
             this._visual = document.createElement(this.elementType);
-            this._visual.innerHTML = this.text;
+            var text = this.text;
+            if (text != null)
+                this._visual.innerHTML = text;
 
             if (this._child != null) {
-                this._child.attachVisual(this._visual, true);
+                var childVisual = this._child.attachVisual(this._visual, true);
+                if (childVisual != null && !this.arrangeChild)
+                    childVisual.style.position = layouts.Consts.stringEmpty;                
             }
+
 
             super.attachVisualOverride(elementContainer);
         }
@@ -58,16 +63,12 @@ module layouts.controls {
             super.onDependencyPropertyChanged(property, value, oldValue);
         }
 
-
-        //private _innerXaml: string;
-        //setInnerXaml(value: string) {
-        //    this._innerXaml = value;
-        //}
-
         private _measuredSize: Size;
         protected measureOverride(constraint: Size): Size {
-            if (this._child != null)
-                this._child.measure(constraint);
+            if (this.arrangeChild) {
+                if (this._child != null)
+                    this._child.measure(constraint);
+            }
             var pElement = this._visual;;
             if (this._measuredSize == null) {
                 pElement.style.width = "";
@@ -83,15 +84,17 @@ module layouts.controls {
             pElement.style.width = finalSize.width.toString() + "px";
             pElement.style.height = finalSize.height.toString() + "px";
 
-            var child = this.child;
-            if (child != null) {
-                child.arrange(new Rect(0, 0, finalSize.width, finalSize.height));
+            if (this.arrangeChild) {
+                var child = this.child;
+                if (child != null) {
+                    child.arrange(new Rect(0, 0, finalSize.width, finalSize.height));
+                }
             }
 
             return finalSize;
         }
 
-        static textProperty = DepObject.registerProperty(NativeElement.typeName, "Text", "", FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender, (v) => String(v));
+        static textProperty = DepObject.registerProperty(NativeElement.typeName, "Text", null, FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender, (v) => String(v));
         get text(): string {
             return <string>this.getValue(NativeElement.textProperty);
         }
@@ -99,28 +102,13 @@ module layouts.controls {
             this.setValue(NativeElement.textProperty, value);
         }
 
-        //protected measureOverride(constraint: Size): Size {
-        //    var mySize = new Size();
-        //    var pElement = this._visual;
-
-        //    if (isFinite(constraint.width))
-        //        pElement.style.maxWidth = constraint.width + "px";
-        //    if (isFinite(constraint.height))
-        //        pElement.style.maxHeight = constraint.height + "px";
-        //    pElement.style.width = "auto";
-        //    pElement.style.height = "auto";
-
-        //    pElement.innerHTML = this._innerXaml;
-
-        //    mySize = new Size(pElement.clientWidth, pElement.clientHeight);
-
-        //    if (this.renderSize != null) {
-        //        pElement.style.width = this.renderSize.width.toString() + "px";
-        //        pElement.style.height = this.renderSize.height.toString() + "px";
-        //    }
-
-        //    return mySize;
-        //}
+        static arrangeChildProperty = DepObject.registerProperty(NativeElement.typeName, "ArrangeChild", true, FrameworkPropertyMetadataOptions.None, (v) => v != null && v.trim().toLowerCase() == "true");
+        get arrangeChild(): boolean {
+            return <boolean>this.getValue(NativeElement.arrangeChildProperty);
+        }
+        set arrangeChild(value: boolean) {
+            this.setValue(NativeElement.arrangeChildProperty, value);
+        }
 
     }
 

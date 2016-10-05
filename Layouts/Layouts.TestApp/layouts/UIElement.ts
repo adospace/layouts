@@ -172,7 +172,7 @@ module layouts {
 
         ///Attach page visual tree (attach to null to remove it from DOM)
         protected _visual: HTMLElement;
-        attachVisual(elementContainer: HTMLElement, showImmediately:boolean = false): void {
+        attachVisual(elementContainer: HTMLElement, showImmediately: boolean = false): HTMLElement {
 
             //1. if a visual is not yet created and we have a container
             //try create it now
@@ -188,7 +188,7 @@ module layouts {
 
             //2. if visual is still null we have done
             if (this._visual == null)
-                return;
+                return null;
 
             //3. if visual is not under container...
             if (elementContainer != this._visual.parentElement) {
@@ -223,6 +223,8 @@ module layouts {
                         this.visualConnected(elementContainer);
                 }
             }
+
+            return this._visual;
         }
 
         protected attachVisualOverride(elementContainer: HTMLElement): void {
@@ -387,10 +389,10 @@ module layouts {
 
         private measureDirty: boolean = true;
         invalidateMeasure(): void {
+            this.arrangeDirty = true;
+            this.layoutInvalid = true;
             if (!this.measureDirty) {
                 this.measureDirty = true;
-                this.arrangeDirty = true;
-                this.layoutInvalid = true;
                 if (this._parent != null)
                     this._parent.invalidateMeasure();
             }
@@ -398,9 +400,9 @@ module layouts {
 
         private arrangeDirty: boolean = true;
         invalidateArrange(): void {
+            this.layoutInvalid = true;
             if (!this.arrangeDirty) {
                 this.arrangeDirty = true;
-                this.layoutInvalid = true;
                 if (this._parent != null)
                     this._parent.invalidateArrange();
             }
