@@ -76,6 +76,7 @@ module layouts.controls {
             this._popupContainer = document.createElement("div");
             this._popupContainer.style.width = this._popupContainer.style.height = "100%";
             this._popupContainer.style.position = "fixed";
+            this._popupContainer.className = "layoutsPopupContainer"; //default popup container style
             if (this.cssClass != null)
                 this._popupContainer.className = this.cssClass;
             document.body.appendChild(this._popupContainer);
