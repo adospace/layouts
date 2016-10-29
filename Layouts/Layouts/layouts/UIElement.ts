@@ -227,6 +227,10 @@ module layouts {
             return this._visual;
         }
 
+        public get visual(): HTMLElement {
+            return this._visual;
+        }
+
         protected attachVisualOverride(elementContainer: HTMLElement): void {
             if (this._visual == null)
                 return;

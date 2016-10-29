@@ -4,8 +4,6 @@
 module layouts {
     export class LayoutManager {
 
-
-
         static updateLayout() {
             var page = Application.current.page;
             //var docWidth = document.body.clientWidth;
@@ -93,7 +91,6 @@ module layouts {
                 popup.layout();
             });
         }
-
 
         private static popups: layouts.controls.Popup[] = [];
         static showPopup(popup: layouts.controls.Popup) {

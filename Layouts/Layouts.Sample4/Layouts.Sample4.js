@@ -763,6 +763,13 @@ var layouts;
             }
             return this._visual;
         };
+        Object.defineProperty(UIElement.prototype, "visual", {
+            get: function () {
+                return this._visual;
+            },
+            enumerable: true,
+            configurable: true
+        });
         UIElement.prototype.attachVisualOverride = function (elementContainer) {
             var _this = this;
             if (this._visual == null)
@@ -1600,17 +1607,12 @@ var layouts;
                     if (req.readyState == 4 && req.status == 200) {
                         var loader = new layouts.XamlReader();
                         _this._child = loader.Parse(req.responseText);
-                        if (_this._child != null) {
-                            _this._child.parent = _this;
-                            _this._child.attachVisual(document.body);
-                        }
+                        if (_this._child != null)
+                            _this.setupChild();
                     }
                 };
                 req.open("GET", this.typeName.replace(/\./gi, '/') + ".xml", true);
                 req.send();
-            };
-            Popup.prototype.attachVisualOverride = function (elementContainer) {
-                _super.prototype.attachVisualOverride.call(this, elementContainer);
             };
             Object.defineProperty(Popup.prototype, "child", {
                 get: function () {
@@ -1628,17 +1630,33 @@ var layouts;
             Popup.prototype.onShow = function () {
                 if (this._child == null)
                     this._child = this.initializeComponent();
-                if (this._child != null) {
-                    this._child.parent = this;
-                    this._child.attachVisual(document.body);
-                }
+                if (this._child != null)
+                    this.setupChild();
                 else
                     this.tryLoadChildFromServer();
+            };
+            Popup.prototype.setupChild = function () {
+                this._child.parent = this;
+                this._popupContainer = document.createElement("div");
+                this._popupContainer.style.width = this._popupContainer.style.height = "100%";
+                this._popupContainer.style.position = "fixed";
+                if (this.cssClass != null)
+                    this._popupContainer.className = this.cssClass;
+                document.body.appendChild(this._popupContainer);
+                this._child.attachVisual(this._popupContainer);
+                this._popupContainer.addEventListener("click", function (event) {
+                    if (event.target == this._popupContainer) {
+                        this.removeEventListener("click", arguments.callee);
+                        layouts.LayoutManager.closePopup(this);
+                    }
+                });
             };
             Popup.prototype.onClose = function () {
                 if (this._child != null && this._child.parent == this) {
                     this._child.attachVisual(null);
                     this._child.parent = null;
+                    document.body.removeChild(this._popupContainer);
+                    this._popupContainer = null;
                 }
             };
             Popup.prototype.initializeComponent = function () {

@@ -102,6 +102,9 @@
     <TypeScriptCompile Include="..\Layouts\layouts\DepProperty.ts">
       <Link>layouts\DepProperty.ts</Link>
     </TypeScriptCompile>
+    <TypeScriptCompile Include="..\Layouts\layouts\EventAction.ts">
+      <Link>layouts\EventAction.ts</Link>
+    </TypeScriptCompile>
     <TypeScriptCompile Include="..\Layouts\layouts\Extensions.ts">
       <Link>layouts\Extensions.ts</Link>
     </TypeScriptCompile>
@@ -136,7 +139,6 @@
       <Link>layouts\XamlReader.ts</Link>
     </TypeScriptCompile>
     <TypeScriptCompile Include="app.ts" />
-    <TypeScriptCompile Include="layouts\EventAction.ts" />
     <TypeScriptCompile Include="ViewModel\AddArticleDialogView.ts" />
     <TypeScriptCompile Include="ViewModel\AddArticleDialogViewModel.ts" />
     <TypeScriptCompile Include="ViewModel\AppView.ts" />

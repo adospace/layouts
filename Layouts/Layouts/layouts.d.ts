@@ -153,6 +153,7 @@ declare module layouts {
         protected layoutOverride(): void;
         protected _visual: HTMLElement;
         attachVisual(elementContainer: HTMLElement, showImmediately?: boolean): HTMLElement;
+        visual: HTMLElement;
         protected attachVisualOverride(elementContainer: HTMLElement): void;
         protected onMouseDown(ev: MouseEvent): void;
         protected onMouseUp(ev: MouseEvent): void;
@@ -295,10 +296,11 @@ declare module layouts.controls {
         private static initProperties();
         constructor();
         private tryLoadChildFromServer();
-        attachVisualOverride(elementContainer: HTMLElement): void;
+        private _popupContainer;
         private _child;
         child: UIElement;
         onShow(): void;
+        private setupChild();
         onClose(): void;
         protected initializeComponent(): UIElement;
         protected layoutOverride(): void;

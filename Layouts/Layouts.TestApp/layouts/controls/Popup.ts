@@ -42,24 +42,15 @@ module layouts.controls {
                 if (req.readyState == 4 && req.status == 200) {
                     let loader = new layouts.XamlReader();
                     this._child = loader.Parse(req.responseText);
-                    if (this._child != null) {
-                        this._child.parent = this;
-                        this._child.attachVisual(document.body);
-                    }
+                    if (this._child != null)
+                        this.setupChild();
                 }
             }
             req.open("GET", this.typeName.replace(/\./gi, '/') + ".xml", true);
             req.send();
         }
 
-        attachVisualOverride(elementContainer: HTMLElement) {
-
-
-
-            super.attachVisualOverride(elementContainer);
-        }
-
-
+        private _popupContainer: HTMLDivElement;
         private _child: UIElement;
         get child(): UIElement {
             return this._child;
@@ -74,18 +65,36 @@ module layouts.controls {
         onShow() {
             if (this._child == null)
                 this._child = this.initializeComponent();
-            if (this._child != null) {
-                this._child.parent = this;
-                this._child.attachVisual(document.body);
-            }
+            if (this._child != null) 
+                this.setupChild();
             else
                 this.tryLoadChildFromServer();
+        }
+
+        private setupChild() {
+            this._child.parent = this;
+            this._popupContainer = document.createElement("div");
+            this._popupContainer.style.width = this._popupContainer.style.height = "100%";
+            this._popupContainer.style.position = "fixed";
+            if (this.cssClass != null)
+                this._popupContainer.className = this.cssClass;
+            document.body.appendChild(this._popupContainer);
+            this._child.attachVisual(this._popupContainer);
+
+            this._popupContainer.addEventListener("click", function (event) {
+                if (event.target == this._popupContainer) {
+                    this.removeEventListener("click", arguments.callee);
+                    LayoutManager.closePopup(this);
+                }
+            });
         }
 
         onClose() {
             if (this._child != null && this._child.parent == this) {
                 this._child.attachVisual(null);
                 this._child.parent = null;
+                document.body.removeChild(this._popupContainer);
+                this._popupContainer = null;
             }
         }
 
@@ -103,7 +112,6 @@ module layouts.controls {
 
                 child.layout(childOffset);
             }
-
         }
 
         protected measureOverride(constraint: Size): Size {

@@ -55,6 +55,7 @@ class CategoryViewModel extends layouts.DepObject {
 
     onAddArticle() {
         var dlg = new AddArticleDialogView();
+        dlg.cssClass = "dialogPopup";
         dlg.dataContext = new AddArticleDialogViewModel(dlg, this);
         layouts.LayoutManager.showPopup(dlg);
     }
