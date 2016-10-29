@@ -172,6 +172,7 @@ declare module layouts {
         invalidateLayout(): void;
         private _logicalChildren;
         findElementByName(name: string): UIElement;
+        forAllChildrenOfType<T extends UIElement>(elementType: any, action: (element: T) => boolean): boolean;
         private _parent;
         parent: UIElement;
         private notifyInheritsPropertiesChange();

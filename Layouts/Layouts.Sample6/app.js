@@ -941,6 +941,21 @@ var layouts;
             }
             return null;
         };
+        UIElement.prototype.forAllChildrenOfType = function (elementType, action) {
+            var typeName = elementType["typeName"];
+            if (this._logicalChildren != null) {
+                for (var i = 0; i < this._logicalChildren.length; i++) {
+                    var child = this._logicalChildren[i];
+                    if (child.typeName == typeName) {
+                        if (!action(child))
+                            return false;
+                    }
+                    if (!child.forAllChildrenOfType(elementType, action))
+                        return false;
+                }
+            }
+            return true;
+        };
         Object.defineProperty(UIElement.prototype, "parent", {
             get: function () {
                 return this._parent;

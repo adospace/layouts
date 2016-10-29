@@ -434,6 +434,25 @@ module layouts {
             return null;
         }
 
+        forAllChildrenOfType<T extends UIElement>(elementType, action: (element:T) => boolean) : boolean {
+            var typeName = elementType["typeName"];
+            if (this._logicalChildren != null) {
+                for (var i = 0; i < this._logicalChildren.length; i++) {
+                    var child = <T>this._logicalChildren[i];
+
+                    if (child.typeName == typeName) {
+                        if (!action(child))
+                            return false;
+                    }
+
+                    if (!child.forAllChildrenOfType(elementType, action))
+                        return false;
+                }
+            }
+
+            return true;
+        }
+
         private _parent: UIElement;
         get parent(): UIElement {
             return this._parent;
