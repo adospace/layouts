@@ -19,6 +19,7 @@
     <UseGlobalApplicationHostFile />
   </PropertyGroup>
   <ItemGroup>
+    <TypeScriptCompile Include="layouts\Animate.ts" />
     <TypeScriptCompile Include="layouts\Application.ts" />
     <TypeScriptCompile Include="layouts\Consts.ts" />
     <TypeScriptCompile Include="layouts\controls\Border.ts" />
@@ -47,6 +48,7 @@
     <TypeScriptCompile Include="layouts\controls\UserControl.ts" />
     <TypeScriptCompile Include="layouts\DepObject.ts" />
     <TypeScriptCompile Include="layouts\DepProperty.ts" />
+    <TypeScriptCompile Include="layouts\EasingFunctions.ts" />
     <TypeScriptCompile Include="layouts\EventAction.ts" />
     <TypeScriptCompile Include="layouts\Extensions.ts" />
     <TypeScriptCompile Include="layouts\FrameworkElement.ts" />

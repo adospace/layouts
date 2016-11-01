@@ -67,7 +67,7 @@ module layouts {
         }
     }
 
-    export class UIElement extends DepObject implements ISupportCommandCanExecuteChanged  {
+    export class UIElement extends DepObject implements ISupportCommandCanExecuteChanged { //, ISupportCollectionChanged
 
         static typeName: string = "layouts.UIElement";
         get typeName(): string {
@@ -95,13 +95,14 @@ module layouts {
                 return;
 
             this.previousAvailableSize = availableSize;
-            this.desiredSize = this.measureCore(availableSize);
-            if (isNaN(this.desiredSize.width) ||
-                !isFinite(this.desiredSize.width) ||
-                isNaN(this.desiredSize.height) ||
-                !isFinite(this.desiredSize.height))
+            var desiredSize = this.measureCore(availableSize);
+            if (isNaN(desiredSize.width) ||
+                !isFinite(desiredSize.width) ||
+                isNaN(desiredSize.height) ||
+                !isFinite(desiredSize.height))
                 throw new Error("measure pass must return valid size");
 
+            this.desiredSize = this.animateSize(desiredSize);
             this.measureDirty = false;
         }
         protected measureCore(availableSize: Size): Size {
@@ -168,7 +169,42 @@ module layouts {
             }
         }
 
+        //Animation Pass
+        //private _animations: ObservableCollection<Animate>;
 
+        //get animations(): ObservableCollection<Animate> {
+        //    return this._animations;
+        //}
+
+        //set children(value: ObservableCollection<Animate>) {
+        //    if (value == this._animations)
+        //        return;
+
+        //    if (this._animations != null) {
+
+        //        //remove handler so that resource can be disposed
+        //        this._animations.offChangeNotify(this);
+        //    }
+
+        //    this._animations = value;
+
+        //    if (this._animations != null) {
+
+        //        this._animations.onChangeNotify(this);
+        //    }
+
+        //    this.invalidateMeasure();
+        //}
+
+        //onCollectionChanged(collection: any, added: any[], removed: any[], startRemoveIndex: number) {
+        //    this.invalidateMeasure();
+        //}
+
+        protected animateSize(desiredSize: Size) : Size {
+
+
+            return desiredSize;
+        }
 
         ///Attach page visual tree (attach to null to remove it from DOM)
         protected _visual: HTMLElement;
@@ -540,14 +576,6 @@ module layouts {
         set isVisible(value: boolean) {
             this.setValue(UIElement.isVisibleProperty, value);
         }
-        
-        //static styleProperty = DepObject.registerProperty(UIElement.typeName, "cssStyle", Consts.stringEmpty, FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsParentMeasure | FrameworkPropertyMetadataOptions.AffectsRender);
-        //get cssStyle(): string {
-        //    return <string>this.getValue(UIElement.styleProperty);
-        //}
-        //set cssStyle(value: string) {
-        //    this.setValue(UIElement.styleProperty, value);
-        //}
 
         static classProperty = DepObject.registerProperty(UIElement.typeName, "class", null, FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender);
         get cssClass(): string {

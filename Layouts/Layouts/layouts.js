@@ -5,6 +5,16 @@ var __extends = (this && this.__extends) || function (d, b) {
 };
 var layouts;
 (function (layouts) {
+    var Animate = (function () {
+        function Animate(easeFunction, duration) {
+            this.easeFunction = easeFunction;
+        }
+        return Animate;
+    }());
+    layouts.Animate = Animate;
+})(layouts || (layouts = {}));
+var layouts;
+(function (layouts) {
     var Ext = (function () {
         function Ext() {
         }
@@ -661,12 +671,13 @@ var layouts;
             if (!this.measureDirty && isCloseToPreviousMeasure)
                 return;
             this.previousAvailableSize = availableSize;
-            this.desiredSize = this.measureCore(availableSize);
-            if (isNaN(this.desiredSize.width) ||
-                !isFinite(this.desiredSize.width) ||
-                isNaN(this.desiredSize.height) ||
-                !isFinite(this.desiredSize.height))
+            var desiredSize = this.measureCore(availableSize);
+            if (isNaN(desiredSize.width) ||
+                !isFinite(desiredSize.width) ||
+                isNaN(desiredSize.height) ||
+                !isFinite(desiredSize.height))
                 throw new Error("measure pass must return valid size");
+            this.desiredSize = this.animateSize(desiredSize);
             this.measureDirty = false;
         };
         UIElement.prototype.measureCore = function (availableSize) {
@@ -716,6 +727,30 @@ var layouts;
                     this._visual.style.marginLeft = this.relativeOffset.x.toString() + "px";
                 }
             }
+        };
+        //Animation Pass
+        //private _animations: ObservableCollection<Animate>;
+        //get animations(): ObservableCollection<Animate> {
+        //    return this._animations;
+        //}
+        //set children(value: ObservableCollection<Animate>) {
+        //    if (value == this._animations)
+        //        return;
+        //    if (this._animations != null) {
+        //        //remove handler so that resource can be disposed
+        //        this._animations.offChangeNotify(this);
+        //    }
+        //    this._animations = value;
+        //    if (this._animations != null) {
+        //        this._animations.onChangeNotify(this);
+        //    }
+        //    this.invalidateMeasure();
+        //}
+        //onCollectionChanged(collection: any, added: any[], removed: any[], startRemoveIndex: number) {
+        //    this.invalidateMeasure();
+        //}
+        UIElement.prototype.animateSize = function (desiredSize) {
+            return desiredSize;
         };
         UIElement.prototype.attachVisual = function (elementContainer, showImmediately) {
             if (showImmediately === void 0) { showImmediately = false; }
@@ -1096,13 +1131,6 @@ var layouts;
         });
         UIElement.typeName = "layouts.UIElement";
         UIElement.isVisibleProperty = layouts.DepObject.registerProperty(UIElement.typeName, "IsVisible", true, FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsParentMeasure | FrameworkPropertyMetadataOptions.AffectsRender);
-        //static styleProperty = DepObject.registerProperty(UIElement.typeName, "cssStyle", Consts.stringEmpty, FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsParentMeasure | FrameworkPropertyMetadataOptions.AffectsRender);
-        //get cssStyle(): string {
-        //    return <string>this.getValue(UIElement.styleProperty);
-        //}
-        //set cssStyle(value: string) {
-        //    this.setValue(UIElement.styleProperty, value);
-        //}
         UIElement.classProperty = layouts.DepObject.registerProperty(UIElement.typeName, "class", null, FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender);
         //name property
         UIElement.idProperty = layouts.DepObject.registerProperty(UIElement.typeName, "id", layouts.Consts.stringEmpty, FrameworkPropertyMetadataOptions.AffectsRender);
@@ -1351,7 +1379,7 @@ var layouts;
                 this._visual.style.top = this.visualOffset.y.toString() + "px";
             }
             if (this.renderSize != null) {
-                //when an element starts hidden renderSize is not available
+                //when an element initially loads hidden renderSize is not available
                 this._visual.style.width = this.renderSize.width.toString() + "px";
                 this._visual.style.height = this.renderSize.height.toString() + "px";
             }
@@ -1640,6 +1668,7 @@ var layouts;
                 this._popupContainer = document.createElement("div");
                 this._popupContainer.style.width = this._popupContainer.style.height = "100%";
                 this._popupContainer.style.position = "fixed";
+                this._popupContainer.className = "layoutsPopupContainer"; //default popup container style
                 if (this.cssClass != null)
                     this._popupContainer.className = this.cssClass;
                 document.body.appendChild(this._popupContainer);
@@ -5894,11 +5923,16 @@ var layouts;
                     reader = new layouts.XamlReader();
                 return reader.Parse(this._innerXaml);
             };
-            DataTemplate.getTemplateForItem = function (templates, item) {
+            DataTemplate.getTemplateForItem = function (templates, item, name) {
+                if (name === void 0) { name = null; }
                 if (templates == null ||
                     templates.length == 0)
                     return null;
                 var foundTemplate = Enumerable.From(templates).FirstOrDefault(null, function (template) {
+                    if (name != null &&
+                        template.name != null &&
+                        template.name.toLowerCase() == name.toLowerCase())
+                        return true;
                     if (template.targetType == null)
                         return false;
                     var itemForTemplate = item;
@@ -5967,12 +6001,23 @@ var layouts;
                 enumerable: true,
                 configurable: true
             });
+            Object.defineProperty(DataTemplate.prototype, "name", {
+                get: function () {
+                    return this.getValue(DataTemplate.nameProperty);
+                },
+                set: function (value) {
+                    this.setValue(DataTemplate.nameProperty, value);
+                },
+                enumerable: true,
+                configurable: true
+            });
             DataTemplate.typeName = "layouts.controls.DataTemplate";
             ///returns the type datatemplate is suited for
             ///if null it means it's a generic template usable for any object of any type
             DataTemplate.targetTypeProperty = layouts.DepObject.registerProperty(DataTemplate.typeName, "TargetType", null);
             DataTemplate.targetMemberProperty = layouts.DepObject.registerProperty(DataTemplate.typeName, "TargetMember", null);
             DataTemplate.mediaProperty = layouts.DepObject.registerProperty(DataTemplate.typeName, "Media", null);
+            DataTemplate.nameProperty = layouts.DepObject.registerProperty(DataTemplate.typeName, "Name", null);
             return DataTemplate;
         }(layouts.DepObject));
         controls.DataTemplate = DataTemplate;
@@ -6091,6 +6136,142 @@ var layouts;
         }(layouts.FrameworkElement));
         controls.UserControl = UserControl;
     })(controls = layouts.controls || (layouts.controls = {}));
+})(layouts || (layouts = {}));
+var layouts;
+(function (layouts) {
+    var EasingFunctions = (function () {
+        function EasingFunctions() {
+        }
+        // t: current time, b: begInnIng value, c: change In value, d: duration
+        EasingFunctions.linearTween = function (t, b, c, d) {
+            return c * t / d + b;
+        };
+        ;
+        EasingFunctions.easeInQuad = function (t, b, c, d) {
+            t /= d;
+            return c * t * t + b;
+        };
+        ;
+        EasingFunctions.easeOutQuad = function (t, b, c, d) {
+            t /= d;
+            return -c * t * (t - 2) + b;
+        };
+        ;
+        EasingFunctions.easeInOutQuad = function (t, b, c, d) {
+            t /= d / 2;
+            if (t < 1)
+                return c / 2 * t * t + b;
+            t--;
+            return -c / 2 * (t * (t - 2) - 1) + b;
+        };
+        ;
+        EasingFunctions.easeInCubic = function (t, b, c, d) {
+            t /= d;
+            return c * t * t * t + b;
+        };
+        ;
+        EasingFunctions.easeOutCubic = function (t, b, c, d) {
+            t /= d;
+            t--;
+            return c * (t * t * t + 1) + b;
+        };
+        ;
+        EasingFunctions.easeInOutCubic = function (t, b, c, d) {
+            t /= d / 2;
+            if (t < 1)
+                return c / 2 * t * t * t + b;
+            t -= 2;
+            return c / 2 * (t * t * t + 2) + b;
+        };
+        ;
+        EasingFunctions.easeInQuart = function (t, b, c, d) {
+            t /= d;
+            return c * t * t * t * t + b;
+        };
+        ;
+        EasingFunctions.easeOutQuart = function (t, b, c, d) {
+            t /= d;
+            t--;
+            return -c * (t * t * t * t - 1) + b;
+        };
+        ;
+        EasingFunctions.easeInOutQuart = function (t, b, c, d) {
+            t /= d / 2;
+            if (t < 1)
+                return c / 2 * t * t * t * t + b;
+            t -= 2;
+            return -c / 2 * (t * t * t * t - 2) + b;
+        };
+        ;
+        EasingFunctions.easeInQuint = function (t, b, c, d) {
+            t /= d;
+            return c * t * t * t * t * t + b;
+        };
+        ;
+        EasingFunctions.easeOutQuint = function (t, b, c, d) {
+            t /= d;
+            t--;
+            return c * (t * t * t * t * t + 1) + b;
+        };
+        ;
+        EasingFunctions.easeInOutQuint = function (t, b, c, d) {
+            t /= d / 2;
+            if (t < 1)
+                return c / 2 * t * t * t * t * t + b;
+            t -= 2;
+            return c / 2 * (t * t * t * t * t + 2) + b;
+        };
+        ;
+        EasingFunctions.easeInSine = function (t, b, c, d) {
+            return -c * Math.cos(t / d * (Math.PI / 2)) + c + b;
+        };
+        ;
+        EasingFunctions.easeOutSine = function (t, b, c, d) {
+            return c * Math.sin(t / d * (Math.PI / 2)) + b;
+        };
+        ;
+        EasingFunctions.easeInOutSine = function (t, b, c, d) {
+            return -c / 2 * (Math.cos(Math.PI * t / d) - 1) + b;
+        };
+        ;
+        EasingFunctions.easeInExpo = function (t, b, c, d) {
+            return c * Math.pow(2, 10 * (t / d - 1)) + b;
+        };
+        ;
+        EasingFunctions.easeOutExpo = function (t, b, c, d) {
+            return c * (-Math.pow(2, -10 * t / d) + 1) + b;
+        };
+        ;
+        EasingFunctions.easeInOutExpo = function (t, b, c, d) {
+            t /= d / 2;
+            if (t < 1)
+                return c / 2 * Math.pow(2, 10 * (t - 1)) + b;
+            t--;
+            return c / 2 * (-Math.pow(2, -10 * t) + 2) + b;
+        };
+        ;
+        EasingFunctions.easeInCirc = function (t, b, c, d) {
+            t /= d;
+            return -c * (Math.sqrt(1 - t * t) - 1) + b;
+        };
+        ;
+        EasingFunctions.easeOutCirc = function (t, b, c, d) {
+            t /= d;
+            t--;
+            return c * Math.sqrt(1 - t * t) + b;
+        };
+        ;
+        EasingFunctions.easeInOutCirc = function (t, b, c, d) {
+            t /= d / 2;
+            if (t < 1)
+                return -c / 2 * (Math.sqrt(1 - t * t) - 1) + b;
+            t -= 2;
+            return c / 2 * (Math.sqrt(1 - t * t) + 1) + b;
+        };
+        ;
+        return EasingFunctions;
+    }());
+    layouts.EasingFunctions = EasingFunctions;
 })(layouts || (layouts = {}));
 var layouts;
 (function (layouts) {
@@ -6261,6 +6442,8 @@ var layouts;
                     collectionPropertyName = "items";
                 if (layouts.Ext.hasProperty(containerObject, "templates"))
                     collectionPropertyName = "templates";
+                if (layouts.Ext.hasProperty(containerObject, "animations"))
+                    collectionPropertyName = "animations";
                 if (collectionPropertyName != null) {
                     //if object has a property called Children or Items
                     //load all children from children nodes and set property with resulting list

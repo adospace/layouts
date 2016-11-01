@@ -23,13 +23,18 @@
             return reader.Parse(this._innerXaml);
         }
 
-        public static getTemplateForItem(templates: DataTemplate[], item: any): DataTemplate {
+        public static getTemplateForItem(templates: DataTemplate[], item: any, name: string = null): DataTemplate {
             if (templates == null ||
                 templates.length == 0)
                 return null;
 
             var foundTemplate =
                 Enumerable.From(templates).FirstOrDefault(null, template => {
+                    if (name != null &&
+                        template.name != null &&
+                        template.name.toLowerCase() == name.toLowerCase())
+                        return true;
+
                     if (template.targetType == null)
                         return false;
 
@@ -100,13 +105,20 @@
             this.setValue(DataTemplate.targetMemberProperty, value);
         }
 
-
         static mediaProperty = DepObject.registerProperty(DataTemplate.typeName, "Media", null);
         get media(): string {
             return <string>this.getValue(DataTemplate.mediaProperty);
         }
         set media(value: string) {
             this.setValue(DataTemplate.mediaProperty, value);
+        }
+
+        static nameProperty = DepObject.registerProperty(DataTemplate.typeName, "Name", null);
+        get name(): string {
+            return <string>this.getValue(DataTemplate.nameProperty);
+        }
+        set name(value: string) {
+            this.setValue(DataTemplate.nameProperty, value);
         }
     }
 

@@ -1,4 +1,10 @@
 declare module layouts {
+    class Animate {
+        easeFunction: string;
+        constructor(easeFunction: string, duration: number);
+    }
+}
+declare module layouts {
     class Ext {
         static hasProperty(obj: any, propertyName: string): boolean;
         static isString(obj: any): boolean;
@@ -151,6 +157,7 @@ declare module layouts {
         protected relativeOffset: Vector;
         layout(relativeOffset?: Vector): void;
         protected layoutOverride(): void;
+        protected animateSize(desiredSize: Size): Size;
         protected _visual: HTMLElement;
         attachVisual(elementContainer: HTMLElement, showImmediately?: boolean): HTMLElement;
         visual: HTMLElement;
@@ -938,7 +945,7 @@ declare module layouts.controls {
         private _xamlLoader;
         setXamlLoader(loader: XamlReader): void;
         createElement(): UIElement;
-        static getTemplateForItem(templates: DataTemplate[], item: any): DataTemplate;
+        static getTemplateForItem(templates: DataTemplate[], item: any, name?: string): DataTemplate;
         static getTemplateForMedia(templates: DataTemplate[]): DataTemplate;
         static targetTypeProperty: DepProperty;
         targetType: string;
@@ -946,6 +953,8 @@ declare module layouts.controls {
         targetMember: string;
         static mediaProperty: DepProperty;
         media: string;
+        static nameProperty: DepProperty;
+        name: string;
     }
 }
 declare module layouts.controls {
@@ -964,6 +973,32 @@ declare module layouts.controls {
         protected measureOverride(constraint: Size): Size;
         protected arrangeOverride(finalSize: Size): Size;
         protected layoutOverride(): void;
+    }
+}
+declare module layouts {
+    class EasingFunctions {
+        static linearTween(t: number, b: number, c: number, d: number): number;
+        static easeInQuad(t: number, b: number, c: number, d: number): number;
+        static easeOutQuad(t: number, b: number, c: number, d: number): number;
+        static easeInOutQuad(t: number, b: number, c: number, d: number): number;
+        static easeInCubic(t: number, b: number, c: number, d: number): number;
+        static easeOutCubic(t: number, b: number, c: number, d: number): number;
+        static easeInOutCubic(t: number, b: number, c: number, d: number): number;
+        static easeInQuart(t: number, b: number, c: number, d: number): number;
+        static easeOutQuart(t: number, b: number, c: number, d: number): number;
+        static easeInOutQuart(t: number, b: number, c: number, d: number): number;
+        static easeInQuint(t: number, b: number, c: number, d: number): number;
+        static easeOutQuint(t: number, b: number, c: number, d: number): number;
+        static easeInOutQuint(t: number, b: number, c: number, d: number): number;
+        static easeInSine(t: number, b: number, c: number, d: number): number;
+        static easeOutSine(t: number, b: number, c: number, d: number): number;
+        static easeInOutSine(t: number, b: number, c: number, d: number): number;
+        static easeInExpo(t: number, b: number, c: number, d: number): number;
+        static easeOutExpo(t: number, b: number, c: number, d: number): number;
+        static easeInOutExpo(t: number, b: number, c: number, d: number): number;
+        static easeInCirc(t: number, b: number, c: number, d: number): number;
+        static easeOutCirc(t: number, b: number, c: number, d: number): number;
+        static easeInOutCirc(t: number, b: number, c: number, d: number): number;
     }
 }
 declare module layouts {

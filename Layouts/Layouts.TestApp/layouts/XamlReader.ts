@@ -100,6 +100,8 @@ module layouts {
                     collectionPropertyName = "items";
                 if (Ext.hasProperty(containerObject, "templates"))
                     collectionPropertyName = "templates";
+                if (Ext.hasProperty(containerObject, "animations"))
+                    collectionPropertyName = "animations";
 
                 if (collectionPropertyName != null) {
                     //if object has a property called Children or Items

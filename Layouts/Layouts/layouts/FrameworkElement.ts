@@ -280,7 +280,7 @@ module layouts {
                 this._visual.style.top = this.visualOffset.y.toString() + "px";
             }
             if (this.renderSize != null) {
-                //when an element starts hidden renderSize is not available
+                //when an element initially loads hidden renderSize is not available
                 this._visual.style.width = this.renderSize.width.toString() + "px";
                 this._visual.style.height = this.renderSize.height.toString() + "px";
             }

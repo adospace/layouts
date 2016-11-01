@@ -1,15 +1,3 @@
-declare module app.views {
-    class CustomPage extends layouts.controls.Page {
-        static typeName: string;
-        typeName: string;
-    }
-}
-declare module app.views {
-    class CustomView extends layouts.controls.UserControl {
-        static typeName: string;
-        typeName: string;
-    }
-}
 declare module layouts {
     class Ext {
         static hasProperty(obj: any, propertyName: string): boolean;
@@ -163,6 +151,7 @@ declare module layouts {
         protected relativeOffset: Vector;
         layout(relativeOffset?: Vector): void;
         protected layoutOverride(): void;
+        protected animateSize(desiredSize: Size): Size;
         protected _visual: HTMLElement;
         attachVisual(elementContainer: HTMLElement, showImmediately?: boolean): HTMLElement;
         visual: HTMLElement;
@@ -633,7 +622,7 @@ declare module layouts.controls {
         private _xamlLoader;
         setXamlLoader(loader: XamlReader): void;
         createElement(): UIElement;
-        static getTemplateForItem(templates: DataTemplate[], item: any): DataTemplate;
+        static getTemplateForItem(templates: DataTemplate[], item: any, name?: string): DataTemplate;
         static getTemplateForMedia(templates: DataTemplate[]): DataTemplate;
         static targetTypeProperty: DepProperty;
         targetType: string;
@@ -641,6 +630,8 @@ declare module layouts.controls {
         targetMember: string;
         static mediaProperty: DepProperty;
         media: string;
+        static nameProperty: DepProperty;
+        name: string;
     }
 }
 declare module layouts.controls {
@@ -955,17 +946,6 @@ declare module layouts.controls {
     }
 }
 declare module layouts {
-    class EventAction {
-        invokeHandler: {
-            (event: EventAction, parameter: any): void;
-        };
-        constructor(invokeHandler?: {
-            (event: EventAction, parameter: any): void;
-        });
-        invoke(parameter: any): void;
-    }
-}
-declare module layouts {
     interface IComparer {
         compare(x: any, y: any): number;
     }
@@ -1017,5 +997,28 @@ declare module layouts {
         private trySetProperty(obj, propertyName, propertyNameSpace, value);
         private static tryCallMethod(obj, methodName, value);
         private static tryParseBinding(value);
+    }
+}
+declare module app.views {
+    class CustomPage extends layouts.controls.Page {
+        static typeName: string;
+        typeName: string;
+    }
+}
+declare module app.views {
+    class CustomView extends layouts.controls.UserControl {
+        static typeName: string;
+        typeName: string;
+    }
+}
+declare module layouts {
+    class EventAction {
+        invokeHandler: {
+            (event: EventAction, parameter: any): void;
+        };
+        constructor(invokeHandler?: {
+            (event: EventAction, parameter: any): void;
+        });
+        invoke(parameter: any): void;
     }
 }
