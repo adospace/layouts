@@ -10,6 +10,7 @@ var app;
         function Page1() {
             _super.call(this);
             this.initializeComponent();
+            this.cachePage = true;
         }
         Object.defineProperty(Page1.prototype, "typeName", {
             get: function () {

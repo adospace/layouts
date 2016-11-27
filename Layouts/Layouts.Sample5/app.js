@@ -4,12 +4,6 @@ window.onload = function () {
     app.map("/login", "app/Login");
     app.map("/page1/{user}", "app/Page1");
     app.map("/page2/{parameter}", "app/Page2");
-    app.onBeforeNavigate = function (ctx) {
-        if (ctx.nextUri != "/login" &&
-            !userLogged) {
-            ctx.cancel = true;
-            app.navigate("/login");
-        }
-    };
     app.navigate("/page1/myuser&-test");
+    app.navigate("/page1/john");
 };

@@ -1,4 +1,10 @@
 declare module layouts {
+    class Animate {
+        easeFunction: string;
+        constructor(easeFunction: string, duration: number);
+    }
+}
+declare module layouts {
     class Ext {
         static hasProperty(obj: any, propertyName: string): boolean;
         static isString(obj: any): boolean;
@@ -151,8 +157,10 @@ declare module layouts {
         protected relativeOffset: Vector;
         layout(relativeOffset?: Vector): void;
         protected layoutOverride(): void;
+        protected animateSize(desiredSize: Size): Size;
         protected _visual: HTMLElement;
-        attachVisual(elementContainer: HTMLElement, showImmediately?: boolean): void;
+        attachVisual(elementContainer: HTMLElement, showImmediately?: boolean): HTMLElement;
+        visual: HTMLElement;
         protected attachVisualOverride(elementContainer: HTMLElement): void;
         protected onMouseDown(ev: MouseEvent): void;
         protected onMouseUp(ev: MouseEvent): void;
@@ -172,6 +180,7 @@ declare module layouts {
         invalidateLayout(): void;
         private _logicalChildren;
         findElementByName(name: string): UIElement;
+        forAllChildrenOfType<T extends UIElement>(elementType: any, action: (element: T) => boolean): boolean;
         private _parent;
         parent: UIElement;
         private notifyInheritsPropertiesChange();
@@ -191,6 +200,8 @@ declare module layouts {
         commandParameter: any;
         static popupProperty: DepProperty;
         popup: any;
+        static autoClosePopupProperty: DepProperty;
+        autoClosePopup: boolean;
         static layoutUpdatedProperty: DepProperty;
         layoutUpdated: EventAction;
     }
@@ -294,10 +305,11 @@ declare module layouts.controls {
         private static initProperties();
         constructor();
         private tryLoadChildFromServer();
-        attachVisualOverride(elementContainer: HTMLElement): void;
+        private _popupContainer;
         private _child;
         child: UIElement;
         onShow(): void;
+        private setupChild();
         onClose(): void;
         protected initializeComponent(): UIElement;
         protected layoutOverride(): void;
@@ -373,9 +385,9 @@ declare module layouts {
         private _mappings;
         mappings: UriMapping[];
         map(uri: string, mappedUri: string): UriMapping;
-        private _navigationStack;
-        private _currentNavigationitem;
+        private _currentUri;
         private _returnUri;
+        private _cachedPages;
         onBeforeNavigate: (ctx: controls.NavigationContext) => void;
         onAfterNavigate: (ctx: controls.NavigationContext) => void;
         navigate(uri?: string, loader?: InstanceLoader): boolean;
@@ -510,6 +522,25 @@ declare module layouts.controls {
         static bottomProperty: DepProperty;
         static getBottom(target: DepObject): number;
         static setBottom(target: DepObject, value: number): void;
+    }
+}
+declare module layouts.controls {
+    class CheckBox extends FrameworkElement {
+        static typeName: string;
+        typeName: string;
+        private _pElementInput;
+        attachVisualOverride(elementContainer: HTMLElement): void;
+        onCheckChanged(): void;
+        private _measuredSize;
+        protected measureOverride(constraint: Size): Size;
+        protected onDependencyPropertyChanged(property: DepProperty, value: any, oldValue: any): void;
+        static isCheckedProperty: DepProperty;
+        isChecked: boolean;
+        static nameProperty: DepProperty;
+        name: string;
+        placeholder: string;
+        static typeProperty: DepProperty;
+        type: string;
     }
 }
 declare module layouts.controls {
@@ -697,6 +728,34 @@ declare module layouts.controls {
     }
 }
 declare module layouts.controls {
+    class TextBlock extends FrameworkElement {
+        static typeName: string;
+        typeName: string;
+        private _pElement;
+        protected createElement(elementContainer: HTMLElement): HTMLElement;
+        attachVisualOverride(elementContainer: HTMLElement): void;
+        private _measuredSize;
+        protected measureOverride(constraint: Size): Size;
+        protected arrangeOverride(finalSize: Size): Size;
+        protected onDependencyPropertyChanged(property: DepProperty, value: any, oldValue: any): void;
+        static textProperty: DepProperty;
+        text: string;
+        static whiteSpaceProperty: DepProperty;
+        whiteSpace: string;
+        static formatProperty: DepProperty;
+        format: string;
+    }
+}
+declare module layouts.controls {
+    class Label extends TextBlock {
+        static typeName: string;
+        typeName: string;
+        protected createElement(elementContainer: HTMLElement): HTMLElement;
+        static htmlForProperty: DepProperty;
+        htmlFor: string;
+    }
+}
+declare module layouts.controls {
     class MediaTemplateSelector extends FrameworkElement {
         static typeName: string;
         typeName: string;
@@ -712,15 +771,88 @@ declare module layouts.controls {
     }
 }
 declare module layouts.controls {
-    class div extends FrameworkElement {
+    class NativeElement extends FrameworkElement {
+        elementType: string;
         static typeName: string;
         typeName: string;
+        constructor(elementType: string);
+        private _child;
+        child: UIElement;
+        invalidateMeasure(): void;
         attachVisualOverride(elementContainer: HTMLElement): void;
-        private _innerXaml;
-        setInnerXaml(value: string): void;
+        protected onDependencyPropertyChanged(property: DepProperty, value: any, oldValue: any): void;
         private _measuredSize;
         protected measureOverride(constraint: Size): Size;
         protected arrangeOverride(finalSize: Size): Size;
+        static textProperty: DepProperty;
+        text: string;
+        static arrangeChildProperty: DepProperty;
+        arrangeChild: boolean;
+    }
+    class div extends NativeElement {
+        static typeName: string;
+        typeName: string;
+        constructor();
+    }
+    class a extends NativeElement {
+        static typeName: string;
+        typeName: string;
+        constructor();
+    }
+    class img extends NativeElement {
+        static typeName: string;
+        typeName: string;
+        constructor();
+    }
+    class i extends NativeElement {
+        static typeName: string;
+        typeName: string;
+        constructor();
+    }
+    class ul extends NativeElement {
+        static typeName: string;
+        typeName: string;
+        constructor();
+    }
+    class li extends NativeElement {
+        static typeName: string;
+        typeName: string;
+        constructor();
+    }
+    class nav extends NativeElement {
+        static typeName: string;
+        typeName: string;
+        constructor();
+    }
+    class span extends NativeElement {
+        static typeName: string;
+        typeName: string;
+        constructor();
+    }
+    class h1 extends NativeElement {
+        static typeName: string;
+        typeName: string;
+        constructor();
+    }
+    class h2 extends NativeElement {
+        static typeName: string;
+        typeName: string;
+        constructor();
+    }
+    class h3 extends NativeElement {
+        static typeName: string;
+        typeName: string;
+        constructor();
+    }
+    class h4 extends NativeElement {
+        static typeName: string;
+        typeName: string;
+        constructor();
+    }
+    class h5 extends NativeElement {
+        static typeName: string;
+        typeName: string;
+        constructor();
     }
 }
 declare module layouts.controls {
@@ -786,24 +918,6 @@ declare module layouts.controls {
     }
 }
 declare module layouts.controls {
-    class TextBlock extends FrameworkElement {
-        static typeName: string;
-        typeName: string;
-        private _pElement;
-        attachVisualOverride(elementContainer: HTMLElement): void;
-        private _measuredSize;
-        protected measureOverride(constraint: Size): Size;
-        protected arrangeOverride(finalSize: Size): Size;
-        protected onDependencyPropertyChanged(property: DepProperty, value: any, oldValue: any): void;
-        static textProperty: DepProperty;
-        text: string;
-        static whiteSpaceProperty: DepProperty;
-        whiteSpace: string;
-        static formatProperty: DepProperty;
-        format: string;
-    }
-}
-declare module layouts.controls {
     class TextBox extends FrameworkElement {
         static typeName: string;
         typeName: string;
@@ -833,7 +947,7 @@ declare module layouts.controls {
         private _xamlLoader;
         setXamlLoader(loader: XamlReader): void;
         createElement(): UIElement;
-        static getTemplateForItem(templates: DataTemplate[], item: any): DataTemplate;
+        static getTemplateForItem(templates: DataTemplate[], item: any, name?: string): DataTemplate;
         static getTemplateForMedia(templates: DataTemplate[]): DataTemplate;
         static targetTypeProperty: DepProperty;
         targetType: string;
@@ -841,6 +955,8 @@ declare module layouts.controls {
         targetMember: string;
         static mediaProperty: DepProperty;
         media: string;
+        static nameProperty: DepProperty;
+        name: string;
     }
 }
 declare module layouts.controls {
@@ -853,9 +969,38 @@ declare module layouts.controls {
         protected _container: HTMLElement;
         attachVisualOverride(elementContainer: HTMLElement): void;
         private setupChild(content);
+        invalidateMeasure(): void;
+        invalidateArrange(): void;
+        invalidateLayout(): void;
         protected measureOverride(constraint: Size): Size;
         protected arrangeOverride(finalSize: Size): Size;
         protected layoutOverride(): void;
+    }
+}
+declare module layouts {
+    class EasingFunctions {
+        static linearTween(t: number, b: number, c: number, d: number): number;
+        static easeInQuad(t: number, b: number, c: number, d: number): number;
+        static easeOutQuad(t: number, b: number, c: number, d: number): number;
+        static easeInOutQuad(t: number, b: number, c: number, d: number): number;
+        static easeInCubic(t: number, b: number, c: number, d: number): number;
+        static easeOutCubic(t: number, b: number, c: number, d: number): number;
+        static easeInOutCubic(t: number, b: number, c: number, d: number): number;
+        static easeInQuart(t: number, b: number, c: number, d: number): number;
+        static easeOutQuart(t: number, b: number, c: number, d: number): number;
+        static easeInOutQuart(t: number, b: number, c: number, d: number): number;
+        static easeInQuint(t: number, b: number, c: number, d: number): number;
+        static easeOutQuint(t: number, b: number, c: number, d: number): number;
+        static easeInOutQuint(t: number, b: number, c: number, d: number): number;
+        static easeInSine(t: number, b: number, c: number, d: number): number;
+        static easeOutSine(t: number, b: number, c: number, d: number): number;
+        static easeInOutSine(t: number, b: number, c: number, d: number): number;
+        static easeInExpo(t: number, b: number, c: number, d: number): number;
+        static easeOutExpo(t: number, b: number, c: number, d: number): number;
+        static easeInOutExpo(t: number, b: number, c: number, d: number): number;
+        static easeInCirc(t: number, b: number, c: number, d: number): number;
+        static easeOutCirc(t: number, b: number, c: number, d: number): number;
+        static easeInOutCirc(t: number, b: number, c: number, d: number): number;
     }
 }
 declare module layouts {

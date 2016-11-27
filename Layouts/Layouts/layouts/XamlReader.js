@@ -71,6 +71,8 @@ var layouts;
                     collectionPropertyName = "items";
                 if (layouts.Ext.hasProperty(containerObject, "templates"))
                     collectionPropertyName = "templates";
+                if (layouts.Ext.hasProperty(containerObject, "animations"))
+                    collectionPropertyName = "animations";
                 if (collectionPropertyName != null) {
                     var listOfChildren = children.Select(function (childNode) { return _this.Load(childNode); }).ToArray();
                     containerObject[collectionPropertyName] = new layouts.ObservableCollection(listOfChildren);

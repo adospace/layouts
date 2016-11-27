@@ -48,21 +48,27 @@ var layouts;
             };
             NativeElement.prototype.attachVisualOverride = function (elementContainer) {
                 this._visual = document.createElement(this.elementType);
-                this._visual.innerHTML = this.text;
+                var text = this.text;
+                if (text != null)
+                    this._visual.innerHTML = text;
                 if (this._child != null) {
-                    this._child.attachVisual(this._visual, true);
+                    var childVisual = this._child.attachVisual(this._visual, true);
+                    if (childVisual != null && !this.arrangeChild)
+                        childVisual.style.position = layouts.Consts.stringEmpty;
                 }
                 _super.prototype.attachVisualOverride.call(this, elementContainer);
             };
             NativeElement.prototype.onDependencyPropertyChanged = function (property, value, oldValue) {
-                if (property == NativeElement.textProperty) {
+                if (property == NativeElement.textProperty && this._visual != null) {
                     this._visual.innerHTML = value;
                 }
                 _super.prototype.onDependencyPropertyChanged.call(this, property, value, oldValue);
             };
             NativeElement.prototype.measureOverride = function (constraint) {
-                if (this._child != null)
-                    this._child.measure(constraint);
+                if (this.arrangeChild) {
+                    if (this._child != null)
+                        this._child.measure(constraint);
+                }
                 var pElement = this._visual;
                 ;
                 if (this._measuredSize == null) {
@@ -76,9 +82,11 @@ var layouts;
                 var pElement = this._visual;
                 pElement.style.width = finalSize.width.toString() + "px";
                 pElement.style.height = finalSize.height.toString() + "px";
-                var child = this.child;
-                if (child != null) {
-                    child.arrange(new layouts.Rect(0, 0, finalSize.width, finalSize.height));
+                if (this.arrangeChild) {
+                    var child = this.child;
+                    if (child != null) {
+                        child.arrange(new layouts.Rect(0, 0, finalSize.width, finalSize.height));
+                    }
                 }
                 return finalSize;
             };
@@ -92,8 +100,19 @@ var layouts;
                 enumerable: true,
                 configurable: true
             });
+            Object.defineProperty(NativeElement.prototype, "arrangeChild", {
+                get: function () {
+                    return this.getValue(NativeElement.arrangeChildProperty);
+                },
+                set: function (value) {
+                    this.setValue(NativeElement.arrangeChildProperty, value);
+                },
+                enumerable: true,
+                configurable: true
+            });
             NativeElement.typeName = "layouts.controls.NativeElement";
-            NativeElement.textProperty = layouts.DepObject.registerProperty(NativeElement.typeName, "Text", "", layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender, function (v) { return String(v); });
+            NativeElement.textProperty = layouts.DepObject.registerProperty(NativeElement.typeName, "Text", null, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender, function (v) { return String(v); });
+            NativeElement.arrangeChildProperty = layouts.DepObject.registerProperty(NativeElement.typeName, "ArrangeChild", true, layouts.FrameworkPropertyMetadataOptions.None, function (v) { return v != null && v.trim().toLowerCase() == "true"; });
             return NativeElement;
         }(layouts.FrameworkElement));
         controls.NativeElement = NativeElement;
