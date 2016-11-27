@@ -3,6 +3,69 @@ var __extends = (this && this.__extends) || function (d, b) {
     function __() { this.constructor = d; }
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
+var TestViewModel = (function (_super) {
+    __extends(TestViewModel, _super);
+    function TestViewModel() {
+        _super.apply(this, arguments);
+        this._cmdEnabled = true;
+    }
+    Object.defineProperty(TestViewModel.prototype, "typeName", {
+        get: function () {
+            return TestViewModel.typeName;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(TestViewModel.prototype, "title", {
+        get: function () {
+            return "TestTitle";
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(TestViewModel.prototype, "myCommand", {
+        get: function () {
+            var _this = this;
+            if (this._myCommand == null)
+                this._myCommand = new layouts.Command(function (cmd, p) { return _this.onMyCommand(); }, function (cmd, p) { return _this.cmdEnabled; });
+            return this._myCommand;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    TestViewModel.prototype.onMyCommand = function () {
+        alert("OnMyCommand!");
+    };
+    Object.defineProperty(TestViewModel.prototype, "cmdEnabled", {
+        get: function () {
+            return this._cmdEnabled;
+        },
+        set: function (value) {
+            if (this._cmdEnabled != value) {
+                var oldValue = this._cmdEnabled;
+                this._cmdEnabled = value;
+                this.onPropertyChanged("cmdEnabled", value, oldValue);
+                this.myCommand.canExecuteChanged();
+            }
+        },
+        enumerable: true,
+        configurable: true
+    });
+    TestViewModel.typeName = "TestViewModel";
+    return TestViewModel;
+}(layouts.DepObject));
+window.onload = function () {
+    var app = new layouts.Application();
+    var loader = new layouts.XamlReader();
+    var lmlTest = "<?xml version=\"1.0\" encoding=\"utf-8\" ?>\n<Page Name=\"testPage\">\n    <Stack VerticalAlignment=\"Center\" HorizontalAlignment=\"Center\" Orientation=\"Vertical\" Margin=\"10,20\">\n        <Button Text=\"Test Popup\">\n            <Button.Popup>\n                <Popup Position=\"Bottom\">\n                    <Stack class=\"popup\">\n                        <!--TextBlock Text=\"{title}\" Command=\"{myCommand}\" Margin=\"8\"/-->\n                        <TextBlock Text=\"Menu2\" Command=\"{myCommand}\"  IsVisible=\"{IsEnabled,source:self}\" Margin=\"8\"/>\n                        <TextBlock Text=\"Menu3\" Margin=\"8\"/>\n                    </Stack>\n                </Popup>\n            </Button.Popup>\n        </Button>\n        <Stack HorizontalAlignment=\"Center\" Orientation=\"Horizontal\">\n            <Label For=\"ch\" Text=\"Enable/Disable Command\" Margin=\"4\"/>\n            <CheckBox id=\"ch\" IsChecked=\"{cmdEnabled,mode:twoway}\"/>\n            <a Command=\"{toggleSideBarCommand}\" ArrangeChild=\"false\">\n              <Stack Orientation=\"Horizontal\">\n                <Image class=\"img-circle\" Source=\"../Images/people/user-14.png\" Width=\"32\" Stretch=\"Uniform\"/>\n                <span class=\"font-grey-cararra\" Text=\"{securityService.user.matricola}\" Margin=\"2,0\" VerticalAlignment=\"Center\"/>\n                <i class=\"fa fa-angle-down font-grey-cararra\" VerticalAlignment=\"Center\"/>\n              </Stack>\n            </a>\n        </Stack>\n    </Stack>\n</Page>";
+    loader.namespaceResolver = function (ns) {
+        if (ns == "localControls")
+            return "app";
+        return null;
+    };
+    app.page = loader.Parse(lmlTest);
+    app.page.dataContext = new TestViewModel();
+};
 var layouts;
 (function (layouts) {
     var Ext = (function () {
@@ -836,10 +899,12 @@ var layouts;
             if (popup != null) {
                 layouts.LayoutManager.showPopup(popup);
                 ev.stopPropagation();
-                document.addEventListener("mouseup", function () {
-                    this.removeEventListener("mouseup", arguments.callee);
-                    layouts.LayoutManager.closePopup(popup);
-                });
+                if (this.autoClosePopup) {
+                    document.addEventListener("mouseup", function () {
+                        this.removeEventListener("mouseup", arguments.callee);
+                        layouts.LayoutManager.closePopup(popup);
+                    });
+                }
             }
         };
         UIElement.prototype.getBoundingClientRect = function () {
@@ -1109,6 +1174,16 @@ var layouts;
             enumerable: true,
             configurable: true
         });
+        Object.defineProperty(UIElement.prototype, "autoClosePopup", {
+            get: function () {
+                return this.getValue(UIElement.autoClosePopupProperty);
+            },
+            set: function (value) {
+                this.setValue(UIElement.autoClosePopupProperty, value);
+            },
+            enumerable: true,
+            configurable: true
+        });
         Object.defineProperty(UIElement.prototype, "layoutUpdated", {
             get: function () {
                 return this.getValue(UIElement.layoutUpdatedProperty);
@@ -1127,7 +1202,8 @@ var layouts;
         UIElement.commandProperty = layouts.DepObject.registerProperty(UIElement.typeName, "Command", null, FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender);
         UIElement.commandParameterProperty = layouts.DepObject.registerProperty(UIElement.typeName, "CommandParameter", null, FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender);
         //get or set popup property for the element
-        UIElement.popupProperty = layouts.DepObject.registerProperty(UIElement.typeName, "Popup", null, FrameworkPropertyMetadataOptions.AffectsRender);
+        UIElement.popupProperty = layouts.DepObject.registerProperty(UIElement.typeName, "Popup", null, FrameworkPropertyMetadataOptions.None);
+        UIElement.autoClosePopupProperty = layouts.DepObject.registerProperty(UIElement.typeName, "AutoClosePopup", true, FrameworkPropertyMetadataOptions.None, function (value) { return Boolean(value); });
         UIElement.layoutUpdatedProperty = layouts.DepObject.registerProperty(UIElement.typeName, "LayoutUpdated", null, FrameworkPropertyMetadataOptions.None);
         return UIElement;
     }(layouts.DepObject));
@@ -5921,6 +5997,19 @@ var layouts;
 })(layouts || (layouts = {}));
 var layouts;
 (function (layouts) {
+    var EventAction = (function () {
+        function EventAction(invokeHandler) {
+            this.invokeHandler = invokeHandler;
+        }
+        EventAction.prototype.invoke = function (parameter) {
+            this.invokeHandler(this, parameter);
+        };
+        return EventAction;
+    }());
+    layouts.EventAction = EventAction;
+})(layouts || (layouts = {}));
+var layouts;
+(function (layouts) {
     var ObservableCollection = (function () {
         function ObservableCollection(elements) {
             this.pcHandlers = [];
@@ -6259,81 +6348,5 @@ var layouts;
         return XamlReader;
     }());
     layouts.XamlReader = XamlReader;
-})(layouts || (layouts = {}));
-window.onload = function () {
-    var app = new layouts.Application();
-    var loader = new layouts.XamlReader();
-    var lmlTest = "<?xml version=\"1.0\" encoding=\"utf-8\" ?>\n<Page Name=\"testPage\">\n    <Stack VerticalAlignment=\"Center\" HorizontalAlignment=\"Center\" Orientation=\"Vertical\" Margin=\"10,20\">\n        <Button Text=\"Test Popup\">\n            <Button.Popup>\n                <Popup Position=\"Bottom\">\n                    <Stack class=\"popup\">\n                        <!--TextBlock Text=\"{title}\" Command=\"{myCommand}\" Margin=\"8\"/-->\n                        <TextBlock Text=\"Menu2\" Command=\"{myCommand}\"  IsVisible=\"{IsEnabled,source:self}\" Margin=\"8\"/>\n                        <TextBlock Text=\"Menu3\" Margin=\"8\"/>\n                    </Stack>\n                </Popup>\n            </Button.Popup>\n        </Button>\n        <Stack HorizontalAlignment=\"Center\" Orientation=\"Horizontal\">\n            <Label For=\"ch\" Text=\"Enable/Disable Command\" Margin=\"4\"/>\n            <CheckBox id=\"ch\" IsChecked=\"{cmdEnabled,mode:twoway}\"/>\n            <a Command=\"{toggleSideBarCommand}\" ArrangeChild=\"false\">\n              <Stack Orientation=\"Horizontal\">\n                <Image class=\"img-circle\" Source=\"../Images/people/user-14.png\" Width=\"32\" Stretch=\"Uniform\"/>\n                <span class=\"font-grey-cararra\" Text=\"{securityService.user.matricola}\" Margin=\"2,0\" VerticalAlignment=\"Center\"/>\n                <i class=\"fa fa-angle-down font-grey-cararra\" VerticalAlignment=\"Center\"/>\n              </Stack>\n            </a>\n        </Stack>\n    </Stack>\n</Page>";
-    loader.namespaceResolver = function (ns) {
-        if (ns == "localControls")
-            return "app";
-        return null;
-    };
-    app.page = loader.Parse(lmlTest);
-    app.page.dataContext = new TestViewModel();
-};
-var TestViewModel = (function (_super) {
-    __extends(TestViewModel, _super);
-    function TestViewModel() {
-        _super.apply(this, arguments);
-        this._cmdEnabled = true;
-    }
-    Object.defineProperty(TestViewModel.prototype, "typeName", {
-        get: function () {
-            return TestViewModel.typeName;
-        },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(TestViewModel.prototype, "title", {
-        get: function () {
-            return "TestTitle";
-        },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(TestViewModel.prototype, "myCommand", {
-        get: function () {
-            var _this = this;
-            if (this._myCommand == null)
-                this._myCommand = new layouts.Command(function (cmd, p) { return _this.onMyCommand(); }, function (cmd, p) { return _this.cmdEnabled; });
-            return this._myCommand;
-        },
-        enumerable: true,
-        configurable: true
-    });
-    TestViewModel.prototype.onMyCommand = function () {
-        alert("OnMyCommand!");
-    };
-    Object.defineProperty(TestViewModel.prototype, "cmdEnabled", {
-        get: function () {
-            return this._cmdEnabled;
-        },
-        set: function (value) {
-            if (this._cmdEnabled != value) {
-                var oldValue = this._cmdEnabled;
-                this._cmdEnabled = value;
-                this.onPropertyChanged("cmdEnabled", value, oldValue);
-                this.myCommand.canExecuteChanged();
-            }
-        },
-        enumerable: true,
-        configurable: true
-    });
-    TestViewModel.typeName = "TestViewModel";
-    return TestViewModel;
-}(layouts.DepObject));
-var layouts;
-(function (layouts) {
-    var EventAction = (function () {
-        function EventAction(invokeHandler) {
-            this.invokeHandler = invokeHandler;
-        }
-        EventAction.prototype.invoke = function (parameter) {
-            this.invokeHandler(this, parameter);
-        };
-        return EventAction;
-    }());
-    layouts.EventAction = EventAction;
 })(layouts || (layouts = {}));
 //# sourceMappingURL=app.js.map

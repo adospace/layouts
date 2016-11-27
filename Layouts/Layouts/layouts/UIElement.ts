@@ -313,14 +313,14 @@ module layouts {
             if (popup != null) {
                 LayoutManager.showPopup(popup);
                 ev.stopPropagation();
-                document.addEventListener("mouseup", function () {
-                    this.removeEventListener("mouseup", arguments.callee);
-                    LayoutManager.closePopup(popup);
-                });
+                if (this.autoClosePopup) {
+                    document.addEventListener("mouseup", function () {
+                        this.removeEventListener("mouseup", arguments.callee);
+                        LayoutManager.closePopup(popup);
+                    });
+                }
             }
-
         }
-
 
         getBoundingClientRect(): ClientRect {
             if (this._visual == null)
@@ -611,12 +611,24 @@ module layouts {
         }
         
         //get or set popup property for the element
-        static popupProperty = DepObject.registerProperty(UIElement.typeName, "Popup", null, FrameworkPropertyMetadataOptions.AffectsRender);
+        static popupProperty = DepObject.registerProperty(UIElement.typeName, "Popup", null, FrameworkPropertyMetadataOptions.None);
         get popup(): any {
             return <string>this.getValue(UIElement.popupProperty);
         }
         set popup(value: any) {
             this.setValue(UIElement.popupProperty, value);
+        }
+
+        static autoClosePopupProperty = DepObject.registerProperty(UIElement.typeName, "AutoClosePopup", true, FrameworkPropertyMetadataOptions.None, (value) => {
+            if (value == null || (value.toLowerCase() != "true" && value.toLowerCase() != "false"))
+                throw new Error("Unable to valuate string '{0}' as boolean".format(value));
+            return value.toLowerCase() == "true" ? true : false;
+        });
+        get autoClosePopup(): boolean {
+            return <boolean>this.getValue(UIElement.autoClosePopupProperty);
+        }
+        set autoClosePopup(value: boolean) {
+            this.setValue(UIElement.autoClosePopupProperty, value);
         }
 
         static layoutUpdatedProperty = DepObject.registerProperty(UIElement.typeName, "LayoutUpdated", null, FrameworkPropertyMetadataOptions.None);

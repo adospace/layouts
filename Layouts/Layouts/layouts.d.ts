@@ -200,6 +200,8 @@ declare module layouts {
         commandParameter: any;
         static popupProperty: DepProperty;
         popup: any;
+        static autoClosePopupProperty: DepProperty;
+        autoClosePopup: boolean;
         static layoutUpdatedProperty: DepProperty;
         layoutUpdated: EventAction;
     }
