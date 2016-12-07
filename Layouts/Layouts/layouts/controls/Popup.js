@@ -84,10 +84,11 @@ var layouts;
                     this._popupContainer.className = this.cssClass;
                 document.body.appendChild(this._popupContainer);
                 this._child.attachVisual(this._popupContainer);
-                this._popupContainer.addEventListener("click", function (event) {
-                    if (event.target == this._popupContainer) {
-                        this.removeEventListener("click", arguments.callee);
-                        layouts.LayoutManager.closePopup(this);
+                var _this = this;
+                this._popupContainer.addEventListener("mousedown", function (event) {
+                    if (event.target == _this._popupContainer) {
+                        this.removeEventListener("mousedown", arguments.callee);
+                        layouts.LayoutManager.closePopup(_this);
                     }
                 });
             };

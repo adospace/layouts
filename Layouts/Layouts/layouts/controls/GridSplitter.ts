@@ -17,7 +17,7 @@ module layouts.controls {
         attachVisualOverride(elementContainer: HTMLElement) {
             super.attachVisualOverride(elementContainer);
 
-            this._visual.style.zIndex = "10000";
+            //this._visual.style.zIndex = "10000";
             this._visual.addEventListener("mousedown", (ev) => this.onSplitterMouseDown(ev), true);
             (<any>this._visual).tag = this;
             this._visual.onselectstart = function () { return false };

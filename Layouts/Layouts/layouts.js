@@ -4082,7 +4082,7 @@ var layouts;
             GridSplitter.prototype.attachVisualOverride = function (elementContainer) {
                 var _this = this;
                 _super.prototype.attachVisualOverride.call(this, elementContainer);
-                this._visual.style.zIndex = "10000";
+                //this._visual.style.zIndex = "10000";
                 this._visual.addEventListener("mousedown", function (ev) { return _this.onSplitterMouseDown(ev); }, true);
                 this._visual.tag = this;
                 this._visual.onselectstart = function () { return false; };
