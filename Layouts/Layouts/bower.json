@@ -1,6 +1,30 @@
 {
-	"name": "asp.net",
-	"private": true,
-	"dependencies": {
-	}
+  "name": "layouts",
+  "description": "Layouts is Javascript/Typescript library that allows web developers build complex UI in HTML5 using a Xaml derived markup.",
+  "main": [
+    "layouts.js",
+    "layouts.d.ts",
+    "layouts.js.map"
+  ],
+  "dependencies": {
+    "linqjs": "3.0.5"
+  },
+  "ignore": [
+    "**/.*",
+    "cp_article",
+    "Scripts"
+  ],
+  "keywords": [
+    "xaml",
+    "mvvm",
+    "html5",
+    "ui",
+    "binding",
+    "layout",
+    "page"
+  ],
+  "license": "MIT",
+  "authors": [
+    "Adolfo Marinucci <adospace@msn.com>"
+  ]
 }
