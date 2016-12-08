@@ -1,3 +1,8 @@
+var __extends = (this && this.__extends) || function (d, b) {
+    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+    function __() { this.constructor = d; }
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+};
 var layouts;
 (function (layouts) {
     var Animate = (function () {
@@ -546,11 +551,6 @@ var layouts;
 })(layouts || (layouts = {}));
 /// <reference path="DepProperty.ts" />
 /// <reference path="DepObject.ts" />
-var __extends = (this && this.__extends) || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-};
 var layouts;
 (function (layouts) {
     var Size = (function () {
@@ -2234,6 +2234,47 @@ var layouts;
     }());
     layouts.Application = Application;
 })(layouts || (layouts = {}));
+var layouts;
+(function (layouts) {
+    var Command = (function () {
+        function Command(executeHandler, canExecuteHandler) {
+            this.executeHandler = executeHandler;
+            this.canExecuteHandler = canExecuteHandler;
+            this.handlers = [];
+        }
+        Command.prototype.canExecute = function (parameter) {
+            if (this.executeHandler == null)
+                return false;
+            if (this.canExecuteHandler != null)
+                return this.canExecuteHandler(this, parameter);
+            return true;
+        };
+        Command.prototype.execute = function (parameter) {
+            if (this.canExecute(parameter))
+                this.executeHandler(this, parameter);
+        };
+        //subscribe to command canExecute change events
+        Command.prototype.onCanExecuteChangeNotify = function (handler) {
+            if (this.handlers.indexOf(handler) == -1)
+                this.handlers.push(handler);
+        };
+        //unsubscribe to command canExecute change events
+        Command.prototype.offCanExecuteChangeNotify = function (handler) {
+            var index = this.handlers.indexOf(handler, 0);
+            if (index != -1) {
+                this.handlers.splice(index, 1);
+            }
+        };
+        Command.prototype.canExecuteChanged = function () {
+            var _this = this;
+            this.handlers.slice(0).forEach(function (h) {
+                h.onCommandCanExecuteChanged(_this);
+            });
+        };
+        return Command;
+    }());
+    layouts.Command = Command;
+})(layouts || (layouts = {}));
 /// <reference path="..\DepProperty.ts" />
 /// <reference path="..\DepObject.ts" />
 /// <reference path="..\FrameworkElement.ts" /> 
@@ -2444,47 +2485,6 @@ var layouts;
         }(layouts.FrameworkElement));
         controls.Border = Border;
     })(controls = layouts.controls || (layouts.controls = {}));
-})(layouts || (layouts = {}));
-var layouts;
-(function (layouts) {
-    var Command = (function () {
-        function Command(executeHandler, canExecuteHandler) {
-            this.executeHandler = executeHandler;
-            this.canExecuteHandler = canExecuteHandler;
-            this.handlers = [];
-        }
-        Command.prototype.canExecute = function (parameter) {
-            if (this.executeHandler == null)
-                return false;
-            if (this.canExecuteHandler != null)
-                return this.canExecuteHandler(this, parameter);
-            return true;
-        };
-        Command.prototype.execute = function (parameter) {
-            if (this.canExecute(parameter))
-                this.executeHandler(this, parameter);
-        };
-        //subscribe to command canExecute change events
-        Command.prototype.onCanExecuteChangeNotify = function (handler) {
-            if (this.handlers.indexOf(handler) == -1)
-                this.handlers.push(handler);
-        };
-        //unsubscribe to command canExecute change events
-        Command.prototype.offCanExecuteChangeNotify = function (handler) {
-            var index = this.handlers.indexOf(handler, 0);
-            if (index != -1) {
-                this.handlers.splice(index, 1);
-            }
-        };
-        Command.prototype.canExecuteChanged = function () {
-            var _this = this;
-            this.handlers.slice(0).forEach(function (h) {
-                h.onCommandCanExecuteChanged(_this);
-            });
-        };
-        return Command;
-    }());
-    layouts.Command = Command;
 })(layouts || (layouts = {}));
 /// <reference path="..\DepProperty.ts" />
 /// <reference path="..\DepObject.ts" />
@@ -2983,6 +2983,196 @@ var layouts;
         controls.CheckBox = CheckBox;
     })(controls = layouts.controls || (layouts.controls = {}));
 })(layouts || (layouts = {}));
+var layouts;
+(function (layouts) {
+    var controls;
+    (function (controls) {
+        var ComboBox = (function (_super) {
+            __extends(ComboBox, _super);
+            function ComboBox() {
+                _super.apply(this, arguments);
+            }
+            Object.defineProperty(ComboBox.prototype, "typeName", {
+                get: function () {
+                    return ComboBox.typeName;
+                },
+                enumerable: true,
+                configurable: true
+            });
+            ComboBox.prototype.attachVisualOverride = function (elementContainer) {
+                var _this = this;
+                this._visual = this._selectElement = document.createElement("select");
+                this._selectElement.onchange = function (ev) { return _this.onSelectionChanged(); };
+                this.setupItems();
+                _super.prototype.attachVisualOverride.call(this, elementContainer);
+            };
+            ComboBox.prototype.onSelectionChanged = function () {
+                if (this._selectElement.selectedIndex == -1) {
+                    this.selectItem(null);
+                }
+                else if (this._elements != null) {
+                    this.selectItem(this._elements[this._selectElement.selectedIndex]);
+                }
+            };
+            ComboBox.prototype.arrangeOverride = function (finalSize) {
+                this._visual.style.width = finalSize.width + "px";
+                this._visual.style.height = finalSize.height + "px";
+                return finalSize;
+            };
+            ComboBox.prototype.selectItem = function (item) {
+                this.selectedItem = item;
+                if (this.selectMember != null)
+                    this.selectedValue = item[this.selectMember];
+            };
+            ComboBox.prototype.onDependencyPropertyChanged = function (property, value, oldValue) {
+                var _this = this;
+                if (property == ComboBox.itemsSourceProperty) {
+                    if (oldValue != null && oldValue["offChangeNotify"] != null) {
+                        var oldItmesSource = oldValue;
+                        oldItmesSource.offChangeNotify(this);
+                    }
+                    this.setupItems();
+                    if (value != null && value["onChangeNotify"] != null) {
+                        var newItemsSource = value;
+                        newItemsSource.onChangeNotify(this);
+                    }
+                }
+                else if (property == ComboBox.selectedItemProperty) {
+                    if (this._selectElement != null && this._elements != null)
+                        this._selectElement.selectedIndex = value == null ? -1 : this._elements.indexOf(value);
+                }
+                else if (property == ComboBox.selectedValueProperty) {
+                    if (this._selectElement != null && this.selectMember != null && this._elements != null)
+                        this.selectedItem = Enumerable.From(this._elements).FirstOrDefault(null, function (_) { return _[_this.selectMember] == value; });
+                }
+                _super.prototype.onDependencyPropertyChanged.call(this, property, value, oldValue);
+            };
+            ComboBox.prototype.setupItems = function () {
+                var _this = this;
+                var selectElement = this._selectElement;
+                if (selectElement == null)
+                    return;
+                while (selectElement.children.length > 0)
+                    selectElement.removeChild(selectElement.firstElementChild);
+                var displayMember = this.displayMember;
+                var itemsSource = this.itemsSource;
+                if (itemsSource != null) {
+                    var elements = null;
+                    if (Object.prototype.toString.call(itemsSource) == '[object Array]')
+                        elements = itemsSource;
+                    else
+                        elements = itemsSource["elements"];
+                    if (elements == null)
+                        throw new Error("Unable to get list of elements from itemsSource");
+                    elements.forEach(function (el) {
+                        var option = document.createElement("option");
+                        option.innerHTML = (displayMember != null) ? el[displayMember] : el;
+                        selectElement.appendChild(option);
+                    });
+                    //point local _elements variable to itemsource cast
+                    this._elements = elements;
+                    var selectedItem = this.selectedItem;
+                    if (this.selectMember != null) {
+                        var selectedValue = this.selectedValue;
+                        selectedItem = Enumerable.From(this._elements).FirstOrDefault(null, function (_) { return _[_this.selectMember] == selectedValue; });
+                    }
+                    this._selectElement.selectedIndex = selectedItem == null ? -1 : this._elements.indexOf(selectedItem);
+                }
+                this.invalidateMeasure();
+            };
+            ComboBox.prototype.onCollectionChanged = function (collection, added, removed, startRemoveIndex) {
+                var _this = this;
+                var selectElement = this._selectElement;
+                if (selectElement == null)
+                    return;
+                var displayMember = this.displayMember;
+                if (collection == this.itemsSource) {
+                    //some items were added/removed from itemssouurce
+                    added.forEach(function (item) {
+                        var option = document.createElement("option");
+                        option.innerHTML = (displayMember != null) ? item[displayMember] : item;
+                        selectElement.appendChild(option);
+                    });
+                    removed.forEach(function (item) {
+                        var elementToRemove = selectElement.children[startRemoveIndex];
+                        var noneWasSelected = selectElement.selectedIndex == -1;
+                        selectElement.removeChild(elementToRemove);
+                        if (noneWasSelected)
+                            //removeChild reset selected index to 0 if no item was selected, so restore previous selected index
+                            selectElement.selectedIndex = -1;
+                        if (item == _this.selectedItem)
+                            _this.selectedItem = _this.selectedValue = null;
+                        startRemoveIndex++;
+                    });
+                }
+                this.invalidateMeasure();
+            };
+            Object.defineProperty(ComboBox.prototype, "itemsSource", {
+                get: function () {
+                    return this.getValue(ComboBox.itemsSourceProperty);
+                },
+                set: function (value) {
+                    this.setValue(ComboBox.itemsSourceProperty, value);
+                },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(ComboBox.prototype, "selectedItem", {
+                get: function () {
+                    return this.getValue(ComboBox.selectedItemProperty);
+                },
+                set: function (value) {
+                    this.setValue(ComboBox.selectedItemProperty, value);
+                },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(ComboBox.prototype, "displayMember", {
+                get: function () {
+                    return this.getValue(ComboBox.displayMemberProperty);
+                },
+                set: function (value) {
+                    this.setValue(ComboBox.displayMemberProperty, value);
+                },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(ComboBox.prototype, "selectedValue", {
+                get: function () {
+                    return this.getValue(ComboBox.selectedValueProperty);
+                },
+                set: function (value) {
+                    this.setValue(ComboBox.selectedValueProperty, value);
+                },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(ComboBox.prototype, "selectMember", {
+                get: function () {
+                    return this.getValue(ComboBox.selectMemberProperty);
+                },
+                set: function (value) {
+                    this.setValue(ComboBox.selectMemberProperty, value);
+                },
+                enumerable: true,
+                configurable: true
+            });
+            ComboBox.typeName = "layouts.controls.ComboBox";
+            //itemsSource property
+            ComboBox.itemsSourceProperty = layouts.DepObject.registerProperty(ComboBox.typeName, "ItemsSource", null, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender);
+            //selectedItem property
+            ComboBox.selectedItemProperty = layouts.DepObject.registerProperty(ComboBox.typeName, "SelectedItem", null, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender);
+            //displayMember property
+            ComboBox.displayMemberProperty = layouts.DepObject.registerProperty(ComboBox.typeName, "DisplayMember", null, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender);
+            //selectValue property
+            ComboBox.selectedValueProperty = layouts.DepObject.registerProperty(ComboBox.typeName, "SelectedValue", null, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender);
+            //selectMember property
+            ComboBox.selectMemberProperty = layouts.DepObject.registerProperty(ComboBox.typeName, "SelectMember", null, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender);
+            return ComboBox;
+        }(layouts.FrameworkElement));
+        controls.ComboBox = ComboBox;
+    })(controls = layouts.controls || (layouts.controls = {}));
+})(layouts || (layouts = {}));
 /// <reference path="..\DepProperty.ts" />
 /// <reference path="..\DepObject.ts" />
 /// <reference path="..\FrameworkElement.ts" /> 
@@ -3302,6 +3492,134 @@ var layouts;
             return ControlTemplateSelector;
         }(layouts.FrameworkElement));
         controls.ControlTemplateSelector = ControlTemplateSelector;
+    })(controls = layouts.controls || (layouts.controls = {}));
+})(layouts || (layouts = {}));
+var layouts;
+(function (layouts) {
+    var controls;
+    (function (controls) {
+        var DataTemplate = (function (_super) {
+            __extends(DataTemplate, _super);
+            function DataTemplate() {
+                _super.apply(this, arguments);
+            }
+            Object.defineProperty(DataTemplate.prototype, "typeName", {
+                get: function () {
+                    return DataTemplate.typeName;
+                },
+                enumerable: true,
+                configurable: true
+            });
+            DataTemplate.prototype.setInnerXaml = function (value) {
+                this._innerXaml = value;
+            };
+            DataTemplate.prototype.setXamlLoader = function (loader) {
+                this._xamlLoader = loader;
+            };
+            DataTemplate.prototype.createElement = function () {
+                var reader = this._xamlLoader;
+                if (reader == null)
+                    reader = new layouts.XamlReader();
+                return reader.Parse(this._innerXaml);
+            };
+            DataTemplate.getTemplateForItem = function (templates, item, name) {
+                if (name === void 0) { name = null; }
+                if (templates == null ||
+                    templates.length == 0)
+                    return null;
+                var foundTemplate = Enumerable.From(templates).FirstOrDefault(null, function (template) {
+                    if (name != null &&
+                        template.name != null &&
+                        template.name.toLowerCase() == name.toLowerCase())
+                        return true;
+                    if (template.targetType == null)
+                        return false;
+                    var itemForTemplate = item;
+                    if (template.targetMember != null &&
+                        template.targetMember != "")
+                        itemForTemplate = itemForTemplate[template.targetMember];
+                    var typeName = typeof itemForTemplate;
+                    if (layouts.Ext.hasProperty(itemForTemplate, "typeName"))
+                        typeName = itemForTemplate["typeName"];
+                    else {
+                        if (itemForTemplate instanceof Date)
+                            typeName = "date";
+                    }
+                    if (typeName != null &&
+                        template.targetType != null &&
+                        template.targetType.toLowerCase() == typeName.toLowerCase())
+                        return true;
+                    return false;
+                });
+                if (foundTemplate != null)
+                    return foundTemplate;
+                return Enumerable.From(templates).FirstOrDefault(null, function (dt) { return dt.targetType == null; });
+            };
+            DataTemplate.getTemplateForMedia = function (templates) {
+                if (templates == null ||
+                    templates.length == 0)
+                    return null;
+                var foundTemplate = Enumerable.From(templates).FirstOrDefault(null, function (template) {
+                    if (template.media == null ||
+                        template.media.trim().length == 0) {
+                        return true;
+                    }
+                    return window.matchMedia(template.media).matches;
+                });
+                if (foundTemplate != null)
+                    return foundTemplate;
+                return Enumerable.From(templates).FirstOrDefault(null, function (dt) { return dt.targetType == null; });
+            };
+            Object.defineProperty(DataTemplate.prototype, "targetType", {
+                get: function () {
+                    return this.getValue(DataTemplate.targetTypeProperty);
+                },
+                set: function (value) {
+                    this.setValue(DataTemplate.targetTypeProperty, value);
+                },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(DataTemplate.prototype, "targetMember", {
+                get: function () {
+                    return this.getValue(DataTemplate.targetMemberProperty);
+                },
+                set: function (value) {
+                    this.setValue(DataTemplate.targetMemberProperty, value);
+                },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(DataTemplate.prototype, "media", {
+                get: function () {
+                    return this.getValue(DataTemplate.mediaProperty);
+                },
+                set: function (value) {
+                    this.setValue(DataTemplate.mediaProperty, value);
+                },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(DataTemplate.prototype, "name", {
+                get: function () {
+                    return this.getValue(DataTemplate.nameProperty);
+                },
+                set: function (value) {
+                    this.setValue(DataTemplate.nameProperty, value);
+                },
+                enumerable: true,
+                configurable: true
+            });
+            DataTemplate.typeName = "layouts.controls.DataTemplate";
+            ///returns the type datatemplate is suited for
+            ///if null it means it's a generic template usable for any object of any type
+            DataTemplate.targetTypeProperty = layouts.DepObject.registerProperty(DataTemplate.typeName, "TargetType", null);
+            DataTemplate.targetMemberProperty = layouts.DepObject.registerProperty(DataTemplate.typeName, "TargetMember", null);
+            DataTemplate.mediaProperty = layouts.DepObject.registerProperty(DataTemplate.typeName, "Media", null);
+            DataTemplate.nameProperty = layouts.DepObject.registerProperty(DataTemplate.typeName, "Name", null);
+            return DataTemplate;
+        }(layouts.DepObject));
+        controls.DataTemplate = DataTemplate;
     })(controls = layouts.controls || (layouts.controls = {}));
 })(layouts || (layouts = {}));
 /// <reference path="..\DepProperty.ts" />
@@ -4707,6 +5025,227 @@ var layouts;
 /// <reference path="..\DepProperty.ts" />
 /// <reference path="..\DepObject.ts" />
 /// <reference path="..\FrameworkElement.ts" /> 
+/// <reference path="..\ISupport.ts" /> 
+var layouts;
+(function (layouts) {
+    var controls;
+    (function (controls) {
+        var ItemsControl = (function (_super) {
+            __extends(ItemsControl, _super);
+            function ItemsControl() {
+                _super.apply(this, arguments);
+                //list of items created
+                //note that in general this list is not 1:1 with itemssource collection
+                //for example the case when some sort of virtualization of items is applied
+                this._elements = null;
+            }
+            Object.defineProperty(ItemsControl.prototype, "typeName", {
+                get: function () {
+                    return ItemsControl.typeName;
+                },
+                enumerable: true,
+                configurable: true
+            });
+            ItemsControl.initProperties = function () {
+                //FrameworkElement.overflowXProperty.overrideDefaultValue(ItemsControl.typeName, "auto");
+                layouts.FrameworkElement.overflowYProperty.overrideDefaultValue(ItemsControl.typeName, "auto");
+            };
+            ItemsControl.prototype.attachVisualOverride = function (elementContainer) {
+                this._visual = this._divElement = document.createElement("div");
+                var itemsPanel = this.itemsPanel;
+                if (itemsPanel == null)
+                    this.itemsPanel = itemsPanel = new controls.Stack();
+                itemsPanel.attachVisual(this._visual);
+                _super.prototype.attachVisualOverride.call(this, elementContainer);
+            };
+            ItemsControl.prototype.measureOverride = function (constraint) {
+                if (this.itemsPanel != null) {
+                    this.itemsPanel.measure(constraint);
+                    return this.itemsPanel.desiredSize;
+                }
+                return new layouts.Size();
+            };
+            ItemsControl.prototype.arrangeOverride = function (finalSize) {
+                if (this.itemsPanel != null)
+                    this.itemsPanel.arrange(finalSize.toRect());
+                return finalSize;
+            };
+            ItemsControl.prototype.layoutOverride = function () {
+                _super.prototype.layoutOverride.call(this);
+                if (this.itemsPanel != null)
+                    this.itemsPanel.layout();
+            };
+            Object.defineProperty(ItemsControl.prototype, "templates", {
+                get: function () {
+                    return this._templates;
+                },
+                set: function (value) {
+                    if (value == this._templates)
+                        return;
+                    if (this._templates != null) {
+                        //remove handler so that resource can be disposed
+                        this._templates.offChangeNotify(this);
+                    }
+                    this._templates = value;
+                    if (this._templates != null) {
+                        this._templates.forEach(function (el) {
+                            //to do: re-apply templates to children
+                        });
+                        this._templates.onChangeNotify(this);
+                    }
+                },
+                enumerable: true,
+                configurable: true
+            });
+            ItemsControl.prototype.onCollectionChanged = function (collection, added, removed, startRemoveIndex) {
+                var _this = this;
+                if (collection == this._templates) {
+                    //templates collection is changed
+                    this.setupItems();
+                }
+                else if (collection == this.itemsSource) {
+                    //some items were added/removed from itemssouurce
+                    if (this.itemsPanel == null)
+                        return;
+                    added.forEach(function (item) {
+                        if (item == null)
+                            throw new Error("Unable to render null items");
+                        var templateForItem = controls.DataTemplate.getTemplateForItem(_this._templates.toArray(), item);
+                        if (templateForItem == null) {
+                            throw new Error("Unable to find a valid template for item");
+                        }
+                        var newElement = templateForItem.createElement();
+                        newElement.setValue(layouts.FrameworkElement.dataContextProperty, item);
+                        _this.itemsPanel.children.add(newElement);
+                    });
+                    removed.forEach(function (item) {
+                        _this.itemsPanel.children.remove(_this.itemsPanel.children.at(startRemoveIndex++));
+                    });
+                }
+                this.invalidateMeasure();
+            };
+            Object.defineProperty(ItemsControl.prototype, "itemsSource", {
+                get: function () {
+                    return this.getValue(ItemsControl.itemsSourceProperty);
+                },
+                set: function (value) {
+                    this.setValue(ItemsControl.itemsSourceProperty, value);
+                },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(ItemsControl.prototype, "itemsPanel", {
+                get: function () {
+                    return this.getValue(ItemsControl.itemsPanelProperty);
+                },
+                set: function (value) {
+                    this.setValue(ItemsControl.itemsPanelProperty, value);
+                },
+                enumerable: true,
+                configurable: true
+            });
+            ItemsControl.prototype.onDependencyPropertyChanged = function (property, value, oldValue) {
+                if (property == ItemsControl.itemsSourceProperty) {
+                    if (oldValue != null && oldValue["offChangeNotify"] != null) {
+                        var oldItmesSource = oldValue;
+                        oldItmesSource.offChangeNotify(this);
+                    }
+                    this.setupItems();
+                    if (value != null && value["onChangeNotify"] != null) {
+                        var newItemsSource = value;
+                        newItemsSource.onChangeNotify(this);
+                    }
+                }
+                else if (property == ItemsControl.itemsPanelProperty) {
+                    var oldPanel = oldValue;
+                    if (oldPanel != null && oldPanel.parent == this) {
+                        oldPanel.children = null;
+                        oldPanel.parent = null;
+                        oldPanel.attachVisual(null);
+                    }
+                    var newPanel = value;
+                    if (newPanel != null) {
+                        newPanel.parent = this;
+                        if (this._visual != null)
+                            newPanel.attachVisual(this._visual);
+                    }
+                }
+                else if (property == ItemsControl.itemsPanelProperty)
+                    this.setupItems();
+                _super.prototype.onDependencyPropertyChanged.call(this, property, value, oldValue);
+            };
+            //private getTemplateForItem(item: any): DataTemplate {
+            //    if (this._templates == null ||
+            //        this._templates.count == 0)
+            //        return null;
+            //    var typeName: string = typeof item;
+            //    if (Ext.hasProperty(item, "typeName"))
+            //        typeName = item["typeName"];
+            //    else {
+            //        if (item instanceof Date)//detect date type
+            //            typeName = "date";
+            //    }
+            //    var foundTemplate: DataTemplate = null;
+            //    if (typeName != null)
+            //        foundTemplate = Enumerable.From(this.templates.elements).FirstOrDefault(null, dt => dt.targetType != null && dt.targetType.toLowerCase() == typeName.toLowerCase());
+            //    if (foundTemplate != null)
+            //        return foundTemplate;
+            //    return Enumerable.From(this.templates.elements).FirstOrDefault(null, dt => dt.targetType == null);
+            //}
+            ItemsControl.prototype.setupItems = function () {
+                var _this = this;
+                if (this._elements != null) {
+                    this.itemsPanel.children = null;
+                    this._elements = null;
+                }
+                if (this._templates == null ||
+                    this._templates.count == 0)
+                    return;
+                var itemsSource = this.itemsSource;
+                if (itemsSource != null) {
+                    var elements = null;
+                    if (Object.prototype.toString.call(itemsSource) == '[object Array]')
+                        elements = itemsSource;
+                    else
+                        elements = itemsSource["elements"];
+                    if (elements == null)
+                        throw new Error("Unable to get list of elements from itemsSource");
+                    this._elements =
+                        Enumerable.From(elements).Select(function (item) {
+                            var templateForItem = controls.DataTemplate.getTemplateForItem(_this._templates.toArray(), item);
+                            if (templateForItem == null) {
+                                throw new Error("Unable to find a valid template for item");
+                            }
+                            var newElement = templateForItem.createElement();
+                            newElement.setValue(layouts.FrameworkElement.dataContextProperty, item);
+                            return newElement;
+                        }).ToArray();
+                }
+                if (this._elements != null) {
+                    if (this.itemsPanel == null) {
+                        this.itemsPanel = new controls.Stack();
+                        this.itemsPanel.parent = this;
+                        if (this._visual != null)
+                            this.itemsPanel.attachVisual(this._visual);
+                    }
+                    this.itemsPanel.children = new layouts.ObservableCollection(this._elements);
+                }
+                this.invalidateMeasure();
+            };
+            ItemsControl.typeName = "layouts.controls.ItemsControl";
+            ItemsControl._init = ItemsControl.initProperties();
+            //itemsSource property
+            ItemsControl.itemsSourceProperty = layouts.DepObject.registerProperty(ItemsControl.typeName, "ItemsSource", null, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender);
+            //itemsPanel property
+            ItemsControl.itemsPanelProperty = layouts.DepObject.registerProperty(ItemsControl.typeName, "ItemsPanel", null, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender);
+            return ItemsControl;
+        }(layouts.FrameworkElement));
+        controls.ItemsControl = ItemsControl;
+    })(controls = layouts.controls || (layouts.controls = {}));
+})(layouts || (layouts = {}));
+/// <reference path="..\DepProperty.ts" />
+/// <reference path="..\DepObject.ts" />
+/// <reference path="..\FrameworkElement.ts" /> 
 var layouts;
 (function (layouts) {
     var controls;
@@ -5262,417 +5801,6 @@ var layouts;
     })(controls = layouts.controls || (layouts.controls = {}));
 })(layouts || (layouts = {}));
 /// <reference path="..\DepProperty.ts" />
-/// <reference path="..\DepObject.ts" />
-/// <reference path="..\FrameworkElement.ts" /> 
-/// <reference path="..\ISupport.ts" /> 
-var layouts;
-(function (layouts) {
-    var controls;
-    (function (controls) {
-        var ItemsControl = (function (_super) {
-            __extends(ItemsControl, _super);
-            function ItemsControl() {
-                _super.apply(this, arguments);
-                //list of items created
-                //note that in general this list is not 1:1 with itemssource collection
-                //for example the case when some sort of virtualization of items is applied
-                this._elements = null;
-            }
-            Object.defineProperty(ItemsControl.prototype, "typeName", {
-                get: function () {
-                    return ItemsControl.typeName;
-                },
-                enumerable: true,
-                configurable: true
-            });
-            ItemsControl.initProperties = function () {
-                //FrameworkElement.overflowXProperty.overrideDefaultValue(ItemsControl.typeName, "auto");
-                layouts.FrameworkElement.overflowYProperty.overrideDefaultValue(ItemsControl.typeName, "auto");
-            };
-            ItemsControl.prototype.attachVisualOverride = function (elementContainer) {
-                this._visual = this._divElement = document.createElement("div");
-                var itemsPanel = this.itemsPanel;
-                if (itemsPanel == null)
-                    this.itemsPanel = itemsPanel = new controls.Stack();
-                itemsPanel.attachVisual(this._visual);
-                _super.prototype.attachVisualOverride.call(this, elementContainer);
-            };
-            ItemsControl.prototype.measureOverride = function (constraint) {
-                if (this.itemsPanel != null) {
-                    this.itemsPanel.measure(constraint);
-                    return this.itemsPanel.desiredSize;
-                }
-                return new layouts.Size();
-            };
-            ItemsControl.prototype.arrangeOverride = function (finalSize) {
-                if (this.itemsPanel != null)
-                    this.itemsPanel.arrange(finalSize.toRect());
-                return finalSize;
-            };
-            ItemsControl.prototype.layoutOverride = function () {
-                _super.prototype.layoutOverride.call(this);
-                if (this.itemsPanel != null)
-                    this.itemsPanel.layout();
-            };
-            Object.defineProperty(ItemsControl.prototype, "templates", {
-                get: function () {
-                    return this._templates;
-                },
-                set: function (value) {
-                    if (value == this._templates)
-                        return;
-                    if (this._templates != null) {
-                        //remove handler so that resource can be disposed
-                        this._templates.offChangeNotify(this);
-                    }
-                    this._templates = value;
-                    if (this._templates != null) {
-                        this._templates.forEach(function (el) {
-                            //to do: re-apply templates to children
-                        });
-                        this._templates.onChangeNotify(this);
-                    }
-                },
-                enumerable: true,
-                configurable: true
-            });
-            ItemsControl.prototype.onCollectionChanged = function (collection, added, removed, startRemoveIndex) {
-                var _this = this;
-                if (collection == this._templates) {
-                    //templates collection is changed
-                    this.setupItems();
-                }
-                else if (collection == this.itemsSource) {
-                    //some items were added/removed from itemssouurce
-                    if (this.itemsPanel == null)
-                        return;
-                    added.forEach(function (item) {
-                        if (item == null)
-                            throw new Error("Unable to render null items");
-                        var templateForItem = controls.DataTemplate.getTemplateForItem(_this._templates.toArray(), item);
-                        if (templateForItem == null) {
-                            throw new Error("Unable to find a valid template for item");
-                        }
-                        var newElement = templateForItem.createElement();
-                        newElement.setValue(layouts.FrameworkElement.dataContextProperty, item);
-                        _this.itemsPanel.children.add(newElement);
-                    });
-                    removed.forEach(function (item) {
-                        _this.itemsPanel.children.remove(_this.itemsPanel.children.at(startRemoveIndex++));
-                    });
-                }
-                this.invalidateMeasure();
-            };
-            Object.defineProperty(ItemsControl.prototype, "itemsSource", {
-                get: function () {
-                    return this.getValue(ItemsControl.itemsSourceProperty);
-                },
-                set: function (value) {
-                    this.setValue(ItemsControl.itemsSourceProperty, value);
-                },
-                enumerable: true,
-                configurable: true
-            });
-            Object.defineProperty(ItemsControl.prototype, "itemsPanel", {
-                get: function () {
-                    return this.getValue(ItemsControl.itemsPanelProperty);
-                },
-                set: function (value) {
-                    this.setValue(ItemsControl.itemsPanelProperty, value);
-                },
-                enumerable: true,
-                configurable: true
-            });
-            ItemsControl.prototype.onDependencyPropertyChanged = function (property, value, oldValue) {
-                if (property == ItemsControl.itemsSourceProperty) {
-                    if (oldValue != null && oldValue["offChangeNotify"] != null) {
-                        var oldItmesSource = oldValue;
-                        oldItmesSource.offChangeNotify(this);
-                    }
-                    this.setupItems();
-                    if (value != null && value["onChangeNotify"] != null) {
-                        var newItemsSource = value;
-                        newItemsSource.onChangeNotify(this);
-                    }
-                }
-                else if (property == ItemsControl.itemsPanelProperty) {
-                    var oldPanel = oldValue;
-                    if (oldPanel != null && oldPanel.parent == this) {
-                        oldPanel.children = null;
-                        oldPanel.parent = null;
-                        oldPanel.attachVisual(null);
-                    }
-                    var newPanel = value;
-                    if (newPanel != null) {
-                        newPanel.parent = this;
-                        if (this._visual != null)
-                            newPanel.attachVisual(this._visual);
-                    }
-                }
-                else if (property == ItemsControl.itemsPanelProperty)
-                    this.setupItems();
-                _super.prototype.onDependencyPropertyChanged.call(this, property, value, oldValue);
-            };
-            //private getTemplateForItem(item: any): DataTemplate {
-            //    if (this._templates == null ||
-            //        this._templates.count == 0)
-            //        return null;
-            //    var typeName: string = typeof item;
-            //    if (Ext.hasProperty(item, "typeName"))
-            //        typeName = item["typeName"];
-            //    else {
-            //        if (item instanceof Date)//detect date type
-            //            typeName = "date";
-            //    }
-            //    var foundTemplate: DataTemplate = null;
-            //    if (typeName != null)
-            //        foundTemplate = Enumerable.From(this.templates.elements).FirstOrDefault(null, dt => dt.targetType != null && dt.targetType.toLowerCase() == typeName.toLowerCase());
-            //    if (foundTemplate != null)
-            //        return foundTemplate;
-            //    return Enumerable.From(this.templates.elements).FirstOrDefault(null, dt => dt.targetType == null);
-            //}
-            ItemsControl.prototype.setupItems = function () {
-                var _this = this;
-                if (this._elements != null) {
-                    this.itemsPanel.children = null;
-                    this._elements = null;
-                }
-                if (this._templates == null ||
-                    this._templates.count == 0)
-                    return;
-                var itemsSource = this.itemsSource;
-                if (itemsSource != null) {
-                    var elements = null;
-                    if (Object.prototype.toString.call(itemsSource) == '[object Array]')
-                        elements = itemsSource;
-                    else
-                        elements = itemsSource["elements"];
-                    if (elements == null)
-                        throw new Error("Unable to get list of elements from itemsSource");
-                    this._elements =
-                        Enumerable.From(elements).Select(function (item) {
-                            var templateForItem = controls.DataTemplate.getTemplateForItem(_this._templates.toArray(), item);
-                            if (templateForItem == null) {
-                                throw new Error("Unable to find a valid template for item");
-                            }
-                            var newElement = templateForItem.createElement();
-                            newElement.setValue(layouts.FrameworkElement.dataContextProperty, item);
-                            return newElement;
-                        }).ToArray();
-                }
-                if (this._elements != null) {
-                    if (this.itemsPanel == null) {
-                        this.itemsPanel = new controls.Stack();
-                        this.itemsPanel.parent = this;
-                        if (this._visual != null)
-                            this.itemsPanel.attachVisual(this._visual);
-                    }
-                    this.itemsPanel.children = new layouts.ObservableCollection(this._elements);
-                }
-                this.invalidateMeasure();
-            };
-            ItemsControl.typeName = "layouts.controls.ItemsControl";
-            ItemsControl._init = ItemsControl.initProperties();
-            //itemsSource property
-            ItemsControl.itemsSourceProperty = layouts.DepObject.registerProperty(ItemsControl.typeName, "ItemsSource", null, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender);
-            //itemsPanel property
-            ItemsControl.itemsPanelProperty = layouts.DepObject.registerProperty(ItemsControl.typeName, "ItemsPanel", null, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender);
-            return ItemsControl;
-        }(layouts.FrameworkElement));
-        controls.ItemsControl = ItemsControl;
-    })(controls = layouts.controls || (layouts.controls = {}));
-})(layouts || (layouts = {}));
-var layouts;
-(function (layouts) {
-    var controls;
-    (function (controls) {
-        var ComboBox = (function (_super) {
-            __extends(ComboBox, _super);
-            function ComboBox() {
-                _super.apply(this, arguments);
-            }
-            Object.defineProperty(ComboBox.prototype, "typeName", {
-                get: function () {
-                    return ComboBox.typeName;
-                },
-                enumerable: true,
-                configurable: true
-            });
-            ComboBox.prototype.attachVisualOverride = function (elementContainer) {
-                var _this = this;
-                this._visual = this._selectElement = document.createElement("select");
-                this._selectElement.onchange = function (ev) { return _this.onSelectionChanged(); };
-                this.setupItems();
-                _super.prototype.attachVisualOverride.call(this, elementContainer);
-            };
-            ComboBox.prototype.onSelectionChanged = function () {
-                if (this._selectElement.selectedIndex == -1) {
-                    this.selectItem(null);
-                }
-                else if (this._elements != null) {
-                    this.selectItem(this._elements[this._selectElement.selectedIndex]);
-                }
-            };
-            ComboBox.prototype.arrangeOverride = function (finalSize) {
-                this._visual.style.width = finalSize.width + "px";
-                this._visual.style.height = finalSize.height + "px";
-                return finalSize;
-            };
-            ComboBox.prototype.selectItem = function (item) {
-                this.selectedItem = item;
-                if (this.selectMember != null)
-                    this.selectedValue = item[this.selectMember];
-            };
-            ComboBox.prototype.onDependencyPropertyChanged = function (property, value, oldValue) {
-                var _this = this;
-                if (property == ComboBox.itemsSourceProperty) {
-                    if (oldValue != null && oldValue["offChangeNotify"] != null) {
-                        var oldItmesSource = oldValue;
-                        oldItmesSource.offChangeNotify(this);
-                    }
-                    this.setupItems();
-                    if (value != null && value["onChangeNotify"] != null) {
-                        var newItemsSource = value;
-                        newItemsSource.onChangeNotify(this);
-                    }
-                }
-                else if (property == ComboBox.selectedItemProperty) {
-                    if (this._selectElement != null && this._elements != null)
-                        this._selectElement.selectedIndex = value == null ? -1 : this._elements.indexOf(value);
-                }
-                else if (property == ComboBox.selectedValueProperty) {
-                    if (this._selectElement != null && this.selectMember != null && this._elements != null)
-                        this.selectedItem = Enumerable.From(this._elements).FirstOrDefault(null, function (_) { return _[_this.selectMember] == value; });
-                }
-                _super.prototype.onDependencyPropertyChanged.call(this, property, value, oldValue);
-            };
-            ComboBox.prototype.setupItems = function () {
-                var _this = this;
-                var selectElement = this._selectElement;
-                if (selectElement == null)
-                    return;
-                while (selectElement.children.length > 0)
-                    selectElement.removeChild(selectElement.firstElementChild);
-                var displayMember = this.displayMember;
-                var itemsSource = this.itemsSource;
-                if (itemsSource != null) {
-                    var elements = null;
-                    if (Object.prototype.toString.call(itemsSource) == '[object Array]')
-                        elements = itemsSource;
-                    else
-                        elements = itemsSource["elements"];
-                    if (elements == null)
-                        throw new Error("Unable to get list of elements from itemsSource");
-                    elements.forEach(function (el) {
-                        var option = document.createElement("option");
-                        option.innerHTML = (displayMember != null) ? el[displayMember] : el;
-                        selectElement.appendChild(option);
-                    });
-                    //point local _elements variable to itemsource cast
-                    this._elements = elements;
-                    var selectedItem = this.selectedItem;
-                    if (this.selectMember != null) {
-                        var selectedValue = this.selectedValue;
-                        selectedItem = Enumerable.From(this._elements).FirstOrDefault(null, function (_) { return _[_this.selectMember] == selectedValue; });
-                    }
-                    this._selectElement.selectedIndex = selectedItem == null ? -1 : this._elements.indexOf(selectedItem);
-                }
-                this.invalidateMeasure();
-            };
-            ComboBox.prototype.onCollectionChanged = function (collection, added, removed, startRemoveIndex) {
-                var _this = this;
-                var selectElement = this._selectElement;
-                if (selectElement == null)
-                    return;
-                var displayMember = this.displayMember;
-                if (collection == this.itemsSource) {
-                    //some items were added/removed from itemssouurce
-                    added.forEach(function (item) {
-                        var option = document.createElement("option");
-                        option.innerHTML = (displayMember != null) ? item[displayMember] : item;
-                        selectElement.appendChild(option);
-                    });
-                    removed.forEach(function (item) {
-                        var elementToRemove = selectElement.children[startRemoveIndex];
-                        var noneWasSelected = selectElement.selectedIndex == -1;
-                        selectElement.removeChild(elementToRemove);
-                        if (noneWasSelected)
-                            //removeChild reset selected index to 0 if no item was selected, so restore previous selected index
-                            selectElement.selectedIndex = -1;
-                        if (item == _this.selectedItem)
-                            _this.selectedItem = _this.selectedValue = null;
-                        startRemoveIndex++;
-                    });
-                }
-                this.invalidateMeasure();
-            };
-            Object.defineProperty(ComboBox.prototype, "itemsSource", {
-                get: function () {
-                    return this.getValue(ComboBox.itemsSourceProperty);
-                },
-                set: function (value) {
-                    this.setValue(ComboBox.itemsSourceProperty, value);
-                },
-                enumerable: true,
-                configurable: true
-            });
-            Object.defineProperty(ComboBox.prototype, "selectedItem", {
-                get: function () {
-                    return this.getValue(ComboBox.selectedItemProperty);
-                },
-                set: function (value) {
-                    this.setValue(ComboBox.selectedItemProperty, value);
-                },
-                enumerable: true,
-                configurable: true
-            });
-            Object.defineProperty(ComboBox.prototype, "displayMember", {
-                get: function () {
-                    return this.getValue(ComboBox.displayMemberProperty);
-                },
-                set: function (value) {
-                    this.setValue(ComboBox.displayMemberProperty, value);
-                },
-                enumerable: true,
-                configurable: true
-            });
-            Object.defineProperty(ComboBox.prototype, "selectedValue", {
-                get: function () {
-                    return this.getValue(ComboBox.selectedValueProperty);
-                },
-                set: function (value) {
-                    this.setValue(ComboBox.selectedValueProperty, value);
-                },
-                enumerable: true,
-                configurable: true
-            });
-            Object.defineProperty(ComboBox.prototype, "selectMember", {
-                get: function () {
-                    return this.getValue(ComboBox.selectMemberProperty);
-                },
-                set: function (value) {
-                    this.setValue(ComboBox.selectMemberProperty, value);
-                },
-                enumerable: true,
-                configurable: true
-            });
-            ComboBox.typeName = "layouts.controls.ComboBox";
-            //itemsSource property
-            ComboBox.itemsSourceProperty = layouts.DepObject.registerProperty(ComboBox.typeName, "ItemsSource", null, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender);
-            //selectedItem property
-            ComboBox.selectedItemProperty = layouts.DepObject.registerProperty(ComboBox.typeName, "SelectedItem", null, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender);
-            //displayMember property
-            ComboBox.displayMemberProperty = layouts.DepObject.registerProperty(ComboBox.typeName, "DisplayMember", null, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender);
-            //selectValue property
-            ComboBox.selectedValueProperty = layouts.DepObject.registerProperty(ComboBox.typeName, "SelectedValue", null, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender);
-            //selectMember property
-            ComboBox.selectMemberProperty = layouts.DepObject.registerProperty(ComboBox.typeName, "SelectMember", null, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender);
-            return ComboBox;
-        }(layouts.FrameworkElement));
-        controls.ComboBox = ComboBox;
-    })(controls = layouts.controls || (layouts.controls = {}));
-})(layouts || (layouts = {}));
-/// <reference path="..\DepProperty.ts" />
 /// <reference path="..\FrameworkElement.ts" /> 
 /// <reference path="Panel.ts" />
 var layouts;
@@ -5911,134 +6039,6 @@ var layouts;
             return TextBox;
         }(layouts.FrameworkElement));
         controls.TextBox = TextBox;
-    })(controls = layouts.controls || (layouts.controls = {}));
-})(layouts || (layouts = {}));
-var layouts;
-(function (layouts) {
-    var controls;
-    (function (controls) {
-        var DataTemplate = (function (_super) {
-            __extends(DataTemplate, _super);
-            function DataTemplate() {
-                _super.apply(this, arguments);
-            }
-            Object.defineProperty(DataTemplate.prototype, "typeName", {
-                get: function () {
-                    return DataTemplate.typeName;
-                },
-                enumerable: true,
-                configurable: true
-            });
-            DataTemplate.prototype.setInnerXaml = function (value) {
-                this._innerXaml = value;
-            };
-            DataTemplate.prototype.setXamlLoader = function (loader) {
-                this._xamlLoader = loader;
-            };
-            DataTemplate.prototype.createElement = function () {
-                var reader = this._xamlLoader;
-                if (reader == null)
-                    reader = new layouts.XamlReader();
-                return reader.Parse(this._innerXaml);
-            };
-            DataTemplate.getTemplateForItem = function (templates, item, name) {
-                if (name === void 0) { name = null; }
-                if (templates == null ||
-                    templates.length == 0)
-                    return null;
-                var foundTemplate = Enumerable.From(templates).FirstOrDefault(null, function (template) {
-                    if (name != null &&
-                        template.name != null &&
-                        template.name.toLowerCase() == name.toLowerCase())
-                        return true;
-                    if (template.targetType == null)
-                        return false;
-                    var itemForTemplate = item;
-                    if (template.targetMember != null &&
-                        template.targetMember != "")
-                        itemForTemplate = itemForTemplate[template.targetMember];
-                    var typeName = typeof itemForTemplate;
-                    if (layouts.Ext.hasProperty(itemForTemplate, "typeName"))
-                        typeName = itemForTemplate["typeName"];
-                    else {
-                        if (itemForTemplate instanceof Date)
-                            typeName = "date";
-                    }
-                    if (typeName != null &&
-                        template.targetType != null &&
-                        template.targetType.toLowerCase() == typeName.toLowerCase())
-                        return true;
-                    return false;
-                });
-                if (foundTemplate != null)
-                    return foundTemplate;
-                return Enumerable.From(templates).FirstOrDefault(null, function (dt) { return dt.targetType == null; });
-            };
-            DataTemplate.getTemplateForMedia = function (templates) {
-                if (templates == null ||
-                    templates.length == 0)
-                    return null;
-                var foundTemplate = Enumerable.From(templates).FirstOrDefault(null, function (template) {
-                    if (template.media == null ||
-                        template.media.trim().length == 0) {
-                        return true;
-                    }
-                    return window.matchMedia(template.media).matches;
-                });
-                if (foundTemplate != null)
-                    return foundTemplate;
-                return Enumerable.From(templates).FirstOrDefault(null, function (dt) { return dt.targetType == null; });
-            };
-            Object.defineProperty(DataTemplate.prototype, "targetType", {
-                get: function () {
-                    return this.getValue(DataTemplate.targetTypeProperty);
-                },
-                set: function (value) {
-                    this.setValue(DataTemplate.targetTypeProperty, value);
-                },
-                enumerable: true,
-                configurable: true
-            });
-            Object.defineProperty(DataTemplate.prototype, "targetMember", {
-                get: function () {
-                    return this.getValue(DataTemplate.targetMemberProperty);
-                },
-                set: function (value) {
-                    this.setValue(DataTemplate.targetMemberProperty, value);
-                },
-                enumerable: true,
-                configurable: true
-            });
-            Object.defineProperty(DataTemplate.prototype, "media", {
-                get: function () {
-                    return this.getValue(DataTemplate.mediaProperty);
-                },
-                set: function (value) {
-                    this.setValue(DataTemplate.mediaProperty, value);
-                },
-                enumerable: true,
-                configurable: true
-            });
-            Object.defineProperty(DataTemplate.prototype, "name", {
-                get: function () {
-                    return this.getValue(DataTemplate.nameProperty);
-                },
-                set: function (value) {
-                    this.setValue(DataTemplate.nameProperty, value);
-                },
-                enumerable: true,
-                configurable: true
-            });
-            DataTemplate.typeName = "layouts.controls.DataTemplate";
-            ///returns the type datatemplate is suited for
-            ///if null it means it's a generic template usable for any object of any type
-            DataTemplate.targetTypeProperty = layouts.DepObject.registerProperty(DataTemplate.typeName, "TargetType", null);
-            DataTemplate.targetMemberProperty = layouts.DepObject.registerProperty(DataTemplate.typeName, "TargetMember", null);
-            DataTemplate.mediaProperty = layouts.DepObject.registerProperty(DataTemplate.typeName, "Media", null);
-            DataTemplate.nameProperty = layouts.DepObject.registerProperty(DataTemplate.typeName, "Name", null);
-            return DataTemplate;
-        }(layouts.DepObject));
-        controls.DataTemplate = DataTemplate;
     })(controls = layouts.controls || (layouts.controls = {}));
 })(layouts || (layouts = {}));
 /// <reference path="..\DepProperty.ts" />
@@ -6380,6 +6380,33 @@ var layouts;
     }());
     layouts.ObservableCollection = ObservableCollection;
 })(layouts || (layouts = {}));
+var layouts;
+(function (layouts) {
+    var Timer = (function () {
+        function Timer(handler, millisecond) {
+            this.handler = handler;
+            this.millisecond = millisecond;
+            this.timerId = -1;
+            if (handler == null)
+                throw new Error("handler == null");
+            if (millisecond <= 0)
+                throw new Error("millisecond <= 0");
+        }
+        Timer.prototype.start = function () {
+            var _this = this;
+            this.stop();
+            this.timerId = setTimeout(function () { return _this.handler(_this); }, this.millisecond);
+        };
+        Timer.prototype.stop = function () {
+            if (this.timerId != -1) {
+                clearTimeout(this.timerId);
+                this.timerId = -1;
+            }
+        };
+        return Timer;
+    }());
+    layouts.Timer = Timer;
+})(layouts || (layouts = {}));
 /// <reference path="IConverter.ts" />
 var layouts;
 (function (layouts) {
@@ -6618,31 +6645,292 @@ var layouts;
     }());
     layouts.XamlReader = XamlReader;
 })(layouts || (layouts = {}));
-var layouts;
-(function (layouts) {
-    var Timer = (function () {
-        function Timer(handler, millisecond) {
-            this.handler = handler;
-            this.millisecond = millisecond;
-            this.timerId = -1;
-            if (handler == null)
-                throw new Error("handler == null");
-            if (millisecond <= 0)
-                throw new Error("millisecond <= 0");
-        }
-        Timer.prototype.start = function () {
-            var _this = this;
-            this.stop();
-            this.timerId = setTimeout(function () { return _this.handler(_this); }, this.millisecond);
-        };
-        Timer.prototype.stop = function () {
-            if (this.timerId != -1) {
-                clearTimeout(this.timerId);
-                this.timerId = -1;
+var SampleRecordModel = (function () {
+    function SampleRecordModel() {
+    }
+    SampleRecordModel.loadSampleData = function (gridView) {
+        var jsonFile = new XMLHttpRequest();
+        jsonFile.onreadystatechange = function (ev) {
+            if (jsonFile.readyState == 4 && jsonFile.status == 200) {
+                var jsonContent = JSON.parse(jsonFile.responseText);
+                var rows = jsonContent.data;
+                gridView.rowsSource = new layouts.ObservableCollection(rows);
+                var columns = jsonContent.cols;
+                var gridColumns = new layouts.ObservableCollection();
+                columns.forEach(function (c) {
+                    var gridColumn = new layouts.controls.GridViewColumn();
+                    gridColumn.name = c;
+                    gridColumns.add(gridColumn);
+                });
+                gridView.columns = gridColumns;
             }
         };
-        return Timer;
-    }());
-    layouts.Timer = Timer;
+        jsonFile.open("GET", "data/records.txt", true);
+        jsonFile.send();
+    };
+    return SampleRecordModel;
+}());
+window.onload = function () {
+    var app = new layouts.Application();
+    var page = new layouts.controls.Page();
+    //page.sizeToContent = layouts.SizeToContent.None;
+    var gridView = new layouts.controls.GridView();
+    page.child = gridView;
+    app.page = page;
+    SampleRecordModel.loadSampleData(gridView);
+};
+/// <reference path="..\Scripts\typings\jquery.dataTables\jquery.dataTables-1.9.4.d.ts" /> 
+var layouts;
+(function (layouts) {
+    var controls;
+    (function (controls) {
+        var GridViewColumn = (function (_super) {
+            __extends(GridViewColumn, _super);
+            function GridViewColumn() {
+                _super.apply(this, arguments);
+            }
+            Object.defineProperty(GridViewColumn.prototype, "typeName", {
+                get: function () {
+                    return GridViewColumn.typeName;
+                },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(GridViewColumn.prototype, "name", {
+                get: function () {
+                    return this._name;
+                },
+                set: function (value) {
+                    if (this._name != value) {
+                        var oldValue = this._name;
+                        this._name = value;
+                        this.onPropertyChanged("name", value, oldValue);
+                    }
+                },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(GridViewColumn.prototype, "title", {
+                get: function () {
+                    if (this._title == null)
+                        return this._name;
+                    return this._title;
+                },
+                set: function (value) {
+                    if (this._title != value) {
+                        var oldValue = this._title;
+                        this._title = value;
+                        this.onPropertyChanged("title", value, oldValue);
+                    }
+                },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(GridViewColumn.prototype, "headerTemplate", {
+                get: function () {
+                    return this._headerTemplate;
+                },
+                set: function (value) {
+                    if (this._headerTemplate != value) {
+                        var oldValue = this._headerTemplate;
+                        this._headerTemplate = value;
+                        this.onPropertyChanged("headerTemplate", value, oldValue);
+                    }
+                },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(GridViewColumn.prototype, "cellTemplate", {
+                get: function () {
+                    return this._cellTemplate;
+                },
+                set: function (value) {
+                    if (this._cellTemplate != value) {
+                        var oldValue = this._cellTemplate;
+                        this._cellTemplate = value;
+                        this.onPropertyChanged("cellTemplate", value, oldValue);
+                    }
+                },
+                enumerable: true,
+                configurable: true
+            });
+            GridViewColumn.typeName = "app.GridViewColumn";
+            return GridViewColumn;
+        }(layouts.DepObject));
+        controls.GridViewColumn = GridViewColumn;
+        var GridView = (function (_super) {
+            __extends(GridView, _super);
+            function GridView() {
+                _super.apply(this, arguments);
+                this._customCells = [];
+            }
+            Object.defineProperty(GridView.prototype, "typeName", {
+                get: function () {
+                    return GridView.typeName;
+                },
+                enumerable: true,
+                configurable: true
+            });
+            GridView.prototype.attachVisualOverride = function (elementContainer) {
+                //this is the div that will contain the table
+                this._visual = this._tableContainer = document.createElement("div");
+                _super.prototype.attachVisualOverride.call(this, elementContainer);
+            };
+            GridView.prototype.resetTable = function () {
+            };
+            GridView.prototype.setupTable = function () {
+                var _this = this;
+                if (this.rowsSource == null || this.rowsSource.count == 0 ||
+                    this.columns == null || this.columns.count == 0)
+                    return;
+                //clear table
+                if (this._tableElement != null) {
+                    this._tableContainer.removeChild(this._tableElement);
+                    this._tableElement = null;
+                }
+                this._tableElement = document.createElement("table");
+                this._tableElement.className = "display nowrap";
+                this._tableElement.cellSpacing = "0";
+                //this._tableElement.width = "100%";
+                //setup table
+                //setup headers
+                var columnHeaderTemplate = this.headerTemplate;
+                this._tableHeader = document.createElement("thead");
+                this._tableHeaderRow = document.createElement("tr");
+                this.columns.forEach(function (c) {
+                    var headerCell = document.createElement("th");
+                    var headerTemplate = c.headerTemplate == null ? columnHeaderTemplate : c.headerTemplate;
+                    if (headerTemplate != null) {
+                        var columnHeader = headerTemplate.createElement();
+                        columnHeader.setValue(layouts.FrameworkElement.dataContextProperty, c);
+                        columnHeader.parent = _this;
+                        columnHeader.attachVisual(headerCell);
+                    }
+                    else {
+                        headerCell.innerHTML = c.title;
+                    }
+                    _this._tableHeaderRow.appendChild(headerCell);
+                });
+                this._tableHeader.appendChild(this._tableHeaderRow);
+                this._tableElement.appendChild(this._tableHeader);
+                //the body
+                var tbody = document.createElement("tbody");
+                this._customCells = [];
+                var rowHeight = this.rowHeight;
+                this.rowsSource.forEach(function (row) {
+                    var trow = document.createElement("tr");
+                    _this.columns.forEach(function (c) {
+                        var td = document.createElement("td");
+                        var cellTemplate = c.cellTemplate;
+                        if (cellTemplate != null) {
+                            var cellElement = cellTemplate.createElement();
+                            cellElement.parent = _this;
+                            cellElement.attachVisual(td, true);
+                            cellElement.setValue(layouts.FrameworkElement.dataContextProperty, row);
+                            _this._customCells.push(cellElement);
+                        }
+                        else {
+                            td.innerHTML = row[c.name];
+                        }
+                        trow.appendChild(td);
+                    });
+                    tbody.appendChild(trow);
+                });
+                this._tableElement.appendChild(tbody);
+                this._tableContainer.appendChild(this._tableElement);
+                this._dataTable = $(this._tableElement).dataTable();
+            };
+            GridView.prototype.measureOverride = function (constraint) {
+                return new layouts.Size();
+            };
+            GridView.prototype.arrangeOverride = function (finalSize) {
+                if (this._tableElement != null) {
+                    this._tableContainer.style.height = finalSize.height + "px";
+                    this._tableContainer.style.width = finalSize.width + "px";
+                }
+                return finalSize;
+            };
+            GridView.prototype.layoutOverride = function () {
+                _super.prototype.layoutOverride.call(this);
+            };
+            GridView.prototype.onDependencyPropertyChanged = function (property, value, oldValue) {
+                if (property == GridView.columnsProperty) {
+                    if (oldValue != null) {
+                        var oldColumns = oldValue;
+                        oldColumns.offChangeNotify(this);
+                    }
+                    this.setupTable();
+                    if (value != null) {
+                        var newColumns = value;
+                        newColumns.onChangeNotify(this);
+                    }
+                }
+                else if (property == GridView.rowsSourceProperty) {
+                    if (oldValue != null) {
+                        var oldRows = oldValue;
+                        oldRows.offChangeNotify(this);
+                    }
+                    this.setupTable();
+                    if (value != null) {
+                        var newRows = value;
+                        newRows.onChangeNotify(this);
+                    }
+                }
+                _super.prototype.onDependencyPropertyChanged.call(this, property, value, oldValue);
+            };
+            GridView.prototype.onCollectionChanged = function (collection, added, removed, startRemoveIndex) { };
+            Object.defineProperty(GridView.prototype, "rowsSource", {
+                get: function () {
+                    return this.getValue(GridView.rowsSourceProperty);
+                },
+                set: function (value) {
+                    this.setValue(GridView.rowsSourceProperty, value);
+                },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(GridView.prototype, "columns", {
+                get: function () {
+                    return this.getValue(GridView.columnsProperty);
+                },
+                set: function (value) {
+                    this.setValue(GridView.columnsProperty, value);
+                },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(GridView.prototype, "headerTemplate", {
+                get: function () {
+                    return this.getValue(GridView.headerTemplateProperty);
+                },
+                set: function (value) {
+                    this.setValue(GridView.headerTemplateProperty, value);
+                },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(GridView.prototype, "rowHeight", {
+                get: function () {
+                    return this.getValue(GridView.rowHeightProperty);
+                },
+                set: function (value) {
+                    this.setValue(GridView.rowHeightProperty, value);
+                },
+                enumerable: true,
+                configurable: true
+            });
+            GridView.typeName = "app.GridView";
+            //rowsSource property
+            GridView.rowsSourceProperty = layouts.DepObject.registerProperty(controls.ItemsControl.typeName, "RowsSource", null, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure);
+            //columns property
+            GridView.columnsProperty = layouts.DepObject.registerProperty(controls.ItemsControl.typeName, "Columns", null, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure);
+            //header template property
+            GridView.headerTemplateProperty = layouts.DepObject.registerProperty(controls.ItemsControl.typeName, "HeaderTemplate", null, layouts.FrameworkPropertyMetadataOptions.AffectsArrange);
+            //row height property
+            GridView.rowHeightProperty = layouts.DepObject.registerProperty(controls.ItemsControl.typeName, "RowHeight", 32, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure);
+            return GridView;
+        }(layouts.FrameworkElement));
+        controls.GridView = GridView;
+    })(controls = layouts.controls || (layouts.controls = {}));
 })(layouts || (layouts = {}));
-//# sourceMappingURL=layouts.js.map
+//# sourceMappingURL=Layouts.Sample4.js.map

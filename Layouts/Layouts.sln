@@ -1,31 +1,33 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
-VisualStudioVersion = 14.0.24720.0
+VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Layouts", "Layouts\Layouts.csproj", "{6FD30FFB-6C2C-4BDA-9C76-1BF5D8AF07F2}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Layouts.TestApp", "Layouts.TestApp\Layouts.TestApp.csproj", "{10508A2D-D35A-49BA-A819-752F1438E203}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Layouts.PageEditor", "Layouts.PageEditor\Layouts.PageEditor.csproj", "{862EFCDF-B2D7-4347-98C2-5F4F17BBFB6A}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Layouts.Sample1", "Layouts.Sample1\Layouts.Sample1.csproj", "{A3450D99-44F1-4737-ABFE-79F6E732B82B}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Layouts.Sample2", "Layouts.Sample2\Layouts.Sample2.csproj", "{8B6BD1B8-40CB-4D94-8164-DFD215F0AE5B}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Layouts.Sample3", "Layouts.Sample3\Layouts.Sample3.csproj", "{FC51A37F-A451-4C7F-87EF-DDB409DF2C26}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Layouts.Sample4", "Layouts.Sample4\Layouts.Sample4.csproj", "{8ADFA621-3B8F-431F-A6F7-EF42FF6D765E}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Layouts.Sample5", "Layouts.Sample5\Layouts.Sample5.csproj", "{00A0DF0B-D428-49AE-B3CB-169C81D65459}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Layouts.Sample6", "Layouts.Sample6\Layouts.Sample6.csproj", "{9543F8B1-F0D9-4D8C-AB67-02C02F368E24}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Layouts.SlidingPuzzle", "Layouts.SlidingPuzzle\Layouts.SlidingPuzzle.csproj", "{2E8E9E8A-2D84-4ECF-AD56-EB29AEEE6876}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "NuGet", "NuGet", "{B7B44049-3468-45BA-ABDB-52F3B16A9988}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Layouts", "NuGet\Layouts\Layouts.csproj", "{0451BAEF-DF2E-4B98-8644-94EE9415E389}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Samples", "Samples", "{28729469-2C48-4661-9BF5-996D46EE53BA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Layouts.PageEditor", "Samples\Layouts.PageEditor\Layouts.PageEditor.csproj", "{862EFCDF-B2D7-4347-98C2-5F4F17BBFB6A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Layouts.Sample1", "Samples\Layouts.Sample1\Layouts.Sample1.csproj", "{A3450D99-44F1-4737-ABFE-79F6E732B82B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Layouts.Sample2", "Samples\Layouts.Sample2\Layouts.Sample2.csproj", "{8B6BD1B8-40CB-4D94-8164-DFD215F0AE5B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Layouts.Sample3", "Samples\Layouts.Sample3\Layouts.Sample3.csproj", "{FC51A37F-A451-4C7F-87EF-DDB409DF2C26}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Layouts.Sample4", "Samples\Layouts.Sample4\Layouts.Sample4.csproj", "{8ADFA621-3B8F-431F-A6F7-EF42FF6D765E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Layouts.Sample5", "Samples\Layouts.Sample5\Layouts.Sample5.csproj", "{00A0DF0B-D428-49AE-B3CB-169C81D65459}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Layouts.Sample6", "Samples\Layouts.Sample6\Layouts.Sample6.csproj", "{9543F8B1-F0D9-4D8C-AB67-02C02F368E24}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Layouts.SlidingPuzzle", "Samples\Layouts.SlidingPuzzle\Layouts.SlidingPuzzle.csproj", "{2E8E9E8A-2D84-4ECF-AD56-EB29AEEE6876}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Layouts.TestApp", "Samples\Layouts.TestApp\Layouts.TestApp.csproj", "{10508A2D-D35A-49BA-A819-752F1438E203}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -37,10 +39,10 @@ Global
 		{6FD30FFB-6C2C-4BDA-9C76-1BF5D8AF07F2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6FD30FFB-6C2C-4BDA-9C76-1BF5D8AF07F2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6FD30FFB-6C2C-4BDA-9C76-1BF5D8AF07F2}.Release|Any CPU.Build.0 = Release|Any CPU
-		{10508A2D-D35A-49BA-A819-752F1438E203}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{10508A2D-D35A-49BA-A819-752F1438E203}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{10508A2D-D35A-49BA-A819-752F1438E203}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{10508A2D-D35A-49BA-A819-752F1438E203}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0451BAEF-DF2E-4B98-8644-94EE9415E389}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0451BAEF-DF2E-4B98-8644-94EE9415E389}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0451BAEF-DF2E-4B98-8644-94EE9415E389}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0451BAEF-DF2E-4B98-8644-94EE9415E389}.Release|Any CPU.Build.0 = Release|Any CPU
 		{862EFCDF-B2D7-4347-98C2-5F4F17BBFB6A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{862EFCDF-B2D7-4347-98C2-5F4F17BBFB6A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{862EFCDF-B2D7-4347-98C2-5F4F17BBFB6A}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -73,15 +75,24 @@ Global
 		{2E8E9E8A-2D84-4ECF-AD56-EB29AEEE6876}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2E8E9E8A-2D84-4ECF-AD56-EB29AEEE6876}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2E8E9E8A-2D84-4ECF-AD56-EB29AEEE6876}.Release|Any CPU.Build.0 = Release|Any CPU
-		{0451BAEF-DF2E-4B98-8644-94EE9415E389}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{0451BAEF-DF2E-4B98-8644-94EE9415E389}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{0451BAEF-DF2E-4B98-8644-94EE9415E389}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{0451BAEF-DF2E-4B98-8644-94EE9415E389}.Release|Any CPU.Build.0 = Release|Any CPU
+		{10508A2D-D35A-49BA-A819-752F1438E203}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{10508A2D-D35A-49BA-A819-752F1438E203}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{10508A2D-D35A-49BA-A819-752F1438E203}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{10508A2D-D35A-49BA-A819-752F1438E203}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{0451BAEF-DF2E-4B98-8644-94EE9415E389} = {B7B44049-3468-45BA-ABDB-52F3B16A9988}
+		{862EFCDF-B2D7-4347-98C2-5F4F17BBFB6A} = {28729469-2C48-4661-9BF5-996D46EE53BA}
+		{A3450D99-44F1-4737-ABFE-79F6E732B82B} = {28729469-2C48-4661-9BF5-996D46EE53BA}
+		{8B6BD1B8-40CB-4D94-8164-DFD215F0AE5B} = {28729469-2C48-4661-9BF5-996D46EE53BA}
+		{FC51A37F-A451-4C7F-87EF-DDB409DF2C26} = {28729469-2C48-4661-9BF5-996D46EE53BA}
+		{8ADFA621-3B8F-431F-A6F7-EF42FF6D765E} = {28729469-2C48-4661-9BF5-996D46EE53BA}
+		{00A0DF0B-D428-49AE-B3CB-169C81D65459} = {28729469-2C48-4661-9BF5-996D46EE53BA}
+		{9543F8B1-F0D9-4D8C-AB67-02C02F368E24} = {28729469-2C48-4661-9BF5-996D46EE53BA}
+		{2E8E9E8A-2D84-4ECF-AD56-EB29AEEE6876} = {28729469-2C48-4661-9BF5-996D46EE53BA}
+		{10508A2D-D35A-49BA-A819-752F1438E203} = {28729469-2C48-4661-9BF5-996D46EE53BA}
 	EndGlobalSection
 EndGlobal
