@@ -77,7 +77,6 @@ var InstanceLoader = (function () {
         for (var _i = 1; _i < arguments.length; _i++) {
             args[_i - 1] = arguments[_i];
         }
-        //find namespaces if any
         var tokens = name.split(".");
         var iterationObject = this.context[tokens[0]];
         if (iterationObject == null)
@@ -104,7 +103,6 @@ var layouts;
             this.typeName = typeName;
             this.options = options;
             this.converter = converter;
-            //default value map
             this._defaultValueMap = {};
             this._defaultValue = defaultValue;
             this.options = options;
@@ -113,7 +111,6 @@ var layouts;
         DepProperty.prototype.overrideDefaultValue = function (typeName, defaultValue) {
             this._defaultValueMap[typeName] = defaultValue;
         };
-        //get default value of this property for passed object
         DepProperty.prototype.getDefaultValue = function (depObject) {
             var typeName = depObject["typeName"];
             if (typeName in this._defaultValueMap)
@@ -171,10 +168,6 @@ var layouts;
     }());
     layouts.ConverterContext = ConverterContext;
 })(layouts || (layouts = {}));
-/// <reference path="DepProperty.ts" />
-/// <reference path="PropertyMap.ts" />
-/// <reference path="Consts.ts" />
-/// <reference path="IConverter.ts" />
 var layouts;
 (function (layouts) {
     var DepObject = (function () {
@@ -184,7 +177,6 @@ var layouts;
             this.pcHandlers = [];
             this.bindings = new Array();
         }
-        ///Register a dependency property for the object
         DepObject.registerProperty = function (typeName, name, defaultValue, options, converter) {
             if (DepObject.globalPropertyMap[typeName] == null)
                 DepObject.globalPropertyMap[typeName] = new layouts.PropertyMap();
@@ -192,19 +184,16 @@ var layouts;
             DepObject.globalPropertyMap[typeName].register(name, newProperty);
             return newProperty;
         };
-        ///Get the dependency property registered with this type of object (or null if property doesn't exist on object)
         DepObject.getProperty = function (typeName, name) {
             if (DepObject.globalPropertyMap[typeName] == null)
                 return null;
             return DepObject.globalPropertyMap[typeName].getProperty(name);
         };
-        ///Get only dependency properties registered with this type of object
         DepObject.getProperties = function (typeName) {
             if (DepObject.globalPropertyMap[typeName] == null)
                 return null;
             return DepObject.globalPropertyMap[typeName].all();
         };
-        ///Iterate over all dependency properties registered with this type of object and its ancestors
         DepObject.forAllProperties = function (obj, callback) {
             if (obj == null)
                 throw new Error("obj == null");
@@ -226,14 +215,12 @@ var layouts;
                 return DepObject.lookupProperty(obj["__proto__"], name);
             return property;
         };
-        //Get property value for this object
         DepObject.prototype.getValue = function (property) {
             if (property.name in this.localPropertyValueMap) {
                 return this.localPropertyValueMap[property.name];
             }
             return property.getDefaultValue(this);
         };
-        //set property value to this object
         DepObject.prototype.setValue = function (property, value) {
             var oldValue = this.getValue(property);
             var valueToSet = property.converter != null && layouts.Ext.isString(value) ? property.converter(value) : value;
@@ -242,7 +229,6 @@ var layouts;
                 this.onDependencyPropertyChanged(property, valueToSet, oldValue);
             }
         };
-        //reset property value to its default
         DepObject.prototype.resetValue = function (property) {
             if (property.name in this.localPropertyValueMap) {
                 var oldValue = this.getValue(property);
@@ -250,50 +236,42 @@ var layouts;
                 this.onDependencyPropertyChanged(property, null, oldValue);
             }
         };
-        //Called when a value of a dependency property is changed (manually or by a binding)
         DepObject.prototype.onDependencyPropertyChanged = function (property, value, oldValue) {
             var _this = this;
             this.dpcHandlers.forEach(function (h) {
                 h.onDependencyPropertyChanged(_this, property);
             });
         };
-        //subscribe to dep property change events
         DepObject.prototype.subscribeDependencyPropertyChanges = function (observer) {
             if (this.dpcHandlers.indexOf(observer) == -1)
                 this.dpcHandlers.push(observer);
         };
-        //unsubscribe from dep property change events
         DepObject.prototype.unsubscribeDependencyPropertyChanges = function (observer) {
             var index = this.dpcHandlers.indexOf(observer, 0);
             if (index != -1) {
                 this.dpcHandlers.splice(index, 1);
             }
         };
-        //Called when a value of a plain property is changed
         DepObject.prototype.onPropertyChanged = function (propertyName, value, oldValue) {
             var _this = this;
             this.pcHandlers.forEach(function (h) {
                 h.onChangeProperty(_this, propertyName, value);
             });
         };
-        //subscribe to property change events
         DepObject.prototype.subscribePropertyChanges = function (observer) {
             if (this.pcHandlers.indexOf(observer) == -1)
                 this.pcHandlers.push(observer);
         };
-        //unsubscribe from property change events
         DepObject.prototype.unsubscribePropertyChanges = function (observer) {
             var index = this.pcHandlers.indexOf(observer, 0);
             if (index != -1) {
                 this.pcHandlers.splice(index, 1);
             }
         };
-        //bind a property of this object to a source object thru a path
         DepObject.prototype.bind = function (property, propertyPath, twoway, source, converter, converterParameter, format) {
             var newBinding = new Binding(this, property, propertyPath, source, twoway, converter, converterParameter, format);
             this.bindings.push(newBinding);
         };
-        ///Map of properties for each dependency object
         DepObject.globalPropertyMap = {};
         DepObject.logBindingTraceToConsole = false;
         return DepObject;
@@ -332,12 +310,9 @@ var layouts;
                     targetProperty: this.targetProperty,
                     parameter: this.converterParameter
                 }) : retValue.value;
-                this.target.setValue(this.targetProperty, this.format != null ? this.format.format(valueToSet) : valueToSet); //update target
+                this.target.setValue(this.targetProperty, this.format != null ? this.format.format(valueToSet) : valueToSet);
             }
             else if (this.source != null) {
-                //if source is not null and retValue.success is false
-                //means that something in binding to original source has broken
-                //I need to reset the source and update target property to its default value
                 this.target.resetValue(this.targetProperty);
                 this.source = null;
                 this.sourceProperty = null;
@@ -347,8 +322,6 @@ var layouts;
             if (depObject == this.target &&
                 depProperty == this.targetProperty &&
                 this.twoWay) {
-                //if target property value is changed than update source
-                //(twoway mode on)
                 var value = depObject.getValue(depProperty);
                 this.path.setValue(this.converter != null ? this.converter.convertBack(value, {
                     source: this.source,
@@ -380,7 +353,6 @@ var layouts;
         PropertyPath.prototype.detachSource = function () {
             if (this.source.unsubscribePropertyChanges != null)
                 this.source.unsubscribePropertyChanges(this);
-            //if source is not a depObject I can't subscribe/unsubscribe to its property changes
             if (this.source["unsubscribeDependencyPropertyChanges"] != null)
                 this.source.unsubscribeDependencyPropertyChanges(this);
         };
@@ -392,16 +364,9 @@ var layouts;
                 if (m.index === re.lastIndex) {
                     re.lastIndex++;
                 }
-                // View your result using the m-variable.
-                // eg m[0] etc.
-                //there is at least an indexer in the form property[...]...
-                //property name is returned in m[1]
                 this.name = m[1];
-                //so get the first indexer and save it in this.indexers
                 this.indexers = [];
                 this.indexers.push(m[3]);
-                //for now support up to 2 indexer like 'property[..][..]'
-                //search for a second indexer if exists
                 re = /([\w_]+)(\[([\w_]+)\])(\[([\w_]+)\])/gmi;
                 if ((m = re.exec(nameStr)) !== null) {
                     if (m.index === re.lastIndex) {
@@ -427,25 +392,18 @@ var layouts;
             else {
                 var dotIndex = this.path.indexOf(".");
                 if (dotIndex > -1) {
-                    //first token of path is the name of property to look in source object
                     this.name = this.path.substring(0, dotIndex);
                     this.lookForIndexers();
                     this.sourceProperty = DepObject.lookupProperty(this.source, this.name);
-                    //NOTE: this.source can be n UIElement(quite often) and it has custom getValue method that looks for parent values
-                    //for the same property given it has FrameworkPropertyMetadataOptions.Inherits as option defined for property
-                    //see UEelement.ts/getValue
                     var sourcePropertyValue = (this.sourceProperty != null) ?
                         this.source.getValue(this.sourceProperty) :
-                        this.source[this.name]; //otherwise try using normal property lookup method
-                    //if an indexer list is defined (binding to something like 'property[...]...')
-                    //go deeper to property value accessed with the indexer
+                        this.source[this.name];
                     if (this.indexers != null && sourcePropertyValue != null) {
                         sourcePropertyValue = sourcePropertyValue[this.indexers[0]];
                         if (this.indexers.length > 1 && sourcePropertyValue != null)
                             sourcePropertyValue = sourcePropertyValue[this.indexers[1]];
                     }
                     if (sourcePropertyValue != null) {
-                        //is source value is not null means I can go further in search...
                         var nextPath = this.path.substring(dotIndex + 1);
                         if (this.next == null ||
                             this.next.path != nextPath ||
@@ -466,7 +424,7 @@ var layouts;
                 }
             }
             if (this.next != null) {
-                this.next.attachShource(); //attachSource() test if already attached
+                this.next.attachShource();
                 this.next.prev = this;
             }
             if (this.next != oldNext)
@@ -495,9 +453,7 @@ var layouts;
                         console.log("[Bindings] Unable to find property '{0}' on type '{1}'".format(this.name, this.source["typeName"] == null ? "<noneType>" : this.source["typeName"]));
                 var sourcePropertyValue = (this.sourceProperty != null) ?
                     this.source.getValue(this.sourceProperty) :
-                    this.source[this.name]; //otherwise try using normal property lookup method
-                //if an indexer list is defined (binding to something like 'property[...]...')
-                //go deeper to property value accessed with the indexer
+                    this.source[this.name];
                 if (this.indexers != null && sourcePropertyValue != null) {
                     sourcePropertyValue = sourcePropertyValue[this.indexers[0]];
                     if (this.indexers.length > 1 && sourcePropertyValue != null)
@@ -524,7 +480,7 @@ var layouts;
                 if (this.sourceProperty != null)
                     this.source.setValue(this.sourceProperty, value);
                 else
-                    this.source[this.name] = value; //try update source using default property lookup access
+                    this.source[this.name] = value;
             }
         };
         PropertyPath.prototype.onDependencyPropertyChanged = function (depObject, depProperty) {
@@ -544,8 +500,6 @@ var layouts;
         return PropertyPath;
     }());
 })(layouts || (layouts = {}));
-/// <reference path="DepProperty.ts" />
-/// <reference path="DepObject.ts" />
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
     function __() { this.constructor = d; }
@@ -608,27 +562,15 @@ var layouts;
     }());
     layouts.Vector = Vector;
     (function (FrameworkPropertyMetadataOptions) {
-        /// No flags
         FrameworkPropertyMetadataOptions[FrameworkPropertyMetadataOptions["None"] = 0] = "None";
-        /// This property affects measurement
         FrameworkPropertyMetadataOptions[FrameworkPropertyMetadataOptions["AffectsMeasure"] = 1] = "AffectsMeasure";
-        /// This property affects arragement
         FrameworkPropertyMetadataOptions[FrameworkPropertyMetadataOptions["AffectsArrange"] = 2] = "AffectsArrange";
-        /// This property affects parent's measurement
         FrameworkPropertyMetadataOptions[FrameworkPropertyMetadataOptions["AffectsParentMeasure"] = 4] = "AffectsParentMeasure";
-        /// This property affects parent's arrangement
         FrameworkPropertyMetadataOptions[FrameworkPropertyMetadataOptions["AffectsParentArrange"] = 8] = "AffectsParentArrange";
-        /// This property affects rendering
         FrameworkPropertyMetadataOptions[FrameworkPropertyMetadataOptions["AffectsRender"] = 16] = "AffectsRender";
-        /// This property inherits to children
         FrameworkPropertyMetadataOptions[FrameworkPropertyMetadataOptions["Inherits"] = 32] = "Inherits";
-        /// NOT SUPPORTED: 
-        /// This property causes inheritance and resource lookup to override values 
-        /// of InheritanceBehavior that may be set on any FE in the path of lookup
         FrameworkPropertyMetadataOptions[FrameworkPropertyMetadataOptions["OverridesInheritanceBehavior"] = 64] = "OverridesInheritanceBehavior";
-        /// This property does not support data binding
         FrameworkPropertyMetadataOptions[FrameworkPropertyMetadataOptions["NotDataBindable"] = 128] = "NotDataBindable";
-        /// Data bindings on this property default to two-way
         FrameworkPropertyMetadataOptions[FrameworkPropertyMetadataOptions["BindsTwoWayByDefault"] = 256] = "BindsTwoWayByDefault";
     })(layouts.FrameworkPropertyMetadataOptions || (layouts.FrameworkPropertyMetadataOptions = {}));
     var FrameworkPropertyMetadataOptions = layouts.FrameworkPropertyMetadataOptions;
@@ -644,13 +586,10 @@ var layouts;
         __extends(UIElement, _super);
         function UIElement() {
             _super.apply(this, arguments);
-            ///Render Pass
             this.relativeOffset = null;
             this.measureDirty = true;
             this.arrangeDirty = true;
             this.layoutInvalid = true;
-            //extended properties are key-value items that loader was unable to assign to element
-            //because they didn't not correspond to any property (dependency or native) exposed by element
             this._extendedProperties = [];
         }
         Object.defineProperty(UIElement.prototype, "typeName", {
@@ -711,8 +650,6 @@ var layouts;
                 this.layoutOverride();
                 if (this._visual != null &&
                     this.isVisible)
-                    //if visual is hidden here means that I just added it hidden to DOM
-                    //so restore it visible (see attachVisual() below)
                     this._visual.style.visibility = "";
                 this.layoutInvalid = false;
                 var layoutUpdated = this.layoutUpdated;
@@ -728,68 +665,28 @@ var layouts;
                 }
             }
         };
-        //Animation Pass
-        //private _animations: ObservableCollection<Animate>;
-        //get animations(): ObservableCollection<Animate> {
-        //    return this._animations;
-        //}
-        //set children(value: ObservableCollection<Animate>) {
-        //    if (value == this._animations)
-        //        return;
-        //    if (this._animations != null) {
-        //        //remove handler so that resource can be disposed
-        //        this._animations.offChangeNotify(this);
-        //    }
-        //    this._animations = value;
-        //    if (this._animations != null) {
-        //        this._animations.onChangeNotify(this);
-        //    }
-        //    this.invalidateMeasure();
-        //}
-        //onCollectionChanged(collection: any, added: any[], removed: any[], startRemoveIndex: number) {
-        //    this.invalidateMeasure();
-        //}
         UIElement.prototype.animateSize = function (desiredSize) {
             return desiredSize;
         };
         UIElement.prototype.attachVisual = function (elementContainer, showImmediately) {
             if (showImmediately === void 0) { showImmediately = false; }
-            //1. if a visual is not yet created and we have a container
-            //try create it now
             if (this._visual == null &&
                 elementContainer != null)
                 this.attachVisualOverride(elementContainer);
-            //1.b if a visual doesn't exists but parent set container to null
-            //call attachVisualOverride and let derived class handle the case (i.e. Page)
             if (this._visual == null &&
                 elementContainer == null)
                 this.attachVisualOverride(null);
-            //2. if visual is still null we have done
             if (this._visual == null)
                 return null;
-            //3. if visual is not under container...
             if (elementContainer != this._visual.parentElement) {
-                //4. remove visual from old container 
                 if (this._visual.parentElement != null) {
-                    //Note children of this are not removed from DOM
-                    //for performance reasons, it would take to much to remove any descendants from DOM
                     var parentElement = this._visual.parentElement;
                     parentElement.removeChild(this._visual);
-                    //this will notify any children of removal
                     this.visualDisconnected(parentElement);
                 }
-                //5. if container is valid (not null) add visual under it
-                //note container could be null in this case visual is just detached from DOM
                 if (elementContainer != null) {
-                    //before add the element to the DOM tree hide to avoid flickering
-                    //visual will be restored to visible after it's correctly positioned
-                    //see above layout()
-                    //NOTE: we use CSS visibility instead of hidden property because with former
-                    //element size remains valid 
-                    //http://stackoverflow.com/questions/2345784/jquery-get-height-of-hidden-element-in-jquery
                     if (!showImmediately)
                         this._visual.style.visibility = "hidden";
-                    //makes layout invalid so to restore any render in case element was just removed and readded to tree
                     this.invalidateMeasure();
                     elementContainer.appendChild(this._visual);
                     if (elementContainer != null)
@@ -809,7 +706,6 @@ var layouts;
             var _this = this;
             if (this._visual == null)
                 return;
-            //apply extended properties to html element
             this._extendedProperties.forEach(function (ep) {
                 if (ep.name in _this._visual)
                     _this._visual[ep.name] = ep.value;
@@ -877,7 +773,6 @@ var layouts;
         };
         UIElement.prototype.onDependencyPropertyChanged = function (property, value, oldValue) {
             var _this = this;
-            //probably this checks as well as relative properties are to be moved down to FrameworkElement
             if (property == UIElement.commandProperty) {
                 if (oldValue != null) {
                     oldValue.offCanExecuteChangeNotify(this);
@@ -926,8 +821,6 @@ var layouts;
             if ((options & FrameworkPropertyMetadataOptions.AffectsRender) != 0)
                 this.invalidateLayout();
             if ((options & FrameworkPropertyMetadataOptions.Inherits) != 0 && this._logicalChildren != null)
-                //foreach child notify property changing event, unfortunately
-                //there is not a more efficient way than walk logical tree down to leaves
                 this._logicalChildren.forEach(function (child) { return child.onDependencyPropertyChanged(property, value, oldValue); });
             _super.prototype.onDependencyPropertyChanged.call(this, property, value, oldValue);
         };
@@ -939,13 +832,10 @@ var layouts;
                 if (options != null &&
                     this._parent != null &&
                     (options & FrameworkPropertyMetadataOptions.Inherits) != 0) {
-                    //search property on parent
                     return this._parent.getValue(property);
                 }
-                //get default
                 return property.getDefaultValue(this);
             }
-            //there is a local value
             return this.localPropertyValueMap[property.name];
         };
         UIElement.prototype.invalidateMeasure = function () {
@@ -1032,28 +922,16 @@ var layouts;
                 var options = property == null ? null : property.options;
                 if (options != null &&
                     (options & FrameworkPropertyMetadataOptions.Inherits) != 0) {
-                    //if my parent changed I need to notify children to update
-                    //any binding linked to my properties that has FrameworkPropertyMetadataOptions.Inherits
-                    //option (most of cases dataContext)
-                    //there is not a real value change, only a notification to allow binding update
-                    //so value==oldValue
-                    //if (this._logicalChildren != null) {
-                    //    var value = this.getValue(property);
-                    //    this._logicalChildren.forEach((child) => child.onDependencyPropertyChanged(property, value, value));
-                    //}
                     this.onParentDependencyPropertyChanged(property);
                 }
             }
             if (this._parent != null)
                 this._parent.notifyInheritsPropertiesChange();
         };
-        //function called when a parent property changed 
-        //(parent property must have FrameworkPropertyMetadataOptions.Inherits option enabled; most of cases is DataContext property)
         UIElement.prototype.onParentDependencyPropertyChanged = function (property) {
             if (this._logicalChildren != null) {
                 this._logicalChildren.forEach(function (child) { return child.onParentDependencyPropertyChanged(property); });
             }
-            //just notify subscribers of bindings
             _super.prototype.onDependencyPropertyChanged.call(this, property, null, null);
         };
         UIElement.prototype.onParentChanged = function (oldParent, newParent) {
@@ -1144,11 +1022,9 @@ var layouts;
         UIElement.typeName = "layouts.UIElement";
         UIElement.isVisibleProperty = layouts.DepObject.registerProperty(UIElement.typeName, "IsVisible", true, FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsParentMeasure | FrameworkPropertyMetadataOptions.AffectsRender);
         UIElement.classProperty = layouts.DepObject.registerProperty(UIElement.typeName, "class", null, FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender);
-        //name property
         UIElement.idProperty = layouts.DepObject.registerProperty(UIElement.typeName, "id", layouts.Consts.stringEmpty, FrameworkPropertyMetadataOptions.AffectsRender);
         UIElement.commandProperty = layouts.DepObject.registerProperty(UIElement.typeName, "Command", null, FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender);
         UIElement.commandParameterProperty = layouts.DepObject.registerProperty(UIElement.typeName, "CommandParameter", null, FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender);
-        //get or set popup property for the element
         UIElement.popupProperty = layouts.DepObject.registerProperty(UIElement.typeName, "Popup", null, FrameworkPropertyMetadataOptions.None);
         UIElement.autoClosePopupProperty = layouts.DepObject.registerProperty(UIElement.typeName, "AutoClosePopup", true, FrameworkPropertyMetadataOptions.None, function (value) {
             if (value == null || (value.toLowerCase() != "true" && value.toLowerCase() != "false"))
@@ -1160,9 +1036,6 @@ var layouts;
     }(layouts.DepObject));
     layouts.UIElement = UIElement;
 })(layouts || (layouts = {}));
-/// <reference path="DepProperty.ts" />
-/// <reference path="DepObject.ts" />
-/// <reference path="UIElement.ts" />
 var layouts;
 (function (layouts) {
     (function (VerticalAlignment) {
@@ -1247,7 +1120,6 @@ var layouts;
         __extends(FrameworkElement, _super);
         function FrameworkElement() {
             _super.apply(this, arguments);
-            //private needClipBounds: boolean;
             this.visualOffset = null;
         }
         Object.defineProperty(FrameworkElement.prototype, "typeName", {
@@ -1268,7 +1140,6 @@ var layouts;
             var desideredSize = this.measureOverride(frameworkAvailableSize);
             desideredSize = new layouts.Size(Math.max(desideredSize.width, mm.minWidth), Math.max(desideredSize.height, mm.minHeight));
             this.unclippedDesiredSize = desideredSize;
-            //var clipped = false;
             if (desideredSize.width > mm.maxWidth) {
                 desideredSize.width = mm.maxWidth;
             }
@@ -1295,15 +1166,12 @@ var layouts;
             var marginHeight = margin.top + margin.bottom;
             arrangeSize.width = Math.max(0, arrangeSize.width - marginWidth);
             arrangeSize.height = Math.max(0, arrangeSize.height - marginHeight);
-            //this.needClipBounds = false;
             if (arrangeSize.width.isCloseTo(this.unclippedDesiredSize.width) ||
                 arrangeSize.width < this.unclippedDesiredSize.width) {
-                //this.needClipBounds = true;
                 arrangeSize.width = this.unclippedDesiredSize.width;
             }
             if (arrangeSize.height.isCloseTo(this.unclippedDesiredSize.height) ||
                 arrangeSize.height < this.unclippedDesiredSize.height) {
-                //this.needClipBounds = true;
                 arrangeSize.height = this.unclippedDesiredSize.height;
             }
             if (this.horizontalAlignment != HorizontalAlignment.Stretch) {
@@ -1316,13 +1184,11 @@ var layouts;
             var effectiveMaxWidth = Math.max(this.unclippedDesiredSize.width, mm.maxWidth);
             if (effectiveMaxWidth.isCloseTo(arrangeSize.width) ||
                 effectiveMaxWidth < arrangeSize.width) {
-                //this.needClipBounds = true;
                 arrangeSize.width = effectiveMaxWidth;
             }
             var effectiveMaxHeight = Math.max(this.unclippedDesiredSize.height, mm.maxHeight);
             if (effectiveMaxHeight.isCloseTo(arrangeSize.height) ||
                 effectiveMaxHeight < arrangeSize.height) {
-                //this.needClipBounds = true;
                 arrangeSize.height = effectiveMaxHeight;
             }
             var oldRenderSize = this.renderSize;
@@ -1380,23 +1246,17 @@ var layouts;
             return finalSize;
         };
         FrameworkElement.prototype.layoutOverride = function () {
-            //if (this._visual != null)
-            //    this._visual.style.cssText = this.cssStyle;
             _super.prototype.layoutOverride.call(this);
             if (this._visual == null)
                 return;
-            //this._visual.style.position = "absolute";
             this._visual.style.visibility = this.isVisible ? "" : "collapsed";
             this._visual.style.overflowX = this.overflowX;
             this._visual.style.overflowY = this.overflowY;
             if (this.visualOffset != null) {
-                //for left and top default value is not 0 so
-                //I've to specify both always
                 this._visual.style.left = this.visualOffset.x.toString() + "px";
                 this._visual.style.top = this.visualOffset.y.toString() + "px";
             }
             if (this.renderSize != null) {
-                //when an element initially loads hidden renderSize is not available
                 this._visual.style.width = this.renderSize.width.toString() + "px";
                 this._visual.style.height = this.renderSize.height.toString() + "px";
             }
@@ -1570,45 +1430,25 @@ var layouts;
             configurable: true
         });
         FrameworkElement.typeName = "layouts.FrameworkElement";
-        //width property
         FrameworkElement.widthProperty = layouts.DepObject.registerProperty(FrameworkElement.typeName, "Width", Number.NaN, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure);
-        //height property
         FrameworkElement.heightProperty = layouts.DepObject.registerProperty(FrameworkElement.typeName, "Height", Number.NaN, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure);
-        //actualWidth property
         FrameworkElement.actualWidthProperty = layouts.DepObject.registerProperty(FrameworkElement.typeName, "ActualWidth", 0);
-        //actualHeight property
         FrameworkElement.actualHeightProperty = layouts.DepObject.registerProperty(FrameworkElement.typeName, "ActualHeight", 0);
-        //minWidth property
         FrameworkElement.minWidthProperty = layouts.DepObject.registerProperty(FrameworkElement.typeName, "MinWidth", 0, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure, function (v) { return parseFloat(v); });
-        //minHeight property
         FrameworkElement.minHeightProperty = layouts.DepObject.registerProperty(FrameworkElement.typeName, "MinHeight", 0, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure, function (v) { return parseFloat(v); });
-        //maxWidth property
         FrameworkElement.maxWidthProperty = layouts.DepObject.registerProperty(FrameworkElement.typeName, "MaxWidth", Infinity, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure, function (v) { return parseFloat(v); });
-        //maxHeight property
         FrameworkElement.maxHeightProperty = layouts.DepObject.registerProperty(FrameworkElement.typeName, "MaxHeight", Infinity, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure, function (v) { return parseFloat(v); });
-        //verticalAlignment property
         FrameworkElement.verticalAlignmentProperty = layouts.DepObject.registerProperty(FrameworkElement.typeName, "VerticalAlignment", VerticalAlignment.Stretch, layouts.FrameworkPropertyMetadataOptions.AffectsArrange, function (v) { return VerticalAlignment[String(v)]; });
-        //horizontalAlignment property
         FrameworkElement.horizontalAlignmentProperty = layouts.DepObject.registerProperty(FrameworkElement.typeName, "HorizontalAlignment", HorizontalAlignment.Stretch, layouts.FrameworkPropertyMetadataOptions.AffectsArrange, function (v) { return HorizontalAlignment[String(v)]; });
-        //margin property
         FrameworkElement.marginProperty = layouts.DepObject.registerProperty(FrameworkElement.typeName, "Margin", new Thickness(), layouts.FrameworkPropertyMetadataOptions.AffectsMeasure, function (v) { return Thickness.fromString(v); });
-        //dataContext property
         FrameworkElement.dataContextProperty = layouts.DepObject.registerProperty(FrameworkElement.typeName, "DataContext", null, layouts.FrameworkPropertyMetadataOptions.Inherits);
-        //tag property
         FrameworkElement.tagProperty = layouts.DepObject.registerProperty(FrameworkElement.typeName, "Tag");
-        //overflowX property -> visible|hidden|scroll|auto
-        //by default content is clipped so overflowX is set to hidden
         FrameworkElement.overflowXProperty = layouts.DepObject.registerProperty(FrameworkElement.typeName, "OverflowX", "hidden", layouts.FrameworkPropertyMetadataOptions.AffectsRender);
-        //overflowY property -> visible|hidden|scroll|auto
-        //by default content is clipped so overflowY is set to hidden
         FrameworkElement.overflowYProperty = layouts.DepObject.registerProperty(FrameworkElement.typeName, "OverflowY", "hidden", layouts.FrameworkPropertyMetadataOptions.AffectsRender);
         return FrameworkElement;
     }(layouts.UIElement));
     layouts.FrameworkElement = FrameworkElement;
 })(layouts || (layouts = {}));
-/// <reference path="..\DepProperty.ts" />
-/// <reference path="..\DepObject.ts" />
-/// <reference path="..\FrameworkElement.ts" /> 
 var layouts;
 (function (layouts) {
     var controls;
@@ -1685,7 +1525,7 @@ var layouts;
                 this._popupContainer = document.createElement("div");
                 this._popupContainer.style.width = this._popupContainer.style.height = "100%";
                 this._popupContainer.style.position = "fixed";
-                this._popupContainer.className = "layoutsPopupContainer"; //default popup container style
+                this._popupContainer.className = "layoutsPopupContainer";
                 if (this.cssClass != null)
                     this._popupContainer.className = this.cssClass;
                 document.body.appendChild(this._popupContainer);
@@ -1728,7 +1568,6 @@ var layouts;
                 return mySize;
             };
             Popup.prototype.arrangeOverride = function (finalSize) {
-                //  arrange child
                 var child = this._child;
                 if (child != null) {
                     child.arrange(new layouts.Rect(0, 0, finalSize.width, finalSize.height));
@@ -1757,7 +1596,6 @@ var layouts;
             });
             Popup.typeName = "layouts.controls.Popup";
             Popup._init = Popup.initProperties();
-            //SizeToContent property
             Popup.sizeToContentProperty = layouts.DepObject.registerProperty(Popup.typeName, "SizeToContent", layouts.SizeToContent.Both, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender, function (v) { return layouts.SizeToContent[String(v)]; });
             Popup.positionProperty = layouts.DepObject.registerProperty(Popup.typeName, "Position", PopupPosition.Center, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender, function (v) { return PopupPosition[String(v)]; });
             return Popup;
@@ -1765,7 +1603,6 @@ var layouts;
         controls.Popup = Popup;
     })(controls = layouts.controls || (layouts.controls = {}));
 })(layouts || (layouts = {}));
-/// <reference path="controls/Popup.ts" />
 var layouts;
 (function (layouts) {
     var LayoutManager = (function () {
@@ -1773,16 +1610,12 @@ var layouts;
         }
         LayoutManager.updateLayout = function () {
             var page = layouts.Application.current.page;
-            //var docWidth = document.body.clientWidth;
             var docWidth = window.innerWidth
                 || document.documentElement.clientWidth
                 || document.body.clientWidth;
-            //var docHeight = document.body.clientHeight;
             var docHeight = window.innerHeight
                 || document.documentElement.clientHeight
                 || document.body.clientHeight;
-            //docWidth /= window.devicePixelRatio || 1;
-            //docHeight /= window.devicePixelRatio || 1;
             if (page != null) {
                 var sizeToContentWidth = page.sizeToContent == layouts.SizeToContent.Both || page.sizeToContent == layouts.SizeToContent.Horizontal;
                 var sizeToContentHeight = page.sizeToContent == layouts.SizeToContent.Both || page.sizeToContent == layouts.SizeToContent.Vertical;
@@ -1876,9 +1709,6 @@ var layouts;
         LayoutManager.updateLayout();
     };
 })(layouts || (layouts = {}));
-/// <reference path="..\DepProperty.ts" />
-/// <reference path="..\DepObject.ts" />
-/// <reference path="..\FrameworkElement.ts" /> 
 var layouts;
 (function (layouts) {
     var controls;
@@ -1900,8 +1730,6 @@ var layouts;
             __extends(Page, _super);
             function Page() {
                 _super.apply(this, arguments);
-                //navigation system
-                //if cachePage is true navigation system reuse already loaded page
                 this.cachePage = false;
             }
             Object.defineProperty(Page.prototype, "typeName", {
@@ -1950,7 +1778,6 @@ var layouts;
                 return mySize;
             };
             Page.prototype.arrangeOverride = function (finalSize) {
-                //  arrange child
                 var child = this.child;
                 if (child != null) {
                     child.arrange(new layouts.Rect(0, 0, finalSize.width, finalSize.height));
@@ -1993,21 +1820,16 @@ var layouts;
                 enumerable: true,
                 configurable: true
             });
-            //onNavigate method is called also for reused/cached pages
             Page.prototype.onNavigate = function (context) {
             };
             Page.typeName = "layouts.controls.Page";
             Page.childProperty = layouts.DepObject.registerProperty(Page.typeName, "Child", null, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender);
-            //SizeToContent property
             Page.sizeToContentProperty = layouts.DepObject.registerProperty(Page.typeName, "SizeToContent", layouts.SizeToContent.None, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender, function (v) { return layouts.SizeToContent[String(v)]; });
             return Page;
         }(layouts.FrameworkElement));
         controls.Page = Page;
     })(controls = layouts.controls || (layouts.controls = {}));
 })(layouts || (layouts = {}));
-/// <reference path="Extensions.ts" />
-/// <reference path="LayoutManager.ts" />
-/// <reference path="Controls\Page.ts" />
 var layouts;
 (function (layouts) {
     var UriMapping = (function () {
@@ -2030,11 +1852,6 @@ var layouts;
         });
         UriMapping.prototype.compile = function () {
             if (!this._compiled) {
-                ///example:
-                ///   /Product/{value1}/{value2}/{value3}
-                ///compile in:
-                ///   \/Product\/([\w\d_$]+)\/([\w\d_$]+)\/([\w\d_$]+)
-                //var re = /\{([\w\d_$]+)\}/gi;
                 var re = new RegExp("\\{([\\w\\d_&$-]+)\\}", "gi");
                 var s = this.uri;
                 var m;
@@ -2042,7 +1859,6 @@ var layouts;
                 do {
                     m = re.exec(s);
                     if (m) {
-                        //console.log(m[0], m[1]);
                         rx = rx.replace(m[0], "([\\w\\d_&$-]+)");
                         this._queryStringTokens.push(m[1]);
                     }
@@ -2103,7 +1919,6 @@ var layouts;
             }
         }
         Object.defineProperty(Application, "current", {
-            //get current application
             get: function () {
                 if (Application._current == null)
                     Application._current = new Application();
@@ -2129,7 +1944,6 @@ var layouts;
             enumerable: true,
             configurable: true
         });
-        //Dispatcher Thread
         Application.requestAnimationFrame = function () {
             requestAnimationFrame(Application.onAnimationFrame);
         };
@@ -2170,17 +1984,6 @@ var layouts;
             var uriMapping = mappings.FirstOrDefault(null, function (m) { return m.test(uri); });
             if (uriMapping != null) {
                 var queryString = uriMapping.resolve(uri);
-                //if (this._currentNavigationitem != null) {
-                //    var currentNavigationItem = this._currentNavigationitem;
-                //    var navigationStack = this._navigationStack;
-                //    while (navigationStack.length > 0 &&
-                //        navigationStack[navigationStack.length - 1] != currentNavigationItem) {
-                //        navigationStack.pop();
-                //    }
-                //    //save page if required
-                //    if (this.page.cachePage)
-                //        this._currentNavigationitem.cachedPage = this.page;
-                //}
                 var previousPage = this.page;
                 var previousUri = this._currentUri;
                 var targetPage = null;
@@ -2213,8 +2016,6 @@ var layouts;
                         return false;
                     }
                 }
-                //this._currentNavigationitem = new NavigationItem(uri);
-                //this._navigationStack.push(this._currentNavigationitem);
                 this._currentUri = uri;
                 this.page = targetPage;
                 this.page.onNavigate(navContext);
@@ -2253,12 +2054,10 @@ var layouts;
             if (this.canExecute(parameter))
                 this.executeHandler(this, parameter);
         };
-        //subscribe to command canExecute change events
         Command.prototype.onCanExecuteChangeNotify = function (handler) {
             if (this.handlers.indexOf(handler) == -1)
                 this.handlers.push(handler);
         };
-        //unsubscribe to command canExecute change events
         Command.prototype.offCanExecuteChangeNotify = function (handler) {
             var index = this.handlers.indexOf(handler, 0);
             if (index != -1) {
@@ -2275,10 +2074,6 @@ var layouts;
     }());
     layouts.Command = Command;
 })(layouts || (layouts = {}));
-/// <reference path="..\DepProperty.ts" />
-/// <reference path="..\DepObject.ts" />
-/// <reference path="..\FrameworkElement.ts" /> 
-/// <reference path="..\ISupport.ts" /> 
 var layouts;
 (function (layouts) {
     var controls;
@@ -2347,26 +2142,20 @@ var layouts;
             };
             Border.prototype.measureOverride = function (constraint) {
                 var mySize = new layouts.Size();
-                // Compute the chrome size added by the various elements
                 var borderThickness = this.borderThickness;
                 if (borderThickness == null)
                     borderThickness = new layouts.Thickness();
                 var border = new layouts.Size(borderThickness.left + borderThickness.right, borderThickness.top + borderThickness.bottom);
                 var padding = new layouts.Size(this.padding.left + this.padding.right, this.padding.top + this.padding.bottom);
-                //If we have a child
                 if (this._child != null) {
-                    // Combine into total decorating size
                     var combined = new layouts.Size(border.width + padding.width, border.height + padding.height);
-                    // Remove size of border only from child's reference size.
                     var childConstraint = new layouts.Size(Math.max(0.0, constraint.width - combined.width), Math.max(0.0, constraint.height - combined.height));
                     this._child.measure(childConstraint);
                     var childSize = this._child.desiredSize;
-                    // Now use the returned size to drive our size, by adding back the margins, etc.
                     mySize.width = childSize.width + combined.width;
                     mySize.height = childSize.height + combined.height;
                 }
                 else {
-                    // Combine into total decorating size
                     mySize = new layouts.Size(border.width + padding.width, border.height + padding.height);
                 }
                 return mySize;
@@ -2377,7 +2166,6 @@ var layouts;
                     borderThickness = new layouts.Thickness();
                 var boundRect = new layouts.Rect(0, 0, finalSize.width, finalSize.height);
                 var innerRect = new layouts.Rect(boundRect.x + borderThickness.left, boundRect.y + borderThickness.top, Math.max(0.0, boundRect.width - borderThickness.left - borderThickness.right), Math.max(0.0, boundRect.height - borderThickness.top - borderThickness.bottom));
-                //  arrange child
                 var child = this._child;
                 var padding = this.padding;
                 if (child != null) {
@@ -2486,11 +2274,6 @@ var layouts;
         controls.Border = Border;
     })(controls = layouts.controls || (layouts.controls = {}));
 })(layouts || (layouts = {}));
-/// <reference path="..\DepProperty.ts" />
-/// <reference path="..\DepObject.ts" />
-/// <reference path="..\FrameworkElement.ts" /> 
-/// <reference path="..\ISupport.ts" /> 
-/// <reference path="..\Command.ts" /> 
 var layouts;
 (function (layouts) {
     var controls;
@@ -2534,22 +2317,17 @@ var layouts;
                 if (this._child != null) {
                     this._child.attachVisual(this._buttonElement);
                 }
-                //this._buttonElement.onclick = (ev) => this.onClick(ev);
                 this._buttonElement.disabled = !this.isEnabled;
                 _super.prototype.attachVisualOverride.call(this, elementContainer);
             };
             Button.prototype.measureOverride = function (constraint) {
                 this.isEnabled = this.popup != null || (this.command != null && this.command.canExecute(this.commandParameter));
                 var mySize = new layouts.Size();
-                // Compute the chrome size added by padding
                 var padding = new layouts.Size(this.padding.left + this.padding.right, this.padding.top + this.padding.bottom);
-                //If we have a child
                 if (this._child != null) {
-                    // Remove size of padding only from child's reference size.
                     var childConstraint = new layouts.Size(Math.max(0.0, constraint.width - padding.width), Math.max(0.0, constraint.height - padding.height));
                     this._child.measure(childConstraint);
                     var childSize = this._child.desiredSize;
-                    // Now use the returned size to drive our size, by adding back the margins, etc.
                     mySize.width = childSize.width + padding.width;
                     mySize.height = childSize.height + padding.height;
                 }
@@ -2576,13 +2354,11 @@ var layouts;
                     return mySize;
                 }
                 else {
-                    // Combine into total decorating size
                     mySize = new layouts.Size(padding.width, padding.height);
                 }
                 return mySize;
             };
             Button.prototype.arrangeOverride = function (finalSize) {
-                //  arrange child
                 var child = this._child;
                 var padding = this.padding;
                 if (child != null) {
@@ -2653,7 +2429,6 @@ var layouts;
                 configurable: true
             });
             Button.typeName = "layouts.controls.Button";
-            //Dependency properties
             Button.paddingProperty = layouts.DepObject.registerProperty(Button.typeName, "Padding", new layouts.Thickness(), layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender);
             Button.textProperty = layouts.DepObject.registerProperty(Button.typeName, "Text", null, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender);
             Button.whiteSpaceProperty = layouts.DepObject.registerProperty(Button.typeName, "WhiteSpace", "pre", layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender);
@@ -2663,10 +2438,6 @@ var layouts;
         controls.Button = Button;
     })(controls = layouts.controls || (layouts.controls = {}));
 })(layouts || (layouts = {}));
-/// <reference path="..\DepProperty.ts" />
-/// <reference path="..\DepObject.ts" />
-/// <reference path="..\FrameworkElement.ts" /> 
-/// <reference path="..\ISupport.ts" /> 
 var layouts;
 (function (layouts) {
     var controls;
@@ -2675,7 +2446,6 @@ var layouts;
             __extends(Panel, _super);
             function Panel() {
                 _super.apply(this, arguments);
-                //virtual items
                 this.virtualItemCount = 0;
                 this.virtualOffset = null;
             }
@@ -2702,23 +2472,18 @@ var layouts;
                     if (value == this._children)
                         return;
                     if (this._children != null) {
-                        //reset parent on all children
                         this._children.forEach(function (el) {
                             if (el.parent == _this) {
                                 el.parent = null;
                                 el.attachVisual(null);
                             }
                         });
-                        //remove handler so that resource can be disposed
                         this._children.offChangeNotify(this);
                     }
                     this._children = value;
                     if (this._children != null) {
-                        //attach new children here
                         this._children.forEach(function (el) {
                             if (el.parent != null) {
-                                //if already child of a different parent throw error
-                                //in future investigate if it can be removed from container automatically
                                 throw new Error("Element already child of another element, please remove it first from previous container");
                             }
                             el.parent = _this;
@@ -2774,9 +2539,6 @@ var layouts;
         controls.Panel = Panel;
     })(controls = layouts.controls || (layouts.controls = {}));
 })(layouts || (layouts = {}));
-/// <reference path="..\DepProperty.ts" />
-/// <reference path="..\FrameworkElement.ts" /> 
-/// <reference path="Panel.ts" />
 var layouts;
 (function (layouts) {
     var controls;
@@ -2853,23 +2615,15 @@ var layouts;
                 target.setValue(Canvas.bottomProperty, value);
             };
             Canvas.typeName = "layouts.controls.Canvas";
-            //properties
-            //Canvas.Left property
             Canvas.leftProperty = layouts.DepObject.registerProperty(Canvas.typeName, "Canvas#Left", NaN, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure, function (v) { return parseFloat(v); });
-            //Canvas.Top property
             Canvas.topProperty = layouts.DepObject.registerProperty(Canvas.typeName, "Canvas#Top", NaN, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure, function (v) { return parseFloat(v); });
-            //Canvas.Right property
             Canvas.rightProperty = layouts.DepObject.registerProperty(Canvas.typeName, "Canvas#Right", NaN, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure, function (v) { return parseFloat(v); });
-            //Canvas.Bottom property
             Canvas.bottomProperty = layouts.DepObject.registerProperty(Canvas.typeName, "Canvas#Bottom", NaN, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure, function (v) { return parseFloat(v); });
             return Canvas;
         }(controls.Panel));
         controls.Canvas = Canvas;
     })(controls = layouts.controls || (layouts.controls = {}));
 })(layouts || (layouts = {}));
-/// <reference path="..\DepProperty.ts" />
-/// <reference path="..\DepObject.ts" />
-/// <reference path="..\FrameworkElement.ts" /> 
 var layouts;
 (function (layouts) {
     var controls;
@@ -2906,17 +2660,6 @@ var layouts;
                 }
                 return new layouts.Size(Math.min(constraint.width, this._measuredSize.width), Math.min(constraint.height, this._measuredSize.height));
             };
-            //protected layoutOverride() {
-            //    super.layoutOverride();
-            //    //layoutOverride above set style.width and styl.height
-            //    //at that point browser compute new offsetWidth and offetHeight
-            //    //we need to reset style.width/height so that textbox don't exceed space
-            //    //that out parent has reserved for this control
-            //    if (this.renderSize != null) {
-            //        this._pElement.style.width = (this.renderSize.width - (this._pElement.offsetWidth - this.renderSize.width)) + "px";
-            //        this._pElement.style.height = (this.renderSize.height - (this._pElement.offsetHeight - this.renderSize.height)) + "px";
-            //    }
-            //}
             CheckBox.prototype.onDependencyPropertyChanged = function (property, value, oldValue) {
                 if (property == CheckBox.nameProperty) {
                     var pElement = this._pElementInput;
@@ -3069,7 +2812,6 @@ var layouts;
                         option.innerHTML = (displayMember != null) ? el[displayMember] : el;
                         selectElement.appendChild(option);
                     });
-                    //point local _elements variable to itemsource cast
                     this._elements = elements;
                     var selectedItem = this.selectedItem;
                     if (this.selectMember != null) {
@@ -3087,7 +2829,6 @@ var layouts;
                     return;
                 var displayMember = this.displayMember;
                 if (collection == this.itemsSource) {
-                    //some items were added/removed from itemssouurce
                     added.forEach(function (item) {
                         var option = document.createElement("option");
                         option.innerHTML = (displayMember != null) ? item[displayMember] : item;
@@ -3098,7 +2839,6 @@ var layouts;
                         var noneWasSelected = selectElement.selectedIndex == -1;
                         selectElement.removeChild(elementToRemove);
                         if (noneWasSelected)
-                            //removeChild reset selected index to 0 if no item was selected, so restore previous selected index
                             selectElement.selectedIndex = -1;
                         if (item == _this.selectedItem)
                             _this.selectedItem = _this.selectedValue = null;
@@ -3158,25 +2898,16 @@ var layouts;
                 configurable: true
             });
             ComboBox.typeName = "layouts.controls.ComboBox";
-            //itemsSource property
             ComboBox.itemsSourceProperty = layouts.DepObject.registerProperty(ComboBox.typeName, "ItemsSource", null, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender);
-            //selectedItem property
             ComboBox.selectedItemProperty = layouts.DepObject.registerProperty(ComboBox.typeName, "SelectedItem", null, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender);
-            //displayMember property
             ComboBox.displayMemberProperty = layouts.DepObject.registerProperty(ComboBox.typeName, "DisplayMember", null, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender);
-            //selectValue property
             ComboBox.selectedValueProperty = layouts.DepObject.registerProperty(ComboBox.typeName, "SelectedValue", null, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender);
-            //selectMember property
             ComboBox.selectMemberProperty = layouts.DepObject.registerProperty(ComboBox.typeName, "SelectMember", null, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender);
             return ComboBox;
         }(layouts.FrameworkElement));
         controls.ComboBox = ComboBox;
     })(controls = layouts.controls || (layouts.controls = {}));
 })(layouts || (layouts = {}));
-/// <reference path="..\DepProperty.ts" />
-/// <reference path="..\DepObject.ts" />
-/// <reference path="..\FrameworkElement.ts" /> 
-/// <reference path="..\ISupport.ts" /> 
 var layouts;
 (function (layouts) {
     var controls;
@@ -3201,7 +2932,7 @@ var layouts;
             };
             ContentTemplate.prototype.setupChild = function () {
                 if (this._container == null)
-                    return; //not yet ready to create content element
+                    return;
                 var content = this.content;
                 var child = this._child;
                 if (content == null &&
@@ -3217,10 +2948,6 @@ var layouts;
                 if (content != null &&
                     child != null) {
                     child.setValue(layouts.FrameworkElement.dataContextProperty, content);
-                    //NOTE: Set datacontext before attach element to DOM
-                    //If it's attached without datacontext, bindings will target parent datacontext (ie my datacontext)
-                    //and when the correct datacontext is attached again to content, bindings will re-target to 
-                    //new context
                     child.parent = this;
                     child.attachVisual(this._container);
                 }
@@ -3280,10 +3007,6 @@ var layouts;
         controls.ContentTemplate = ContentTemplate;
     })(controls = layouts.controls || (layouts.controls = {}));
 })(layouts || (layouts = {}));
-/// <reference path="..\DepProperty.ts" />
-/// <reference path="..\DepObject.ts" />
-/// <reference path="..\FrameworkElement.ts" /> 
-/// <reference path="..\ISupport.ts" /> 
 var layouts;
 (function (layouts) {
     var controls;
@@ -3342,8 +3065,6 @@ var layouts;
                     }
                     var newChild = value;
                     if (newChild != null) {
-                        //NOTE: change parent AFTER attachVisual because changing parent will raise
-                        //notifications to binding to DataContext
                         if (this._container != null)
                             newChild.attachVisual(this._container);
                         newChild.parent = this;
@@ -3368,10 +3089,6 @@ var layouts;
         controls.ControlTemplate = ControlTemplate;
     })(controls = layouts.controls || (layouts.controls = {}));
 })(layouts || (layouts = {}));
-/// <reference path="..\DepProperty.ts" />
-/// <reference path="..\DepObject.ts" />
-/// <reference path="..\FrameworkElement.ts" /> 
-/// <reference path="..\ISupport.ts" /> 
 var layouts;
 (function (layouts) {
     var controls;
@@ -3466,13 +3183,11 @@ var layouts;
                     if (value == this._templates)
                         return;
                     if (this._templates != null) {
-                        //remove handler so that resource can be disposed
                         this._templates.offChangeNotify(this);
                     }
                     this._templates = value;
                     if (this._templates != null) {
                         this._templates.forEach(function (el) {
-                            //to do: re-apply templates to children
                         });
                         this._templates.onChangeNotify(this);
                     }
@@ -3482,7 +3197,6 @@ var layouts;
             });
             ControlTemplateSelector.prototype.onCollectionChanged = function (collection, added, removed, startRemoveIndex) {
                 if (collection == this._templates) {
-                    //templates collection is changed
                     this.setupItem();
                 }
                 this.invalidateMeasure();
@@ -3611,8 +3325,6 @@ var layouts;
                 configurable: true
             });
             DataTemplate.typeName = "layouts.controls.DataTemplate";
-            ///returns the type datatemplate is suited for
-            ///if null it means it's a generic template usable for any object of any type
             DataTemplate.targetTypeProperty = layouts.DepObject.registerProperty(DataTemplate.typeName, "TargetType", null);
             DataTemplate.targetMemberProperty = layouts.DepObject.registerProperty(DataTemplate.typeName, "TargetMember", null);
             DataTemplate.mediaProperty = layouts.DepObject.registerProperty(DataTemplate.typeName, "Media", null);
@@ -3622,9 +3334,6 @@ var layouts;
         controls.DataTemplate = DataTemplate;
     })(controls = layouts.controls || (layouts.controls = {}));
 })(layouts || (layouts = {}));
-/// <reference path="..\DepProperty.ts" />
-/// <reference path="..\DepObject.ts" />
-/// <reference path="..\FrameworkElement.ts" /> 
 var layouts;
 (function (layouts) {
     var controls;
@@ -3683,19 +3392,13 @@ var layouts;
         controls.Frame = Frame;
     })(controls = layouts.controls || (layouts.controls = {}));
 })(layouts || (layouts = {}));
-/// <reference path="..\DepProperty.ts" />
-/// <reference path="..\FrameworkElement.ts" /> 
-/// <reference path="Panel.ts" />
 var layouts;
 (function (layouts) {
     var controls;
     (function (controls) {
         (function (GridUnitType) {
-            /// The value indicates that content should be calculated without constraints. 
             GridUnitType[GridUnitType["Auto"] = 0] = "Auto";
-            /// The value is expressed as a pixel.
             GridUnitType[GridUnitType["Pixel"] = 1] = "Pixel";
-            /// The value is expressed as a weighted proportion of available space.
             GridUnitType[GridUnitType["Star"] = 2] = "Star";
         })(controls.GridUnitType || (controls.GridUnitType = {}));
         var GridUnitType = controls.GridUnitType;
@@ -3708,16 +3411,6 @@ var layouts;
                 this._type = type;
             }
             GridLength.parseString = function (value) {
-                //parse a string in the form of:
-                // ([number],){0.1},[*|Auto|number],([number],){0.1} --> min*,[...],max*
-                // a string that define a series of row/col definition in the form of ([min len)*,(gridlen value),(max len])*
-                //ex:
-                //Auto [100,2*,200] [,Auto,2000]
-                //defines 3 row/col definition:
-                //1) auto row/column
-                //2) 2* row/column with min 100 pixel and max 200 pixel
-                //3) Auto row/olumn with max 2000 pixel
-                //TODO: use a regex instead
                 value = value.trim();
                 var tokens = value.split(" ");
                 return Enumerable.From(tokens).Select(function (token) {
@@ -3725,7 +3418,6 @@ var layouts;
                     if (token.length == 0)
                         return;
                     if (token[0] == '[') {
-                        //Case "[100,*,]" or "[,Auto,200]"
                         if (token.length < 3 || token[token.length - 1] != ']')
                             throw new Error("GridLength definition error");
                         var subTokens = token.substr(1, token.length - 2).split(",");
@@ -3748,7 +3440,6 @@ var layouts;
                             throw new Error("GridLength definition error");
                     }
                     else {
-                        //case "*" or "Auto" or "12.3"
                         return {
                             length: GridLength.fromString(token)
                         };
@@ -4033,7 +3724,6 @@ var layouts;
                             this._columnDefs[col].elements.push(this._elementDefs[iElement]);
                     }
                 }
-                //measure children full contained in auto and fixed size row/column (exclude only children that are fully contained in star w/h cells)
                 for (var iRow = 0; iRow < this._rowDefs.length; iRow++) {
                     var rowDef = this._rowDefs[iRow];
                     var elements = rowDef.elements;
@@ -4045,7 +3735,7 @@ var layouts;
                         elements.forEach(function (el) { return el.setAvailHeight(iRow, rowDef.desHeight); });
                     }
                     else {
-                        elements.forEach(function (el) { return el.measuredWidthFirstPass = true; }); //elements in this group can still be measured by the other dimension (width or height)
+                        elements.forEach(function (el) { return el.measuredWidthFirstPass = true; });
                     }
                 }
                 for (var iColumn = 0; iColumn < this._columnDefs.length; iColumn++) {
@@ -4059,7 +3749,7 @@ var layouts;
                         elements.forEach(function (el) { return el.setAvailWidth(iColumn, columnDef.desWidth); });
                     }
                     else {
-                        elements.forEach(function (el) { return el.measuredHeightFirstPass = true; }); //elements in this group can still be measured by the other dimension (width or height)
+                        elements.forEach(function (el) { return el.measuredHeightFirstPass = true; });
                     }
                 }
                 this._elementDefs.forEach(function (el) {
@@ -4073,7 +3763,6 @@ var layouts;
                     }
                     el.measuredWidthFirstPass = el.measuredHeightFirstPass = true;
                 });
-                //than get max of any auto/fixed measured row/column
                 this._rowDefs.forEach(function (rowDef) {
                     if (!rowDef.isStar)
                         rowDef.elements.forEach(function (el) { return rowDef.desHeight = Math.max(rowDef.desHeight, el.element.desiredSize.height); });
@@ -4082,7 +3771,6 @@ var layouts;
                     if (!columnDef.isStar)
                         columnDef.elements.forEach(function (el) { return columnDef.desWidth = Math.max(columnDef.desWidth, el.element.desiredSize.width); });
                 });
-                //now measure any fully contained star size row/column
                 var elementToMeasure = [];
                 var notStarRowsHeight = 0;
                 this._rowDefs.forEach(function (r) { return notStarRowsHeight += r.desHeight; });
@@ -4094,7 +3782,6 @@ var layouts;
                     if (!rowDef.isStar)
                         return;
                     var elements = rowDef.elements;
-                    //if size to content horizontally, star rows are treat just like auto rows (same apply to columns of course)
                     if (!vSizeToContent) {
                         var availHeight = vRowMultiplier * rowDef.row.height.value;
                         rowDef.desHeight = availHeight;
@@ -4129,7 +3816,6 @@ var layouts;
                         e.measuredHeightFirstPass = true;
                     }
                 });
-                //than adjust width and height to fit children that spans over columns or rows containing auto rows or auto columns
                 for (var iElement = 0; iElement < this._elementDefs.length; iElement++) {
                     var elementDef = this._elementDefs[iElement];
                     if (elementDef.rowSpan > 1) {
@@ -4181,7 +3867,6 @@ var layouts;
                         }
                     }
                 }
-                //finally sum up the desidered size
                 this._rowDefs.forEach(function (r) { return desideredSize.height += r.desHeight; });
                 this._columnDefs.forEach(function (c) { return desideredSize.width += c.desWidth; });
                 this._lastDesiredSize = desideredSize;
@@ -4189,14 +3874,8 @@ var layouts;
             };
             Grid.prototype.arrangeOverride = function (finalSize) {
                 var _this = this;
-                //if finalSize != this.desideredSize we have to
-                //to correct row/column with star values to take extra space or viceversa
-                //remove space no more available from measure pass
                 var xDiff = finalSize.width - this._lastDesiredSize.width;
                 var yDiff = finalSize.height - this._lastDesiredSize.height;
-                //rd.isStar/cd.isStar take in count also sizeToContent stuff
-                //we need here only to know if column is star or not
-                //this why we are using rd.row.height.isStar or cd.column.width.isStar
                 var starRowCount = 0;
                 this._rowDefs.forEach(function (rd) {
                     if (rd.row.height.isStar)
@@ -4208,8 +3887,6 @@ var layouts;
                         starColumnCount++;
                 });
                 this._rowDefs.forEach(function (rd) {
-                    //rd.isStar takes in count also sizeToContent stuff
-                    //we need here only to know if column is star or not
                     if (rd.row.height.isStar)
                         rd.finalHeight = rd.desHeight + yDiff / starRowCount;
                     else
@@ -4334,27 +4011,17 @@ var layouts;
                 return intValue;
             };
             Grid.typeName = "layouts.controls.Grid";
-            ///Dependency properties
-            //rows
             Grid.rowsProperty = layouts.DepObject.registerProperty(Grid.typeName, "Rows", null, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender, function (v) { return Grid.rowsFromString(v); });
-            //columns
             Grid.columnsProperty = layouts.DepObject.registerProperty(Grid.typeName, "Columns", null, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender, function (v) { return Grid.columnsFromString(v); });
-            //Grid.Row property
             Grid.rowProperty = layouts.DepObject.registerProperty(Grid.typeName, "Grid#Row", 0, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure, function (v) { return Grid.fromString(v); });
-            //Grid.Column property
             Grid.columnProperty = layouts.DepObject.registerProperty(Grid.typeName, "Grid#Column", 0, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure, function (v) { return Grid.fromString(v); });
-            //Grid.RowSpan property
             Grid.rowSpanProperty = layouts.DepObject.registerProperty(Grid.typeName, "Grid#RowSpan", 1, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure, function (v) { return Grid.spanFromString(v); });
-            //Grid.ColumnSpan property
             Grid.columnSpanProperty = layouts.DepObject.registerProperty(Grid.typeName, "Grid#ColumnSpan", 1, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure, function (v) { return Grid.spanFromString(v); });
             return Grid;
         }(controls.Panel));
         controls.Grid = Grid;
     })(controls = layouts.controls || (layouts.controls = {}));
 })(layouts || (layouts = {}));
-/// <reference path="..\DepProperty.ts" />
-/// <reference path="..\FrameworkElement.ts" /> 
-/// <reference path="Panel.ts" />
 var layouts;
 (function (layouts) {
     var controls;
@@ -4364,7 +4031,6 @@ var layouts;
             function GridSplitter() {
                 var _this = this;
                 _super.call(this);
-                ///Grid splitter
                 this._draggingCurrentPoint = new layouts.Vector();
                 this._draggingStartPoint = new layouts.Vector();
                 this._draggingVirtualOffset = new layouts.Vector();
@@ -4380,10 +4046,8 @@ var layouts;
                     ev.stopPropagation();
                 };
                 this.onSplitterMouseUp = function (ev) {
-                    //if (ev.target == this._visual) {
                     _this.moveGhost(ev);
                     _this.dragSplitter(_this._draggingCurrentPoint.x, _this._draggingCurrentPoint.y);
-                    //}
                     document.removeEventListener("mousemove", _this.onSplitterMouseMove, false);
                     document.removeEventListener("mouseup", _this.onSplitterMouseUp, false);
                     ev.stopPropagation();
@@ -4400,7 +4064,6 @@ var layouts;
             GridSplitter.prototype.attachVisualOverride = function (elementContainer) {
                 var _this = this;
                 _super.prototype.attachVisualOverride.call(this, elementContainer);
-                //this._visual.style.zIndex = "10000";
                 this._visual.addEventListener("mousedown", function (ev) { return _this.onSplitterMouseDown(ev); }, true);
                 this._visual.tag = this;
                 this._visual.onselectstart = function () { return false; };
@@ -4427,7 +4090,6 @@ var layouts;
                 var parentGrid = this.parent;
                 if (parentGrid == null)
                     return;
-                //if element has no layout, returns
                 if (this.visualOffset == null)
                     return;
                 var dragging = false;
@@ -4472,10 +4134,8 @@ var layouts;
                     }
                 }
                 if (dragging) {
-                    //register to mouse events
                     document.addEventListener("mousemove", this.onSplitterMouseMove, false);
                     document.addEventListener("mouseup", this.onSplitterMouseUp, false);
-                    //calculate starting vectors and min/max values for _draggingCurrentPointX
                     this._draggingStartPoint.x = this._draggingCurrentPoint.x = ev.x;
                     this._draggingStartPoint.y = this._draggingCurrentPoint.y = ev.y;
                     this._draggingVirtualOffset.x = this.visualOffset.x;
@@ -4549,7 +4209,7 @@ var layouts;
                             bottomRow.height = new controls.GridLength(bottomRowHeight, controls.GridUnitType.Pixel);
                             bottomRowWasStar = true;
                         }
-                        var maxTopRowHeight = topRow.height.value + bottomRow.height.value; //parentGrid.actualHeight - parentGridFixedRowsHeight;
+                        var maxTopRowHeight = topRow.height.value + bottomRow.height.value;
                         var newTopRowHeight = topRow.height.value + (evY - this._draggingStartPoint.y);
                         var newBottomRowHeight = bottomRow.height.value - (evY - this._draggingStartPoint.y);
                         if (newTopRowHeight.isCloseTo(0))
@@ -4591,14 +4251,6 @@ var layouts;
                                     r.height = new controls.GridLength(oldRowWithStarLen.height.value / availTotalHeight, controls.GridUnitType.Star);
                             });
                         }
-                        //console.log("topRow=", topRow.height.value);
-                        //console.log("bottomRow=", bottomRow.height.value);
-                        //parentGrid.rows.forEach((r, i) => {
-                        //    console.log("row=", i);
-                        //    console.log("height=", r.height.value);
-                        //});
-                        //console.log("_draggingStartPointY=", this._draggingStartPointY);
-                        //console.log("ev.y=", ev.y);
                         parentGrid.invalidateMeasure();
                     }
                     else {
@@ -4638,10 +4290,6 @@ var layouts;
                         }
                         topRow.height = new controls.GridLength(newTopRowHeight, controls.GridUnitType.Star);
                         bottomRow.height = new controls.GridLength(newBottomRowHeight, controls.GridUnitType.Star);
-                        //console.log("topRow=", topRow.height.value);
-                        //console.log("bottomRow=", bottomRow.height.value);
-                        //console.log("_draggingStartPointY=", this._draggingStartPointY);
-                        //console.log("ev.y=", ev.y);
                         parentGrid.invalidateMeasure();
                     }
                 }
@@ -4763,60 +4411,20 @@ var layouts;
         controls.GridSplitter = GridSplitter;
     })(controls = layouts.controls || (layouts.controls = {}));
 })(layouts || (layouts = {}));
-/// <reference path="..\DepProperty.ts" />
-/// <reference path="..\DepObject.ts" />
-/// <reference path="..\FrameworkElement.ts" /> 
 var layouts;
 (function (layouts) {
     var controls;
     (function (controls) {
-        /// <summary>
-        ///     Stretch - Enum which descibes how a source rect should be stretched to fit a 
-        ///     destination rect.
-        /// </summary>
         (function (Stretch) {
-            /// <summary>
-            ///     None - Preserve original size
-            /// </summary>
             Stretch[Stretch["None"] = 0] = "None";
-            /// <summary>
-            ///     Fill - Aspect ratio is not preserved, source rect fills destination rect.
-            /// </summary>
             Stretch[Stretch["Fill"] = 1] = "Fill";
-            /// <summary>
-            ///     Uniform - Aspect ratio is preserved, Source rect is uniformly scaled as large as 
-            ///     possible such that both width and height fit within destination rect.  This will 
-            ///     not cause source clipping, but it may result in unfilled areas of the destination 
-            ///     rect, if the aspect ratio of source and destination are different.
-            /// </summary>
             Stretch[Stretch["Uniform"] = 2] = "Uniform";
-            /// <summary>
-            ///     UniformToFill - Aspect ratio is preserved, Source rect is uniformly scaled as small 
-            ///     as possible such that the entire destination rect is filled.  This can cause source 
-            ///     clipping, if the aspect ratio of source and destination are different.
-            /// </summary>
             Stretch[Stretch["UniformToFill"] = 3] = "UniformToFill";
         })(controls.Stretch || (controls.Stretch = {}));
         var Stretch = controls.Stretch;
-        /// <summary>
-        /// StretchDirection - Enum which describes when scaling should be used on the content of a Viewbox. This
-        /// enum restricts the scaling factors along various axes.
-        /// </summary>
-        /// <seealso cref="Viewbox" />
         (function (StretchDirection) {
-            /// <summary>
-            /// Only scales the content upwards when the content is smaller than the Viewbox.
-            /// If the content is larger, no scaling downwards is done.
-            /// </summary>
             StretchDirection[StretchDirection["UpOnly"] = 0] = "UpOnly";
-            /// <summary>
-            /// Only scales the content downwards when the content is larger than the Viewbox.
-            /// If the content is smaller, no scaling upwards is done.
-            /// </summary>
             StretchDirection[StretchDirection["DownOnly"] = 1] = "DownOnly";
-            /// <summary>
-            /// Always stretches to fit the Viewbox according to the stretch mode.
-            /// </summary>
             StretchDirection[StretchDirection["Both"] = 2] = "Both";
         })(controls.StretchDirection || (controls.StretchDirection = {}));
         var StretchDirection = controls.StretchDirection;
@@ -4870,59 +4478,13 @@ var layouts;
                 }
                 return _super.prototype.arrangeOverride.call(this, finalSize);
             };
-            //protected measureOverride(constraint: Size): Size {
-            //    var src = this.source;
-            //    var mySize = new Size();
-            //    var imgElement = this._imgElement;
-            //    var srcChanged = (imgElement.src != src);
-            //    if (srcChanged) {
-            //        imgElement.src = src;
-            //        imgElement.style.width = isFinite(constraint.width) ? constraint.width.toString() + "px" : "auto";
-            //        imgElement.style.height = isFinite(constraint.height) ? constraint.height.toString() + "px" : "auto";
-            //    }
-            //    //if image is already loaded than report its size, otherwise the loaded event will invalidate my measure
-            //    if (imgElement.complete &&
-            //        imgElement.naturalWidth > 0) {
-            //        var scaleFactor = Image.computeScaleFactor(constraint,
-            //            new Size(imgElement.naturalWidth, imgElement.naturalHeight),
-            //            this.stretch,
-            //            this.stretchDirection);
-            //        mySize = new Size(imgElement.naturalWidth * scaleFactor.width, imgElement.naturalHeight * scaleFactor.height);
-            //    }
-            //    if (srcChanged && this.renderSize != null) {
-            //        imgElement.style.width = this.renderSize.width.toString() + "px";
-            //        imgElement.style.height = this.renderSize.height.toString() + "px";
-            //    }            
-            //    return mySize;
-            //}
-            //protected arrangeOverride(finalSize: Size): Size {
-            //    var imgElement = this._imgElement;
-            //    if (imgElement.complete &&
-            //        imgElement.naturalWidth > 0) {
-            //        var scaleFactor = Image.computeScaleFactor(finalSize,
-            //            new Size(imgElement.naturalWidth, imgElement.naturalHeight),
-            //            this.stretch,
-            //            this.stretchDirection);
-            //        return new Size(imgElement.naturalWidth * scaleFactor.width, imgElement.naturalHeight * scaleFactor.height);
-            //    }
-            //    return finalSize;
-            //}
-            /// <summary>
-            /// Helper function that computes scale factors depending on a target size and a content size
-            /// </summary>
-            /// <param name="availableSize">Size into which the content is being fitted.</param>
-            /// <param name="contentSize">Size of the content, measured natively (unconstrained).</param>
-            /// <param name="stretch">Value of the Stretch property on the element.</param>
-            /// <param name="stretchDirection">Value of the StretchDirection property on the element.</param>
             Image.computeScaleFactor = function (availableSize, contentSize, stretch, stretchDirection) {
-                // Compute scaling factors to use for axes
                 var scaleX = 1.0;
                 var scaleY = 1.0;
                 var isConstrainedWidth = isFinite(availableSize.width);
                 var isConstrainedHeight = isFinite(availableSize.height);
                 if ((stretch == Stretch.Uniform || stretch == Stretch.UniformToFill || stretch == Stretch.Fill)
                     && (isConstrainedWidth || isConstrainedHeight)) {
-                    // Compute scaling factors for both axes
                     scaleX = (contentSize.width.isCloseTo(0)) ? 0.0 : availableSize.width / contentSize.width;
                     scaleY = (contentSize.height.isCloseTo(0)) ? 0.0 : availableSize.height / contentSize.height;
                     if (!isConstrainedWidth)
@@ -4930,7 +4492,6 @@ var layouts;
                     else if (!isConstrainedHeight)
                         scaleY = scaleX;
                     else {
-                        // If not preserving aspect ratio, then just apply transform to fit
                         switch (stretch) {
                             case Stretch.Uniform:
                                 {
@@ -4948,10 +4509,6 @@ var layouts;
                                 break;
                         }
                     }
-                    //Apply stretch direction by bounding scales.
-                    //In the uniform case, scaleX=scaleY, so this sort of clamping will maintain aspect ratio
-                    //In the uniform fill case, we have the same result too.
-                    //In the fill case, note that we change aspect ratio, but that is okay
                     switch (stretchDirection) {
                         case StretchDirection.UpOnly:
                             if (scaleX < 1.0)
@@ -4971,7 +4528,6 @@ var layouts;
                             break;
                     }
                 }
-                //Return this as a size now
                 return new layouts.Size(scaleX, scaleY);
             };
             Image.prototype.onDependencyPropertyChanged = function (property, value, oldValue) {
@@ -5022,10 +4578,6 @@ var layouts;
         controls.Image = Image;
     })(controls = layouts.controls || (layouts.controls = {}));
 })(layouts || (layouts = {}));
-/// <reference path="..\DepProperty.ts" />
-/// <reference path="..\DepObject.ts" />
-/// <reference path="..\FrameworkElement.ts" /> 
-/// <reference path="..\ISupport.ts" /> 
 var layouts;
 (function (layouts) {
     var controls;
@@ -5034,9 +4586,6 @@ var layouts;
             __extends(ItemsControl, _super);
             function ItemsControl() {
                 _super.apply(this, arguments);
-                //list of items created
-                //note that in general this list is not 1:1 with itemssource collection
-                //for example the case when some sort of virtualization of items is applied
                 this._elements = null;
             }
             Object.defineProperty(ItemsControl.prototype, "typeName", {
@@ -5047,7 +4596,6 @@ var layouts;
                 configurable: true
             });
             ItemsControl.initProperties = function () {
-                //FrameworkElement.overflowXProperty.overrideDefaultValue(ItemsControl.typeName, "auto");
                 layouts.FrameworkElement.overflowYProperty.overrideDefaultValue(ItemsControl.typeName, "auto");
             };
             ItemsControl.prototype.attachVisualOverride = function (elementContainer) {
@@ -5083,13 +4631,11 @@ var layouts;
                     if (value == this._templates)
                         return;
                     if (this._templates != null) {
-                        //remove handler so that resource can be disposed
                         this._templates.offChangeNotify(this);
                     }
                     this._templates = value;
                     if (this._templates != null) {
                         this._templates.forEach(function (el) {
-                            //to do: re-apply templates to children
                         });
                         this._templates.onChangeNotify(this);
                     }
@@ -5100,11 +4646,9 @@ var layouts;
             ItemsControl.prototype.onCollectionChanged = function (collection, added, removed, startRemoveIndex) {
                 var _this = this;
                 if (collection == this._templates) {
-                    //templates collection is changed
                     this.setupItems();
                 }
                 else if (collection == this.itemsSource) {
-                    //some items were added/removed from itemssouurce
                     if (this.itemsPanel == null)
                         return;
                     added.forEach(function (item) {
@@ -5174,24 +4718,6 @@ var layouts;
                     this.setupItems();
                 _super.prototype.onDependencyPropertyChanged.call(this, property, value, oldValue);
             };
-            //private getTemplateForItem(item: any): DataTemplate {
-            //    if (this._templates == null ||
-            //        this._templates.count == 0)
-            //        return null;
-            //    var typeName: string = typeof item;
-            //    if (Ext.hasProperty(item, "typeName"))
-            //        typeName = item["typeName"];
-            //    else {
-            //        if (item instanceof Date)//detect date type
-            //            typeName = "date";
-            //    }
-            //    var foundTemplate: DataTemplate = null;
-            //    if (typeName != null)
-            //        foundTemplate = Enumerable.From(this.templates.elements).FirstOrDefault(null, dt => dt.targetType != null && dt.targetType.toLowerCase() == typeName.toLowerCase());
-            //    if (foundTemplate != null)
-            //        return foundTemplate;
-            //    return Enumerable.From(this.templates.elements).FirstOrDefault(null, dt => dt.targetType == null);
-            //}
             ItemsControl.prototype.setupItems = function () {
                 var _this = this;
                 if (this._elements != null) {
@@ -5234,18 +4760,13 @@ var layouts;
             };
             ItemsControl.typeName = "layouts.controls.ItemsControl";
             ItemsControl._init = ItemsControl.initProperties();
-            //itemsSource property
             ItemsControl.itemsSourceProperty = layouts.DepObject.registerProperty(ItemsControl.typeName, "ItemsSource", null, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender);
-            //itemsPanel property
             ItemsControl.itemsPanelProperty = layouts.DepObject.registerProperty(ItemsControl.typeName, "ItemsPanel", null, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender);
             return ItemsControl;
         }(layouts.FrameworkElement));
         controls.ItemsControl = ItemsControl;
     })(controls = layouts.controls || (layouts.controls = {}));
 })(layouts || (layouts = {}));
-/// <reference path="..\DepProperty.ts" />
-/// <reference path="..\DepObject.ts" />
-/// <reference path="..\FrameworkElement.ts" /> 
 var layouts;
 (function (layouts) {
     var controls;
@@ -5351,9 +4872,6 @@ var layouts;
         controls.TextBlock = TextBlock;
     })(controls = layouts.controls || (layouts.controls = {}));
 })(layouts || (layouts = {}));
-/// <reference path="..\DepProperty.ts" />
-/// <reference path="..\DepObject.ts" />
-/// <reference path="TextBlock.ts" /> 
 var layouts;
 (function (layouts) {
     var controls;
@@ -5474,9 +4992,6 @@ var layouts;
         controls.MediaTemplateSelector = MediaTemplateSelector;
     })(controls = layouts.controls || (layouts.controls = {}));
 })(layouts || (layouts = {}));
-/// <reference path="..\DepProperty.ts" />
-/// <reference path="..\DepObject.ts" />
-/// <reference path="..\FrameworkElement.ts" /> 
 var layouts;
 (function (layouts) {
     var controls;
@@ -5800,25 +5315,12 @@ var layouts;
         controls.h5 = h5;
     })(controls = layouts.controls || (layouts.controls = {}));
 })(layouts || (layouts = {}));
-/// <reference path="..\DepProperty.ts" />
-/// <reference path="..\FrameworkElement.ts" /> 
-/// <reference path="Panel.ts" />
 var layouts;
 (function (layouts) {
     var controls;
     (function (controls) {
-        /// <summary>
-        /// Orientation indicates a direction of a control/layout that can exist in a horizontal or vertical state.
-        /// Examples of these elements include: <see cref="Slider" /> and <see cref="Primitives.ScrollBar" />.
-        /// </summary>
         (function (Orientation) {
-            /// <summary>
-            /// Control/Layout should be horizontally oriented.
-            /// </summary>
             Orientation[Orientation["Horizontal"] = 0] = "Horizontal";
-            /// <summary>
-            /// Control/Layout should be vertically oriented.
-            /// </summary>
             Orientation[Orientation["Vertical"] = 1] = "Vertical";
         })(controls.Orientation || (controls.Orientation = {}));
         var Orientation = controls.Orientation;
@@ -5909,9 +5411,6 @@ var layouts;
         controls.Stack = Stack;
     })(controls = layouts.controls || (layouts.controls = {}));
 })(layouts || (layouts = {}));
-/// <reference path="..\DepProperty.ts" />
-/// <reference path="..\DepObject.ts" />
-/// <reference path="..\FrameworkElement.ts" /> 
 var layouts;
 (function (layouts) {
     var controls;
@@ -5955,10 +5454,6 @@ var layouts;
             };
             TextBox.prototype.layoutOverride = function () {
                 _super.prototype.layoutOverride.call(this);
-                //layoutOverride above set style.width and styl.height
-                //at that point browser compute new offsetWidth and offetHeight
-                //we need to reset style.width/height so that textbox don't exceed space
-                //that out parent has reserved for this control
                 if (this.renderSize != null) {
                     this._pElement.style.width = (this.renderSize.width - (this._pElement.offsetWidth - this.renderSize.width)) + "px";
                     this._pElement.style.height = (this.renderSize.height - (this._pElement.offsetHeight - this.renderSize.height)) + "px";
@@ -6041,9 +5536,6 @@ var layouts;
         controls.TextBox = TextBox;
     })(controls = layouts.controls || (layouts.controls = {}));
 })(layouts || (layouts = {}));
-/// <reference path="..\DepProperty.ts" />
-/// <reference path="..\DepObject.ts" />
-/// <reference path="..\FrameworkElement.ts" /> 
 var layouts;
 (function (layouts) {
     var controls;
@@ -6069,16 +5561,9 @@ var layouts;
                 req.onreadystatechange = function (ev) {
                     if (req.readyState == 4 && req.status == 200) {
                         var loader = new layouts.XamlReader();
-                        //loader.namespaceResolver = (ns) => {
-                        //    if (ns == "localViews")
-                        //        return "app.views";
-                        //    return null;
-                        //};
                         _this.setupChild(loader.Parse(req.responseText));
                     }
                 };
-                //req.open("GET", "data/records.txt", true);
-                //app.views.CustomView
                 req.open("GET", this.typeName.replace(/\./gi, '/') + ".xml", true);
                 req.send();
             };
@@ -6160,7 +5645,6 @@ var layouts;
     var EasingFunctions = (function () {
         function EasingFunctions() {
         }
-        // t: current time, b: begInnIng value, c: change In value, d: duration
         EasingFunctions.linearTween = function (t, b, c, d) {
             return c * t / d + b;
         };
@@ -6312,7 +5796,6 @@ var layouts;
             this.elements = elements == null ? new Array() : elements;
         }
         ObservableCollection.prototype.toArray = function () {
-            //return underling item list
             return this.elements;
         };
         ObservableCollection.prototype.add = function (element) {
@@ -6322,8 +5805,6 @@ var layouts;
             var iElement = this.elements.indexOf(element);
             if (iElement == -1) {
                 this.elements.push(element);
-                //make a copy of handlers list before invoke functions
-                //because this.pcHandlers could be modified by user code
                 this.pcHandlers.slice(0).forEach(function (h) {
                     h.onCollectionChanged(_this, [element], [], 0);
                 });
@@ -6338,8 +5819,6 @@ var layouts;
             var iElement = this.elements.indexOf(element);
             if (iElement != -1) {
                 this.elements.splice(iElement, 1);
-                //make a copy of handlers list before invoke functions
-                //because this.pcHandlers could be modified by user code
                 this.pcHandlers.slice(0).forEach(function (h) {
                     h.onCollectionChanged(_this, [], [element], iElement);
                 });
@@ -6364,12 +5843,10 @@ var layouts;
         ObservableCollection.prototype.forEach = function (action) {
             this.elements.forEach(action);
         };
-        //subscribe to collection changes
         ObservableCollection.prototype.onChangeNotify = function (handler) {
             if (this.pcHandlers.indexOf(handler) == -1)
                 this.pcHandlers.push(handler);
         };
-        //unsubscribe from collection changes
         ObservableCollection.prototype.offChangeNotify = function (handler) {
             var index = this.pcHandlers.indexOf(handler, 0);
             if (index != -1) {
@@ -6407,7 +5884,6 @@ var layouts;
     }());
     layouts.Timer = Timer;
 })(layouts || (layouts = {}));
-/// <reference path="IConverter.ts" />
 var layouts;
 (function (layouts) {
     var XamlReader = (function () {
@@ -6433,21 +5909,18 @@ var layouts;
         };
         XamlReader.prototype.Load = function (xamlNode) {
             var _this = this;
-            //resolve namespace to module/typename
             var ns = this.resolveNameSpace(xamlNode.namespaceURI);
             var typeName = ns != null ? ns + "." + xamlNode.localName : xamlNode.localName;
-            //load object
             var containerObject = this.instanceLoader.getInstance(typeName);
             if (containerObject == null)
                 throw new Error("Unable to create instance of '{0}'".format(typeName));
-            //load properties objects defined by xml attributes
             if (xamlNode.attributes != null) {
                 for (var i = 0; i < xamlNode.attributes.length; i++) {
                     var att = xamlNode.attributes[i];
                     var propertyName = att.localName;
                     if (!this.trySetProperty(containerObject, propertyName, this.resolveNameSpace(att.namespaceURI), att.value))
                         if (containerObject["addExtentedProperty"] != null)
-                            containerObject["addExtentedProperty"](propertyName, att.value); //if no property with right name put it in extented properties collection
+                            containerObject["addExtentedProperty"](propertyName, att.value);
                     if (propertyName == "id")
                         this._createdObjectsWithId[att.value] = containerObject;
                 }
@@ -6471,11 +5944,8 @@ var layouts;
                 return containerObject;
             }
             if (children.Count() == 0)
-                return containerObject; //no children
-            //load children or content or items
+                return containerObject;
             if (layouts.Ext.hasProperty(containerObject, "content") || layouts.Ext.hasProperty(containerObject, "child")) {
-                //support direct content...try to set content of container object with first child
-                //skip any other children of lml node
                 var contentPropertyName = layouts.Ext.hasProperty(containerObject, "content") ? "content" : "child";
                 containerObject[contentPropertyName] = this.Load(children.First());
             }
@@ -6490,8 +5960,6 @@ var layouts;
                 if (layouts.Ext.hasProperty(containerObject, "animations"))
                     collectionPropertyName = "animations";
                 if (collectionPropertyName != null) {
-                    //if object has a property called Children or Items
-                    //load all children from children nodes and set property with resulting list
                     var listOfChildren = children.Select(function (childNode) { return _this.Load(childNode); }).ToArray();
                     containerObject[collectionPropertyName] = new layouts.ObservableCollection(listOfChildren);
                 }
@@ -6531,16 +5999,12 @@ var layouts;
             return true;
         };
         XamlReader.prototype.trySetProperty = function (obj, propertyName, propertyNameSpace, value) {
-            //walk up in class hierarchy to find a property with right name
             if (obj == null)
                 return false;
             if (obj instanceof layouts.DepObject) {
-                //if obj is a dependency object look for a dependency property 
                 var depObject = obj;
                 var typeName = depObject["typeName"];
                 var depProperty;
-                //if an attached property find the property on publisher object
-                //for example if Grid.Row-> looks for property Grid#Row in Grid type
                 var indexOfDot = propertyName.indexOf(".");
                 if (indexOfDot > -1) {
                     typeName = propertyNameSpace == null ? propertyName.substr(0, indexOfDot) : propertyNameSpace + "." + propertyName.substr(0, indexOfDot);
@@ -6550,21 +6014,12 @@ var layouts;
                 else
                     depProperty = layouts.DepObject.lookupProperty(depObject, propertyName);
                 if (depProperty != null) {
-                    //ok we have a depProperty and a depObject
-                    //test if value is actually a Binding object
                     var bindingDef = layouts.Ext.isString(value) ? XamlReader.tryParseBinding(value) : null;
                     if (bindingDef != null) {
-                        //here I should check the source of binding (not yet implemented)
-                        //by default if source == DataContext binding just connect to
-                        //"DataContext." + original path and source is depObject itself
                         var converter = bindingDef.converter == null ? null : this.instanceLoader.getInstance(bindingDef.converter);
                         if (converter == null &&
                             bindingDef.converter != null)
                             throw new Error("Unable to create converter from '{0}'".format(bindingDef.converter));
-                        //at moment we'll support only 2 modes:
-                        //1) default -> connect to DataContext
-                        //2) self -> connect to object itself
-                        //3) {element} -> source is an element reference
                         var isDCProperty = depProperty == layouts.FrameworkElement.dataContextProperty;
                         var isElementNameDefined = bindingDef.element != null;
                         var bindingPath = bindingDef.source == "self" || isElementNameDefined ? bindingDef.path :
@@ -6598,7 +6053,6 @@ var layouts;
             return false;
         };
         XamlReader.tryCallMethod = function (obj, methodName, value) {
-            //walk up in class hierarchy to find a property with right name
             if (obj == null)
                 return false;
             if (obj[methodName] != null) {
@@ -6633,8 +6087,6 @@ var layouts;
                     return bindingDef;
                 }
                 catch (e) {
-                    //swallow error here because it could be simply a syntax error
-                    //just signal it on console
                     console.log("[Bindings] Unable to parse '{0}' as binding definition".format(bindingValue));
                 }
             }
@@ -6709,7 +6161,6 @@ var AceView = (function (_super) {
         _super.prototype.onDependencyPropertyChanged.call(this, property, value, oldValue);
     };
     AceView.typeName = "aceEditor";
-    //sourceCode property
     AceView.sourceCodeProperty = layouts.DepObject.registerProperty(AceView.typeName, "SourceCode", null);
     return AceView;
 }(layouts.FrameworkElement));
@@ -6823,7 +6274,7 @@ var CodeView = (function () {
         var loader = new layouts.XamlReader();
         loader.namespaceResolver = function (ns) {
             if (ns == "Layouts.PageEditor")
-                return null; //means empty namespace (AceView is in global/empty namespace)
+                return null;
             return null;
         };
         return loader.Parse(CodeView.PAGE_DEFINITION);
@@ -6927,11 +6378,8 @@ var CodeViewModel = (function (_super) {
         configurable: true
     });
     CodeViewModel.prototype.onSelectItem = function () {
-        //reset selected to null will force layouts to reset main area (Controltemplate)
-        //this.owner.selected = null;
         this.owner.selected = this;
     };
     CodeViewModel.typeName = "codeViewModel";
     return CodeViewModel;
 }(layouts.DepObject));
-//# sourceMappingURL=Layouts.PageEditor.js.map

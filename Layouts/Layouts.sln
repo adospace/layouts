@@ -32,6 +32,7 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Bower", "Bower", "{22ED9F30-A412-4DEC-A1AE-41787C95E2C0}"
 	ProjectSection(SolutionItems) = preProject
 		..\bower.json = ..\bower.json
+		..\layouts.css = ..\layouts.css
 	EndProjectSection
 EndProject
 Global
