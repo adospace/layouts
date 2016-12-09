@@ -11,8 +11,14 @@
   },
   "ignore": [
     "**/.*",
+    "**/*.sln",
+    "**/*.csproj",
+    "**/*.config",
     "cp_article",
-    "Scripts"
+    "Scripts",
+    "bower_components",
+    "Samples",
+    "packages"
   ],
   "keywords": [
     "xaml",
