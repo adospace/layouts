@@ -70,6 +70,7 @@
     <Content Include="cp_article\codeproject_template.htm" />
     <Content Include="cp_article\LayoutsSC.png" />
     <Content Include="cp_article\Readme.txt" />
+    <Content Include="layouts.css" />
     <Content Include="layouts.js" />
     <Content Include="packages.config" />
     <Content Include="cp_article\LayoutsTestApp.zip" />
