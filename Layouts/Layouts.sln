@@ -29,6 +29,11 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Layouts.SlidingPuzzle", "Sa
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Layouts.TestApp", "Samples\Layouts.TestApp\Layouts.TestApp.csproj", "{10508A2D-D35A-49BA-A819-752F1438E203}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Bower", "Bower", "{22ED9F30-A412-4DEC-A1AE-41787C95E2C0}"
+	ProjectSection(SolutionItems) = preProject
+		..\bower.json = ..\bower.json
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU

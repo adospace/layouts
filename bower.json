@@ -2,9 +2,9 @@
   "name": "layouts",
   "description": "Layouts is Javascript/Typescript library that allows web developers build complex UI in HTML5 using a Xaml derived markup.",
   "main": [
-    "layouts.js",
-    "layouts.d.ts",
-    "layouts.js.map"
+    "/Layouts/Layouts/layouts.js",
+    "/Layouts/Layouts/layouts.d.ts",
+    "/Layouts/Layouts/layouts.js.map"
   ],
   "dependencies": {
     "linqjs": "3.0.5"

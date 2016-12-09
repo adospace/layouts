@@ -73,7 +73,6 @@
     <Content Include="layouts.js" />
     <Content Include="packages.config" />
     <Content Include="cp_article\LayoutsTestApp.zip" />
-    <Content Include="bower.json" />
     <None Include="Scripts\linq-vsdoc.js" />
     <Content Include="Scripts\linq.js" />
     <Content Include="Scripts\linq.min.js" />
