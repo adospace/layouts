@@ -18,7 +18,8 @@
     "Scripts",
     "bower_components",
     "Samples",
-    "packages"
+    "packages",
+    "NuGet"
   ],
   "keywords": [
     "xaml",
