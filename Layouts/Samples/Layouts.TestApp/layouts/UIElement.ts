@@ -315,7 +315,7 @@ module layouts {
                 ev.stopPropagation();
                 if (this.autoClosePopup) {
                     document.addEventListener("mouseup", function () {
-                        this.removeEventListener("mouseup", arguments.callee);
+                        this.removeEventListener("mouseup", <EventListenerOrEventListenerObject>arguments.callee);
                         LayoutManager.closePopup(popup);
                     });
                 }

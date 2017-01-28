@@ -82,11 +82,11 @@ module layouts.controls {
             document.body.appendChild(this._popupContainer);
             this._child.attachVisual(this._popupContainer);
 
-            var _this = this;
+            var currentThis = this;
             this._popupContainer.addEventListener("mousedown", function (event) {
-                if (event.target == _this._popupContainer) {
-                    this.removeEventListener("mousedown", arguments.callee);
-                    LayoutManager.closePopup(_this);
+                if (event.target == currentThis._popupContainer) {
+                    this.removeEventListener("mousedown", <EventListenerOrEventListenerObject>arguments.callee);
+                    LayoutManager.closePopup(currentThis);
                 }
             });
         }
