@@ -10,8 +10,8 @@ window.onload = () => {
             <Button.Popup>
                 <Popup Position="Bottom">
                     <Stack class="popup">
-                        <!--TextBlock Text="{title}" Command="{myCommand}" Margin="8"/-->
-                        <TextBlock Text="Menu2" Command="{myCommand}"  IsVisible="{IsEnabled,source:self}" Margin="8"/>
+                        <!--TextBlock Text="{title}" Command="{myCommand}" Margin="8"/ IsVisible="{IsEnabled,source:self}"-->
+                        <TextBlock Text="Menu2" Command="{myCommand}"  Margin="8"/>
                         <TextBlock Text="Menu3" Margin="8"/>
                     </Stack>
                 </Popup>

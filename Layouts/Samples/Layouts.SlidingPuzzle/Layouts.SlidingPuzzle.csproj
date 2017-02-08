@@ -24,12 +24,8 @@
   <ItemGroup>
     <Content Include="app.css" />
     <Content Include="index.html" />
-    <Content Include="packages.config" />
     <Content Include="Scripts\layouts.js.map" />
-    <None Include="Scripts\linq-vsdoc.js" />
     <Content Include="Scripts\layouts.js" />
-    <Content Include="Scripts\linq.js" />
-    <Content Include="Scripts\linq.min.js" />
     <Content Include="web.config" />
   </ItemGroup>
   <ItemGroup>

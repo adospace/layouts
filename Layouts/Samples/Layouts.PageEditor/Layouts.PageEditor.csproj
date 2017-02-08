@@ -22,7 +22,6 @@
     <Content Include="app.css" />
     <Content Include="index.html" />
     <Content Include="packages.config" />
-    <None Include="Scripts\linq-vsdoc.js" />
     <Content Include="Samples.txt" />
     <Content Include="Scripts\ace\src\ace.js" />
     <Content Include="Scripts\ace\src\ext-beautify.js" />
@@ -326,8 +325,6 @@
     <Content Include="Scripts\ace\src\worker-lua.js" />
     <Content Include="Scripts\ace\src\worker-php.js" />
     <Content Include="Scripts\ace\src\worker-xquery.js" />
-    <Content Include="Scripts\linq.js" />
-    <Content Include="Scripts\linq.min.js" />
     <Content Include="web.config" />
   </ItemGroup>
   <ItemGroup>
@@ -447,9 +444,6 @@
     </TypeScriptCompile>
     <TypeScriptCompile Include="..\..\Layouts\layouts\LayoutManager.ts">
       <Link>layouts\LayoutManager.ts</Link>
-    </TypeScriptCompile>
-    <TypeScriptCompile Include="..\..\Layouts\layouts\linq.d.ts">
-      <Link>layouts\linq.d.ts</Link>
     </TypeScriptCompile>
     <TypeScriptCompile Include="..\..\Layouts\layouts\ObservableCollection.ts">
       <Link>layouts\ObservableCollection.ts</Link>

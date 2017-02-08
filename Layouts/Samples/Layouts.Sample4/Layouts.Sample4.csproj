@@ -84,7 +84,6 @@
     <Content Include="Scripts\jquery-2.1.4.js" />
     <Content Include="Scripts\jquery-2.1.4.min.js" />
     <Content Include="Scripts\jquery-2.1.4.min.map" />
-    <None Include="Scripts\linq-vsdoc.js" />
     <Content Include="Scripts\DataTables\dataTables.autoFill.js" />
     <Content Include="Scripts\DataTables\dataTables.autoFill.min.js" />
     <Content Include="Scripts\DataTables\dataTables.bootstrap.js" />
@@ -108,8 +107,6 @@
     <Content Include="Scripts\DataTables\dataTables.tableTools.min.js" />
     <Content Include="Scripts\DataTables\jquery.dataTables.js" />
     <Content Include="Scripts\DataTables\jquery.dataTables.min.js" />
-    <Content Include="Scripts\linq.js" />
-    <Content Include="Scripts\linq.min.js" />
     <Content Include="web.config" />
   </ItemGroup>
   <ItemGroup>
@@ -229,9 +226,6 @@
     </TypeScriptCompile>
     <TypeScriptCompile Include="..\..\Layouts\layouts\LayoutManager.ts">
       <Link>layouts\LayoutManager.ts</Link>
-    </TypeScriptCompile>
-    <TypeScriptCompile Include="..\..\Layouts\layouts\linq.d.ts">
-      <Link>layouts\linq.d.ts</Link>
     </TypeScriptCompile>
     <TypeScriptCompile Include="..\..\Layouts\layouts\ObservableCollection.ts">
       <Link>layouts\ObservableCollection.ts</Link>

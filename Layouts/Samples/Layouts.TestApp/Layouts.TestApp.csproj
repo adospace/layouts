@@ -24,10 +24,6 @@
       <SubType>Designer</SubType>
     </Content>
     <Content Include="index.html" />
-    <Content Include="packages.config" />
-    <None Include="Scripts\linq-vsdoc.js" />
-    <Content Include="Scripts\linq.js" />
-    <Content Include="Scripts\linq.min.js" />
     <Content Include="web.config">
       <SubType>Designer</SubType>
     </Content>
@@ -150,9 +146,6 @@
     <TypeScriptCompile Include="..\..\Layouts\layouts\LayoutManager.ts">
       <Link>layouts\LayoutManager.ts</Link>
     </TypeScriptCompile>
-    <TypeScriptCompile Include="..\..\Layouts\layouts\linq.d.ts">
-      <Link>layouts\linq.d.ts</Link>
-    </TypeScriptCompile>
     <TypeScriptCompile Include="..\..\Layouts\layouts\ObservableCollection.ts">
       <Link>layouts\ObservableCollection.ts</Link>
     </TypeScriptCompile>
@@ -186,6 +179,9 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Scripts\" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">12.0</VisualStudioVersion>

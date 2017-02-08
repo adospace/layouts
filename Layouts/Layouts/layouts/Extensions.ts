@@ -80,6 +80,50 @@ Number.prototype.isGreaterThen = function (other) {
     return (this - other) > 1e-10;
 }
 
+interface Array<T> {
+    firstOrDefault(callback: (item : T, index) => boolean, defaultValue: T): T;
+}
+if (!Array.prototype.firstOrDefault) {
+    Array.prototype.firstOrDefault = function (callback: (item, index) => boolean, defaultValue) {
+        var arrayOfItems = <Array<any>>this;
+        for (var i = 0; i < arrayOfItems.length; ++i) {
+            var item = arrayOfItems[i];
+            if (callback(item, i))
+                return item;
+        }
+
+        return defaultValue;
+    }
+}
+
+interface NodeList {
+    firstOrDefault(callback: (item: Node, index) => boolean, defaultValue: Node): Node;
+    where(callback: (item: Node, index) => boolean): Node[];
+}
+if (!NodeList.prototype.firstOrDefault) {
+    NodeList.prototype.firstOrDefault = function (callback: (item : Node, index) => boolean, defaultValue : Node) {
+        var nodeList = <NodeList>this;
+        for (var i = 0; i < nodeList.length; ++i) {
+            var item = nodeList[i];
+            if (callback(item, i))
+                return item;
+        }
+        return defaultValue;        
+    }
+}
+if (!NodeList.prototype.where) {
+    NodeList.prototype.where = function (callback: (item: Node, index) => boolean) {
+        var nodeList = <NodeList>this;
+        var res = new Array<Node>();
+        for (var i = 0; i < nodeList.length; ++i) {
+            var item = nodeList[i];
+            if (callback(item, i))
+                res.push(item);
+        }
+        return res;
+    }
+}
+
 
 class InstanceLoader {
     constructor(private context: Object) {

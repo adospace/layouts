@@ -222,7 +222,7 @@ module layouts.controls {
                     throw new Error("Unable to get list of elements from itemsSource");
 
                 this._elements =
-                Enumerable.From(elements).Select(item=> {
+                elements.map(item=> {
 
                     var templateForItem = DataTemplate.getTemplateForItem(this._templates.toArray(), item);
                     if (templateForItem == null) {
@@ -232,7 +232,7 @@ module layouts.controls {
                     var newElement = templateForItem.createElement();
                     newElement.setValue(FrameworkElement.dataContextProperty, item);
                     return newElement;
-                }).ToArray();
+                });
             }
 
 

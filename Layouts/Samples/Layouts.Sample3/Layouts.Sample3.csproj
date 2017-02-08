@@ -25,11 +25,7 @@
     <Content Include="Images\Plus Math-32.png" />
     <Content Include="Images\Search-32.png" />
     <Content Include="index.html" />
-    <Content Include="packages.config" />
     <None Include="Sample3.pubxml" />
-    <None Include="Scripts\linq-vsdoc.js" />
-    <Content Include="Scripts\linq.js" />
-    <Content Include="Scripts\linq.min.js" />
     <Content Include="web.config" />
   </ItemGroup>
   <ItemGroup>
@@ -149,9 +145,6 @@
     </TypeScriptCompile>
     <TypeScriptCompile Include="..\..\Layouts\layouts\LayoutManager.ts">
       <Link>layouts\LayoutManager.ts</Link>
-    </TypeScriptCompile>
-    <TypeScriptCompile Include="..\..\Layouts\layouts\linq.d.ts">
-      <Link>layouts\linq.d.ts</Link>
     </TypeScriptCompile>
     <TypeScriptCompile Include="..\..\Layouts\layouts\ObservableCollection.ts">
       <Link>layouts\ObservableCollection.ts</Link>

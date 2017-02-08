@@ -64,7 +64,7 @@ module layouts.controls {
             }
             else if (property == ComboBox.selectedValueProperty) {
                 if (this._selectElement != null && this.selectMember != null && this._elements != null)
-                    this.selectedItem = Enumerable.From(this._elements).FirstOrDefault(null, _=> _[this.selectMember] == value);
+                    this.selectedItem = this._elements.firstOrDefault(_=> _[this.selectMember] == value, null);
             }
 
             super.onDependencyPropertyChanged(property, value, oldValue);
@@ -102,7 +102,7 @@ module layouts.controls {
                 var selectedItem = this.selectedItem;
                 if (this.selectMember != null) {
                     var selectedValue = this.selectedValue;
-                    selectedItem = Enumerable.From(this._elements).FirstOrDefault(null, _=> _[this.selectMember] == selectedValue);
+                    selectedItem = this._elements.firstOrDefault(_=> _[this.selectMember] == selectedValue, null);
                 }
 
                 this._selectElement.selectedIndex = selectedItem == null ? -1 : this._elements.indexOf(selectedItem);

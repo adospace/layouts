@@ -35,7 +35,7 @@ module layouts.controls {
 
             value = value.trim();
             var tokens = value.split(" ");
-            return Enumerable.From(tokens).Select((token) => {
+            return tokens.map((token) => {
                 token = token.trim();
                 if (token.length == 0)
                     return;
@@ -69,7 +69,7 @@ module layouts.controls {
                         length: GridLength.fromString(token)
                     };
                 }
-            }).ToArray();
+            });
         }
 
         static fromString(value:string): GridLength {

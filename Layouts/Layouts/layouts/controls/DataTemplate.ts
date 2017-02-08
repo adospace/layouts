@@ -29,7 +29,7 @@
                 return null;
 
             var foundTemplate =
-                Enumerable.From(templates).FirstOrDefault(null, template => {
+                templates.firstOrDefault(template => {
                     if (name != null &&
                         template.name != null &&
                         template.name.toLowerCase() == name.toLowerCase())
@@ -57,12 +57,12 @@
                         return true;
 
                     return false;
-                });
+                }, null);
 
             if (foundTemplate != null)
                 return foundTemplate;
 
-            return Enumerable.From(templates).FirstOrDefault(null, dt => dt.targetType == null);
+            return templates.firstOrDefault(dt => dt.targetType == null, null);
         }
 
         public static getTemplateForMedia(templates: DataTemplate[]): DataTemplate {
@@ -71,19 +71,19 @@
                 return null;
 
             var foundTemplate =
-                Enumerable.From(templates).FirstOrDefault(null, template => {
+                templates.firstOrDefault(template => {
                     if (template.media == null ||
                         template.media.trim().length == 0) {
                         return true;
                     }
 
                     return window.matchMedia(template.media).matches;
-                });
+                }, null);
 
             if (foundTemplate != null)
                 return foundTemplate;
 
-            return Enumerable.From(templates).FirstOrDefault(null, dt => dt.targetType == null);
+            return templates.firstOrDefault(dt => dt.targetType == null, null);
         }
 
 

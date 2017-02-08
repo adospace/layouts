@@ -24,6 +24,13 @@ interface Number {
     isCloseTo(other: number): boolean;
     minMax(min: number, max: number): any;
 }
+interface Array<T> {
+    firstOrDefault(callback: (item: T, index) => boolean, defaultValue: T): T;
+}
+interface NodeList {
+    firstOrDefault(callback: (item: Node, index) => boolean, defaultValue: Node): Node;
+    where(callback: (item: Node, index) => boolean): Node[];
+}
 declare class InstanceLoader {
     private context;
     constructor(context: Object);

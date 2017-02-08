@@ -154,8 +154,7 @@ module layouts {
         }
 
         public map(uri: string, mappedUri: string) : UriMapping {
-            var mappings = Enumerable.From(this._mappings);
-            var uriMapping = mappings.FirstOrDefault(null, (m) => m.uri == uri);
+            var uriMapping = this._mappings.firstOrDefault((m) => m.uri == uri, null);
             if (uriMapping == null) {
                 uriMapping = new UriMapping(uri, mappedUri);
                 this._mappings.push(uriMapping);   
@@ -184,8 +183,7 @@ module layouts {
             if (this._currentUri == uri)
                 return true;
 
-            var mappings = Enumerable.From(this._mappings);
-            var uriMapping = mappings.FirstOrDefault(null, (m) => m.test(uri));
+            var uriMapping = this._mappings.firstOrDefault((m) => m.test(uri), null);
 
             if (uriMapping != null) {
                 var queryString = uriMapping.resolve(uri);

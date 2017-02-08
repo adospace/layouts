@@ -68,6 +68,40 @@ Number.prototype.isLessThen = function (other) {
 Number.prototype.isGreaterThen = function (other) {
     return (this - other) > 1e-10;
 };
+if (!Array.prototype.firstOrDefault) {
+    Array.prototype.firstOrDefault = function (callback, defaultValue) {
+        var arrayOfItems = this;
+        for (var i = 0; i < arrayOfItems.length; ++i) {
+            var item = arrayOfItems[i];
+            if (callback(item, i))
+                return item;
+        }
+        return defaultValue;
+    };
+}
+if (!NodeList.prototype.firstOrDefault) {
+    NodeList.prototype.firstOrDefault = function (callback, defaultValue) {
+        var nodeList = this;
+        for (var i = 0; i < nodeList.length; ++i) {
+            var item = nodeList[i];
+            if (callback(item, i))
+                return item;
+        }
+        return defaultValue;
+    };
+}
+if (!NodeList.prototype.where) {
+    NodeList.prototype.where = function (callback) {
+        var nodeList = this;
+        var res = new Array();
+        for (var i = 0; i < nodeList.length; ++i) {
+            var item = nodeList[i];
+            if (callback(item, i))
+                res.push(item);
+        }
+        return res;
+    };
+}
 var InstanceLoader = (function () {
     function InstanceLoader(context) {
         this.context = context;
@@ -2153,8 +2187,7 @@ var layouts;
             configurable: true
         });
         Application.prototype.map = function (uri, mappedUri) {
-            var mappings = Enumerable.From(this._mappings);
-            var uriMapping = mappings.FirstOrDefault(null, function (m) { return m.uri == uri; });
+            var uriMapping = this._mappings.firstOrDefault(function (m) { return m.uri == uri; }, null);
             if (uriMapping == null) {
                 uriMapping = new UriMapping(uri, mappedUri);
                 this._mappings.push(uriMapping);
@@ -2169,8 +2202,7 @@ var layouts;
             }
             if (this._currentUri == uri)
                 return true;
-            var mappings = Enumerable.From(this._mappings);
-            var uriMapping = mappings.FirstOrDefault(null, function (m) { return m.test(uri); });
+            var uriMapping = this._mappings.firstOrDefault(function (m) { return m.test(uri); }, null);
             if (uriMapping != null) {
                 var queryString = uriMapping.resolve(uri);
                 //if (this._currentNavigationitem != null) {
@@ -3047,7 +3079,7 @@ var layouts;
                 }
                 else if (property == ComboBox.selectedValueProperty) {
                     if (this._selectElement != null && this.selectMember != null && this._elements != null)
-                        this.selectedItem = Enumerable.From(this._elements).FirstOrDefault(null, function (_) { return _[_this.selectMember] == value; });
+                        this.selectedItem = this._elements.firstOrDefault(function (_) { return _[_this.selectMember] == value; }, null);
                 }
                 _super.prototype.onDependencyPropertyChanged.call(this, property, value, oldValue);
             };
@@ -3078,7 +3110,7 @@ var layouts;
                     var selectedItem = this.selectedItem;
                     if (this.selectMember != null) {
                         var selectedValue = this.selectedValue;
-                        selectedItem = Enumerable.From(this._elements).FirstOrDefault(null, function (_) { return _[_this.selectMember] == selectedValue; });
+                        selectedItem = this._elements.firstOrDefault(function (_) { return _[_this.selectMember] == selectedValue; }, null);
                     }
                     this._selectElement.selectedIndex = selectedItem == null ? -1 : this._elements.indexOf(selectedItem);
                 }
@@ -3531,7 +3563,7 @@ var layouts;
                 if (templates == null ||
                     templates.length == 0)
                     return null;
-                var foundTemplate = Enumerable.From(templates).FirstOrDefault(null, function (template) {
+                var foundTemplate = templates.firstOrDefault(function (template) {
                     if (name != null &&
                         template.name != null &&
                         template.name.toLowerCase() == name.toLowerCase())
@@ -3554,25 +3586,25 @@ var layouts;
                         template.targetType.toLowerCase() == typeName.toLowerCase())
                         return true;
                     return false;
-                });
+                }, null);
                 if (foundTemplate != null)
                     return foundTemplate;
-                return Enumerable.From(templates).FirstOrDefault(null, function (dt) { return dt.targetType == null; });
+                return templates.firstOrDefault(function (dt) { return dt.targetType == null; }, null);
             };
             DataTemplate.getTemplateForMedia = function (templates) {
                 if (templates == null ||
                     templates.length == 0)
                     return null;
-                var foundTemplate = Enumerable.From(templates).FirstOrDefault(null, function (template) {
+                var foundTemplate = templates.firstOrDefault(function (template) {
                     if (template.media == null ||
                         template.media.trim().length == 0) {
                         return true;
                     }
                     return window.matchMedia(template.media).matches;
-                });
+                }, null);
                 if (foundTemplate != null)
                     return foundTemplate;
-                return Enumerable.From(templates).FirstOrDefault(null, function (dt) { return dt.targetType == null; });
+                return templates.firstOrDefault(function (dt) { return dt.targetType == null; }, null);
             };
             Object.defineProperty(DataTemplate.prototype, "targetType", {
                 get: function () {
@@ -3724,7 +3756,7 @@ var layouts;
                 //TODO: use a regex instead
                 value = value.trim();
                 var tokens = value.split(" ");
-                return Enumerable.From(tokens).Select(function (token) {
+                return tokens.map(function (token) {
                     token = token.trim();
                     if (token.length == 0)
                         return;
@@ -3757,7 +3789,7 @@ var layouts;
                             length: GridLength.fromString(token)
                         };
                     }
-                }).ToArray();
+                });
             };
             GridLength.fromString = function (value) {
                 if (value == "Auto")
@@ -5216,7 +5248,7 @@ var layouts;
                     if (elements == null)
                         throw new Error("Unable to get list of elements from itemsSource");
                     this._elements =
-                        Enumerable.From(elements).Select(function (item) {
+                        elements.map(function (item) {
                             var templateForItem = controls.DataTemplate.getTemplateForItem(_this._templates.toArray(), item);
                             if (templateForItem == null) {
                                 throw new Error("Unable to find a valid template for item");
@@ -5224,7 +5256,7 @@ var layouts;
                             var newElement = templateForItem.createElement();
                             newElement.setValue(layouts.FrameworkElement.dataContextProperty, item);
                             return newElement;
-                        }).ToArray();
+                        });
                 }
                 if (this._elements != null) {
                     if (this.itemsPanel == null) {
@@ -6511,32 +6543,42 @@ var layouts;
                         this._createdObjectsWithId[att.value] = containerObject;
                 }
             }
-            var childrenProperties = Enumerable.From(xamlNode.childNodes).Where(function (_) { return _.nodeType == 1 && _.localName.indexOf(".") > -1; });
-            childrenProperties.ForEach(function (childNode) {
+            //var childrenProperties = Enumerable.From(xamlNode.childNodes).Where(_=> _.nodeType == 1 && _.localName.indexOf(".") > -1);
+            //childrenProperties.ForEach(childNode => {
+            //    var indexOfDot = childNode.localName.indexOf(".");
+            //    if (childNode.localName.substr(0, indexOfDot) == xamlNode.localName) {
+            //        let propertyName = childNode.localName.substr(indexOfDot + 1);
+            //        let childOfChild = Enumerable.From(childNode.childNodes).FirstOrDefault(null, _=> _.nodeType == 1);
+            //        let valueToSet = childOfChild == null ? null : this.Load(childOfChild);
+            //        this.trySetProperty(containerObject, propertyName, this.resolveNameSpace(childNode.namespaceURI), valueToSet);
+            //    }
+            //});
+            var childrenProperties = xamlNode.childNodes.where(function (_) { return _.nodeType == 1 && _.localName.indexOf(".") > -1; });
+            childrenProperties.forEach(function (childNode) {
                 var indexOfDot = childNode.localName.indexOf(".");
                 if (childNode.localName.substr(0, indexOfDot) == xamlNode.localName) {
                     var propertyName = childNode.localName.substr(indexOfDot + 1);
-                    var childOfChild = Enumerable.From(childNode.childNodes).FirstOrDefault(null, function (_) { return _.nodeType == 1; });
+                    var childOfChild = childNode.childNodes.firstOrDefault(function (_) { return _.nodeType == 1; }, null);
                     var valueToSet = childOfChild == null ? null : _this.Load(childOfChild);
                     _this.trySetProperty(containerObject, propertyName, _this.resolveNameSpace(childNode.namespaceURI), valueToSet);
                 }
             });
-            var children = Enumerable.From(xamlNode.childNodes).Where(function (_) { return _.nodeType == 1 && _.localName.indexOf(".") == -1; });
+            var children = xamlNode.childNodes.where(function (_) { return _.nodeType == 1 && _.localName.indexOf(".") == -1; });
             if (containerObject["setInnerXaml"] != null) {
-                if (children.Count() > 0)
-                    containerObject["setInnerXaml"]((new XMLSerializer()).serializeToString(children.ToArray()[0]));
+                if (children.length > 0)
+                    containerObject["setInnerXaml"]((new XMLSerializer()).serializeToString(children[0]));
                 if (containerObject["setXamlLoader"] != null)
                     containerObject["setXamlLoader"](this);
                 return containerObject;
             }
-            if (children.Count() == 0)
+            if (children.length == 0)
                 return containerObject; //no children
             //load children or content or items
             if (layouts.Ext.hasProperty(containerObject, "content") || layouts.Ext.hasProperty(containerObject, "child")) {
                 //support direct content...try to set content of container object with first child
                 //skip any other children of lml node
                 var contentPropertyName = layouts.Ext.hasProperty(containerObject, "content") ? "content" : "child";
-                containerObject[contentPropertyName] = this.Load(children.First());
+                containerObject[contentPropertyName] = this.Load(children[0]);
             }
             else {
                 var collectionPropertyName = null;
@@ -6551,7 +6593,7 @@ var layouts;
                 if (collectionPropertyName != null) {
                     //if object has a property called Children or Items
                     //load all children from children nodes and set property with resulting list
-                    var listOfChildren = children.Select(function (childNode) { return _this.Load(childNode); }).ToArray();
+                    var listOfChildren = children.map(function (childNode) { return _this.Load(childNode); });
                     containerObject[collectionPropertyName] = new layouts.ObservableCollection(listOfChildren);
                 }
             }
@@ -6575,15 +6617,13 @@ var layouts;
                     attLeft.value != attRight.value)
                     return false;
             }
-            var childrenLeft = Enumerable.From(nodeLeft.childNodes).Where(function (_) { return _.nodeType == 1; });
-            var childrenRight = Enumerable.From(nodeRight.childNodes).Where(function (_) { return _.nodeType == 1; });
-            if (childrenLeft.Count() != childrenRight.Count())
+            var childrenLeft = nodeLeft.childNodes.where(function (_) { return _.nodeType == 1; });
+            var childrenRight = nodeRight.childNodes.where(function (_) { return _.nodeType == 1; });
+            if (childrenLeft.length != childrenRight.length)
                 return false;
-            var arrayOfChildrenLeft = childrenLeft.ToArray();
-            var arrayOfChildrenRight = childrenRight.ToArray();
-            for (var i = 0; i < childrenLeft.Count(); i++) {
-                var childNodeLeft = arrayOfChildrenLeft[i];
-                var childNodeRight = arrayOfChildrenRight[i];
+            for (var i = 0; i < childrenLeft.length; i++) {
+                var childNodeLeft = childrenLeft[i];
+                var childNodeRight = childrenRight[i];
                 if (!XamlReader.compareXml(childNodeLeft, childNodeRight))
                     return false;
             }

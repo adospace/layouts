@@ -59,29 +59,41 @@ module layouts {
                 }
             }
 
-            var childrenProperties = Enumerable.From(xamlNode.childNodes).Where(_=> _.nodeType == 1 && _.localName.indexOf(".") > -1);
+            //var childrenProperties = Enumerable.From(xamlNode.childNodes).Where(_=> _.nodeType == 1 && _.localName.indexOf(".") > -1);
 
-            childrenProperties.ForEach(childNode => {
+            //childrenProperties.ForEach(childNode => {
+            //    var indexOfDot = childNode.localName.indexOf(".");
+            //    if (childNode.localName.substr(0, indexOfDot) == xamlNode.localName) {
+            //        let propertyName = childNode.localName.substr(indexOfDot + 1);
+            //        let childOfChild = Enumerable.From(childNode.childNodes).FirstOrDefault(null, _=> _.nodeType == 1);
+            //        let valueToSet = childOfChild == null ? null : this.Load(childOfChild);
+            //        this.trySetProperty(containerObject, propertyName, this.resolveNameSpace(childNode.namespaceURI), valueToSet);
+            //    }
+            //});
+
+            var childrenProperties = xamlNode.childNodes.where(_ => _.nodeType == 1 && _.localName.indexOf(".") > -1);
+
+            childrenProperties.forEach(childNode => {
                 var indexOfDot = childNode.localName.indexOf(".");
                 if (childNode.localName.substr(0, indexOfDot) == xamlNode.localName) {
                     let propertyName = childNode.localName.substr(indexOfDot + 1);
-                    let childOfChild = Enumerable.From(childNode.childNodes).FirstOrDefault(null, _=> _.nodeType == 1);
+                    let childOfChild = childNode.childNodes.firstOrDefault(_ => _.nodeType == 1, null);
                     let valueToSet = childOfChild == null ? null : this.Load(childOfChild);
                     this.trySetProperty(containerObject, propertyName, this.resolveNameSpace(childNode.namespaceURI), valueToSet);
                 }
             });
 
-            var children = Enumerable.From(xamlNode.childNodes).Where(_=> _.nodeType == 1 && _.localName.indexOf(".") == -1);
+            var children = xamlNode.childNodes.where(_=> _.nodeType == 1 && _.localName.indexOf(".") == -1);
 
             if (containerObject["setInnerXaml"] != null) {
-                if (children.Count() > 0)
-                    containerObject["setInnerXaml"]((new XMLSerializer()).serializeToString(children.ToArray()[0]));
+                if (children.length > 0)
+                    containerObject["setInnerXaml"]((new XMLSerializer()).serializeToString(children[0]));
                 if (containerObject["setXamlLoader"] != null)
                     containerObject["setXamlLoader"](this);
                 return containerObject;
             }
 
-            if (children.Count() == 0)
+            if (children.length == 0)
                 return containerObject;//no children
 
             //load children or content or items
@@ -89,7 +101,7 @@ module layouts {
                 //support direct content...try to set content of container object with first child
                 //skip any other children of lml node
                 var contentPropertyName = Ext.hasProperty(containerObject, "content") ? "content" : "child";
-                containerObject[contentPropertyName] = this.Load(children.First());
+                containerObject[contentPropertyName] = this.Load(children[0]);
             }
             else {
 
@@ -106,7 +118,7 @@ module layouts {
                 if (collectionPropertyName != null) {
                     //if object has a property called Children or Items
                     //load all children from children nodes and set property with resulting list
-                    var listOfChildren = children.Select(childNode => this.Load(childNode)).ToArray();
+                    var listOfChildren = children.map(childNode => this.Load(childNode));
 
                     containerObject[collectionPropertyName] = new ObservableCollection(listOfChildren);
                 }
@@ -135,18 +147,15 @@ module layouts {
             }
 
             
-            var childrenLeft = Enumerable.From(nodeLeft.childNodes).Where(_=> _.nodeType == 1);
-            var childrenRight = Enumerable.From(nodeRight.childNodes).Where(_=> _.nodeType == 1);
+            var childrenLeft = nodeLeft.childNodes.where(_=> _.nodeType == 1);
+            var childrenRight = nodeRight.childNodes.where(_=> _.nodeType == 1);
 
-            if (childrenLeft.Count() != childrenRight.Count())
+            if (childrenLeft.length != childrenRight.length)
                 return false;
 
-            var arrayOfChildrenLeft = childrenLeft.ToArray();
-            var arrayOfChildrenRight = childrenRight.ToArray();
-
-            for (var i = 0; i < childrenLeft.Count(); i++) {
-                var childNodeLeft = arrayOfChildrenLeft[i];
-                var childNodeRight = arrayOfChildrenRight[i];
+            for (var i = 0; i < childrenLeft.length; i++) {
+                var childNodeLeft = childrenLeft[i];
+                var childNodeRight = childrenRight[i];
                 if (!XamlReader.compareXml(childNodeLeft, childNodeRight))
                     return false;
             }
