@@ -9,10 +9,12 @@ module layouts.controls {
             return Label.typeName;
         }
 
+        private _label: HTMLLabelElement;
+
         protected createElement(elementContainer: HTMLElement): HTMLElement {
-            var label = document.createElement("label");
-            label.htmlFor = this.htmlFor;
-            return label;
+            this._label = document.createElement("label");
+            this._label.htmlFor = this.htmlFor;
+            return this._label;
         }
 
 
@@ -24,6 +26,12 @@ module layouts.controls {
             this.setValue(Label.htmlForProperty, value);
         }
 
+        protected onDependencyPropertyChanged(property: DepProperty, value: any, oldValue: any) {
+            if (property == Label.htmlForProperty) {
+                this._label.htmlFor = this.htmlFor;
+            }
 
+            super.onDependencyPropertyChanged(property, value, oldValue);
+        }
     }
 }
