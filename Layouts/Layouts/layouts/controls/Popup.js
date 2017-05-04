@@ -7,6 +7,7 @@ var layouts;
 (function (layouts) {
     var controls;
     (function (controls) {
+        var PopupPosition;
         (function (PopupPosition) {
             PopupPosition[PopupPosition["Center"] = 0] = "Center";
             PopupPosition[PopupPosition["Left"] = 1] = "Left";
@@ -21,12 +22,11 @@ var layouts;
             PopupPosition[PopupPosition["Bottom"] = 10] = "Bottom";
             PopupPosition[PopupPosition["BottomLeft"] = 11] = "BottomLeft";
             PopupPosition[PopupPosition["BottomRight"] = 12] = "BottomRight";
-        })(controls.PopupPosition || (controls.PopupPosition = {}));
-        var PopupPosition = controls.PopupPosition;
+        })(PopupPosition = controls.PopupPosition || (controls.PopupPosition = {}));
         var Popup = (function (_super) {
             __extends(Popup, _super);
             function Popup() {
-                _super.call(this);
+                return _super.call(this) || this;
             }
             Object.defineProperty(Popup.prototype, "typeName", {
                 get: function () {
@@ -84,11 +84,11 @@ var layouts;
                     this._popupContainer.className = this.cssClass;
                 document.body.appendChild(this._popupContainer);
                 this._child.attachVisual(this._popupContainer);
-                var _this = this;
+                var currentThis = this;
                 this._popupContainer.addEventListener("mousedown", function (event) {
-                    if (event.target == _this._popupContainer) {
+                    if (event.target == currentThis._popupContainer) {
                         this.removeEventListener("mousedown", arguments.callee);
-                        layouts.LayoutManager.closePopup(_this);
+                        layouts.LayoutManager.closePopup(currentThis);
                     }
                 });
             };
@@ -148,12 +148,12 @@ var layouts;
                 enumerable: true,
                 configurable: true
             });
-            Popup.typeName = "layouts.controls.Popup";
-            Popup._init = Popup.initProperties();
-            Popup.sizeToContentProperty = layouts.DepObject.registerProperty(Popup.typeName, "SizeToContent", layouts.SizeToContent.Both, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender, function (v) { return layouts.SizeToContent[String(v)]; });
-            Popup.positionProperty = layouts.DepObject.registerProperty(Popup.typeName, "Position", PopupPosition.Center, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender, function (v) { return PopupPosition[String(v)]; });
             return Popup;
         }(layouts.FrameworkElement));
+        Popup.typeName = "layouts.controls.Popup";
+        Popup._init = Popup.initProperties();
+        Popup.sizeToContentProperty = layouts.DepObject.registerProperty(Popup.typeName, "SizeToContent", layouts.SizeToContent.Both, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender, function (v) { return layouts.SizeToContent[String(v)]; });
+        Popup.positionProperty = layouts.DepObject.registerProperty(Popup.typeName, "Position", PopupPosition.Center, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender, function (v) { return PopupPosition[String(v)]; });
         controls.Popup = Popup;
     })(controls = layouts.controls || (layouts.controls = {}));
 })(layouts || (layouts = {}));

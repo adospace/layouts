@@ -23,8 +23,9 @@ var layouts;
         var Page = (function (_super) {
             __extends(Page, _super);
             function Page() {
-                _super.apply(this, arguments);
-                this.cachePage = false;
+                var _this = _super.apply(this, arguments) || this;
+                _this.cachePage = false;
+                return _this;
             }
             Object.defineProperty(Page.prototype, "typeName", {
                 get: function () {
@@ -116,11 +117,11 @@ var layouts;
             });
             Page.prototype.onNavigate = function (context) {
             };
-            Page.typeName = "layouts.controls.Page";
-            Page.childProperty = layouts.DepObject.registerProperty(Page.typeName, "Child", null, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender);
-            Page.sizeToContentProperty = layouts.DepObject.registerProperty(Page.typeName, "SizeToContent", layouts.SizeToContent.None, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender, function (v) { return layouts.SizeToContent[String(v)]; });
             return Page;
         }(layouts.FrameworkElement));
+        Page.typeName = "layouts.controls.Page";
+        Page.childProperty = layouts.DepObject.registerProperty(Page.typeName, "Child", null, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender);
+        Page.sizeToContentProperty = layouts.DepObject.registerProperty(Page.typeName, "SizeToContent", layouts.SizeToContent.None, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender, function (v) { return layouts.SizeToContent[String(v)]; });
         controls.Page = Page;
     })(controls = layouts.controls || (layouts.controls = {}));
 })(layouts || (layouts = {}));

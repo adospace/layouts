@@ -53,9 +53,9 @@ var layouts;
             }
             return result;
         };
-        UriMapping._rxMapping = new RegExp("\{([\w\d_&$]+)\}", "gi");
         return UriMapping;
     }());
+    UriMapping._rxMapping = new RegExp("\{([\w\d_&$]+)\}", "gi");
     layouts.UriMapping = UriMapping;
     var NavigationItem = (function () {
         function NavigationItem(uri) {
@@ -132,8 +132,7 @@ var layouts;
             configurable: true
         });
         Application.prototype.map = function (uri, mappedUri) {
-            var mappings = Enumerable.From(this._mappings);
-            var uriMapping = mappings.FirstOrDefault(null, function (m) { return m.uri == uri; });
+            var uriMapping = this._mappings.firstOrDefault(function (m) { return m.uri == uri; }, null);
             if (uriMapping == null) {
                 uriMapping = new UriMapping(uri, mappedUri);
                 this._mappings.push(uriMapping);
@@ -148,8 +147,7 @@ var layouts;
             }
             if (this._currentUri == uri)
                 return true;
-            var mappings = Enumerable.From(this._mappings);
-            var uriMapping = mappings.FirstOrDefault(null, function (m) { return m.test(uri); });
+            var uriMapping = this._mappings.firstOrDefault(function (m) { return m.test(uri); }, null);
             if (uriMapping != null) {
                 var queryString = uriMapping.resolve(uri);
                 var previousPage = this.page;
@@ -198,8 +196,8 @@ var layouts;
         Application.prototype.hashChanged = function (hash) {
             this.navigate(hash.slice(1));
         };
-        Application._beginInvokeActions = [];
         return Application;
     }());
+    Application._beginInvokeActions = [];
     layouts.Application = Application;
 })(layouts || (layouts = {}));

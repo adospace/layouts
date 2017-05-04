@@ -8,9 +8,10 @@ var app;
     var Page1ViewModel = (function (_super) {
         __extends(Page1ViewModel, _super);
         function Page1ViewModel(view, username) {
-            _super.call(this);
-            this.view = view;
-            this._username = username;
+            var _this = _super.call(this) || this;
+            _this.view = view;
+            _this._username = username;
+            return _this;
         }
         Object.defineProperty(Page1ViewModel.prototype, "typeName", {
             get: function () {
@@ -54,8 +55,8 @@ var app;
         Page1ViewModel.prototype.onGotoPage2 = function () {
             layouts.Application.current.navigate("/Page2/" + this.parameter);
         };
-        Page1ViewModel.typeName = "app.Page1ViewModel";
         return Page1ViewModel;
     }(layouts.DepObject));
+    Page1ViewModel.typeName = "app.Page1ViewModel";
     app.Page1ViewModel = Page1ViewModel;
 })(app || (app = {}));

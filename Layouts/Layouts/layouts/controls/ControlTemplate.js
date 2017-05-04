@@ -10,7 +10,7 @@ var layouts;
         var ControlTemplate = (function (_super) {
             __extends(ControlTemplate, _super);
             function ControlTemplate() {
-                _super.apply(this, arguments);
+                return _super.apply(this, arguments) || this;
             }
             Object.defineProperty(ControlTemplate.prototype, "typeName", {
                 get: function () {
@@ -78,10 +78,10 @@ var layouts;
                 enumerable: true,
                 configurable: true
             });
-            ControlTemplate.typeName = "layouts.controls.ControlTemplate";
-            ControlTemplate.contentProperty = layouts.DepObject.registerProperty(ControlTemplate.typeName, "Content", null, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender);
             return ControlTemplate;
         }(layouts.FrameworkElement));
+        ControlTemplate.typeName = "layouts.controls.ControlTemplate";
+        ControlTemplate.contentProperty = layouts.DepObject.registerProperty(ControlTemplate.typeName, "Content", null, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender);
         controls.ControlTemplate = ControlTemplate;
     })(controls = layouts.controls || (layouts.controls = {}));
 })(layouts || (layouts = {}));

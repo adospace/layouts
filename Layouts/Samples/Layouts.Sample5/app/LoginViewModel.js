@@ -8,8 +8,9 @@ var app;
     var LoginViewModel = (function (_super) {
         __extends(LoginViewModel, _super);
         function LoginViewModel(view) {
-            _super.call(this);
-            this.view = view;
+            var _this = _super.call(this) || this;
+            _this.view = view;
+            return _this;
         }
         Object.defineProperty(LoginViewModel.prototype, "typeName", {
             get: function () {
@@ -74,8 +75,8 @@ var app;
             return this._username != null && this._username.trim().length > 0 &&
                 this._password != null && this._password.trim().length > 0;
         };
-        LoginViewModel.typeName = "app.LoginViewModel";
         return LoginViewModel;
     }(layouts.DepObject));
+    LoginViewModel.typeName = "app.LoginViewModel";
     app.LoginViewModel = LoginViewModel;
 })(app || (app = {}));

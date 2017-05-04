@@ -6,8 +6,9 @@ var __extends = (this && this.__extends) || function (d, b) {
 var TestViewModel = (function (_super) {
     __extends(TestViewModel, _super);
     function TestViewModel() {
-        _super.apply(this, arguments);
-        this._cmdEnabled = true;
+        var _this = _super.apply(this, arguments) || this;
+        _this._cmdEnabled = true;
+        return _this;
     }
     Object.defineProperty(TestViewModel.prototype, "typeName", {
         get: function () {
@@ -51,6 +52,6 @@ var TestViewModel = (function (_super) {
         enumerable: true,
         configurable: true
     });
-    TestViewModel.typeName = "TestViewModel";
     return TestViewModel;
 }(layouts.DepObject));
+TestViewModel.typeName = "TestViewModel";

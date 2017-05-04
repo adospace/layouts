@@ -8,9 +8,10 @@ var app;
     var Page1 = (function (_super) {
         __extends(Page1, _super);
         function Page1() {
-            _super.call(this);
-            this.initializeComponent();
-            this.cachePage = true;
+            var _this = _super.call(this) || this;
+            _this.initializeComponent();
+            _this.cachePage = true;
+            return _this;
         }
         Object.defineProperty(Page1.prototype, "typeName", {
             get: function () {
@@ -33,8 +34,8 @@ var app;
         Page1.prototype.onNavigate = function (context) {
             this.dataContext = new app.Page1ViewModel(this, context.queryString["user"]);
         };
-        Page1.typeName = "app.Page1";
         return Page1;
     }(layouts.controls.Page));
+    Page1.typeName = "app.Page1";
     app.Page1 = Page1;
 })(app || (app = {}));

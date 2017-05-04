@@ -10,7 +10,7 @@ var layouts;
         var UserControl = (function (_super) {
             __extends(UserControl, _super);
             function UserControl() {
-                _super.apply(this, arguments);
+                return _super.apply(this, arguments) || this;
             }
             Object.defineProperty(UserControl.prototype, "typeName", {
                 get: function () {
@@ -101,9 +101,9 @@ var layouts;
                     child.layout(childOffset);
                 }
             };
-            UserControl.typeName = "layouts.controls.UserControl";
             return UserControl;
         }(layouts.FrameworkElement));
+        UserControl.typeName = "layouts.controls.UserControl";
         controls.UserControl = UserControl;
     })(controls = layouts.controls || (layouts.controls = {}));
 })(layouts || (layouts = {}));

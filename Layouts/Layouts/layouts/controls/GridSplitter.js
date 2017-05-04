@@ -10,14 +10,13 @@ var layouts;
         var GridSplitter = (function (_super) {
             __extends(GridSplitter, _super);
             function GridSplitter() {
-                var _this = this;
-                _super.call(this);
-                this._draggingCurrentPoint = new layouts.Vector();
-                this._draggingStartPoint = new layouts.Vector();
-                this._draggingVirtualOffset = new layouts.Vector();
-                this._draggingVirtualOffsetMin = new layouts.Vector();
-                this._draggingVirtualOffsetMax = new layouts.Vector();
-                this.onSplitterMouseMove = function (ev) {
+                var _this = _super.call(this) || this;
+                _this._draggingCurrentPoint = new layouts.Vector();
+                _this._draggingStartPoint = new layouts.Vector();
+                _this._draggingVirtualOffset = new layouts.Vector();
+                _this._draggingVirtualOffsetMin = new layouts.Vector();
+                _this._draggingVirtualOffsetMax = new layouts.Vector();
+                _this.onSplitterMouseMove = function (ev) {
                     if (ev.buttons == 0) {
                         document.removeEventListener("mousemove", _this.onSplitterMouseMove, false);
                         document.removeEventListener("mouseup", _this.onSplitterMouseUp, false);
@@ -26,7 +25,7 @@ var layouts;
                         _this.moveGhost(ev);
                     ev.stopPropagation();
                 };
-                this.onSplitterMouseUp = function (ev) {
+                _this.onSplitterMouseUp = function (ev) {
                     _this.moveGhost(ev);
                     _this.dragSplitter(_this._draggingCurrentPoint.x, _this._draggingCurrentPoint.y);
                     document.removeEventListener("mousemove", _this.onSplitterMouseMove, false);
@@ -34,6 +33,7 @@ var layouts;
                     ev.stopPropagation();
                 };
                 layouts.FrameworkElement.classProperty.overrideDefaultValue(GridSplitter.typeName, "gridSplitter");
+                return _this;
             }
             Object.defineProperty(GridSplitter.prototype, "typeName", {
                 get: function () {
@@ -386,9 +386,9 @@ var layouts;
                     this._draggingStartPoint.y = evY;
                 }
             };
-            GridSplitter.typeName = "layouts.controls.GridSplitter";
             return GridSplitter;
         }(controls.Border));
+        GridSplitter.typeName = "layouts.controls.GridSplitter";
         controls.GridSplitter = GridSplitter;
     })(controls = layouts.controls || (layouts.controls = {}));
 })(layouts || (layouts = {}));

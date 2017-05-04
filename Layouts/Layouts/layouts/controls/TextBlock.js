@@ -10,7 +10,7 @@ var layouts;
         var TextBlock = (function (_super) {
             __extends(TextBlock, _super);
             function TextBlock() {
-                _super.apply(this, arguments);
+                return _super.apply(this, arguments) || this;
             }
             Object.defineProperty(TextBlock.prototype, "typeName", {
                 get: function () {
@@ -99,12 +99,12 @@ var layouts;
                 enumerable: true,
                 configurable: true
             });
-            TextBlock.typeName = "layouts.controls.TextBlock";
-            TextBlock.textProperty = layouts.DepObject.registerProperty(TextBlock.typeName, "Text", null, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender, function (v) { return String(v); });
-            TextBlock.whiteSpaceProperty = layouts.DepObject.registerProperty(TextBlock.typeName, "WhiteSpace", "pre", layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender);
-            TextBlock.formatProperty = layouts.DepObject.registerProperty(TextBlock.typeName, "Format", null, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender, function (v) { return String(v); });
             return TextBlock;
         }(layouts.FrameworkElement));
+        TextBlock.typeName = "layouts.controls.TextBlock";
+        TextBlock.textProperty = layouts.DepObject.registerProperty(TextBlock.typeName, "Text", null, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender, function (v) { return String(v); });
+        TextBlock.whiteSpaceProperty = layouts.DepObject.registerProperty(TextBlock.typeName, "WhiteSpace", "pre", layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender);
+        TextBlock.formatProperty = layouts.DepObject.registerProperty(TextBlock.typeName, "Format", null, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender, function (v) { return String(v); });
         controls.TextBlock = TextBlock;
     })(controls = layouts.controls || (layouts.controls = {}));
 })(layouts || (layouts = {}));

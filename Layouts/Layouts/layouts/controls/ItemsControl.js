@@ -10,8 +10,9 @@ var layouts;
         var ItemsControl = (function (_super) {
             __extends(ItemsControl, _super);
             function ItemsControl() {
-                _super.apply(this, arguments);
-                this._elements = null;
+                var _this = _super.apply(this, arguments) || this;
+                _this._elements = null;
+                return _this;
             }
             Object.defineProperty(ItemsControl.prototype, "typeName", {
                 get: function () {
@@ -162,7 +163,7 @@ var layouts;
                     if (elements == null)
                         throw new Error("Unable to get list of elements from itemsSource");
                     this._elements =
-                        Enumerable.From(elements).Select(function (item) {
+                        elements.map(function (item) {
                             var templateForItem = controls.DataTemplate.getTemplateForItem(_this._templates.toArray(), item);
                             if (templateForItem == null) {
                                 throw new Error("Unable to find a valid template for item");
@@ -170,7 +171,7 @@ var layouts;
                             var newElement = templateForItem.createElement();
                             newElement.setValue(layouts.FrameworkElement.dataContextProperty, item);
                             return newElement;
-                        }).ToArray();
+                        });
                 }
                 if (this._elements != null) {
                     if (this.itemsPanel == null) {
@@ -183,12 +184,12 @@ var layouts;
                 }
                 this.invalidateMeasure();
             };
-            ItemsControl.typeName = "layouts.controls.ItemsControl";
-            ItemsControl._init = ItemsControl.initProperties();
-            ItemsControl.itemsSourceProperty = layouts.DepObject.registerProperty(ItemsControl.typeName, "ItemsSource", null, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender);
-            ItemsControl.itemsPanelProperty = layouts.DepObject.registerProperty(ItemsControl.typeName, "ItemsPanel", null, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender);
             return ItemsControl;
         }(layouts.FrameworkElement));
+        ItemsControl.typeName = "layouts.controls.ItemsControl";
+        ItemsControl._init = ItemsControl.initProperties();
+        ItemsControl.itemsSourceProperty = layouts.DepObject.registerProperty(ItemsControl.typeName, "ItemsSource", null, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender);
+        ItemsControl.itemsPanelProperty = layouts.DepObject.registerProperty(ItemsControl.typeName, "ItemsPanel", null, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender);
         controls.ItemsControl = ItemsControl;
     })(controls = layouts.controls || (layouts.controls = {}));
 })(layouts || (layouts = {}));

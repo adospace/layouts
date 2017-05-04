@@ -10,7 +10,7 @@ var layouts;
         var ComboBox = (function (_super) {
             __extends(ComboBox, _super);
             function ComboBox() {
-                _super.apply(this, arguments);
+                return _super.apply(this, arguments) || this;
             }
             Object.defineProperty(ComboBox.prototype, "typeName", {
                 get: function () {
@@ -63,7 +63,7 @@ var layouts;
                 }
                 else if (property == ComboBox.selectedValueProperty) {
                     if (this._selectElement != null && this.selectMember != null && this._elements != null)
-                        this.selectedItem = Enumerable.From(this._elements).FirstOrDefault(null, function (_) { return _[_this.selectMember] == value; });
+                        this.selectedItem = this._elements.firstOrDefault(function (_) { return _[_this.selectMember] == value; }, null);
                 }
                 _super.prototype.onDependencyPropertyChanged.call(this, property, value, oldValue);
             };
@@ -93,7 +93,7 @@ var layouts;
                     var selectedItem = this.selectedItem;
                     if (this.selectMember != null) {
                         var selectedValue = this.selectedValue;
-                        selectedItem = Enumerable.From(this._elements).FirstOrDefault(null, function (_) { return _[_this.selectMember] == selectedValue; });
+                        selectedItem = this._elements.firstOrDefault(function (_) { return _[_this.selectMember] == selectedValue; }, null);
                     }
                     this._selectElement.selectedIndex = selectedItem == null ? -1 : this._elements.indexOf(selectedItem);
                 }
@@ -174,14 +174,14 @@ var layouts;
                 enumerable: true,
                 configurable: true
             });
-            ComboBox.typeName = "layouts.controls.ComboBox";
-            ComboBox.itemsSourceProperty = layouts.DepObject.registerProperty(ComboBox.typeName, "ItemsSource", null, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender);
-            ComboBox.selectedItemProperty = layouts.DepObject.registerProperty(ComboBox.typeName, "SelectedItem", null, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender);
-            ComboBox.displayMemberProperty = layouts.DepObject.registerProperty(ComboBox.typeName, "DisplayMember", null, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender);
-            ComboBox.selectedValueProperty = layouts.DepObject.registerProperty(ComboBox.typeName, "SelectedValue", null, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender);
-            ComboBox.selectMemberProperty = layouts.DepObject.registerProperty(ComboBox.typeName, "SelectMember", null, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender);
             return ComboBox;
         }(layouts.FrameworkElement));
+        ComboBox.typeName = "layouts.controls.ComboBox";
+        ComboBox.itemsSourceProperty = layouts.DepObject.registerProperty(ComboBox.typeName, "ItemsSource", null, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender);
+        ComboBox.selectedItemProperty = layouts.DepObject.registerProperty(ComboBox.typeName, "SelectedItem", null, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender);
+        ComboBox.displayMemberProperty = layouts.DepObject.registerProperty(ComboBox.typeName, "DisplayMember", null, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender);
+        ComboBox.selectedValueProperty = layouts.DepObject.registerProperty(ComboBox.typeName, "SelectedValue", null, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender);
+        ComboBox.selectMemberProperty = layouts.DepObject.registerProperty(ComboBox.typeName, "SelectMember", null, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender);
         controls.ComboBox = ComboBox;
     })(controls = layouts.controls || (layouts.controls = {}));
 })(layouts || (layouts = {}));

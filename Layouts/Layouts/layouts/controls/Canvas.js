@@ -10,7 +10,7 @@ var layouts;
         var Canvas = (function (_super) {
             __extends(Canvas, _super);
             function Canvas() {
-                _super.apply(this, arguments);
+                return _super.apply(this, arguments) || this;
             }
             Object.defineProperty(Canvas.prototype, "typeName", {
                 get: function () {
@@ -78,13 +78,13 @@ var layouts;
             Canvas.setBottom = function (target, value) {
                 target.setValue(Canvas.bottomProperty, value);
             };
-            Canvas.typeName = "layouts.controls.Canvas";
-            Canvas.leftProperty = layouts.DepObject.registerProperty(Canvas.typeName, "Canvas#Left", NaN, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure, function (v) { return parseFloat(v); });
-            Canvas.topProperty = layouts.DepObject.registerProperty(Canvas.typeName, "Canvas#Top", NaN, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure, function (v) { return parseFloat(v); });
-            Canvas.rightProperty = layouts.DepObject.registerProperty(Canvas.typeName, "Canvas#Right", NaN, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure, function (v) { return parseFloat(v); });
-            Canvas.bottomProperty = layouts.DepObject.registerProperty(Canvas.typeName, "Canvas#Bottom", NaN, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure, function (v) { return parseFloat(v); });
             return Canvas;
         }(controls.Panel));
+        Canvas.typeName = "layouts.controls.Canvas";
+        Canvas.leftProperty = layouts.DepObject.registerProperty(Canvas.typeName, "Canvas#Left", NaN, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure, function (v) { return parseFloat(v); });
+        Canvas.topProperty = layouts.DepObject.registerProperty(Canvas.typeName, "Canvas#Top", NaN, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure, function (v) { return parseFloat(v); });
+        Canvas.rightProperty = layouts.DepObject.registerProperty(Canvas.typeName, "Canvas#Right", NaN, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure, function (v) { return parseFloat(v); });
+        Canvas.bottomProperty = layouts.DepObject.registerProperty(Canvas.typeName, "Canvas#Bottom", NaN, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure, function (v) { return parseFloat(v); });
         controls.Canvas = Canvas;
     })(controls = layouts.controls || (layouts.controls = {}));
 })(layouts || (layouts = {}));

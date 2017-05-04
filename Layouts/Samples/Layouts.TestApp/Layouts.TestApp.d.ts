@@ -826,9 +826,11 @@ declare module layouts.controls {
     class Label extends TextBlock {
         static typeName: string;
         readonly typeName: string;
+        private _label;
         protected createElement(elementContainer: HTMLElement): HTMLElement;
         static htmlForProperty: DepProperty;
         htmlFor: string;
+        protected onDependencyPropertyChanged(property: DepProperty, value: any, oldValue: any): void;
     }
 }
 declare module layouts.controls {

@@ -39,29 +39,29 @@ var layouts;
                         this._createdObjectsWithId[att.value] = containerObject;
                 }
             }
-            var childrenProperties = Enumerable.From(xamlNode.childNodes).Where(function (_) { return _.nodeType == 1 && _.localName.indexOf(".") > -1; });
-            childrenProperties.ForEach(function (childNode) {
+            var childrenProperties = xamlNode.childNodes.where(function (_) { return _.nodeType == 1 && _.localName.indexOf(".") > -1; });
+            childrenProperties.forEach(function (childNode) {
                 var indexOfDot = childNode.localName.indexOf(".");
                 if (childNode.localName.substr(0, indexOfDot) == xamlNode.localName) {
                     var propertyName = childNode.localName.substr(indexOfDot + 1);
-                    var childOfChild = Enumerable.From(childNode.childNodes).FirstOrDefault(null, function (_) { return _.nodeType == 1; });
+                    var childOfChild = childNode.childNodes.firstOrDefault(function (_) { return _.nodeType == 1; }, null);
                     var valueToSet = childOfChild == null ? null : _this.Load(childOfChild);
                     _this.trySetProperty(containerObject, propertyName, _this.resolveNameSpace(childNode.namespaceURI), valueToSet);
                 }
             });
-            var children = Enumerable.From(xamlNode.childNodes).Where(function (_) { return _.nodeType == 1 && _.localName.indexOf(".") == -1; });
+            var children = xamlNode.childNodes.where(function (_) { return _.nodeType == 1 && _.localName.indexOf(".") == -1; });
             if (containerObject["setInnerXaml"] != null) {
-                if (children.Count() > 0)
-                    containerObject["setInnerXaml"]((new XMLSerializer()).serializeToString(children.ToArray()[0]));
+                if (children.length > 0)
+                    containerObject["setInnerXaml"]((new XMLSerializer()).serializeToString(children[0]));
                 if (containerObject["setXamlLoader"] != null)
                     containerObject["setXamlLoader"](this);
                 return containerObject;
             }
-            if (children.Count() == 0)
+            if (children.length == 0)
                 return containerObject;
             if (layouts.Ext.hasProperty(containerObject, "content") || layouts.Ext.hasProperty(containerObject, "child")) {
                 var contentPropertyName = layouts.Ext.hasProperty(containerObject, "content") ? "content" : "child";
-                containerObject[contentPropertyName] = this.Load(children.First());
+                containerObject[contentPropertyName] = this.Load(children[0]);
             }
             else {
                 var collectionPropertyName = null;
@@ -74,7 +74,7 @@ var layouts;
                 if (layouts.Ext.hasProperty(containerObject, "animations"))
                     collectionPropertyName = "animations";
                 if (collectionPropertyName != null) {
-                    var listOfChildren = children.Select(function (childNode) { return _this.Load(childNode); }).ToArray();
+                    var listOfChildren = children.map(function (childNode) { return _this.Load(childNode); });
                     containerObject[collectionPropertyName] = new layouts.ObservableCollection(listOfChildren);
                 }
             }
@@ -98,15 +98,13 @@ var layouts;
                     attLeft.value != attRight.value)
                     return false;
             }
-            var childrenLeft = Enumerable.From(nodeLeft.childNodes).Where(function (_) { return _.nodeType == 1; });
-            var childrenRight = Enumerable.From(nodeRight.childNodes).Where(function (_) { return _.nodeType == 1; });
-            if (childrenLeft.Count() != childrenRight.Count())
+            var childrenLeft = nodeLeft.childNodes.where(function (_) { return _.nodeType == 1; });
+            var childrenRight = nodeRight.childNodes.where(function (_) { return _.nodeType == 1; });
+            if (childrenLeft.length != childrenRight.length)
                 return false;
-            var arrayOfChildrenLeft = childrenLeft.ToArray();
-            var arrayOfChildrenRight = childrenRight.ToArray();
-            for (var i = 0; i < childrenLeft.Count(); i++) {
-                var childNodeLeft = arrayOfChildrenLeft[i];
-                var childNodeRight = arrayOfChildrenRight[i];
+            for (var i = 0; i < childrenLeft.length; i++) {
+                var childNodeLeft = childrenLeft[i];
+                var childNodeRight = childrenRight[i];
                 if (!XamlReader.compareXml(childNodeLeft, childNodeRight))
                     return false;
             }
@@ -206,8 +204,8 @@ var layouts;
             }
             return null;
         };
-        XamlReader.DefaultNamespace = "http://schemas.layouts.com/";
         return XamlReader;
     }());
+    XamlReader.DefaultNamespace = "http://schemas.layouts.com/";
     layouts.XamlReader = XamlReader;
 })(layouts || (layouts = {}));

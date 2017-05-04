@@ -8,9 +8,10 @@ var app;
     var Login = (function (_super) {
         __extends(Login, _super);
         function Login() {
-            _super.call(this);
-            this.dataContext = new app.LoginViewModel(this);
-            this.initializeComponent();
+            var _this = _super.call(this) || this;
+            _this.dataContext = new app.LoginViewModel(_this);
+            _this.initializeComponent();
+            return _this;
         }
         Object.defineProperty(Login.prototype, "typeName", {
             get: function () {
@@ -32,8 +33,8 @@ var app;
         };
         Login.prototype.onNavigate = function (context) {
         };
-        Login.typeName = "app.Login";
         return Login;
     }(layouts.controls.Page));
+    Login.typeName = "app.Login";
     app.Login = Login;
 })(app || (app = {}));

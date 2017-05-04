@@ -102,10 +102,10 @@ var layouts;
             var newBinding = new Binding(this, property, propertyPath, source, twoway, converter, converterParameter, format);
             this.bindings.push(newBinding);
         };
-        DepObject.globalPropertyMap = {};
-        DepObject.logBindingTraceToConsole = false;
         return DepObject;
     }());
+    DepObject.globalPropertyMap = {};
+    DepObject.logBindingTraceToConsole = false;
     layouts.DepObject = DepObject;
     var Binding = (function () {
         function Binding(target, targetProperty, propertyPath, source, twoWay, converter, converterParameter, format) {

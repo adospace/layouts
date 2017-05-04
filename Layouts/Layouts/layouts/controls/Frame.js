@@ -10,7 +10,7 @@ var layouts;
         var Frame = (function (_super) {
             __extends(Frame, _super);
             function Frame() {
-                _super.apply(this, arguments);
+                return _super.apply(this, arguments) || this;
             }
             Object.defineProperty(Frame.prototype, "typeName", {
                 get: function () {
@@ -54,10 +54,10 @@ var layouts;
                 enumerable: true,
                 configurable: true
             });
-            Frame.typeName = "layouts.controls.Frame";
-            Frame.sourceProperty = layouts.DepObject.registerProperty(Frame.typeName, "Source", null, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender);
             return Frame;
         }(layouts.FrameworkElement));
+        Frame.typeName = "layouts.controls.Frame";
+        Frame.sourceProperty = layouts.DepObject.registerProperty(Frame.typeName, "Source", null, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender);
         controls.Frame = Frame;
     })(controls = layouts.controls || (layouts.controls = {}));
 })(layouts || (layouts = {}));

@@ -10,7 +10,7 @@ var layouts;
         var ContentTemplate = (function (_super) {
             __extends(ContentTemplate, _super);
             function ContentTemplate() {
-                _super.apply(this, arguments);
+                return _super.apply(this, arguments) || this;
             }
             Object.defineProperty(ContentTemplate.prototype, "typeName", {
                 get: function () {
@@ -95,10 +95,10 @@ var layouts;
                 }
                 _super.prototype.onDependencyPropertyChanged.call(this, property, value, oldValue);
             };
-            ContentTemplate.typeName = "layouts.controls.ContentTemplate";
-            ContentTemplate.contentProperty = layouts.DepObject.registerProperty(ContentTemplate.typeName, "Content", null, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender);
             return ContentTemplate;
         }(layouts.FrameworkElement));
+        ContentTemplate.typeName = "layouts.controls.ContentTemplate";
+        ContentTemplate.contentProperty = layouts.DepObject.registerProperty(ContentTemplate.typeName, "Content", null, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender);
         controls.ContentTemplate = ContentTemplate;
     })(controls = layouts.controls || (layouts.controls = {}));
 })(layouts || (layouts = {}));

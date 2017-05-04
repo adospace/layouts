@@ -7,15 +7,15 @@ var layouts;
 (function (layouts) {
     var controls;
     (function (controls) {
+        var Orientation;
         (function (Orientation) {
             Orientation[Orientation["Horizontal"] = 0] = "Horizontal";
             Orientation[Orientation["Vertical"] = 1] = "Vertical";
-        })(controls.Orientation || (controls.Orientation = {}));
-        var Orientation = controls.Orientation;
+        })(Orientation = controls.Orientation || (controls.Orientation = {}));
         var Stack = (function (_super) {
             __extends(Stack, _super);
             function Stack() {
-                _super.apply(this, arguments);
+                return _super.apply(this, arguments) || this;
             }
             Object.defineProperty(Stack.prototype, "typeName", {
                 get: function () {
@@ -92,10 +92,10 @@ var layouts;
                 enumerable: true,
                 configurable: true
             });
-            Stack.typeName = "layouts.controls.Stack";
-            Stack.orientationProperty = layouts.DepObject.registerProperty(Stack.typeName, "Orientation", Orientation.Vertical, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure, function (v) { return Orientation[String(v)]; });
             return Stack;
         }(controls.Panel));
+        Stack.typeName = "layouts.controls.Stack";
+        Stack.orientationProperty = layouts.DepObject.registerProperty(Stack.typeName, "Orientation", Orientation.Vertical, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure, function (v) { return Orientation[String(v)]; });
         controls.Stack = Stack;
     })(controls = layouts.controls || (layouts.controls = {}));
 })(layouts || (layouts = {}));

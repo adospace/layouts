@@ -30,7 +30,7 @@ var layouts;
         var Border = (function (_super) {
             __extends(Border, _super);
             function Border() {
-                _super.apply(this, arguments);
+                return _super.apply(this, arguments) || this;
             }
             Object.defineProperty(Border.prototype, "typeName", {
                 get: function () {
@@ -192,14 +192,14 @@ var layouts;
                 enumerable: true,
                 configurable: true
             });
-            Border.typeName = "layouts.controls.Border";
-            Border.borderThicknessProperty = layouts.DepObject.registerProperty(Border.typeName, "BorderThickness", null, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender, function (v) { return layouts.Thickness.fromString(v); });
-            Border.paddingProperty = layouts.DepObject.registerProperty(Border.typeName, "Padding", new layouts.Thickness(), layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender, function (v) { return layouts.Thickness.fromString(v); });
-            Border.backgroundProperty = layouts.DepObject.registerProperty(Border.typeName, "Background", null, layouts.FrameworkPropertyMetadataOptions.AffectsRender);
-            Border.borderBrushProperty = layouts.DepObject.registerProperty(Border.typeName, "BorderBrush", null, layouts.FrameworkPropertyMetadataOptions.AffectsRender);
-            Border.borderStyleProperty = layouts.DepObject.registerProperty(Border.typeName, "BorderStyle", null, layouts.FrameworkPropertyMetadataOptions.AffectsRender);
             return Border;
         }(layouts.FrameworkElement));
+        Border.typeName = "layouts.controls.Border";
+        Border.borderThicknessProperty = layouts.DepObject.registerProperty(Border.typeName, "BorderThickness", null, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender, function (v) { return layouts.Thickness.fromString(v); });
+        Border.paddingProperty = layouts.DepObject.registerProperty(Border.typeName, "Padding", new layouts.Thickness(), layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender, function (v) { return layouts.Thickness.fromString(v); });
+        Border.backgroundProperty = layouts.DepObject.registerProperty(Border.typeName, "Background", null, layouts.FrameworkPropertyMetadataOptions.AffectsRender);
+        Border.borderBrushProperty = layouts.DepObject.registerProperty(Border.typeName, "BorderBrush", null, layouts.FrameworkPropertyMetadataOptions.AffectsRender);
+        Border.borderStyleProperty = layouts.DepObject.registerProperty(Border.typeName, "BorderStyle", null, layouts.FrameworkPropertyMetadataOptions.AffectsRender);
         controls.Border = Border;
     })(controls = layouts.controls || (layouts.controls = {}));
 })(layouts || (layouts = {}));

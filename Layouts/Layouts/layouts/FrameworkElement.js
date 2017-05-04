@@ -5,27 +5,27 @@ var __extends = (this && this.__extends) || function (d, b) {
 };
 var layouts;
 (function (layouts) {
+    var VerticalAlignment;
     (function (VerticalAlignment) {
         VerticalAlignment[VerticalAlignment["Top"] = 0] = "Top";
         VerticalAlignment[VerticalAlignment["Center"] = 1] = "Center";
         VerticalAlignment[VerticalAlignment["Bottom"] = 2] = "Bottom";
         VerticalAlignment[VerticalAlignment["Stretch"] = 3] = "Stretch";
-    })(layouts.VerticalAlignment || (layouts.VerticalAlignment = {}));
-    var VerticalAlignment = layouts.VerticalAlignment;
+    })(VerticalAlignment = layouts.VerticalAlignment || (layouts.VerticalAlignment = {}));
+    var HorizontalAlignment;
     (function (HorizontalAlignment) {
         HorizontalAlignment[HorizontalAlignment["Left"] = 0] = "Left";
         HorizontalAlignment[HorizontalAlignment["Center"] = 1] = "Center";
         HorizontalAlignment[HorizontalAlignment["Right"] = 2] = "Right";
         HorizontalAlignment[HorizontalAlignment["Stretch"] = 3] = "Stretch";
-    })(layouts.HorizontalAlignment || (layouts.HorizontalAlignment = {}));
-    var HorizontalAlignment = layouts.HorizontalAlignment;
+    })(HorizontalAlignment = layouts.HorizontalAlignment || (layouts.HorizontalAlignment = {}));
+    var SizeToContent;
     (function (SizeToContent) {
         SizeToContent[SizeToContent["None"] = 0] = "None";
         SizeToContent[SizeToContent["Both"] = 1] = "Both";
         SizeToContent[SizeToContent["Vertical"] = 2] = "Vertical";
         SizeToContent[SizeToContent["Horizontal"] = 3] = "Horizontal";
-    })(layouts.SizeToContent || (layouts.SizeToContent = {}));
-    var SizeToContent = layouts.SizeToContent;
+    })(SizeToContent = layouts.SizeToContent || (layouts.SizeToContent = {}));
     var Thickness = (function () {
         function Thickness(left, top, right, bottom) {
             if (left === void 0) { left = 0; }
@@ -86,8 +86,9 @@ var layouts;
     var FrameworkElement = (function (_super) {
         __extends(FrameworkElement, _super);
         function FrameworkElement() {
-            _super.apply(this, arguments);
-            this.visualOffset = null;
+            var _this = _super.apply(this, arguments) || this;
+            _this.visualOffset = null;
+            return _this;
         }
         Object.defineProperty(FrameworkElement.prototype, "typeName", {
             get: function () {
@@ -396,23 +397,23 @@ var layouts;
             enumerable: true,
             configurable: true
         });
-        FrameworkElement.typeName = "layouts.FrameworkElement";
-        FrameworkElement.widthProperty = layouts.DepObject.registerProperty(FrameworkElement.typeName, "Width", Number.NaN, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure);
-        FrameworkElement.heightProperty = layouts.DepObject.registerProperty(FrameworkElement.typeName, "Height", Number.NaN, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure);
-        FrameworkElement.actualWidthProperty = layouts.DepObject.registerProperty(FrameworkElement.typeName, "ActualWidth", 0);
-        FrameworkElement.actualHeightProperty = layouts.DepObject.registerProperty(FrameworkElement.typeName, "ActualHeight", 0);
-        FrameworkElement.minWidthProperty = layouts.DepObject.registerProperty(FrameworkElement.typeName, "MinWidth", 0, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure, function (v) { return parseFloat(v); });
-        FrameworkElement.minHeightProperty = layouts.DepObject.registerProperty(FrameworkElement.typeName, "MinHeight", 0, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure, function (v) { return parseFloat(v); });
-        FrameworkElement.maxWidthProperty = layouts.DepObject.registerProperty(FrameworkElement.typeName, "MaxWidth", Infinity, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure, function (v) { return parseFloat(v); });
-        FrameworkElement.maxHeightProperty = layouts.DepObject.registerProperty(FrameworkElement.typeName, "MaxHeight", Infinity, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure, function (v) { return parseFloat(v); });
-        FrameworkElement.verticalAlignmentProperty = layouts.DepObject.registerProperty(FrameworkElement.typeName, "VerticalAlignment", VerticalAlignment.Stretch, layouts.FrameworkPropertyMetadataOptions.AffectsArrange, function (v) { return VerticalAlignment[String(v)]; });
-        FrameworkElement.horizontalAlignmentProperty = layouts.DepObject.registerProperty(FrameworkElement.typeName, "HorizontalAlignment", HorizontalAlignment.Stretch, layouts.FrameworkPropertyMetadataOptions.AffectsArrange, function (v) { return HorizontalAlignment[String(v)]; });
-        FrameworkElement.marginProperty = layouts.DepObject.registerProperty(FrameworkElement.typeName, "Margin", new Thickness(), layouts.FrameworkPropertyMetadataOptions.AffectsMeasure, function (v) { return Thickness.fromString(v); });
-        FrameworkElement.dataContextProperty = layouts.DepObject.registerProperty(FrameworkElement.typeName, "DataContext", null, layouts.FrameworkPropertyMetadataOptions.Inherits);
-        FrameworkElement.tagProperty = layouts.DepObject.registerProperty(FrameworkElement.typeName, "Tag");
-        FrameworkElement.overflowXProperty = layouts.DepObject.registerProperty(FrameworkElement.typeName, "OverflowX", "hidden", layouts.FrameworkPropertyMetadataOptions.AffectsRender);
-        FrameworkElement.overflowYProperty = layouts.DepObject.registerProperty(FrameworkElement.typeName, "OverflowY", "hidden", layouts.FrameworkPropertyMetadataOptions.AffectsRender);
         return FrameworkElement;
     }(layouts.UIElement));
+    FrameworkElement.typeName = "layouts.FrameworkElement";
+    FrameworkElement.widthProperty = layouts.DepObject.registerProperty(FrameworkElement.typeName, "Width", Number.NaN, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure);
+    FrameworkElement.heightProperty = layouts.DepObject.registerProperty(FrameworkElement.typeName, "Height", Number.NaN, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure);
+    FrameworkElement.actualWidthProperty = layouts.DepObject.registerProperty(FrameworkElement.typeName, "ActualWidth", 0);
+    FrameworkElement.actualHeightProperty = layouts.DepObject.registerProperty(FrameworkElement.typeName, "ActualHeight", 0);
+    FrameworkElement.minWidthProperty = layouts.DepObject.registerProperty(FrameworkElement.typeName, "MinWidth", 0, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure, function (v) { return parseFloat(v); });
+    FrameworkElement.minHeightProperty = layouts.DepObject.registerProperty(FrameworkElement.typeName, "MinHeight", 0, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure, function (v) { return parseFloat(v); });
+    FrameworkElement.maxWidthProperty = layouts.DepObject.registerProperty(FrameworkElement.typeName, "MaxWidth", Infinity, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure, function (v) { return parseFloat(v); });
+    FrameworkElement.maxHeightProperty = layouts.DepObject.registerProperty(FrameworkElement.typeName, "MaxHeight", Infinity, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure, function (v) { return parseFloat(v); });
+    FrameworkElement.verticalAlignmentProperty = layouts.DepObject.registerProperty(FrameworkElement.typeName, "VerticalAlignment", VerticalAlignment.Stretch, layouts.FrameworkPropertyMetadataOptions.AffectsArrange, function (v) { return VerticalAlignment[String(v)]; });
+    FrameworkElement.horizontalAlignmentProperty = layouts.DepObject.registerProperty(FrameworkElement.typeName, "HorizontalAlignment", HorizontalAlignment.Stretch, layouts.FrameworkPropertyMetadataOptions.AffectsArrange, function (v) { return HorizontalAlignment[String(v)]; });
+    FrameworkElement.marginProperty = layouts.DepObject.registerProperty(FrameworkElement.typeName, "Margin", new Thickness(), layouts.FrameworkPropertyMetadataOptions.AffectsMeasure, function (v) { return Thickness.fromString(v); });
+    FrameworkElement.dataContextProperty = layouts.DepObject.registerProperty(FrameworkElement.typeName, "DataContext", null, layouts.FrameworkPropertyMetadataOptions.Inherits);
+    FrameworkElement.tagProperty = layouts.DepObject.registerProperty(FrameworkElement.typeName, "Tag");
+    FrameworkElement.overflowXProperty = layouts.DepObject.registerProperty(FrameworkElement.typeName, "OverflowX", "hidden", layouts.FrameworkPropertyMetadataOptions.AffectsRender);
+    FrameworkElement.overflowYProperty = layouts.DepObject.registerProperty(FrameworkElement.typeName, "OverflowY", "hidden", layouts.FrameworkPropertyMetadataOptions.AffectsRender);
     layouts.FrameworkElement = FrameworkElement;
 })(layouts || (layouts = {}));

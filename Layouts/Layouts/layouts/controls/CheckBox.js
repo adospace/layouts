@@ -10,7 +10,7 @@ var layouts;
         var CheckBox = (function (_super) {
             __extends(CheckBox, _super);
             function CheckBox() {
-                _super.apply(this, arguments);
+                return _super.apply(this, arguments) || this;
             }
             Object.defineProperty(CheckBox.prototype, "typeName", {
                 get: function () {
@@ -96,12 +96,12 @@ var layouts;
                 enumerable: true,
                 configurable: true
             });
-            CheckBox.typeName = "layouts.controls.CheckBox";
-            CheckBox.isCheckedProperty = layouts.DepObject.registerProperty(CheckBox.typeName, "IsChecked", false, layouts.FrameworkPropertyMetadataOptions.None);
-            CheckBox.nameProperty = layouts.DepObject.registerProperty(CheckBox.typeName, "Name", "", layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender);
-            CheckBox.typeProperty = layouts.DepObject.registerProperty(CheckBox.typeName, "Type", "checkbox", layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender);
             return CheckBox;
         }(layouts.FrameworkElement));
+        CheckBox.typeName = "layouts.controls.CheckBox";
+        CheckBox.isCheckedProperty = layouts.DepObject.registerProperty(CheckBox.typeName, "IsChecked", false, layouts.FrameworkPropertyMetadataOptions.None);
+        CheckBox.nameProperty = layouts.DepObject.registerProperty(CheckBox.typeName, "Name", "", layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender);
+        CheckBox.typeProperty = layouts.DepObject.registerProperty(CheckBox.typeName, "Type", "checkbox", layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender);
         controls.CheckBox = CheckBox;
     })(controls = layouts.controls || (layouts.controls = {}));
 })(layouts || (layouts = {}));

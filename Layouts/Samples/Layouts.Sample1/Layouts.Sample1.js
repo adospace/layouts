@@ -5408,9 +5408,9 @@ var layouts;
                 configurable: true
             });
             Label.prototype.createElement = function (elementContainer) {
-                var label = document.createElement("label");
-                label.htmlFor = this.htmlFor;
-                return label;
+                this._label = document.createElement("label");
+                this._label.htmlFor = this.htmlFor;
+                return this._label;
             };
             Object.defineProperty(Label.prototype, "htmlFor", {
                 get: function () {
@@ -5422,6 +5422,12 @@ var layouts;
                 enumerable: true,
                 configurable: true
             });
+            Label.prototype.onDependencyPropertyChanged = function (property, value, oldValue) {
+                if (property == Label.htmlForProperty) {
+                    this._label.htmlFor = this.htmlFor;
+                }
+                _super.prototype.onDependencyPropertyChanged.call(this, property, value, oldValue);
+            };
             return Label;
         }(controls.TextBlock));
         Label.typeName = "layouts.controls.Label";
