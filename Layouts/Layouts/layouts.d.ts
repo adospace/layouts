@@ -110,13 +110,13 @@ declare module layouts {
         width: number;
         height: number;
         constructor(x?: number, y?: number, width?: number, height?: number);
-        size: Size;
+        readonly size: Size;
     }
     class Vector {
         x: number;
         y: number;
         constructor(x?: number, y?: number);
-        isEmpty: boolean;
+        readonly isEmpty: boolean;
         add(other: Vector): Vector;
     }
     enum FrameworkPropertyMetadataOptions {
@@ -138,7 +138,7 @@ declare module layouts {
     }
     class UIElement extends DepObject implements ISupportCommandCanExecuteChanged {
         static typeName: string;
-        typeName: string;
+        readonly typeName: string;
         desiredSize: Size;
         renderSize: Size;
         private previousAvailableSize;
@@ -221,11 +221,11 @@ declare module layouts {
         bottom: number;
         constructor(left?: number, top?: number, right?: number, bottom?: number);
         static fromString(v: string): Thickness;
-        isSameWidth: boolean;
+        readonly isSameWidth: boolean;
     }
     class FrameworkElement extends UIElement {
         static typeName: string;
-        typeName: string;
+        readonly typeName: string;
         private unclippedDesiredSize;
         protected visualOffset: Vector;
         protected measureCore(availableSize: Size): Size;
@@ -239,10 +239,10 @@ declare module layouts {
         static heightProperty: DepProperty;
         height: number;
         static actualWidthProperty: DepProperty;
-        actualWidth: number;
+        readonly actualWidth: number;
         private setActualWidth(value);
         static actualHeightProperty: DepProperty;
-        actualHeight: number;
+        readonly actualHeight: number;
         private setActualHeight(value);
         static minWidthProperty: DepProperty;
         minWidth: number;
@@ -260,7 +260,7 @@ declare module layouts {
         margin: Thickness;
         static dataContextProperty: DepProperty;
         dataContext: any;
-        parentDataContext: any;
+        readonly parentDataContext: any;
         protected onDependencyPropertyChanged(property: DepProperty, value: any, oldValue: any): void;
         protected onParentChanged(oldParent: DepObject, newParent: DepObject): void;
         static tagProperty: DepProperty;
@@ -289,9 +289,9 @@ declare module layouts.controls {
     }
     class Popup extends FrameworkElement {
         static typeName: string;
-        typeName: string;
-        private static _init;
+        readonly typeName: string;
         private static initProperties();
+        private static _init;
         constructor();
         private tryLoadChildFromServer();
         attachVisualOverride(elementContainer: HTMLElement): void;
@@ -330,7 +330,7 @@ declare module layouts.controls {
     }
     class Page extends FrameworkElement {
         static typeName: string;
-        typeName: string;
+        readonly typeName: string;
         private tryLoadChildFromServer();
         protected _container: HTMLElement;
         attachVisualOverride(elementContainer: HTMLElement): void;
@@ -363,7 +363,7 @@ declare module layouts {
     class Application {
         constructor();
         private static _current;
-        static current: Application;
+        static readonly current: Application;
         private _page;
         page: layouts.controls.Page;
         private static requestAnimationFrame();
@@ -371,7 +371,7 @@ declare module layouts {
         private static _beginInvokeActions;
         static beginInvoke(action: () => void): void;
         private _mappings;
-        mappings: UriMapping[];
+        readonly mappings: UriMapping[];
         map(uri: string, mappedUri: string): UriMapping;
         private _currentUri;
         private _returnUri;
@@ -410,7 +410,7 @@ declare module layouts.controls {
     }
     class Border extends FrameworkElement {
         static typeName: string;
-        typeName: string;
+        readonly typeName: string;
         private _child;
         child: UIElement;
         protected _divElement: HTMLDivElement;
@@ -456,7 +456,7 @@ declare module layouts {
 declare module layouts.controls {
     class Button extends FrameworkElement {
         static typeName: string;
-        typeName: string;
+        readonly typeName: string;
         private _child;
         child: UIElement;
         protected _buttonElement: HTMLButtonElement;
@@ -479,7 +479,7 @@ declare module layouts.controls {
 declare module layouts.controls {
     class Panel extends FrameworkElement implements ISupportCollectionChanged {
         static typeName: string;
-        typeName: string;
+        readonly typeName: string;
         protected _divElement: HTMLDivElement;
         attachVisualOverride(elementContainer: HTMLElement): void;
         private _children;
@@ -495,7 +495,7 @@ declare module layouts.controls {
 declare module layouts.controls {
     class Canvas extends Panel {
         static typeName: string;
-        typeName: string;
+        readonly typeName: string;
         protected measureOverride(constraint: Size): Size;
         protected arrangeOverride(finalSize: Size): Size;
         static leftProperty: DepProperty;
@@ -515,7 +515,7 @@ declare module layouts.controls {
 declare module layouts.controls {
     class CheckBox extends FrameworkElement {
         static typeName: string;
-        typeName: string;
+        readonly typeName: string;
         private _pElementInput;
         attachVisualOverride(elementContainer: HTMLElement): void;
         onCheckChanged(): void;
@@ -525,7 +525,7 @@ declare module layouts.controls {
         static isCheckedProperty: DepProperty;
         isChecked: boolean;
         static nameProperty: DepProperty;
-        name: string;
+        readonly name: string;
         placeholder: string;
         static typeProperty: DepProperty;
         type: string;
@@ -534,7 +534,7 @@ declare module layouts.controls {
 declare module layouts.controls {
     class ContentTemplate extends FrameworkElement {
         static typeName: string;
-        typeName: string;
+        readonly typeName: string;
         private _innerXaml;
         setInnerXaml(value: string): void;
         private _xamlLoader;
@@ -554,7 +554,7 @@ declare module layouts.controls {
 declare module layouts.controls {
     class ControlTemplate extends FrameworkElement {
         static typeName: string;
-        typeName: string;
+        readonly typeName: string;
         protected _container: HTMLElement;
         attachVisualOverride(elementContainer: HTMLElement): void;
         protected measureOverride(constraint: Size): Size;
@@ -568,7 +568,7 @@ declare module layouts.controls {
 declare module layouts.controls {
     class ControlTemplateSelector extends FrameworkElement {
         static typeName: string;
-        typeName: string;
+        readonly typeName: string;
         protected _container: HTMLElement;
         attachVisualOverride(elementContainer: HTMLElement): void;
         private _element;
@@ -587,7 +587,7 @@ declare module layouts.controls {
 declare module layouts.controls {
     class Frame extends FrameworkElement {
         static typeName: string;
-        typeName: string;
+        readonly typeName: string;
         _frameElement: HTMLFrameElement;
         attachVisualOverride(elementContainer: HTMLElement): void;
         protected measureOverride(constraint: Size): Size;
@@ -610,12 +610,12 @@ declare module layouts.controls {
         }[];
         static fromString(value: string): GridLength;
         private _value;
-        value: number;
+        readonly value: number;
         private _type;
-        type: GridUnitType;
-        isAuto: boolean;
-        isFixed: boolean;
-        isStar: boolean;
+        readonly type: GridUnitType;
+        readonly isAuto: boolean;
+        readonly isFixed: boolean;
+        readonly isStar: boolean;
     }
     class GridRow {
         height: GridLength;
@@ -631,7 +631,7 @@ declare module layouts.controls {
     }
     class Grid extends Panel implements ISupportCollectionChanged {
         static typeName: string;
-        typeName: string;
+        readonly typeName: string;
         private _rowDefs;
         private _columnDefs;
         private _elementDefs;
@@ -668,7 +668,7 @@ declare module layouts.controls {
 declare module layouts.controls {
     class GridSplitter extends Border {
         static typeName: string;
-        typeName: string;
+        readonly typeName: string;
         constructor();
         attachVisualOverride(elementContainer: HTMLElement): void;
         private onSplitterMouseDown(ev);
@@ -700,7 +700,7 @@ declare module layouts.controls {
     }
     class Image extends FrameworkElement {
         static typeName: string;
-        typeName: string;
+        readonly typeName: string;
         private _imgElement;
         attachVisualOverride(elementContainer: HTMLElement): void;
         protected measureOverride(constraint: Size): Size;
@@ -718,7 +718,7 @@ declare module layouts.controls {
 declare module layouts.controls {
     class TextBlock extends FrameworkElement {
         static typeName: string;
-        typeName: string;
+        readonly typeName: string;
         private _pElement;
         protected createElement(elementContainer: HTMLElement): HTMLElement;
         attachVisualOverride(elementContainer: HTMLElement): void;
@@ -737,7 +737,7 @@ declare module layouts.controls {
 declare module layouts.controls {
     class Label extends TextBlock {
         static typeName: string;
-        typeName: string;
+        readonly typeName: string;
         protected createElement(elementContainer: HTMLElement): HTMLElement;
         static htmlForProperty: DepProperty;
         htmlFor: string;
@@ -746,7 +746,7 @@ declare module layouts.controls {
 declare module layouts.controls {
     class MediaTemplateSelector extends FrameworkElement {
         static typeName: string;
-        typeName: string;
+        readonly typeName: string;
         protected _container: HTMLElement;
         attachVisualOverride(elementContainer: HTMLElement): void;
         private _element;
@@ -762,7 +762,7 @@ declare module layouts.controls {
     class NativeElement extends FrameworkElement {
         elementType: string;
         static typeName: string;
-        typeName: string;
+        readonly typeName: string;
         constructor(elementType: string);
         private _child;
         child: UIElement;
@@ -779,76 +779,76 @@ declare module layouts.controls {
     }
     class div extends NativeElement {
         static typeName: string;
-        typeName: string;
+        readonly typeName: string;
         constructor();
     }
     class a extends NativeElement {
         static typeName: string;
-        typeName: string;
+        readonly typeName: string;
         constructor();
     }
     class img extends NativeElement {
         static typeName: string;
-        typeName: string;
+        readonly typeName: string;
         constructor();
     }
     class i extends NativeElement {
         static typeName: string;
-        typeName: string;
+        readonly typeName: string;
         constructor();
     }
     class ul extends NativeElement {
         static typeName: string;
-        typeName: string;
+        readonly typeName: string;
         constructor();
     }
     class li extends NativeElement {
         static typeName: string;
-        typeName: string;
+        readonly typeName: string;
         constructor();
     }
     class nav extends NativeElement {
         static typeName: string;
-        typeName: string;
+        readonly typeName: string;
         constructor();
     }
     class span extends NativeElement {
         static typeName: string;
-        typeName: string;
+        readonly typeName: string;
         constructor();
     }
     class h1 extends NativeElement {
         static typeName: string;
-        typeName: string;
+        readonly typeName: string;
         constructor();
     }
     class h2 extends NativeElement {
         static typeName: string;
-        typeName: string;
+        readonly typeName: string;
         constructor();
     }
     class h3 extends NativeElement {
         static typeName: string;
-        typeName: string;
+        readonly typeName: string;
         constructor();
     }
     class h4 extends NativeElement {
         static typeName: string;
-        typeName: string;
+        readonly typeName: string;
         constructor();
     }
     class h5 extends NativeElement {
         static typeName: string;
-        typeName: string;
+        readonly typeName: string;
         constructor();
     }
 }
 declare module layouts.controls {
     class ItemsControl extends FrameworkElement implements ISupportCollectionChanged {
         static typeName: string;
-        typeName: string;
-        private static _init;
+        readonly typeName: string;
         private static initProperties();
+        private static _init;
         protected _elements: Array<UIElement>;
         protected _divElement: HTMLDivElement;
         attachVisualOverride(elementContainer: HTMLElement): void;
@@ -869,7 +869,7 @@ declare module layouts.controls {
 declare module layouts.controls {
     class ComboBox extends FrameworkElement implements ISupportCollectionChanged {
         static typeName: string;
-        typeName: string;
+        readonly typeName: string;
         private _selectElement;
         private _elements;
         attachVisualOverride(elementContainer: HTMLElement): void;
@@ -898,7 +898,7 @@ declare module layouts.controls {
     }
     class Stack extends Panel {
         static typeName: string;
-        typeName: string;
+        readonly typeName: string;
         protected measureOverride(constraint: Size): Size;
         protected arrangeOverride(finalSize: Size): Size;
         static orientationProperty: DepProperty;
@@ -908,7 +908,7 @@ declare module layouts.controls {
 declare module layouts.controls {
     class TextBox extends FrameworkElement {
         static typeName: string;
-        typeName: string;
+        readonly typeName: string;
         private _pElement;
         attachVisualOverride(elementContainer: HTMLElement): void;
         onTextChanged(): void;
@@ -929,7 +929,7 @@ declare module layouts.controls {
 declare module layouts.controls {
     class DataTemplate extends DepObject {
         static typeName: string;
-        typeName: string;
+        readonly typeName: string;
         private _innerXaml;
         setInnerXaml(value: string): void;
         private _xamlLoader;
@@ -948,7 +948,7 @@ declare module layouts.controls {
 declare module layouts.controls {
     class UserControl extends FrameworkElement {
         static typeName: string;
-        typeName: string;
+        readonly typeName: string;
         private _content;
         protected initializeComponent(): UIElement;
         private tryLoadChildFromServer();
@@ -991,7 +991,7 @@ declare module layouts {
         at(index: number): T;
         first(): T;
         last(): T;
-        count: number;
+        readonly count: number;
         forEach(action: (value: T, index: number, array: T[]) => void): void;
         private pcHandlers;
         onChangeNotify(handler: ISupportCollectionChanged): void;

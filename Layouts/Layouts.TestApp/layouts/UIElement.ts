@@ -273,8 +273,8 @@ module layouts {
             if (popup != null) {
                 LayoutManager.showPopup(popup);
                 ev.stopPropagation();
-                document.addEventListener("mouseup", function () {
-                    this.removeEventListener("mouseup", arguments.callee);
+                document.addEventListener("mouseup", function handler () {
+                    this.removeEventListener("mouseup", handler);
                     LayoutManager.closePopup(popup);
                 });
             }

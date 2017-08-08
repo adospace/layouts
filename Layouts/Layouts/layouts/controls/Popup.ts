@@ -26,11 +26,11 @@ module layouts.controls {
             return Popup.typeName;
         }
 
-        private static _init = Popup.initProperties();
         private static initProperties() {
             FrameworkElement.horizontalAlignmentProperty.overrideDefaultValue(Popup.typeName, "Center");
             FrameworkElement.verticalAlignmentProperty.overrideDefaultValue(Popup.typeName, "Center");
         }
+        private static _init = Popup.initProperties();
 
         constructor() {
             super();

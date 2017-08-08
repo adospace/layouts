@@ -1,13 +1,19 @@
-var __extends = (this && this.__extends) || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-};
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = Object.setPrototypeOf ||
+        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
 var Game = (function (_super) {
     __extends(Game, _super);
     function Game() {
-        _super.call(this);
-        this._pad = new Pad();
+        var _this = _super.call(this) || this;
+        _this._pad = new Pad();
+        return _this;
     }
     Object.defineProperty(Game.prototype, "pad", {
         get: function () {
@@ -38,25 +44,26 @@ var Game = (function (_super) {
 var Pad = (function (_super) {
     __extends(Pad, _super);
     function Pad() {
-        _super.call(this);
-        this.moves = 0;
+        var _this = _super.call(this) || this;
+        _this.moves = 0;
         var num = [];
         for (var i = 0; i < 15; ++i)
             num[i] = i + 1;
         num = shuffle(num);
-        this.matrix = [];
-        this.tiles = [];
+        _this.matrix = [];
+        _this.tiles = [];
         for (var i = 0; i < 4; i++) {
-            this.matrix[i] = [];
+            _this.matrix[i] = [];
             for (var j = 0; j < 4; j++) {
                 if (num.length > 0) {
-                    this.matrix[i][j] = new Tile(num.pop(), this);
-                    this.matrix[i][j].row = i;
-                    this.matrix[i][j].col = j;
-                    this.tiles.push(this.matrix[i][j]);
+                    _this.matrix[i][j] = new Tile(num.pop(), _this);
+                    _this.matrix[i][j].row = i;
+                    _this.matrix[i][j].col = j;
+                    _this.tiles.push(_this.matrix[i][j]);
                 }
             }
         }
+        return _this;
     }
     Pad.prototype.canMove = function (tile) {
         for (var c = 0; c < 4; c++) {
@@ -134,9 +141,10 @@ var Pad = (function (_super) {
 var Tile = (function (_super) {
     __extends(Tile, _super);
     function Tile(num, pad) {
-        _super.call(this);
-        this.num = num;
-        this.pad = pad;
+        var _this = _super.call(this) || this;
+        _this.num = num;
+        _this.pad = pad;
+        return _this;
     }
     Object.defineProperty(Tile.prototype, "row", {
         get: function () {

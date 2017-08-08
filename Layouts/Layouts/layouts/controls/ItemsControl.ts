@@ -10,11 +10,11 @@ module layouts.controls {
             return ItemsControl.typeName;
         }
 
-        private static _init = ItemsControl.initProperties();
         private static initProperties() {
             //FrameworkElement.overflowXProperty.overrideDefaultValue(ItemsControl.typeName, "auto");
             FrameworkElement.overflowYProperty.overrideDefaultValue(ItemsControl.typeName, "auto");
         }
+        private static _init = ItemsControl.initProperties();
 
         //list of items created
         //note that in general this list is not 1:1 with itemssource collection
