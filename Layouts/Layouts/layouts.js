@@ -1,13 +1,13 @@
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = Object.setPrototypeOf ||
-        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
+var layouts;
+(function (layouts) {
+    var Animate = (function () {
+        function Animate(easeFunction, duration) {
+            this.easeFunction = easeFunction;
+        }
+        return Animate;
+    }());
+    layouts.Animate = Animate;
+})(layouts || (layouts = {}));
 var layouts;
 (function (layouts) {
     var Ext = (function () {
@@ -68,6 +68,40 @@ Number.prototype.isLessThen = function (other) {
 Number.prototype.isGreaterThen = function (other) {
     return (this - other) > 1e-10;
 };
+if (!Array.prototype.firstOrDefault) {
+    Array.prototype.firstOrDefault = function (callback, defaultValue) {
+        var arrayOfItems = this;
+        for (var i = 0; i < arrayOfItems.length; ++i) {
+            var item = arrayOfItems[i];
+            if (callback(item, i))
+                return item;
+        }
+        return defaultValue;
+    };
+}
+if (!NodeList.prototype.firstOrDefault) {
+    NodeList.prototype.firstOrDefault = function (callback, defaultValue) {
+        var nodeList = this;
+        for (var i = 0; i < nodeList.length; ++i) {
+            var item = nodeList[i];
+            if (callback(item, i))
+                return item;
+        }
+        return defaultValue;
+    };
+}
+if (!NodeList.prototype.where) {
+    NodeList.prototype.where = function (callback) {
+        var nodeList = this;
+        var res = new Array();
+        for (var i = 0; i < nodeList.length; ++i) {
+            var item = nodeList[i];
+            if (callback(item, i))
+                res.push(item);
+        }
+        return res;
+    };
+}
 var InstanceLoader = (function () {
     function InstanceLoader(context) {
         this.context = context;
@@ -546,6 +580,11 @@ var layouts;
 })(layouts || (layouts = {}));
 /// <reference path="DepProperty.ts" />
 /// <reference path="DepObject.ts" />
+var __extends = (this && this.__extends) || function (d, b) {
+    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+    function __() { this.constructor = d; }
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+};
 var layouts;
 (function (layouts) {
     var Size = (function () {
@@ -638,7 +677,7 @@ var layouts;
     var UIElement = (function (_super) {
         __extends(UIElement, _super);
         function UIElement() {
-            var _this = _super !== null && _super.apply(this, arguments) || this;
+            var _this = _super.apply(this, arguments) || this;
             ///Render Pass
             _this.relativeOffset = null;
             _this.measureDirty = true;
@@ -667,12 +706,13 @@ var layouts;
             if (!this.measureDirty && isCloseToPreviousMeasure)
                 return;
             this.previousAvailableSize = availableSize;
-            this.desiredSize = this.measureCore(availableSize);
-            if (isNaN(this.desiredSize.width) ||
-                !isFinite(this.desiredSize.width) ||
-                isNaN(this.desiredSize.height) ||
-                !isFinite(this.desiredSize.height))
+            var desiredSize = this.measureCore(availableSize);
+            if (isNaN(desiredSize.width) ||
+                !isFinite(desiredSize.width) ||
+                isNaN(desiredSize.height) ||
+                !isFinite(desiredSize.height))
                 throw new Error("measure pass must return valid size");
+            this.desiredSize = this.animateSize(desiredSize);
             this.measureDirty = false;
         };
         UIElement.prototype.measureCore = function (availableSize) {
@@ -723,6 +763,30 @@ var layouts;
                 }
             }
         };
+        //Animation Pass
+        //private _animations: ObservableCollection<Animate>;
+        //get animations(): ObservableCollection<Animate> {
+        //    return this._animations;
+        //}
+        //set children(value: ObservableCollection<Animate>) {
+        //    if (value == this._animations)
+        //        return;
+        //    if (this._animations != null) {
+        //        //remove handler so that resource can be disposed
+        //        this._animations.offChangeNotify(this);
+        //    }
+        //    this._animations = value;
+        //    if (this._animations != null) {
+        //        this._animations.onChangeNotify(this);
+        //    }
+        //    this.invalidateMeasure();
+        //}
+        //onCollectionChanged(collection: any, added: any[], removed: any[], startRemoveIndex: number) {
+        //    this.invalidateMeasure();
+        //}
+        UIElement.prototype.animateSize = function (desiredSize) {
+            return desiredSize;
+        };
         UIElement.prototype.attachVisual = function (elementContainer, showImmediately) {
             if (showImmediately === void 0) { showImmediately = false; }
             //1. if a visual is not yet created and we have a container
@@ -769,6 +833,13 @@ var layouts;
             }
             return this._visual;
         };
+        Object.defineProperty(UIElement.prototype, "visual", {
+            get: function () {
+                return this._visual;
+            },
+            enumerable: true,
+            configurable: true
+        });
         UIElement.prototype.attachVisualOverride = function (elementContainer) {
             var _this = this;
             if (this._visual == null)
@@ -810,10 +881,12 @@ var layouts;
             if (popup != null) {
                 layouts.LayoutManager.showPopup(popup);
                 ev.stopPropagation();
-                document.addEventListener("mouseup", function handler() {
-                    this.removeEventListener("mouseup", handler);
-                    layouts.LayoutManager.closePopup(popup);
-                });
+                if (this.autoClosePopup) {
+                    document.addEventListener("mouseup", function () {
+                        this.removeEventListener("mouseup", arguments.callee);
+                        layouts.LayoutManager.closePopup(popup);
+                    });
+                }
             }
         };
         UIElement.prototype.getBoundingClientRect = function () {
@@ -947,6 +1020,21 @@ var layouts;
             }
             return null;
         };
+        UIElement.prototype.forAllChildrenOfType = function (elementType, action) {
+            var typeName = elementType["typeName"];
+            if (this._logicalChildren != null) {
+                for (var i = 0; i < this._logicalChildren.length; i++) {
+                    var child = this._logicalChildren[i];
+                    if (child.typeName == typeName) {
+                        if (!action(child))
+                            return false;
+                    }
+                    if (!child.forAllChildrenOfType(elementType, action))
+                        return false;
+                }
+            }
+            return true;
+        };
         Object.defineProperty(UIElement.prototype, "parent", {
             get: function () {
                 return this._parent;
@@ -989,9 +1077,6 @@ var layouts;
                     //    this._logicalChildren.forEach((child) => child.onDependencyPropertyChanged(property, value, value));
                     //}
                     this.onParentDependencyPropertyChanged(property);
-                    //if (this._logicalChildren != null) {
-                    //    this._logicalChildren.forEach((child) => child.onParentDependencyPropertyChanged(property));
-                    //}
                 }
             }
             if (this._parent != null)
@@ -1071,6 +1156,16 @@ var layouts;
             enumerable: true,
             configurable: true
         });
+        Object.defineProperty(UIElement.prototype, "autoClosePopup", {
+            get: function () {
+                return this.getValue(UIElement.autoClosePopupProperty);
+            },
+            set: function (value) {
+                this.setValue(UIElement.autoClosePopupProperty, value);
+            },
+            enumerable: true,
+            configurable: true
+        });
         Object.defineProperty(UIElement.prototype, "layoutUpdated", {
             get: function () {
                 return this.getValue(UIElement.layoutUpdatedProperty);
@@ -1085,20 +1180,18 @@ var layouts;
     }(layouts.DepObject));
     UIElement.typeName = "layouts.UIElement";
     UIElement.isVisibleProperty = layouts.DepObject.registerProperty(UIElement.typeName, "IsVisible", true, FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsParentMeasure | FrameworkPropertyMetadataOptions.AffectsRender);
-    //static styleProperty = DepObject.registerProperty(UIElement.typeName, "cssStyle", Consts.stringEmpty, FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsParentMeasure | FrameworkPropertyMetadataOptions.AffectsRender);
-    //get cssStyle(): string {
-    //    return <string>this.getValue(UIElement.styleProperty);
-    //}
-    //set cssStyle(value: string) {
-    //    this.setValue(UIElement.styleProperty, value);
-    //}
     UIElement.classProperty = layouts.DepObject.registerProperty(UIElement.typeName, "class", null, FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender);
     //name property
     UIElement.idProperty = layouts.DepObject.registerProperty(UIElement.typeName, "id", layouts.Consts.stringEmpty, FrameworkPropertyMetadataOptions.AffectsRender);
     UIElement.commandProperty = layouts.DepObject.registerProperty(UIElement.typeName, "Command", null, FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender);
     UIElement.commandParameterProperty = layouts.DepObject.registerProperty(UIElement.typeName, "CommandParameter", null, FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender);
     //get or set popup property for the element
-    UIElement.popupProperty = layouts.DepObject.registerProperty(UIElement.typeName, "Popup", null, FrameworkPropertyMetadataOptions.AffectsRender);
+    UIElement.popupProperty = layouts.DepObject.registerProperty(UIElement.typeName, "Popup", null, FrameworkPropertyMetadataOptions.None);
+    UIElement.autoClosePopupProperty = layouts.DepObject.registerProperty(UIElement.typeName, "AutoClosePopup", true, FrameworkPropertyMetadataOptions.None, function (value) {
+        if (value == null || (value.toLowerCase() != "true" && value.toLowerCase() != "false"))
+            throw new Error("Unable to valuate string '{0}' as boolean".format(value));
+        return value.toLowerCase() == "true" ? true : false;
+    });
     UIElement.layoutUpdatedProperty = layouts.DepObject.registerProperty(UIElement.typeName, "LayoutUpdated", null, FrameworkPropertyMetadataOptions.None);
     layouts.UIElement = UIElement;
 })(layouts || (layouts = {}));
@@ -1188,7 +1281,7 @@ var layouts;
     var FrameworkElement = (function (_super) {
         __extends(FrameworkElement, _super);
         function FrameworkElement() {
-            var _this = _super !== null && _super.apply(this, arguments) || this;
+            var _this = _super.apply(this, arguments) || this;
             //private needClipBounds: boolean;
             _this.visualOffset = null;
             return _this;
@@ -1214,21 +1307,17 @@ var layouts;
             //var clipped = false;
             if (desideredSize.width > mm.maxWidth) {
                 desideredSize.width = mm.maxWidth;
-                //clipped = true;
             }
             if (desideredSize.height > mm.maxHeight) {
                 desideredSize.height = mm.maxHeight;
-                //clipped = true;
             }
             var clippedDesiredWidth = desideredSize.width + marginWidth;
             var clippedDesiredHeight = desideredSize.height + marginHeight;
             if (clippedDesiredWidth > availableSize.width) {
                 clippedDesiredWidth = availableSize.width;
-                //clipped = true;
             }
             if (clippedDesiredHeight > availableSize.height) {
                 clippedDesiredHeight = availableSize.height;
-                //clipped = true;
             }
             return new layouts.Size(Math.max(0, clippedDesiredWidth), Math.max(0, clippedDesiredHeight));
         };
@@ -1343,7 +1432,7 @@ var layouts;
                 this._visual.style.top = this.visualOffset.y.toString() + "px";
             }
             if (this.renderSize != null) {
-                //when an element starts hidden renderSize is not available
+                //when an element initially loads hidden renderSize is not available
                 this._visual.style.width = this.renderSize.width.toString() + "px";
                 this._visual.style.height = this.renderSize.height.toString() + "px";
             }
@@ -1599,17 +1688,12 @@ var layouts;
                     if (req.readyState == 4 && req.status == 200) {
                         var loader = new layouts.XamlReader();
                         _this._child = loader.Parse(req.responseText);
-                        if (_this._child != null) {
-                            _this._child.parent = _this;
-                            _this._child.attachVisual(document.body);
-                        }
+                        if (_this._child != null)
+                            _this.setupChild();
                     }
                 };
                 req.open("GET", this.typeName.replace(/\./gi, '/') + ".xml", true);
                 req.send();
-            };
-            Popup.prototype.attachVisualOverride = function (elementContainer) {
-                _super.prototype.attachVisualOverride.call(this, elementContainer);
             };
             Object.defineProperty(Popup.prototype, "child", {
                 get: function () {
@@ -1627,17 +1711,35 @@ var layouts;
             Popup.prototype.onShow = function () {
                 if (this._child == null)
                     this._child = this.initializeComponent();
-                if (this._child != null) {
-                    this._child.parent = this;
-                    this._child.attachVisual(document.body);
-                }
+                if (this._child != null)
+                    this.setupChild();
                 else
                     this.tryLoadChildFromServer();
+            };
+            Popup.prototype.setupChild = function () {
+                this._child.parent = this;
+                this._popupContainer = document.createElement("div");
+                this._popupContainer.style.width = this._popupContainer.style.height = "100%";
+                this._popupContainer.style.position = "fixed";
+                this._popupContainer.className = "layoutsPopupContainer"; //default popup container style
+                if (this.cssClass != null)
+                    this._popupContainer.className = this.cssClass;
+                document.body.appendChild(this._popupContainer);
+                this._child.attachVisual(this._popupContainer);
+                var currentThis = this;
+                this._popupContainer.addEventListener("mousedown", function (event) {
+                    if (event.target == currentThis._popupContainer) {
+                        this.removeEventListener("mousedown", arguments.callee);
+                        layouts.LayoutManager.closePopup(currentThis);
+                    }
+                });
             };
             Popup.prototype.onClose = function () {
                 if (this._child != null && this._child.parent == this) {
                     this._child.attachVisual(null);
                     this._child.parent = null;
+                    document.body.removeChild(this._popupContainer);
+                    this._popupContainer = null;
                 }
             };
             Popup.prototype.initializeComponent = function () {
@@ -1833,7 +1935,7 @@ var layouts;
         var Page = (function (_super) {
             __extends(Page, _super);
             function Page() {
-                var _this = _super !== null && _super.apply(this, arguments) || this;
+                var _this = _super.apply(this, arguments) || this;
                 //navigation system
                 //if cachePage is true navigation system reuse already loaded page
                 _this.cachePage = false;
@@ -2085,8 +2187,7 @@ var layouts;
             configurable: true
         });
         Application.prototype.map = function (uri, mappedUri) {
-            var mappings = Enumerable.From(this._mappings);
-            var uriMapping = mappings.FirstOrDefault(null, function (m) { return m.uri == uri; });
+            var uriMapping = this._mappings.firstOrDefault(function (m) { return m.uri == uri; }, null);
             if (uriMapping == null) {
                 uriMapping = new UriMapping(uri, mappedUri);
                 this._mappings.push(uriMapping);
@@ -2101,8 +2202,7 @@ var layouts;
             }
             if (this._currentUri == uri)
                 return true;
-            var mappings = Enumerable.From(this._mappings);
-            var uriMapping = mappings.FirstOrDefault(null, function (m) { return m.test(uri); });
+            var uriMapping = this._mappings.firstOrDefault(function (m) { return m.test(uri); }, null);
             if (uriMapping != null) {
                 var queryString = uriMapping.resolve(uri);
                 //if (this._currentNavigationitem != null) {
@@ -2200,7 +2300,7 @@ var layouts;
         var Border = (function (_super) {
             __extends(Border, _super);
             function Border() {
-                return _super !== null && _super.apply(this, arguments) || this;
+                return _super.apply(this, arguments) || this;
             }
             Object.defineProperty(Border.prototype, "typeName", {
                 get: function () {
@@ -2433,7 +2533,7 @@ var layouts;
         var Button = (function (_super) {
             __extends(Button, _super);
             function Button() {
-                return _super !== null && _super.apply(this, arguments) || this;
+                return _super.apply(this, arguments) || this;
             }
             Object.defineProperty(Button.prototype, "typeName", {
                 get: function () {
@@ -2609,7 +2709,7 @@ var layouts;
         var Panel = (function (_super) {
             __extends(Panel, _super);
             function Panel() {
-                var _this = _super !== null && _super.apply(this, arguments) || this;
+                var _this = _super.apply(this, arguments) || this;
                 //virtual items
                 _this.virtualItemCount = 0;
                 _this.virtualOffset = null;
@@ -2720,7 +2820,7 @@ var layouts;
         var Canvas = (function (_super) {
             __extends(Canvas, _super);
             function Canvas() {
-                return _super !== null && _super.apply(this, arguments) || this;
+                return _super.apply(this, arguments) || this;
             }
             Object.defineProperty(Canvas.prototype, "typeName", {
                 get: function () {
@@ -2813,7 +2913,7 @@ var layouts;
         var CheckBox = (function (_super) {
             __extends(CheckBox, _super);
             function CheckBox() {
-                return _super !== null && _super.apply(this, arguments) || this;
+                return _super.apply(this, arguments) || this;
             }
             Object.defineProperty(CheckBox.prototype, "typeName", {
                 get: function () {
@@ -2930,7 +3030,7 @@ var layouts;
         var ContentTemplate = (function (_super) {
             __extends(ContentTemplate, _super);
             function ContentTemplate() {
-                return _super !== null && _super.apply(this, arguments) || this;
+                return _super.apply(this, arguments) || this;
             }
             Object.defineProperty(ContentTemplate.prototype, "typeName", {
                 get: function () {
@@ -3037,7 +3137,7 @@ var layouts;
         var ControlTemplate = (function (_super) {
             __extends(ControlTemplate, _super);
             function ControlTemplate() {
-                return _super !== null && _super.apply(this, arguments) || this;
+                return _super.apply(this, arguments) || this;
             }
             Object.defineProperty(ControlTemplate.prototype, "typeName", {
                 get: function () {
@@ -3125,7 +3225,7 @@ var layouts;
         var ControlTemplateSelector = (function (_super) {
             __extends(ControlTemplateSelector, _super);
             function ControlTemplateSelector() {
-                return _super !== null && _super.apply(this, arguments) || this;
+                return _super.apply(this, arguments) || this;
             }
             Object.defineProperty(ControlTemplateSelector.prototype, "typeName", {
                 get: function () {
@@ -3250,7 +3350,7 @@ var layouts;
         var Frame = (function (_super) {
             __extends(Frame, _super);
             function Frame() {
-                return _super !== null && _super.apply(this, arguments) || this;
+                return _super.apply(this, arguments) || this;
             }
             Object.defineProperty(Frame.prototype, "typeName", {
                 get: function () {
@@ -3338,7 +3438,7 @@ var layouts;
                 //TODO: use a regex instead
                 value = value.trim();
                 var tokens = value.split(" ");
-                return Enumerable.From(tokens).Select(function (token) {
+                return tokens.map(function (token) {
                     token = token.trim();
                     if (token.length == 0)
                         return;
@@ -3371,7 +3471,7 @@ var layouts;
                             length: GridLength.fromString(token)
                         };
                     }
-                }).ToArray();
+                });
             };
             GridLength.fromString = function (value) {
                 if (value == "Auto")
@@ -3607,7 +3707,7 @@ var layouts;
         var Grid = (function (_super) {
             __extends(Grid, _super);
             function Grid() {
-                return _super !== null && _super.apply(this, arguments) || this;
+                return _super.apply(this, arguments) || this;
             }
             Object.defineProperty(Grid.prototype, "typeName", {
                 get: function () {
@@ -4018,7 +4118,7 @@ var layouts;
             GridSplitter.prototype.attachVisualOverride = function (elementContainer) {
                 var _this = this;
                 _super.prototype.attachVisualOverride.call(this, elementContainer);
-                this._visual.style.zIndex = "10000";
+                //this._visual.style.zIndex = "10000";
                 this._visual.addEventListener("mousedown", function (ev) { return _this.onSplitterMouseDown(ev); }, true);
                 this._visual.tag = this;
                 this._visual.onselectstart = function () { return false; };
@@ -4218,7 +4318,6 @@ var layouts;
                         //console.log("_draggingStartPointY=", this._draggingStartPointY);
                         //console.log("ev.y=", ev.y);
                         parentGrid.invalidateMeasure();
-                        //LayoutManager.updateLayout();
                     }
                     else {
                         var sumFinalHeight = this.verticalAlignment == layouts.VerticalAlignment.Top ?
@@ -4262,7 +4361,6 @@ var layouts;
                         //console.log("_draggingStartPointY=", this._draggingStartPointY);
                         //console.log("ev.y=", ev.y);
                         parentGrid.invalidateMeasure();
-                        //LayoutManager.updateLayout();
                     }
                 }
                 else if (this.horizontalAlignment == layouts.HorizontalAlignment.Left ||
@@ -4443,7 +4541,7 @@ var layouts;
         var Image = (function (_super) {
             __extends(Image, _super);
             function Image() {
-                return _super !== null && _super.apply(this, arguments) || this;
+                return _super.apply(this, arguments) || this;
             }
             Object.defineProperty(Image.prototype, "typeName", {
                 get: function () {
@@ -4652,7 +4750,7 @@ var layouts;
         var TextBlock = (function (_super) {
             __extends(TextBlock, _super);
             function TextBlock() {
-                return _super !== null && _super.apply(this, arguments) || this;
+                return _super.apply(this, arguments) || this;
             }
             Object.defineProperty(TextBlock.prototype, "typeName", {
                 get: function () {
@@ -4760,7 +4858,7 @@ var layouts;
         var Label = (function (_super) {
             __extends(Label, _super);
             function Label() {
-                return _super !== null && _super.apply(this, arguments) || this;
+                return _super.apply(this, arguments) || this;
             }
             Object.defineProperty(Label.prototype, "typeName", {
                 get: function () {
@@ -4770,9 +4868,9 @@ var layouts;
                 configurable: true
             });
             Label.prototype.createElement = function (elementContainer) {
-                var label = document.createElement("label");
-                label.htmlFor = this.htmlFor;
-                return label;
+                this._label = document.createElement("label");
+                this._label.htmlFor = this.htmlFor;
+                return this._label;
             };
             Object.defineProperty(Label.prototype, "htmlFor", {
                 get: function () {
@@ -4784,6 +4882,12 @@ var layouts;
                 enumerable: true,
                 configurable: true
             });
+            Label.prototype.onDependencyPropertyChanged = function (property, value, oldValue) {
+                if (property == Label.htmlForProperty) {
+                    this._label.htmlFor = this.htmlFor;
+                }
+                _super.prototype.onDependencyPropertyChanged.call(this, property, value, oldValue);
+            };
             return Label;
         }(controls.TextBlock));
         Label.typeName = "layouts.controls.Label";
@@ -4798,7 +4902,7 @@ var layouts;
         var MediaTemplateSelector = (function (_super) {
             __extends(MediaTemplateSelector, _super);
             function MediaTemplateSelector() {
-                return _super !== null && _super.apply(this, arguments) || this;
+                return _super.apply(this, arguments) || this;
             }
             Object.defineProperty(MediaTemplateSelector.prototype, "typeName", {
                 get: function () {
@@ -5264,7 +5368,7 @@ var layouts;
         var ItemsControl = (function (_super) {
             __extends(ItemsControl, _super);
             function ItemsControl() {
-                var _this = _super !== null && _super.apply(this, arguments) || this;
+                var _this = _super.apply(this, arguments) || this;
                 //list of items created
                 //note that in general this list is not 1:1 with itemssource collection
                 //for example the case when some sort of virtualization of items is applied
@@ -5443,7 +5547,7 @@ var layouts;
                     if (elements == null)
                         throw new Error("Unable to get list of elements from itemsSource");
                     this._elements =
-                        Enumerable.From(elements).Select(function (item) {
+                        elements.map(function (item) {
                             var templateForItem = controls.DataTemplate.getTemplateForItem(_this._templates.toArray(), item);
                             if (templateForItem == null) {
                                 throw new Error("Unable to find a valid template for item");
@@ -5451,7 +5555,7 @@ var layouts;
                             var newElement = templateForItem.createElement();
                             newElement.setValue(layouts.FrameworkElement.dataContextProperty, item);
                             return newElement;
-                        }).ToArray();
+                        });
                 }
                 if (this._elements != null) {
                     if (this.itemsPanel == null) {
@@ -5482,7 +5586,7 @@ var layouts;
         var ComboBox = (function (_super) {
             __extends(ComboBox, _super);
             function ComboBox() {
-                return _super !== null && _super.apply(this, arguments) || this;
+                return _super.apply(this, arguments) || this;
             }
             Object.defineProperty(ComboBox.prototype, "typeName", {
                 get: function () {
@@ -5535,7 +5639,7 @@ var layouts;
                 }
                 else if (property == ComboBox.selectedValueProperty) {
                     if (this._selectElement != null && this.selectMember != null && this._elements != null)
-                        this.selectedItem = Enumerable.From(this._elements).FirstOrDefault(null, function (_) { return _[_this.selectMember] == value; });
+                        this.selectedItem = this._elements.firstOrDefault(function (_) { return _[_this.selectMember] == value; }, null);
                 }
                 _super.prototype.onDependencyPropertyChanged.call(this, property, value, oldValue);
             };
@@ -5566,7 +5670,7 @@ var layouts;
                     var selectedItem = this.selectedItem;
                     if (this.selectMember != null) {
                         var selectedValue = this.selectedValue;
-                        selectedItem = Enumerable.From(this._elements).FirstOrDefault(null, function (_) { return _[_this.selectMember] == selectedValue; });
+                        selectedItem = this._elements.firstOrDefault(function (_) { return _[_this.selectMember] == selectedValue; }, null);
                     }
                     this._selectElement.selectedIndex = selectedItem == null ? -1 : this._elements.indexOf(selectedItem);
                 }
@@ -5690,7 +5794,7 @@ var layouts;
         var Stack = (function (_super) {
             __extends(Stack, _super);
             function Stack() {
-                return _super !== null && _super.apply(this, arguments) || this;
+                return _super.apply(this, arguments) || this;
             }
             Object.defineProperty(Stack.prototype, "typeName", {
                 get: function () {
@@ -5784,7 +5888,7 @@ var layouts;
         var TextBox = (function (_super) {
             __extends(TextBox, _super);
             function TextBox() {
-                return _super !== null && _super.apply(this, arguments) || this;
+                return _super.apply(this, arguments) || this;
             }
             Object.defineProperty(TextBox.prototype, "typeName", {
                 get: function () {
@@ -5834,21 +5938,18 @@ var layouts;
                     var pElement = this._pElement;
                     if (pElement != null) {
                         this._pElement.value = value;
-                        //this._measuredSize = null;
                     }
                 }
                 else if (property == TextBox.placeholderProperty) {
                     var pElement = this._pElement;
                     if (pElement != null) {
                         pElement.placeholder = value;
-                        //this._measuredSize = null;
                     }
                 }
                 else if (property == TextBox.typeProperty) {
                     var pElement = this._pElement;
                     if (pElement != null) {
                         pElement.type = value;
-                        //this._measuredSize = null;
                     }
                 }
                 else if (property == TextBox.isReadonlyProperty) {
@@ -5916,7 +6017,7 @@ var layouts;
         var DataTemplate = (function (_super) {
             __extends(DataTemplate, _super);
             function DataTemplate() {
-                return _super !== null && _super.apply(this, arguments) || this;
+                return _super.apply(this, arguments) || this;
             }
             Object.defineProperty(DataTemplate.prototype, "typeName", {
                 get: function () {
@@ -5937,11 +6038,16 @@ var layouts;
                     reader = new layouts.XamlReader();
                 return reader.Parse(this._innerXaml);
             };
-            DataTemplate.getTemplateForItem = function (templates, item) {
+            DataTemplate.getTemplateForItem = function (templates, item, name) {
+                if (name === void 0) { name = null; }
                 if (templates == null ||
                     templates.length == 0)
                     return null;
-                var foundTemplate = Enumerable.From(templates).FirstOrDefault(null, function (template) {
+                var foundTemplate = templates.firstOrDefault(function (template) {
+                    if (name != null &&
+                        template.name != null &&
+                        template.name.toLowerCase() == name.toLowerCase())
+                        return true;
                     if (template.targetType == null)
                         return false;
                     var itemForTemplate = item;
@@ -5960,25 +6066,25 @@ var layouts;
                         template.targetType.toLowerCase() == typeName.toLowerCase())
                         return true;
                     return false;
-                });
+                }, null);
                 if (foundTemplate != null)
                     return foundTemplate;
-                return Enumerable.From(templates).FirstOrDefault(null, function (dt) { return dt.targetType == null; });
+                return templates.firstOrDefault(function (dt) { return dt.targetType == null; }, null);
             };
             DataTemplate.getTemplateForMedia = function (templates) {
                 if (templates == null ||
                     templates.length == 0)
                     return null;
-                var foundTemplate = Enumerable.From(templates).FirstOrDefault(null, function (template) {
+                var foundTemplate = templates.firstOrDefault(function (template) {
                     if (template.media == null ||
                         template.media.trim().length == 0) {
                         return true;
                     }
                     return window.matchMedia(template.media).matches;
-                });
+                }, null);
                 if (foundTemplate != null)
                     return foundTemplate;
-                return Enumerable.From(templates).FirstOrDefault(null, function (dt) { return dt.targetType == null; });
+                return templates.firstOrDefault(function (dt) { return dt.targetType == null; }, null);
             };
             Object.defineProperty(DataTemplate.prototype, "targetType", {
                 get: function () {
@@ -6010,6 +6116,16 @@ var layouts;
                 enumerable: true,
                 configurable: true
             });
+            Object.defineProperty(DataTemplate.prototype, "name", {
+                get: function () {
+                    return this.getValue(DataTemplate.nameProperty);
+                },
+                set: function (value) {
+                    this.setValue(DataTemplate.nameProperty, value);
+                },
+                enumerable: true,
+                configurable: true
+            });
             return DataTemplate;
         }(layouts.DepObject));
         DataTemplate.typeName = "layouts.controls.DataTemplate";
@@ -6018,6 +6134,7 @@ var layouts;
         DataTemplate.targetTypeProperty = layouts.DepObject.registerProperty(DataTemplate.typeName, "TargetType", null);
         DataTemplate.targetMemberProperty = layouts.DepObject.registerProperty(DataTemplate.typeName, "TargetMember", null);
         DataTemplate.mediaProperty = layouts.DepObject.registerProperty(DataTemplate.typeName, "Media", null);
+        DataTemplate.nameProperty = layouts.DepObject.registerProperty(DataTemplate.typeName, "Name", null);
         controls.DataTemplate = DataTemplate;
     })(controls = layouts.controls || (layouts.controls = {}));
 })(layouts || (layouts = {}));
@@ -6031,7 +6148,7 @@ var layouts;
         var UserControl = (function (_super) {
             __extends(UserControl, _super);
             function UserControl() {
-                return _super !== null && _super.apply(this, arguments) || this;
+                return _super.apply(this, arguments) || this;
             }
             Object.defineProperty(UserControl.prototype, "typeName", {
                 get: function () {
@@ -6134,6 +6251,142 @@ var layouts;
         UserControl.typeName = "layouts.controls.UserControl";
         controls.UserControl = UserControl;
     })(controls = layouts.controls || (layouts.controls = {}));
+})(layouts || (layouts = {}));
+var layouts;
+(function (layouts) {
+    var EasingFunctions = (function () {
+        function EasingFunctions() {
+        }
+        // t: current time, b: begInnIng value, c: change In value, d: duration
+        EasingFunctions.linearTween = function (t, b, c, d) {
+            return c * t / d + b;
+        };
+        ;
+        EasingFunctions.easeInQuad = function (t, b, c, d) {
+            t /= d;
+            return c * t * t + b;
+        };
+        ;
+        EasingFunctions.easeOutQuad = function (t, b, c, d) {
+            t /= d;
+            return -c * t * (t - 2) + b;
+        };
+        ;
+        EasingFunctions.easeInOutQuad = function (t, b, c, d) {
+            t /= d / 2;
+            if (t < 1)
+                return c / 2 * t * t + b;
+            t--;
+            return -c / 2 * (t * (t - 2) - 1) + b;
+        };
+        ;
+        EasingFunctions.easeInCubic = function (t, b, c, d) {
+            t /= d;
+            return c * t * t * t + b;
+        };
+        ;
+        EasingFunctions.easeOutCubic = function (t, b, c, d) {
+            t /= d;
+            t--;
+            return c * (t * t * t + 1) + b;
+        };
+        ;
+        EasingFunctions.easeInOutCubic = function (t, b, c, d) {
+            t /= d / 2;
+            if (t < 1)
+                return c / 2 * t * t * t + b;
+            t -= 2;
+            return c / 2 * (t * t * t + 2) + b;
+        };
+        ;
+        EasingFunctions.easeInQuart = function (t, b, c, d) {
+            t /= d;
+            return c * t * t * t * t + b;
+        };
+        ;
+        EasingFunctions.easeOutQuart = function (t, b, c, d) {
+            t /= d;
+            t--;
+            return -c * (t * t * t * t - 1) + b;
+        };
+        ;
+        EasingFunctions.easeInOutQuart = function (t, b, c, d) {
+            t /= d / 2;
+            if (t < 1)
+                return c / 2 * t * t * t * t + b;
+            t -= 2;
+            return -c / 2 * (t * t * t * t - 2) + b;
+        };
+        ;
+        EasingFunctions.easeInQuint = function (t, b, c, d) {
+            t /= d;
+            return c * t * t * t * t * t + b;
+        };
+        ;
+        EasingFunctions.easeOutQuint = function (t, b, c, d) {
+            t /= d;
+            t--;
+            return c * (t * t * t * t * t + 1) + b;
+        };
+        ;
+        EasingFunctions.easeInOutQuint = function (t, b, c, d) {
+            t /= d / 2;
+            if (t < 1)
+                return c / 2 * t * t * t * t * t + b;
+            t -= 2;
+            return c / 2 * (t * t * t * t * t + 2) + b;
+        };
+        ;
+        EasingFunctions.easeInSine = function (t, b, c, d) {
+            return -c * Math.cos(t / d * (Math.PI / 2)) + c + b;
+        };
+        ;
+        EasingFunctions.easeOutSine = function (t, b, c, d) {
+            return c * Math.sin(t / d * (Math.PI / 2)) + b;
+        };
+        ;
+        EasingFunctions.easeInOutSine = function (t, b, c, d) {
+            return -c / 2 * (Math.cos(Math.PI * t / d) - 1) + b;
+        };
+        ;
+        EasingFunctions.easeInExpo = function (t, b, c, d) {
+            return c * Math.pow(2, 10 * (t / d - 1)) + b;
+        };
+        ;
+        EasingFunctions.easeOutExpo = function (t, b, c, d) {
+            return c * (-Math.pow(2, -10 * t / d) + 1) + b;
+        };
+        ;
+        EasingFunctions.easeInOutExpo = function (t, b, c, d) {
+            t /= d / 2;
+            if (t < 1)
+                return c / 2 * Math.pow(2, 10 * (t - 1)) + b;
+            t--;
+            return c / 2 * (-Math.pow(2, -10 * t) + 2) + b;
+        };
+        ;
+        EasingFunctions.easeInCirc = function (t, b, c, d) {
+            t /= d;
+            return -c * (Math.sqrt(1 - t * t) - 1) + b;
+        };
+        ;
+        EasingFunctions.easeOutCirc = function (t, b, c, d) {
+            t /= d;
+            t--;
+            return c * Math.sqrt(1 - t * t) + b;
+        };
+        ;
+        EasingFunctions.easeInOutCirc = function (t, b, c, d) {
+            t /= d / 2;
+            if (t < 1)
+                return -c / 2 * (Math.sqrt(1 - t * t) - 1) + b;
+            t -= 2;
+            return c / 2 * (Math.sqrt(1 - t * t) + 1) + b;
+        };
+        ;
+        return EasingFunctions;
+    }());
+    layouts.EasingFunctions = EasingFunctions;
 })(layouts || (layouts = {}));
 var layouts;
 (function (layouts) {
@@ -6269,32 +6522,42 @@ var layouts;
                         this._createdObjectsWithId[att.value] = containerObject;
                 }
             }
-            var childrenProperties = Enumerable.From(xamlNode.childNodes).Where(function (_) { return _.nodeType == 1 && _.localName.indexOf(".") > -1; });
-            childrenProperties.ForEach(function (childNode) {
+            //var childrenProperties = Enumerable.From(xamlNode.childNodes).Where(_=> _.nodeType == 1 && _.localName.indexOf(".") > -1);
+            //childrenProperties.ForEach(childNode => {home
+            //    var indexOfDot = childNode.localName.indexOf(".");
+            //    if (childNode.localName.substr(0, indexOfDot) == xamlNode.localName) {
+            //        let propertyName = childNode.localName.substr(indexOfDot + 1);
+            //        let childOfChild = Enumerable.From(childNode.childNodes).FirstOrDefault(null, _=> _.nodeType == 1);
+            //        let valueToSet = childOfChild == null ? null : this.Load(childOfChild);
+            //        this.trySetProperty(containerObject, propertyName, this.resolveNameSpace(childNode.namespaceURI), valueToSet);
+            //    }
+            //});
+            var childrenProperties = xamlNode.childNodes.where(function (_) { return _.nodeType == 1 && _.localName.indexOf(".") > -1; });
+            childrenProperties.forEach(function (childNode) {
                 var indexOfDot = childNode.localName.indexOf(".");
                 if (childNode.localName.substr(0, indexOfDot) == xamlNode.localName) {
                     var propertyName = childNode.localName.substr(indexOfDot + 1);
-                    var childOfChild = Enumerable.From(childNode.childNodes).FirstOrDefault(null, function (_) { return _.nodeType == 1; });
+                    var childOfChild = childNode.childNodes.firstOrDefault(function (_) { return _.nodeType == 1; }, null);
                     var valueToSet = childOfChild == null ? null : _this.Load(childOfChild);
                     _this.trySetProperty(containerObject, propertyName, _this.resolveNameSpace(childNode.namespaceURI), valueToSet);
                 }
             });
-            var children = Enumerable.From(xamlNode.childNodes).Where(function (_) { return _.nodeType == 1 && _.localName.indexOf(".") == -1; });
+            var children = xamlNode.childNodes.where(function (_) { return _.nodeType == 1 && _.localName.indexOf(".") == -1; });
             if (containerObject["setInnerXaml"] != null) {
-                if (children.Count() > 0)
-                    containerObject["setInnerXaml"]((new XMLSerializer()).serializeToString(children.ToArray()[0]));
+                if (children.length > 0)
+                    containerObject["setInnerXaml"]((new XMLSerializer()).serializeToString(children[0]));
                 if (containerObject["setXamlLoader"] != null)
                     containerObject["setXamlLoader"](this);
                 return containerObject;
             }
-            if (children.Count() == 0)
+            if (children.length == 0)
                 return containerObject; //no children
             //load children or content or items
             if (layouts.Ext.hasProperty(containerObject, "content") || layouts.Ext.hasProperty(containerObject, "child")) {
                 //support direct content...try to set content of container object with first child
                 //skip any other children of lml node
                 var contentPropertyName = layouts.Ext.hasProperty(containerObject, "content") ? "content" : "child";
-                containerObject[contentPropertyName] = this.Load(children.First());
+                containerObject[contentPropertyName] = this.Load(children[0]);
             }
             else {
                 var collectionPropertyName = null;
@@ -6304,10 +6567,12 @@ var layouts;
                     collectionPropertyName = "items";
                 if (layouts.Ext.hasProperty(containerObject, "templates"))
                     collectionPropertyName = "templates";
+                if (layouts.Ext.hasProperty(containerObject, "animations"))
+                    collectionPropertyName = "animations";
                 if (collectionPropertyName != null) {
                     //if object has a property called Children or Items
                     //load all children from children nodes and set property with resulting list
-                    var listOfChildren = children.Select(function (childNode) { return _this.Load(childNode); }).ToArray();
+                    var listOfChildren = children.map(function (childNode) { return _this.Load(childNode); });
                     containerObject[collectionPropertyName] = new layouts.ObservableCollection(listOfChildren);
                 }
             }
@@ -6331,15 +6596,13 @@ var layouts;
                     attLeft.value != attRight.value)
                     return false;
             }
-            var childrenLeft = Enumerable.From(nodeLeft.childNodes).Where(function (_) { return _.nodeType == 1; });
-            var childrenRight = Enumerable.From(nodeRight.childNodes).Where(function (_) { return _.nodeType == 1; });
-            if (childrenLeft.Count() != childrenRight.Count())
+            var childrenLeft = nodeLeft.childNodes.where(function (_) { return _.nodeType == 1; });
+            var childrenRight = nodeRight.childNodes.where(function (_) { return _.nodeType == 1; });
+            if (childrenLeft.length != childrenRight.length)
                 return false;
-            var arrayOfChildrenLeft = childrenLeft.ToArray();
-            var arrayOfChildrenRight = childrenRight.ToArray();
-            for (var i = 0; i < childrenLeft.Count(); i++) {
-                var childNodeLeft = arrayOfChildrenLeft[i];
-                var childNodeRight = arrayOfChildrenRight[i];
+            for (var i = 0; i < childrenLeft.length; i++) {
+                var childNodeLeft = childrenLeft[i];
+                var childNodeRight = childrenRight[i];
                 if (!XamlReader.compareXml(childNodeLeft, childNodeRight))
                     return false;
             }
@@ -6452,13 +6715,6 @@ var layouts;
                     //just signal it on console
                     console.log("[Bindings] Unable to parse '{0}' as binding definition".format(bindingValue));
                 }
-                //var tokens = bindingValue.substr(1, bindingValue.length-2).split(",");
-                //var path = tokens[0]; //ex. '.' or 'Name'
-                //var twoway = tokens.length > 1 ? (tokens[1] == "twoway") : false;
-                //var source = tokens.length > 2 ? tokens[2] : null; //todo convert to source=>self, element etc
-                //var converter = tokens.length > 3 ? tokens[3] : null; //converter (typename) to use when updating the target
-                //var converterParameter = tokens.length > 4 ? tokens[4] : null;//converter parameter to pass to converter as context
-                //return { path: path, twoway: twoway, source: source, converter: converter, converterParameter: converterParameter };
             }
             return null;
         };

@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>Layouts</id>
-    <version>1.0.6</version>
+    <version>1.0.16</version>
     <title>Layouts</title>
     <authors>Adolfo Marinucci</authors>
     <owners>Adolfo Marinucci</owners>
@@ -23,10 +23,7 @@
     <iconUrl>https://nuget.org/Content/Images/packageDefaultIcon-50x50.png</iconUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <licenseUrl>http://opensource.org/licenses/Apache-2.0</licenseUrl>
-    <copyright>Adolfo Marinucci Copyright 2016</copyright>
-    <dependencies>
-      <dependency id="linq.js" version="2.2.0.2" />
-    </dependencies>
+    <copyright>Adolfo Marinucci Copyright 2017</copyright>
     <references></references>
     <tags>layouts typescript javascript xaml UI html5</tags>
   </metadata>

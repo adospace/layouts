@@ -10,7 +10,7 @@
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <DebugType>full</DebugType>
     <DebugSymbols>true</DebugSymbols>
-    <TypeScriptToolsVersion>2.2</TypeScriptToolsVersion>
+    <TypeScriptToolsVersion>2.1</TypeScriptToolsVersion>
     <UseIISExpress>true</UseIISExpress>
     <IISExpressSSLPort />
     <IISExpressAnonymousAuthentication />
@@ -19,6 +19,7 @@
     <UseGlobalApplicationHostFile />
   </PropertyGroup>
   <ItemGroup>
+    <TypeScriptCompile Include="layouts\Animate.ts" />
     <TypeScriptCompile Include="layouts\Application.ts" />
     <TypeScriptCompile Include="layouts\Consts.ts" />
     <TypeScriptCompile Include="layouts\controls\Border.ts" />
@@ -47,6 +48,7 @@
     <TypeScriptCompile Include="layouts\controls\UserControl.ts" />
     <TypeScriptCompile Include="layouts\DepObject.ts" />
     <TypeScriptCompile Include="layouts\DepProperty.ts" />
+    <TypeScriptCompile Include="layouts\EasingFunctions.ts" />
     <TypeScriptCompile Include="layouts\EventAction.ts" />
     <TypeScriptCompile Include="layouts\Extensions.ts" />
     <TypeScriptCompile Include="layouts\FrameworkElement.ts" />
@@ -61,18 +63,14 @@
     <TypeScriptCompile Include="layouts\PropertyMap.ts" />
     <TypeScriptCompile Include="layouts\Timer.ts" />
     <TypeScriptCompile Include="layouts\UIElement.ts" />
-    <TypeScriptCompile Include="layouts\linq.d.ts" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="cp_article\article.htm" />
     <Content Include="cp_article\codeproject_template.htm" />
     <Content Include="cp_article\LayoutsSC.png" />
     <Content Include="cp_article\Readme.txt" />
-    <Content Include="packages.config" />
+    <Content Include="layouts.js" />
     <Content Include="cp_article\LayoutsTestApp.zip" />
-    <None Include="Scripts\linq-vsdoc.js" />
-    <Content Include="Scripts\linq.js" />
-    <Content Include="Scripts\linq.min.js" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">12.0</VisualStudioVersion>
@@ -104,7 +102,16 @@
     <TypeScriptRemoveComments>false</TypeScriptRemoveComments>
     <TypeScriptSourceMap>true</TypeScriptSourceMap>
     <TypeScriptGeneratesDeclarations>True</TypeScriptGeneratesDeclarations>
-    <TypeScriptOutFile>layouts.js</TypeScriptOutFile>
+    <TypeScriptOutFile>..\..\layouts.js</TypeScriptOutFile>
+    <TypeScriptTarget>ES5</TypeScriptTarget>
+    <TypeScriptJSXEmit>None</TypeScriptJSXEmit>
+    <TypeScriptCompileOnSaveEnabled>True</TypeScriptCompileOnSaveEnabled>
+    <TypeScriptNoImplicitAny>False</TypeScriptNoImplicitAny>
+    <TypeScriptModuleKind>None</TypeScriptModuleKind>
+    <TypeScriptOutDir />
+    <TypeScriptNoEmitOnError>True</TypeScriptNoEmitOnError>
+    <TypeScriptMapRoot />
+    <TypeScriptSourceRoot />
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)' == 'Release'">
     <TypeScriptRemoveComments>False</TypeScriptRemoveComments>
@@ -113,7 +120,7 @@
     <TypeScriptJSXEmit>None</TypeScriptJSXEmit>
     <TypeScriptCompileOnSaveEnabled>True</TypeScriptCompileOnSaveEnabled>
     <TypeScriptNoImplicitAny>False</TypeScriptNoImplicitAny>
-    <TypeScriptModuleKind>AMD</TypeScriptModuleKind>
+    <TypeScriptModuleKind>None</TypeScriptModuleKind>
     <TypeScriptOutFile>layouts.js</TypeScriptOutFile>
     <TypeScriptOutDir />
     <TypeScriptGeneratesDeclarations>True</TypeScriptGeneratesDeclarations>

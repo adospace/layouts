@@ -1,8 +1,13 @@
-var __extends = (this && this.__extends) || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-};
+var layouts;
+(function (layouts) {
+    var Animate = (function () {
+        function Animate(easeFunction, duration) {
+            this.easeFunction = easeFunction;
+        }
+        return Animate;
+    }());
+    layouts.Animate = Animate;
+})(layouts || (layouts = {}));
 var layouts;
 (function (layouts) {
     var Ext = (function () {
@@ -43,7 +48,7 @@ if (!String.prototype.toLowerFirstLetter) {
 }
 if (!String.prototype.startsWith) {
     String.prototype.startsWith = function (other) {
-        return this.charAt(0).toLowerCase() + this.slice(1);
+        return this.lastIndexOf(other, 0) == 0;
     };
 }
 Number.prototype.isEpsilon = function () {
@@ -63,6 +68,40 @@ Number.prototype.isLessThen = function (other) {
 Number.prototype.isGreaterThen = function (other) {
     return (this - other) > 1e-10;
 };
+if (!Array.prototype.firstOrDefault) {
+    Array.prototype.firstOrDefault = function (callback, defaultValue) {
+        var arrayOfItems = this;
+        for (var i = 0; i < arrayOfItems.length; ++i) {
+            var item = arrayOfItems[i];
+            if (callback(item, i))
+                return item;
+        }
+        return defaultValue;
+    };
+}
+if (!NodeList.prototype.firstOrDefault) {
+    NodeList.prototype.firstOrDefault = function (callback, defaultValue) {
+        var nodeList = this;
+        for (var i = 0; i < nodeList.length; ++i) {
+            var item = nodeList[i];
+            if (callback(item, i))
+                return item;
+        }
+        return defaultValue;
+    };
+}
+if (!NodeList.prototype.where) {
+    NodeList.prototype.where = function (callback) {
+        var nodeList = this;
+        var res = new Array();
+        for (var i = 0; i < nodeList.length; ++i) {
+            var item = nodeList[i];
+            if (callback(item, i))
+                res.push(item);
+        }
+        return res;
+    };
+}
 var InstanceLoader = (function () {
     function InstanceLoader(context) {
         this.context = context;
@@ -147,9 +186,9 @@ var layouts;
     var Consts = (function () {
         function Consts() {
         }
-        Consts.stringEmpty = "";
         return Consts;
     }());
+    Consts.stringEmpty = "";
     layouts.Consts = Consts;
 })(layouts || (layouts = {}));
 var layouts;
@@ -288,11 +327,11 @@ var layouts;
             var newBinding = new Binding(this, property, propertyPath, source, twoway, converter, converterParameter, format);
             this.bindings.push(newBinding);
         };
-        ///Map of properties for each dependency object
-        DepObject.globalPropertyMap = {};
-        DepObject.logBindingTraceToConsole = false;
         return DepObject;
     }());
+    ///Map of properties for each dependency object
+    DepObject.globalPropertyMap = {};
+    DepObject.logBindingTraceToConsole = false;
     layouts.DepObject = DepObject;
     var Binding = (function () {
         function Binding(target, targetProperty, propertyPath, source, twoWay, converter, converterParameter, format) {
@@ -541,6 +580,11 @@ var layouts;
 })(layouts || (layouts = {}));
 /// <reference path="DepProperty.ts" />
 /// <reference path="DepObject.ts" />
+var __extends = (this && this.__extends) || function (d, b) {
+    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+    function __() { this.constructor = d; }
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+};
 var layouts;
 (function (layouts) {
     var Size = (function () {
@@ -597,6 +641,7 @@ var layouts;
         return Vector;
     }());
     layouts.Vector = Vector;
+    var FrameworkPropertyMetadataOptions;
     (function (FrameworkPropertyMetadataOptions) {
         /// No flags
         FrameworkPropertyMetadataOptions[FrameworkPropertyMetadataOptions["None"] = 0] = "None";
@@ -620,8 +665,7 @@ var layouts;
         FrameworkPropertyMetadataOptions[FrameworkPropertyMetadataOptions["NotDataBindable"] = 128] = "NotDataBindable";
         /// Data bindings on this property default to two-way
         FrameworkPropertyMetadataOptions[FrameworkPropertyMetadataOptions["BindsTwoWayByDefault"] = 256] = "BindsTwoWayByDefault";
-    })(layouts.FrameworkPropertyMetadataOptions || (layouts.FrameworkPropertyMetadataOptions = {}));
-    var FrameworkPropertyMetadataOptions = layouts.FrameworkPropertyMetadataOptions;
+    })(FrameworkPropertyMetadataOptions = layouts.FrameworkPropertyMetadataOptions || (layouts.FrameworkPropertyMetadataOptions = {}));
     var ExtendedProperty = (function () {
         function ExtendedProperty(name, value) {
             this.name = name;
@@ -633,15 +677,16 @@ var layouts;
     var UIElement = (function (_super) {
         __extends(UIElement, _super);
         function UIElement() {
-            _super.apply(this, arguments);
+            var _this = _super.apply(this, arguments) || this;
             ///Render Pass
-            this.relativeOffset = null;
-            this.measureDirty = true;
-            this.arrangeDirty = true;
-            this.layoutInvalid = true;
+            _this.relativeOffset = null;
+            _this.measureDirty = true;
+            _this.arrangeDirty = true;
+            _this.layoutInvalid = true;
             //extended properties are key-value items that loader was unable to assign to element
             //because they didn't not correspond to any property (dependency or native) exposed by element
-            this._extendedProperties = [];
+            _this._extendedProperties = [];
+            return _this;
         }
         Object.defineProperty(UIElement.prototype, "typeName", {
             get: function () {
@@ -661,12 +706,13 @@ var layouts;
             if (!this.measureDirty && isCloseToPreviousMeasure)
                 return;
             this.previousAvailableSize = availableSize;
-            this.desiredSize = this.measureCore(availableSize);
-            if (isNaN(this.desiredSize.width) ||
-                !isFinite(this.desiredSize.width) ||
-                isNaN(this.desiredSize.height) ||
-                !isFinite(this.desiredSize.height))
+            var desiredSize = this.measureCore(availableSize);
+            if (isNaN(desiredSize.width) ||
+                !isFinite(desiredSize.width) ||
+                isNaN(desiredSize.height) ||
+                !isFinite(desiredSize.height))
                 throw new Error("measure pass must return valid size");
+            this.desiredSize = this.animateSize(desiredSize);
             this.measureDirty = false;
         };
         UIElement.prototype.measureCore = function (availableSize) {
@@ -717,6 +763,30 @@ var layouts;
                 }
             }
         };
+        //Animation Pass
+        //private _animations: ObservableCollection<Animate>;
+        //get animations(): ObservableCollection<Animate> {
+        //    return this._animations;
+        //}
+        //set children(value: ObservableCollection<Animate>) {
+        //    if (value == this._animations)
+        //        return;
+        //    if (this._animations != null) {
+        //        //remove handler so that resource can be disposed
+        //        this._animations.offChangeNotify(this);
+        //    }
+        //    this._animations = value;
+        //    if (this._animations != null) {
+        //        this._animations.onChangeNotify(this);
+        //    }
+        //    this.invalidateMeasure();
+        //}
+        //onCollectionChanged(collection: any, added: any[], removed: any[], startRemoveIndex: number) {
+        //    this.invalidateMeasure();
+        //}
+        UIElement.prototype.animateSize = function (desiredSize) {
+            return desiredSize;
+        };
         UIElement.prototype.attachVisual = function (elementContainer, showImmediately) {
             if (showImmediately === void 0) { showImmediately = false; }
             //1. if a visual is not yet created and we have a container
@@ -731,7 +801,7 @@ var layouts;
                 this.attachVisualOverride(null);
             //2. if visual is still null we have done
             if (this._visual == null)
-                return;
+                return null;
             //3. if visual is not under container...
             if (elementContainer != this._visual.parentElement) {
                 //4. remove visual from old container 
@@ -761,14 +831,25 @@ var layouts;
                         this.visualConnected(elementContainer);
                 }
             }
+            return this._visual;
         };
+        Object.defineProperty(UIElement.prototype, "visual", {
+            get: function () {
+                return this._visual;
+            },
+            enumerable: true,
+            configurable: true
+        });
         UIElement.prototype.attachVisualOverride = function (elementContainer) {
             var _this = this;
             if (this._visual == null)
                 return;
             //apply extended properties to html element
             this._extendedProperties.forEach(function (ep) {
-                _this._visual.style[ep.name] = ep.value;
+                if (ep.name in _this._visual)
+                    _this._visual[ep.name] = ep.value;
+                else
+                    _this._visual.style[ep.name] = ep.value;
             });
             this._visual.style.visibility = this.isVisible ? "" : "hidden";
             if (this.command != null)
@@ -800,10 +881,12 @@ var layouts;
             if (popup != null) {
                 layouts.LayoutManager.showPopup(popup);
                 ev.stopPropagation();
-                document.addEventListener("mouseup", function () {
-                    this.removeEventListener("mouseup", arguments.callee);
-                    layouts.LayoutManager.closePopup(popup);
-                });
+                if (this.autoClosePopup) {
+                    document.addEventListener("mouseup", function () {
+                        this.removeEventListener("mouseup", arguments.callee);
+                        layouts.LayoutManager.closePopup(popup);
+                    });
+                }
             }
         };
         UIElement.prototype.getBoundingClientRect = function () {
@@ -901,18 +984,18 @@ var layouts;
             return this.localPropertyValueMap[property.name];
         };
         UIElement.prototype.invalidateMeasure = function () {
+            this.arrangeDirty = true;
+            this.layoutInvalid = true;
             if (!this.measureDirty) {
                 this.measureDirty = true;
-                this.arrangeDirty = true;
-                this.layoutInvalid = true;
                 if (this._parent != null)
                     this._parent.invalidateMeasure();
             }
         };
         UIElement.prototype.invalidateArrange = function () {
+            this.layoutInvalid = true;
             if (!this.arrangeDirty) {
                 this.arrangeDirty = true;
-                this.layoutInvalid = true;
                 if (this._parent != null)
                     this._parent.invalidateArrange();
             }
@@ -936,6 +1019,21 @@ var layouts;
                 }
             }
             return null;
+        };
+        UIElement.prototype.forAllChildrenOfType = function (elementType, action) {
+            var typeName = elementType["typeName"];
+            if (this._logicalChildren != null) {
+                for (var i = 0; i < this._logicalChildren.length; i++) {
+                    var child = this._logicalChildren[i];
+                    if (child.typeName == typeName) {
+                        if (!action(child))
+                            return false;
+                    }
+                    if (!child.forAllChildrenOfType(elementType, action))
+                        return false;
+                }
+            }
+            return true;
         };
         Object.defineProperty(UIElement.prototype, "parent", {
             get: function () {
@@ -1058,6 +1156,16 @@ var layouts;
             enumerable: true,
             configurable: true
         });
+        Object.defineProperty(UIElement.prototype, "autoClosePopup", {
+            get: function () {
+                return this.getValue(UIElement.autoClosePopupProperty);
+            },
+            set: function (value) {
+                this.setValue(UIElement.autoClosePopupProperty, value);
+            },
+            enumerable: true,
+            configurable: true
+        });
         Object.defineProperty(UIElement.prototype, "layoutUpdated", {
             get: function () {
                 return this.getValue(UIElement.layoutUpdatedProperty);
@@ -1068,25 +1176,23 @@ var layouts;
             enumerable: true,
             configurable: true
         });
-        UIElement.typeName = "layouts.UIElement";
-        UIElement.isVisibleProperty = layouts.DepObject.registerProperty(UIElement.typeName, "IsVisible", true, FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsParentMeasure | FrameworkPropertyMetadataOptions.AffectsRender);
-        //static styleProperty = DepObject.registerProperty(UIElement.typeName, "cssStyle", Consts.stringEmpty, FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsParentMeasure | FrameworkPropertyMetadataOptions.AffectsRender);
-        //get cssStyle(): string {
-        //    return <string>this.getValue(UIElement.styleProperty);
-        //}
-        //set cssStyle(value: string) {
-        //    this.setValue(UIElement.styleProperty, value);
-        //}
-        UIElement.classProperty = layouts.DepObject.registerProperty(UIElement.typeName, "class", null, FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender);
-        //name property
-        UIElement.idProperty = layouts.DepObject.registerProperty(UIElement.typeName, "id", layouts.Consts.stringEmpty, FrameworkPropertyMetadataOptions.AffectsRender);
-        UIElement.commandProperty = layouts.DepObject.registerProperty(UIElement.typeName, "Command", null, FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender);
-        UIElement.commandParameterProperty = layouts.DepObject.registerProperty(UIElement.typeName, "CommandParameter", null, FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender);
-        //get or set popup property for the element
-        UIElement.popupProperty = layouts.DepObject.registerProperty(UIElement.typeName, "Popup", null, FrameworkPropertyMetadataOptions.AffectsRender);
-        UIElement.layoutUpdatedProperty = layouts.DepObject.registerProperty(UIElement.typeName, "LayoutUpdated", null, FrameworkPropertyMetadataOptions.None);
         return UIElement;
     }(layouts.DepObject));
+    UIElement.typeName = "layouts.UIElement";
+    UIElement.isVisibleProperty = layouts.DepObject.registerProperty(UIElement.typeName, "IsVisible", true, FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsParentMeasure | FrameworkPropertyMetadataOptions.AffectsRender);
+    UIElement.classProperty = layouts.DepObject.registerProperty(UIElement.typeName, "class", null, FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender);
+    //name property
+    UIElement.idProperty = layouts.DepObject.registerProperty(UIElement.typeName, "id", layouts.Consts.stringEmpty, FrameworkPropertyMetadataOptions.AffectsRender);
+    UIElement.commandProperty = layouts.DepObject.registerProperty(UIElement.typeName, "Command", null, FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender);
+    UIElement.commandParameterProperty = layouts.DepObject.registerProperty(UIElement.typeName, "CommandParameter", null, FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender);
+    //get or set popup property for the element
+    UIElement.popupProperty = layouts.DepObject.registerProperty(UIElement.typeName, "Popup", null, FrameworkPropertyMetadataOptions.None);
+    UIElement.autoClosePopupProperty = layouts.DepObject.registerProperty(UIElement.typeName, "AutoClosePopup", true, FrameworkPropertyMetadataOptions.None, function (value) {
+        if (value == null || (value.toLowerCase() != "true" && value.toLowerCase() != "false"))
+            throw new Error("Unable to valuate string '{0}' as boolean".format(value));
+        return value.toLowerCase() == "true" ? true : false;
+    });
+    UIElement.layoutUpdatedProperty = layouts.DepObject.registerProperty(UIElement.typeName, "LayoutUpdated", null, FrameworkPropertyMetadataOptions.None);
     layouts.UIElement = UIElement;
 })(layouts || (layouts = {}));
 /// <reference path="DepProperty.ts" />
@@ -1094,27 +1200,27 @@ var layouts;
 /// <reference path="UIElement.ts" />
 var layouts;
 (function (layouts) {
+    var VerticalAlignment;
     (function (VerticalAlignment) {
         VerticalAlignment[VerticalAlignment["Top"] = 0] = "Top";
         VerticalAlignment[VerticalAlignment["Center"] = 1] = "Center";
         VerticalAlignment[VerticalAlignment["Bottom"] = 2] = "Bottom";
         VerticalAlignment[VerticalAlignment["Stretch"] = 3] = "Stretch";
-    })(layouts.VerticalAlignment || (layouts.VerticalAlignment = {}));
-    var VerticalAlignment = layouts.VerticalAlignment;
+    })(VerticalAlignment = layouts.VerticalAlignment || (layouts.VerticalAlignment = {}));
+    var HorizontalAlignment;
     (function (HorizontalAlignment) {
         HorizontalAlignment[HorizontalAlignment["Left"] = 0] = "Left";
         HorizontalAlignment[HorizontalAlignment["Center"] = 1] = "Center";
         HorizontalAlignment[HorizontalAlignment["Right"] = 2] = "Right";
         HorizontalAlignment[HorizontalAlignment["Stretch"] = 3] = "Stretch";
-    })(layouts.HorizontalAlignment || (layouts.HorizontalAlignment = {}));
-    var HorizontalAlignment = layouts.HorizontalAlignment;
+    })(HorizontalAlignment = layouts.HorizontalAlignment || (layouts.HorizontalAlignment = {}));
+    var SizeToContent;
     (function (SizeToContent) {
         SizeToContent[SizeToContent["None"] = 0] = "None";
         SizeToContent[SizeToContent["Both"] = 1] = "Both";
         SizeToContent[SizeToContent["Vertical"] = 2] = "Vertical";
         SizeToContent[SizeToContent["Horizontal"] = 3] = "Horizontal";
-    })(layouts.SizeToContent || (layouts.SizeToContent = {}));
-    var SizeToContent = layouts.SizeToContent;
+    })(SizeToContent = layouts.SizeToContent || (layouts.SizeToContent = {}));
     var Thickness = (function () {
         function Thickness(left, top, right, bottom) {
             if (left === void 0) { left = 0; }
@@ -1175,9 +1281,10 @@ var layouts;
     var FrameworkElement = (function (_super) {
         __extends(FrameworkElement, _super);
         function FrameworkElement() {
-            _super.apply(this, arguments);
+            var _this = _super.apply(this, arguments) || this;
             //private needClipBounds: boolean;
-            this.visualOffset = null;
+            _this.visualOffset = null;
+            return _this;
         }
         Object.defineProperty(FrameworkElement.prototype, "typeName", {
             get: function () {
@@ -1325,7 +1432,7 @@ var layouts;
                 this._visual.style.top = this.visualOffset.y.toString() + "px";
             }
             if (this.renderSize != null) {
-                //when an element starts hidden renderSize is not available
+                //when an element initially loads hidden renderSize is not available
                 this._visual.style.width = this.renderSize.width.toString() + "px";
                 this._visual.style.height = this.renderSize.height.toString() + "px";
             }
@@ -1498,41 +1605,41 @@ var layouts;
             enumerable: true,
             configurable: true
         });
-        FrameworkElement.typeName = "layouts.FrameworkElement";
-        //width property
-        FrameworkElement.widthProperty = layouts.DepObject.registerProperty(FrameworkElement.typeName, "Width", Number.NaN, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure);
-        //height property
-        FrameworkElement.heightProperty = layouts.DepObject.registerProperty(FrameworkElement.typeName, "Height", Number.NaN, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure);
-        //actualWidth property
-        FrameworkElement.actualWidthProperty = layouts.DepObject.registerProperty(FrameworkElement.typeName, "ActualWidth", 0);
-        //actualHeight property
-        FrameworkElement.actualHeightProperty = layouts.DepObject.registerProperty(FrameworkElement.typeName, "ActualHeight", 0);
-        //minWidth property
-        FrameworkElement.minWidthProperty = layouts.DepObject.registerProperty(FrameworkElement.typeName, "MinWidth", 0, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure, function (v) { return parseFloat(v); });
-        //minHeight property
-        FrameworkElement.minHeightProperty = layouts.DepObject.registerProperty(FrameworkElement.typeName, "MinHeight", 0, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure, function (v) { return parseFloat(v); });
-        //maxWidth property
-        FrameworkElement.maxWidthProperty = layouts.DepObject.registerProperty(FrameworkElement.typeName, "MaxWidth", Infinity, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure, function (v) { return parseFloat(v); });
-        //maxHeight property
-        FrameworkElement.maxHeightProperty = layouts.DepObject.registerProperty(FrameworkElement.typeName, "MaxHeight", Infinity, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure, function (v) { return parseFloat(v); });
-        //verticalAlignment property
-        FrameworkElement.verticalAlignmentProperty = layouts.DepObject.registerProperty(FrameworkElement.typeName, "VerticalAlignment", VerticalAlignment.Stretch, layouts.FrameworkPropertyMetadataOptions.AffectsArrange, function (v) { return VerticalAlignment[String(v)]; });
-        //horizontalAlignment property
-        FrameworkElement.horizontalAlignmentProperty = layouts.DepObject.registerProperty(FrameworkElement.typeName, "HorizontalAlignment", HorizontalAlignment.Stretch, layouts.FrameworkPropertyMetadataOptions.AffectsArrange, function (v) { return HorizontalAlignment[String(v)]; });
-        //margin property
-        FrameworkElement.marginProperty = layouts.DepObject.registerProperty(FrameworkElement.typeName, "Margin", new Thickness(), layouts.FrameworkPropertyMetadataOptions.AffectsMeasure, function (v) { return Thickness.fromString(v); });
-        //dataContext property
-        FrameworkElement.dataContextProperty = layouts.DepObject.registerProperty(FrameworkElement.typeName, "DataContext", null, layouts.FrameworkPropertyMetadataOptions.Inherits);
-        //tag property
-        FrameworkElement.tagProperty = layouts.DepObject.registerProperty(FrameworkElement.typeName, "Tag");
-        //overflowX property -> visible|hidden|scroll|auto
-        //by default content is clipped so overflowX is set to hidden
-        FrameworkElement.overflowXProperty = layouts.DepObject.registerProperty(FrameworkElement.typeName, "OverflowX", "hidden", layouts.FrameworkPropertyMetadataOptions.AffectsRender);
-        //overflowY property -> visible|hidden|scroll|auto
-        //by default content is clipped so overflowY is set to hidden
-        FrameworkElement.overflowYProperty = layouts.DepObject.registerProperty(FrameworkElement.typeName, "OverflowY", "hidden", layouts.FrameworkPropertyMetadataOptions.AffectsRender);
         return FrameworkElement;
     }(layouts.UIElement));
+    FrameworkElement.typeName = "layouts.FrameworkElement";
+    //width property
+    FrameworkElement.widthProperty = layouts.DepObject.registerProperty(FrameworkElement.typeName, "Width", Number.NaN, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure);
+    //height property
+    FrameworkElement.heightProperty = layouts.DepObject.registerProperty(FrameworkElement.typeName, "Height", Number.NaN, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure);
+    //actualWidth property
+    FrameworkElement.actualWidthProperty = layouts.DepObject.registerProperty(FrameworkElement.typeName, "ActualWidth", 0);
+    //actualHeight property
+    FrameworkElement.actualHeightProperty = layouts.DepObject.registerProperty(FrameworkElement.typeName, "ActualHeight", 0);
+    //minWidth property
+    FrameworkElement.minWidthProperty = layouts.DepObject.registerProperty(FrameworkElement.typeName, "MinWidth", 0, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure, function (v) { return parseFloat(v); });
+    //minHeight property
+    FrameworkElement.minHeightProperty = layouts.DepObject.registerProperty(FrameworkElement.typeName, "MinHeight", 0, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure, function (v) { return parseFloat(v); });
+    //maxWidth property
+    FrameworkElement.maxWidthProperty = layouts.DepObject.registerProperty(FrameworkElement.typeName, "MaxWidth", Infinity, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure, function (v) { return parseFloat(v); });
+    //maxHeight property
+    FrameworkElement.maxHeightProperty = layouts.DepObject.registerProperty(FrameworkElement.typeName, "MaxHeight", Infinity, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure, function (v) { return parseFloat(v); });
+    //verticalAlignment property
+    FrameworkElement.verticalAlignmentProperty = layouts.DepObject.registerProperty(FrameworkElement.typeName, "VerticalAlignment", VerticalAlignment.Stretch, layouts.FrameworkPropertyMetadataOptions.AffectsArrange, function (v) { return VerticalAlignment[String(v)]; });
+    //horizontalAlignment property
+    FrameworkElement.horizontalAlignmentProperty = layouts.DepObject.registerProperty(FrameworkElement.typeName, "HorizontalAlignment", HorizontalAlignment.Stretch, layouts.FrameworkPropertyMetadataOptions.AffectsArrange, function (v) { return HorizontalAlignment[String(v)]; });
+    //margin property
+    FrameworkElement.marginProperty = layouts.DepObject.registerProperty(FrameworkElement.typeName, "Margin", new Thickness(), layouts.FrameworkPropertyMetadataOptions.AffectsMeasure, function (v) { return Thickness.fromString(v); });
+    //dataContext property
+    FrameworkElement.dataContextProperty = layouts.DepObject.registerProperty(FrameworkElement.typeName, "DataContext", null, layouts.FrameworkPropertyMetadataOptions.Inherits);
+    //tag property
+    FrameworkElement.tagProperty = layouts.DepObject.registerProperty(FrameworkElement.typeName, "Tag");
+    //overflowX property -> visible|hidden|scroll|auto
+    //by default content is clipped so overflowX is set to hidden
+    FrameworkElement.overflowXProperty = layouts.DepObject.registerProperty(FrameworkElement.typeName, "OverflowX", "hidden", layouts.FrameworkPropertyMetadataOptions.AffectsRender);
+    //overflowY property -> visible|hidden|scroll|auto
+    //by default content is clipped so overflowY is set to hidden
+    FrameworkElement.overflowYProperty = layouts.DepObject.registerProperty(FrameworkElement.typeName, "OverflowY", "hidden", layouts.FrameworkPropertyMetadataOptions.AffectsRender);
     layouts.FrameworkElement = FrameworkElement;
 })(layouts || (layouts = {}));
 /// <reference path="..\DepProperty.ts" />
@@ -1542,6 +1649,7 @@ var layouts;
 (function (layouts) {
     var controls;
     (function (controls) {
+        var PopupPosition;
         (function (PopupPosition) {
             PopupPosition[PopupPosition["Center"] = 0] = "Center";
             PopupPosition[PopupPosition["Left"] = 1] = "Left";
@@ -1556,12 +1664,11 @@ var layouts;
             PopupPosition[PopupPosition["Bottom"] = 10] = "Bottom";
             PopupPosition[PopupPosition["BottomLeft"] = 11] = "BottomLeft";
             PopupPosition[PopupPosition["BottomRight"] = 12] = "BottomRight";
-        })(controls.PopupPosition || (controls.PopupPosition = {}));
-        var PopupPosition = controls.PopupPosition;
+        })(PopupPosition = controls.PopupPosition || (controls.PopupPosition = {}));
         var Popup = (function (_super) {
             __extends(Popup, _super);
             function Popup() {
-                _super.call(this);
+                return _super.call(this) || this;
             }
             Object.defineProperty(Popup.prototype, "typeName", {
                 get: function () {
@@ -1581,17 +1688,12 @@ var layouts;
                     if (req.readyState == 4 && req.status == 200) {
                         var loader = new layouts.XamlReader();
                         _this._child = loader.Parse(req.responseText);
-                        if (_this._child != null) {
-                            _this._child.parent = _this;
-                            _this._child.attachVisual(document.body);
-                        }
+                        if (_this._child != null)
+                            _this.setupChild();
                     }
                 };
                 req.open("GET", this.typeName.replace(/\./gi, '/') + ".xml", true);
                 req.send();
-            };
-            Popup.prototype.attachVisualOverride = function (elementContainer) {
-                _super.prototype.attachVisualOverride.call(this, elementContainer);
             };
             Object.defineProperty(Popup.prototype, "child", {
                 get: function () {
@@ -1609,17 +1711,35 @@ var layouts;
             Popup.prototype.onShow = function () {
                 if (this._child == null)
                     this._child = this.initializeComponent();
-                if (this._child != null) {
-                    this._child.parent = this;
-                    this._child.attachVisual(document.body);
-                }
+                if (this._child != null)
+                    this.setupChild();
                 else
                     this.tryLoadChildFromServer();
+            };
+            Popup.prototype.setupChild = function () {
+                this._child.parent = this;
+                this._popupContainer = document.createElement("div");
+                this._popupContainer.style.width = this._popupContainer.style.height = "100%";
+                this._popupContainer.style.position = "fixed";
+                this._popupContainer.className = "layoutsPopupContainer"; //default popup container style
+                if (this.cssClass != null)
+                    this._popupContainer.className = this.cssClass;
+                document.body.appendChild(this._popupContainer);
+                this._child.attachVisual(this._popupContainer);
+                var currentThis = this;
+                this._popupContainer.addEventListener("mousedown", function (event) {
+                    if (event.target == currentThis._popupContainer) {
+                        this.removeEventListener("mousedown", arguments.callee);
+                        layouts.LayoutManager.closePopup(currentThis);
+                    }
+                });
             };
             Popup.prototype.onClose = function () {
                 if (this._child != null && this._child.parent == this) {
                     this._child.attachVisual(null);
                     this._child.parent = null;
+                    document.body.removeChild(this._popupContainer);
+                    this._popupContainer = null;
                 }
             };
             Popup.prototype.initializeComponent = function () {
@@ -1671,13 +1791,13 @@ var layouts;
                 enumerable: true,
                 configurable: true
             });
-            Popup.typeName = "layouts.controls.Popup";
-            Popup._init = Popup.initProperties();
-            //SizeToContent property
-            Popup.sizeToContentProperty = layouts.DepObject.registerProperty(Popup.typeName, "SizeToContent", layouts.SizeToContent.Both, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender, function (v) { return layouts.SizeToContent[String(v)]; });
-            Popup.positionProperty = layouts.DepObject.registerProperty(Popup.typeName, "Position", PopupPosition.Center, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender, function (v) { return PopupPosition[String(v)]; });
             return Popup;
         }(layouts.FrameworkElement));
+        Popup.typeName = "layouts.controls.Popup";
+        Popup._init = Popup.initProperties();
+        //SizeToContent property
+        Popup.sizeToContentProperty = layouts.DepObject.registerProperty(Popup.typeName, "SizeToContent", layouts.SizeToContent.Both, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender, function (v) { return layouts.SizeToContent[String(v)]; });
+        Popup.positionProperty = layouts.DepObject.registerProperty(Popup.typeName, "Position", PopupPosition.Center, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender, function (v) { return PopupPosition[String(v)]; });
         controls.Popup = Popup;
     })(controls = layouts.controls || (layouts.controls = {}));
 })(layouts || (layouts = {}));
@@ -1784,9 +1904,9 @@ var layouts;
                 LayoutManager.updateLayout();
             }
         };
-        LayoutManager.popups = [];
         return LayoutManager;
     }());
+    LayoutManager.popups = [];
     layouts.LayoutManager = LayoutManager;
     window.onresize = function () {
         LayoutManager.updateLayout();
@@ -1815,10 +1935,11 @@ var layouts;
         var Page = (function (_super) {
             __extends(Page, _super);
             function Page() {
-                _super.apply(this, arguments);
+                var _this = _super.apply(this, arguments) || this;
                 //navigation system
                 //if cachePage is true navigation system reuse already loaded page
-                this.cachePage = false;
+                _this.cachePage = false;
+                return _this;
             }
             Object.defineProperty(Page.prototype, "typeName", {
                 get: function () {
@@ -1912,12 +2033,12 @@ var layouts;
             //onNavigate method is called also for reused/cached pages
             Page.prototype.onNavigate = function (context) {
             };
-            Page.typeName = "layouts.controls.Page";
-            Page.childProperty = layouts.DepObject.registerProperty(Page.typeName, "Child", null, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender);
-            //SizeToContent property
-            Page.sizeToContentProperty = layouts.DepObject.registerProperty(Page.typeName, "SizeToContent", layouts.SizeToContent.None, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender, function (v) { return layouts.SizeToContent[String(v)]; });
             return Page;
         }(layouts.FrameworkElement));
+        Page.typeName = "layouts.controls.Page";
+        Page.childProperty = layouts.DepObject.registerProperty(Page.typeName, "Child", null, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender);
+        //SizeToContent property
+        Page.sizeToContentProperty = layouts.DepObject.registerProperty(Page.typeName, "SizeToContent", layouts.SizeToContent.None, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender, function (v) { return layouts.SizeToContent[String(v)]; });
         controls.Page = Page;
     })(controls = layouts.controls || (layouts.controls = {}));
 })(layouts || (layouts = {}));
@@ -1985,9 +2106,9 @@ var layouts;
             }
             return result;
         };
-        UriMapping._rxMapping = new RegExp("\{([\w\d_&$]+)\}", "gi");
         return UriMapping;
     }());
+    UriMapping._rxMapping = new RegExp("\{([\w\d_&$]+)\}", "gi");
     layouts.UriMapping = UriMapping;
     var NavigationItem = (function () {
         function NavigationItem(uri) {
@@ -1999,7 +2120,7 @@ var layouts;
         function Application() {
             var _this = this;
             this._mappings = [];
-            this._navigationStack = new Array();
+            this._cachedPages = {};
             if (Application._current != null)
                 throw new Error("Application already initialized");
             Application._current = this;
@@ -2066,8 +2187,7 @@ var layouts;
             configurable: true
         });
         Application.prototype.map = function (uri, mappedUri) {
-            var mappings = Enumerable.From(this._mappings);
-            var uriMapping = mappings.FirstOrDefault(null, function (m) { return m.uri == uri; });
+            var uriMapping = this._mappings.firstOrDefault(function (m) { return m.uri == uri; }, null);
             if (uriMapping == null) {
                 uriMapping = new UriMapping(uri, mappedUri);
                 this._mappings.push(uriMapping);
@@ -2080,31 +2200,38 @@ var layouts;
                 uri = window.location.hash.length > 0 ?
                     window.location.hash.slice(1) : layouts.Consts.stringEmpty;
             }
-            if (this._currentNavigationitem != null &&
-                this._currentNavigationitem.uri == uri)
+            if (this._currentUri == uri)
                 return true;
-            var mappings = Enumerable.From(this._mappings);
-            var uriMapping = mappings.FirstOrDefault(null, function (m) { return m.test(uri); });
+            var uriMapping = this._mappings.firstOrDefault(function (m) { return m.test(uri); }, null);
             if (uriMapping != null) {
                 var queryString = uriMapping.resolve(uri);
-                if (this._currentNavigationitem != null) {
-                    var currentNavigationItem = this._currentNavigationitem;
-                    var navigationStack = this._navigationStack;
-                    while (navigationStack.length > 0 &&
-                        navigationStack[navigationStack.length - 1] != currentNavigationItem) {
-                        navigationStack.pop();
-                    }
-                    //save page if required
-                    if (this.page.cachePage)
-                        this._currentNavigationitem.cachedPage = this.page;
-                }
+                //if (this._currentNavigationitem != null) {
+                //    var currentNavigationItem = this._currentNavigationitem;
+                //    var navigationStack = this._navigationStack;
+                //    while (navigationStack.length > 0 &&
+                //        navigationStack[navigationStack.length - 1] != currentNavigationItem) {
+                //        navigationStack.pop();
+                //    }
+                //    //save page if required
+                //    if (this.page.cachePage)
+                //        this._currentNavigationitem.cachedPage = this.page;
+                //}
                 var previousPage = this.page;
-                var previousUri = this._currentNavigationitem != null ? this._currentNavigationitem.uri : null;
-                if (loader == null)
-                    loader = new InstanceLoader(window);
-                var targetPage = loader.getInstance(uriMapping.mapping);
-                if (targetPage == null) {
-                    throw new Error("Unable to navigate to page '{0}'".format(uriMapping.mapping));
+                var previousUri = this._currentUri;
+                var targetPage = null;
+                if (uriMapping.mapping in this._cachedPages)
+                    targetPage = this._cachedPages[uriMapping.mapping];
+                else {
+                    if (loader == null)
+                        loader = new InstanceLoader(window);
+                    targetPage = loader.getInstance(uriMapping.mapping);
+                    if (targetPage == null) {
+                        throw new Error("Unable to navigate to page '{0}'".format(uriMapping.mapping));
+                    }
+                }
+                if (targetPage.cachePage) {
+                    if (!(targetPage.typeName in this._cachedPages))
+                        this._cachedPages[uriMapping.mapping] = targetPage;
                 }
                 var navContext = new layouts.controls.NavigationContext(previousPage, previousUri, targetPage, uri, queryString);
                 navContext.returnUri = this._returnUri;
@@ -2121,8 +2248,9 @@ var layouts;
                         return false;
                     }
                 }
-                this._currentNavigationitem = new NavigationItem(uri);
-                this._navigationStack.push(this._currentNavigationitem);
+                //this._currentNavigationitem = new NavigationItem(uri);
+                //this._navigationStack.push(this._currentNavigationitem);
+                this._currentUri = uri;
                 this.page = targetPage;
                 this.page.onNavigate(navContext);
                 if (window.location.hash != "#" + uri)
@@ -2136,9 +2264,9 @@ var layouts;
         Application.prototype.hashChanged = function (hash) {
             this.navigate(hash.slice(1));
         };
-        Application._beginInvokeActions = [];
         return Application;
     }());
+    Application._beginInvokeActions = [];
     layouts.Application = Application;
 })(layouts || (layouts = {}));
 /// <reference path="..\DepProperty.ts" />
@@ -2172,7 +2300,7 @@ var layouts;
         var Border = (function (_super) {
             __extends(Border, _super);
             function Border() {
-                _super.apply(this, arguments);
+                return _super.apply(this, arguments) || this;
             }
             Object.defineProperty(Border.prototype, "typeName", {
                 get: function () {
@@ -2214,7 +2342,10 @@ var layouts;
             Border.prototype.measureOverride = function (constraint) {
                 var mySize = new layouts.Size();
                 // Compute the chrome size added by the various elements
-                var border = new layouts.Size(this.borderThickness.left + this.borderThickness.right, this.borderThickness.top + this.borderThickness.bottom);
+                var borderThickness = this.borderThickness;
+                if (borderThickness == null)
+                    borderThickness = new layouts.Thickness();
+                var border = new layouts.Size(borderThickness.left + borderThickness.right, borderThickness.top + borderThickness.bottom);
                 var padding = new layouts.Size(this.padding.left + this.padding.right, this.padding.top + this.padding.bottom);
                 //If we have a child
                 if (this._child != null) {
@@ -2235,9 +2366,11 @@ var layouts;
                 return mySize;
             };
             Border.prototype.arrangeOverride = function (finalSize) {
-                var borders = this.borderThickness;
+                var borderThickness = this.borderThickness;
+                if (borderThickness == null)
+                    borderThickness = new layouts.Thickness();
                 var boundRect = new layouts.Rect(0, 0, finalSize.width, finalSize.height);
-                var innerRect = new layouts.Rect(boundRect.x + borders.left, boundRect.y + borders.top, Math.max(0.0, boundRect.width - borders.left - borders.right), Math.max(0.0, boundRect.height - borders.top - borders.bottom));
+                var innerRect = new layouts.Rect(boundRect.x + borderThickness.left, boundRect.y + borderThickness.top, Math.max(0.0, boundRect.width - borderThickness.left - borderThickness.right), Math.max(0.0, boundRect.height - borderThickness.top - borderThickness.bottom));
                 //  arrange child
                 var child = this._child;
                 var padding = this.padding;
@@ -2249,10 +2382,12 @@ var layouts;
             };
             Border.prototype.layoutOverride = function () {
                 _super.prototype.layoutOverride.call(this);
-                var borders = this.borderThickness;
+                var borderThickness = this.borderThickness;
+                if (borderThickness == null)
+                    borderThickness = new layouts.Thickness();
                 if (this._visual != null && this.renderSize != null) {
-                    this._visual.style.width = (this.renderSize.width - (borders.left + borders.right)).toString() + "px";
-                    this._visual.style.height = (this.renderSize.height - (borders.top + borders.bottom)).toString() + "px";
+                    this._visual.style.width = (this.renderSize.width - (borderThickness.left + borderThickness.right)).toString() + "px";
+                    this._visual.style.height = (this.renderSize.height - (borderThickness.top + borderThickness.bottom)).toString() + "px";
                 }
                 if (this._child != null)
                     this._child.layout();
@@ -2261,16 +2396,20 @@ var layouts;
                 if (this._visual == null)
                     return;
                 this._visual.style.background = this.background;
-                this._visual.style.borderColor = this.borderBrush;
-                this._visual.style.borderStyle = this.borderStyle;
+                if (this.borderBrush != null)
+                    this._visual.style.borderColor = this.borderBrush;
+                if (this.borderStyle != null)
+                    this._visual.style.borderStyle = this.borderStyle;
                 var borderThickness = this.borderThickness;
-                if (borderThickness.isSameWidth)
-                    this._visual.style.borderWidth = borderThickness.left.toString() + "px";
-                else {
-                    this._visual.style.borderLeft = borderThickness.left.toString() + "px";
-                    this._visual.style.borderTop = borderThickness.top.toString() + "px";
-                    this._visual.style.borderRight = borderThickness.right.toString() + "px";
-                    this._visual.style.borderBottom = borderThickness.bottom.toString() + "px";
+                if (borderThickness != null) {
+                    if (borderThickness.isSameWidth)
+                        this._visual.style.borderWidth = borderThickness.left.toString() + "px";
+                    else {
+                        this._visual.style.borderLeft = borderThickness.left.toString() + "px";
+                        this._visual.style.borderTop = borderThickness.top.toString() + "px";
+                        this._visual.style.borderRight = borderThickness.right.toString() + "px";
+                        this._visual.style.borderBottom = borderThickness.bottom.toString() + "px";
+                    }
                 }
             };
             Border.prototype.onDependencyPropertyChanged = function (property, value, oldValue) {
@@ -2330,14 +2469,14 @@ var layouts;
                 enumerable: true,
                 configurable: true
             });
-            Border.typeName = "layouts.controls.Border";
-            Border.borderThicknessProperty = layouts.DepObject.registerProperty(Border.typeName, "BorderThickness", new layouts.Thickness(), layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender, function (v) { return layouts.Thickness.fromString(v); });
-            Border.paddingProperty = layouts.DepObject.registerProperty(Border.typeName, "Padding", new layouts.Thickness(), layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender, function (v) { return layouts.Thickness.fromString(v); });
-            Border.backgroundProperty = layouts.DepObject.registerProperty(Border.typeName, "Background", null, layouts.FrameworkPropertyMetadataOptions.AffectsRender);
-            Border.borderBrushProperty = layouts.DepObject.registerProperty(Border.typeName, "BorderBrush", null, layouts.FrameworkPropertyMetadataOptions.AffectsRender);
-            Border.borderStyleProperty = layouts.DepObject.registerProperty(Border.typeName, "BorderStyle", "solid", layouts.FrameworkPropertyMetadataOptions.AffectsRender);
             return Border;
         }(layouts.FrameworkElement));
+        Border.typeName = "layouts.controls.Border";
+        Border.borderThicknessProperty = layouts.DepObject.registerProperty(Border.typeName, "BorderThickness", null, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender, function (v) { return layouts.Thickness.fromString(v); });
+        Border.paddingProperty = layouts.DepObject.registerProperty(Border.typeName, "Padding", new layouts.Thickness(), layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender, function (v) { return layouts.Thickness.fromString(v); });
+        Border.backgroundProperty = layouts.DepObject.registerProperty(Border.typeName, "Background", null, layouts.FrameworkPropertyMetadataOptions.AffectsRender);
+        Border.borderBrushProperty = layouts.DepObject.registerProperty(Border.typeName, "BorderBrush", null, layouts.FrameworkPropertyMetadataOptions.AffectsRender);
+        Border.borderStyleProperty = layouts.DepObject.registerProperty(Border.typeName, "BorderStyle", null, layouts.FrameworkPropertyMetadataOptions.AffectsRender);
         controls.Border = Border;
     })(controls = layouts.controls || (layouts.controls = {}));
 })(layouts || (layouts = {}));
@@ -2394,7 +2533,7 @@ var layouts;
         var Button = (function (_super) {
             __extends(Button, _super);
             function Button() {
-                _super.apply(this, arguments);
+                return _super.apply(this, arguments) || this;
             }
             Object.defineProperty(Button.prototype, "typeName", {
                 get: function () {
@@ -2548,14 +2687,14 @@ var layouts;
                 enumerable: true,
                 configurable: true
             });
-            Button.typeName = "layouts.controls.Button";
-            //Dependency properties
-            Button.paddingProperty = layouts.DepObject.registerProperty(Button.typeName, "Padding", new layouts.Thickness(), layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender);
-            Button.textProperty = layouts.DepObject.registerProperty(Button.typeName, "Text", null, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender);
-            Button.whiteSpaceProperty = layouts.DepObject.registerProperty(Button.typeName, "WhiteSpace", "pre", layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender);
-            Button.isEnabledProperty = layouts.DepObject.registerProperty(Button.typeName, "IsEnabled", true, layouts.FrameworkPropertyMetadataOptions.AffectsRender);
             return Button;
         }(layouts.FrameworkElement));
+        Button.typeName = "layouts.controls.Button";
+        //Dependency properties
+        Button.paddingProperty = layouts.DepObject.registerProperty(Button.typeName, "Padding", new layouts.Thickness(), layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender);
+        Button.textProperty = layouts.DepObject.registerProperty(Button.typeName, "Text", null, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender);
+        Button.whiteSpaceProperty = layouts.DepObject.registerProperty(Button.typeName, "WhiteSpace", "pre", layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender);
+        Button.isEnabledProperty = layouts.DepObject.registerProperty(Button.typeName, "IsEnabled", true, layouts.FrameworkPropertyMetadataOptions.AffectsRender);
         controls.Button = Button;
     })(controls = layouts.controls || (layouts.controls = {}));
 })(layouts || (layouts = {}));
@@ -2570,10 +2709,11 @@ var layouts;
         var Panel = (function (_super) {
             __extends(Panel, _super);
             function Panel() {
-                _super.apply(this, arguments);
+                var _this = _super.apply(this, arguments) || this;
                 //virtual items
-                this.virtualItemCount = 0;
-                this.virtualOffset = null;
+                _this.virtualItemCount = 0;
+                _this.virtualOffset = null;
+                return _this;
             }
             Object.defineProperty(Panel.prototype, "typeName", {
                 get: function () {
@@ -2663,10 +2803,10 @@ var layouts;
                 enumerable: true,
                 configurable: true
             });
-            Panel.typeName = "layouts.controls.Panel";
-            Panel.backgroundProperty = layouts.DepObject.registerProperty(Panel.typeName, "Background", null, layouts.FrameworkPropertyMetadataOptions.AffectsRender);
             return Panel;
         }(layouts.FrameworkElement));
+        Panel.typeName = "layouts.controls.Panel";
+        Panel.backgroundProperty = layouts.DepObject.registerProperty(Panel.typeName, "Background", null, layouts.FrameworkPropertyMetadataOptions.AffectsRender);
         controls.Panel = Panel;
     })(controls = layouts.controls || (layouts.controls = {}));
 })(layouts || (layouts = {}));
@@ -2680,7 +2820,7 @@ var layouts;
         var Canvas = (function (_super) {
             __extends(Canvas, _super);
             function Canvas() {
-                _super.apply(this, arguments);
+                return _super.apply(this, arguments) || this;
             }
             Object.defineProperty(Canvas.prototype, "typeName", {
                 get: function () {
@@ -2748,19 +2888,135 @@ var layouts;
             Canvas.setBottom = function (target, value) {
                 target.setValue(Canvas.bottomProperty, value);
             };
-            Canvas.typeName = "layouts.controls.Canvas";
-            //properties
-            //Canvas.Left property
-            Canvas.leftProperty = layouts.DepObject.registerProperty(Canvas.typeName, "Canvas#Left", NaN, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure, function (v) { return parseFloat(v); });
-            //Canvas.Top property
-            Canvas.topProperty = layouts.DepObject.registerProperty(Canvas.typeName, "Canvas#Top", NaN, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure, function (v) { return parseFloat(v); });
-            //Canvas.Right property
-            Canvas.rightProperty = layouts.DepObject.registerProperty(Canvas.typeName, "Canvas#Right", NaN, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure, function (v) { return parseFloat(v); });
-            //Canvas.Bottom property
-            Canvas.bottomProperty = layouts.DepObject.registerProperty(Canvas.typeName, "Canvas#Bottom", NaN, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure, function (v) { return parseFloat(v); });
             return Canvas;
         }(controls.Panel));
+        Canvas.typeName = "layouts.controls.Canvas";
+        //properties
+        //Canvas.Left property
+        Canvas.leftProperty = layouts.DepObject.registerProperty(Canvas.typeName, "Canvas#Left", NaN, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure, function (v) { return parseFloat(v); });
+        //Canvas.Top property
+        Canvas.topProperty = layouts.DepObject.registerProperty(Canvas.typeName, "Canvas#Top", NaN, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure, function (v) { return parseFloat(v); });
+        //Canvas.Right property
+        Canvas.rightProperty = layouts.DepObject.registerProperty(Canvas.typeName, "Canvas#Right", NaN, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure, function (v) { return parseFloat(v); });
+        //Canvas.Bottom property
+        Canvas.bottomProperty = layouts.DepObject.registerProperty(Canvas.typeName, "Canvas#Bottom", NaN, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure, function (v) { return parseFloat(v); });
         controls.Canvas = Canvas;
+    })(controls = layouts.controls || (layouts.controls = {}));
+})(layouts || (layouts = {}));
+/// <reference path="..\DepProperty.ts" />
+/// <reference path="..\DepObject.ts" />
+/// <reference path="..\FrameworkElement.ts" /> 
+var layouts;
+(function (layouts) {
+    var controls;
+    (function (controls) {
+        var CheckBox = (function (_super) {
+            __extends(CheckBox, _super);
+            function CheckBox() {
+                return _super.apply(this, arguments) || this;
+            }
+            Object.defineProperty(CheckBox.prototype, "typeName", {
+                get: function () {
+                    return CheckBox.typeName;
+                },
+                enumerable: true,
+                configurable: true
+            });
+            CheckBox.prototype.attachVisualOverride = function (elementContainer) {
+                var _this = this;
+                this._visual = this._pElementInput = document.createElement("input");
+                this._pElementInput.type = this.type;
+                this._pElementInput.checked = this.isChecked;
+                this._pElementInput.onclick = function (ev) { return _this.onCheckChanged(); };
+                _super.prototype.attachVisualOverride.call(this, elementContainer);
+            };
+            CheckBox.prototype.onCheckChanged = function () {
+                this.isChecked = this._pElementInput.checked;
+            };
+            CheckBox.prototype.measureOverride = function (constraint) {
+                var pElement = this._pElementInput;
+                if (this._measuredSize == null) {
+                    pElement.style.width = "";
+                    pElement.style.height = "";
+                    this._measuredSize = new layouts.Size(pElement.offsetWidth, pElement.offsetHeight);
+                }
+                return new layouts.Size(Math.min(constraint.width, this._measuredSize.width), Math.min(constraint.height, this._measuredSize.height));
+            };
+            //protected layoutOverride() {
+            //    super.layoutOverride();
+            //    //layoutOverride above set style.width and styl.height
+            //    //at that point browser compute new offsetWidth and offetHeight
+            //    //we need to reset style.width/height so that textbox don't exceed space
+            //    //that out parent has reserved for this control
+            //    if (this.renderSize != null) {
+            //        this._pElement.style.width = (this.renderSize.width - (this._pElement.offsetWidth - this.renderSize.width)) + "px";
+            //        this._pElement.style.height = (this.renderSize.height - (this._pElement.offsetHeight - this.renderSize.height)) + "px";
+            //    }
+            //}
+            CheckBox.prototype.onDependencyPropertyChanged = function (property, value, oldValue) {
+                if (property == CheckBox.nameProperty) {
+                    var pElement = this._pElementInput;
+                    if (pElement != null) {
+                        this._pElementInput.name = value;
+                        this._measuredSize = null;
+                    }
+                }
+                else if (property == CheckBox.typeProperty) {
+                    var pElement = this._pElementInput;
+                    if (pElement != null) {
+                        this._pElementInput.type = value;
+                        this._measuredSize = null;
+                    }
+                }
+                else if (property == CheckBox.isCheckedProperty) {
+                    var pElement = this._pElementInput;
+                    if (pElement != null) {
+                        this._pElementInput.checked = value;
+                    }
+                }
+                _super.prototype.onDependencyPropertyChanged.call(this, property, value, oldValue);
+            };
+            Object.defineProperty(CheckBox.prototype, "isChecked", {
+                get: function () {
+                    return this.getValue(CheckBox.isCheckedProperty);
+                },
+                set: function (value) {
+                    this.setValue(CheckBox.isCheckedProperty, value);
+                },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(CheckBox.prototype, "name", {
+                get: function () {
+                    return this.getValue(CheckBox.nameProperty);
+                },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(CheckBox.prototype, "placeholder", {
+                set: function (value) {
+                    this.setValue(CheckBox.nameProperty, value);
+                },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(CheckBox.prototype, "type", {
+                get: function () {
+                    return this.getValue(CheckBox.typeProperty);
+                },
+                set: function (value) {
+                    this.setValue(CheckBox.typeProperty, value);
+                },
+                enumerable: true,
+                configurable: true
+            });
+            return CheckBox;
+        }(layouts.FrameworkElement));
+        CheckBox.typeName = "layouts.controls.CheckBox";
+        CheckBox.isCheckedProperty = layouts.DepObject.registerProperty(CheckBox.typeName, "IsChecked", false, layouts.FrameworkPropertyMetadataOptions.None);
+        CheckBox.nameProperty = layouts.DepObject.registerProperty(CheckBox.typeName, "Name", "", layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender);
+        CheckBox.typeProperty = layouts.DepObject.registerProperty(CheckBox.typeName, "Type", "checkbox", layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender);
+        controls.CheckBox = CheckBox;
     })(controls = layouts.controls || (layouts.controls = {}));
 })(layouts || (layouts = {}));
 /// <reference path="..\DepProperty.ts" />
@@ -2774,7 +3030,7 @@ var layouts;
         var ContentTemplate = (function (_super) {
             __extends(ContentTemplate, _super);
             function ContentTemplate() {
-                _super.apply(this, arguments);
+                return _super.apply(this, arguments) || this;
             }
             Object.defineProperty(ContentTemplate.prototype, "typeName", {
                 get: function () {
@@ -2863,10 +3119,10 @@ var layouts;
                 }
                 _super.prototype.onDependencyPropertyChanged.call(this, property, value, oldValue);
             };
-            ContentTemplate.typeName = "layouts.controls.ContentTemplate";
-            ContentTemplate.contentProperty = layouts.DepObject.registerProperty(ContentTemplate.typeName, "Content", null, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender);
             return ContentTemplate;
         }(layouts.FrameworkElement));
+        ContentTemplate.typeName = "layouts.controls.ContentTemplate";
+        ContentTemplate.contentProperty = layouts.DepObject.registerProperty(ContentTemplate.typeName, "Content", null, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender);
         controls.ContentTemplate = ContentTemplate;
     })(controls = layouts.controls || (layouts.controls = {}));
 })(layouts || (layouts = {}));
@@ -2881,7 +3137,7 @@ var layouts;
         var ControlTemplate = (function (_super) {
             __extends(ControlTemplate, _super);
             function ControlTemplate() {
-                _super.apply(this, arguments);
+                return _super.apply(this, arguments) || this;
             }
             Object.defineProperty(ControlTemplate.prototype, "typeName", {
                 get: function () {
@@ -2951,10 +3207,10 @@ var layouts;
                 enumerable: true,
                 configurable: true
             });
-            ControlTemplate.typeName = "layouts.controls.ControlTemplate";
-            ControlTemplate.contentProperty = layouts.DepObject.registerProperty(ControlTemplate.typeName, "Content", null, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender);
             return ControlTemplate;
         }(layouts.FrameworkElement));
+        ControlTemplate.typeName = "layouts.controls.ControlTemplate";
+        ControlTemplate.contentProperty = layouts.DepObject.registerProperty(ControlTemplate.typeName, "Content", null, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender);
         controls.ControlTemplate = ControlTemplate;
     })(controls = layouts.controls || (layouts.controls = {}));
 })(layouts || (layouts = {}));
@@ -2969,7 +3225,7 @@ var layouts;
         var ControlTemplateSelector = (function (_super) {
             __extends(ControlTemplateSelector, _super);
             function ControlTemplateSelector() {
-                _super.apply(this, arguments);
+                return _super.apply(this, arguments) || this;
             }
             Object.defineProperty(ControlTemplateSelector.prototype, "typeName", {
                 get: function () {
@@ -3077,10 +3333,10 @@ var layouts;
                 }
                 this.invalidateMeasure();
             };
-            ControlTemplateSelector.typeName = "layouts.controls.ControlTemplateSelector";
-            ControlTemplateSelector.contentSourceProperty = layouts.DepObject.registerProperty(ControlTemplateSelector.typeName, "ContentSource", null, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender);
             return ControlTemplateSelector;
         }(layouts.FrameworkElement));
+        ControlTemplateSelector.typeName = "layouts.controls.ControlTemplateSelector";
+        ControlTemplateSelector.contentSourceProperty = layouts.DepObject.registerProperty(ControlTemplateSelector.typeName, "ContentSource", null, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender);
         controls.ControlTemplateSelector = ControlTemplateSelector;
     })(controls = layouts.controls || (layouts.controls = {}));
 })(layouts || (layouts = {}));
@@ -3094,7 +3350,7 @@ var layouts;
         var Frame = (function (_super) {
             __extends(Frame, _super);
             function Frame() {
-                _super.apply(this, arguments);
+                return _super.apply(this, arguments) || this;
             }
             Object.defineProperty(Frame.prototype, "typeName", {
                 get: function () {
@@ -3138,10 +3394,10 @@ var layouts;
                 enumerable: true,
                 configurable: true
             });
-            Frame.typeName = "layouts.controls.Frame";
-            Frame.sourceProperty = layouts.DepObject.registerProperty(Frame.typeName, "Source", null, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender);
             return Frame;
         }(layouts.FrameworkElement));
+        Frame.typeName = "layouts.controls.Frame";
+        Frame.sourceProperty = layouts.DepObject.registerProperty(Frame.typeName, "Source", null, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender);
         controls.Frame = Frame;
     })(controls = layouts.controls || (layouts.controls = {}));
 })(layouts || (layouts = {}));
@@ -3152,6 +3408,7 @@ var layouts;
 (function (layouts) {
     var controls;
     (function (controls) {
+        var GridUnitType;
         (function (GridUnitType) {
             /// The value indicates that content should be calculated without constraints. 
             GridUnitType[GridUnitType["Auto"] = 0] = "Auto";
@@ -3159,8 +3416,7 @@ var layouts;
             GridUnitType[GridUnitType["Pixel"] = 1] = "Pixel";
             /// The value is expressed as a weighted proportion of available space.
             GridUnitType[GridUnitType["Star"] = 2] = "Star";
-        })(controls.GridUnitType || (controls.GridUnitType = {}));
-        var GridUnitType = controls.GridUnitType;
+        })(GridUnitType = controls.GridUnitType || (controls.GridUnitType = {}));
         var GridLength = (function () {
             function GridLength(value, type) {
                 if (type === void 0) { type = GridUnitType.Pixel; }
@@ -3182,7 +3438,7 @@ var layouts;
                 //TODO: use a regex instead
                 value = value.trim();
                 var tokens = value.split(" ");
-                return Enumerable.From(tokens).Select(function (token) {
+                return tokens.map(function (token) {
                     token = token.trim();
                     if (token.length == 0)
                         return;
@@ -3215,7 +3471,7 @@ var layouts;
                             length: GridLength.fromString(token)
                         };
                     }
-                }).ToArray();
+                });
             };
             GridLength.fromString = function (value) {
                 if (value == "Auto")
@@ -3451,7 +3707,7 @@ var layouts;
         var Grid = (function (_super) {
             __extends(Grid, _super);
             function Grid() {
-                _super.apply(this, arguments);
+                return _super.apply(this, arguments) || this;
             }
             Object.defineProperty(Grid.prototype, "typeName", {
                 get: function () {
@@ -3795,22 +4051,22 @@ var layouts;
                     return 1;
                 return intValue;
             };
-            Grid.typeName = "layouts.controls.Grid";
-            ///Dependency properties
-            //rows
-            Grid.rowsProperty = layouts.DepObject.registerProperty(Grid.typeName, "Rows", null, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender, function (v) { return Grid.rowsFromString(v); });
-            //columns
-            Grid.columnsProperty = layouts.DepObject.registerProperty(Grid.typeName, "Columns", null, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender, function (v) { return Grid.columnsFromString(v); });
-            //Grid.Row property
-            Grid.rowProperty = layouts.DepObject.registerProperty(Grid.typeName, "Grid#Row", 0, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure, function (v) { return Grid.fromString(v); });
-            //Grid.Column property
-            Grid.columnProperty = layouts.DepObject.registerProperty(Grid.typeName, "Grid#Column", 0, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure, function (v) { return Grid.fromString(v); });
-            //Grid.RowSpan property
-            Grid.rowSpanProperty = layouts.DepObject.registerProperty(Grid.typeName, "Grid#RowSpan", 1, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure, function (v) { return Grid.spanFromString(v); });
-            //Grid.ColumnSpan property
-            Grid.columnSpanProperty = layouts.DepObject.registerProperty(Grid.typeName, "Grid#ColumnSpan", 1, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure, function (v) { return Grid.spanFromString(v); });
             return Grid;
         }(controls.Panel));
+        Grid.typeName = "layouts.controls.Grid";
+        ///Dependency properties
+        //rows
+        Grid.rowsProperty = layouts.DepObject.registerProperty(Grid.typeName, "Rows", null, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender, function (v) { return Grid.rowsFromString(v); });
+        //columns
+        Grid.columnsProperty = layouts.DepObject.registerProperty(Grid.typeName, "Columns", null, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender, function (v) { return Grid.columnsFromString(v); });
+        //Grid.Row property
+        Grid.rowProperty = layouts.DepObject.registerProperty(Grid.typeName, "Grid#Row", 0, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure, function (v) { return Grid.fromString(v); });
+        //Grid.Column property
+        Grid.columnProperty = layouts.DepObject.registerProperty(Grid.typeName, "Grid#Column", 0, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure, function (v) { return Grid.fromString(v); });
+        //Grid.RowSpan property
+        Grid.rowSpanProperty = layouts.DepObject.registerProperty(Grid.typeName, "Grid#RowSpan", 1, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure, function (v) { return Grid.spanFromString(v); });
+        //Grid.ColumnSpan property
+        Grid.columnSpanProperty = layouts.DepObject.registerProperty(Grid.typeName, "Grid#ColumnSpan", 1, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure, function (v) { return Grid.spanFromString(v); });
         controls.Grid = Grid;
     })(controls = layouts.controls || (layouts.controls = {}));
 })(layouts || (layouts = {}));
@@ -3824,15 +4080,14 @@ var layouts;
         var GridSplitter = (function (_super) {
             __extends(GridSplitter, _super);
             function GridSplitter() {
-                var _this = this;
-                _super.call(this);
+                var _this = _super.call(this) || this;
                 ///Grid splitter
-                this._draggingCurrentPoint = new layouts.Vector();
-                this._draggingStartPoint = new layouts.Vector();
-                this._draggingVirtualOffset = new layouts.Vector();
-                this._draggingVirtualOffsetMin = new layouts.Vector();
-                this._draggingVirtualOffsetMax = new layouts.Vector();
-                this.onSplitterMouseMove = function (ev) {
+                _this._draggingCurrentPoint = new layouts.Vector();
+                _this._draggingStartPoint = new layouts.Vector();
+                _this._draggingVirtualOffset = new layouts.Vector();
+                _this._draggingVirtualOffsetMin = new layouts.Vector();
+                _this._draggingVirtualOffsetMax = new layouts.Vector();
+                _this.onSplitterMouseMove = function (ev) {
                     if (ev.buttons == 0) {
                         document.removeEventListener("mousemove", _this.onSplitterMouseMove, false);
                         document.removeEventListener("mouseup", _this.onSplitterMouseUp, false);
@@ -3841,7 +4096,7 @@ var layouts;
                         _this.moveGhost(ev);
                     ev.stopPropagation();
                 };
-                this.onSplitterMouseUp = function (ev) {
+                _this.onSplitterMouseUp = function (ev) {
                     //if (ev.target == this._visual) {
                     _this.moveGhost(ev);
                     _this.dragSplitter(_this._draggingCurrentPoint.x, _this._draggingCurrentPoint.y);
@@ -3851,6 +4106,7 @@ var layouts;
                     ev.stopPropagation();
                 };
                 layouts.FrameworkElement.classProperty.overrideDefaultValue(GridSplitter.typeName, "gridSplitter");
+                return _this;
             }
             Object.defineProperty(GridSplitter.prototype, "typeName", {
                 get: function () {
@@ -3862,7 +4118,7 @@ var layouts;
             GridSplitter.prototype.attachVisualOverride = function (elementContainer) {
                 var _this = this;
                 _super.prototype.attachVisualOverride.call(this, elementContainer);
-                this._visual.style.zIndex = "10000";
+                //this._visual.style.zIndex = "10000";
                 this._visual.addEventListener("mousedown", function (ev) { return _this.onSplitterMouseDown(ev); }, true);
                 this._visual.tag = this;
                 this._visual.onselectstart = function () { return false; };
@@ -4219,9 +4475,9 @@ var layouts;
                     this._draggingStartPoint.y = evY;
                 }
             };
-            GridSplitter.typeName = "layouts.controls.GridSplitter";
             return GridSplitter;
         }(controls.Border));
+        GridSplitter.typeName = "layouts.controls.GridSplitter";
         controls.GridSplitter = GridSplitter;
     })(controls = layouts.controls || (layouts.controls = {}));
 })(layouts || (layouts = {}));
@@ -4236,6 +4492,7 @@ var layouts;
         ///     Stretch - Enum which descibes how a source rect should be stretched to fit a 
         ///     destination rect.
         /// </summary>
+        var Stretch;
         (function (Stretch) {
             /// <summary>
             ///     None - Preserve original size
@@ -4258,13 +4515,13 @@ var layouts;
             ///     clipping, if the aspect ratio of source and destination are different.
             /// </summary>
             Stretch[Stretch["UniformToFill"] = 3] = "UniformToFill";
-        })(controls.Stretch || (controls.Stretch = {}));
-        var Stretch = controls.Stretch;
+        })(Stretch = controls.Stretch || (controls.Stretch = {}));
         /// <summary>
         /// StretchDirection - Enum which describes when scaling should be used on the content of a Viewbox. This
         /// enum restricts the scaling factors along various axes.
         /// </summary>
         /// <seealso cref="Viewbox" />
+        var StretchDirection;
         (function (StretchDirection) {
             /// <summary>
             /// Only scales the content upwards when the content is smaller than the Viewbox.
@@ -4280,12 +4537,11 @@ var layouts;
             /// Always stretches to fit the Viewbox according to the stretch mode.
             /// </summary>
             StretchDirection[StretchDirection["Both"] = 2] = "Both";
-        })(controls.StretchDirection || (controls.StretchDirection = {}));
-        var StretchDirection = controls.StretchDirection;
+        })(StretchDirection = controls.StretchDirection || (controls.StretchDirection = {}));
         var Image = (function (_super) {
             __extends(Image, _super);
             function Image() {
-                _super.apply(this, arguments);
+                return _super.apply(this, arguments) || this;
             }
             Object.defineProperty(Image.prototype, "typeName", {
                 get: function () {
@@ -4475,13 +4731,168 @@ var layouts;
                 enumerable: true,
                 configurable: true
             });
-            Image.typeName = "layouts.controls.Image";
-            Image.srcProperty = layouts.DepObject.registerProperty(Image.typeName, "Source", null, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender);
-            Image.stretchProperty = layouts.DepObject.registerProperty(Image.typeName, "Stretch", Stretch.None, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender, function (v) { return Stretch[String(v)]; });
-            Image.stretchDirectionProperty = layouts.DepObject.registerProperty(Image.typeName, "StretchDirection", StretchDirection.Both, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender, function (v) { return StretchDirection[String(v)]; });
             return Image;
         }(layouts.FrameworkElement));
+        Image.typeName = "layouts.controls.Image";
+        Image.srcProperty = layouts.DepObject.registerProperty(Image.typeName, "Source", null, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender);
+        Image.stretchProperty = layouts.DepObject.registerProperty(Image.typeName, "Stretch", Stretch.None, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender, function (v) { return Stretch[String(v)]; });
+        Image.stretchDirectionProperty = layouts.DepObject.registerProperty(Image.typeName, "StretchDirection", StretchDirection.Both, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender, function (v) { return StretchDirection[String(v)]; });
         controls.Image = Image;
+    })(controls = layouts.controls || (layouts.controls = {}));
+})(layouts || (layouts = {}));
+/// <reference path="..\DepProperty.ts" />
+/// <reference path="..\DepObject.ts" />
+/// <reference path="..\FrameworkElement.ts" /> 
+var layouts;
+(function (layouts) {
+    var controls;
+    (function (controls) {
+        var TextBlock = (function (_super) {
+            __extends(TextBlock, _super);
+            function TextBlock() {
+                return _super.apply(this, arguments) || this;
+            }
+            Object.defineProperty(TextBlock.prototype, "typeName", {
+                get: function () {
+                    return TextBlock.typeName;
+                },
+                enumerable: true,
+                configurable: true
+            });
+            TextBlock.prototype.createElement = function (elementContainer) {
+                return document.createElement("p");
+            };
+            TextBlock.prototype.attachVisualOverride = function (elementContainer) {
+                this._visual = this._pElement = this.createElement(elementContainer);
+                this._visual.style.msUserSelect =
+                    this._visual.style.webkitUserSelect = "none";
+                this._pElement.style.whiteSpace = this.whiteSpace;
+                var text = this.text;
+                var format = this.format;
+                text = format != null && text != null && text != layouts.Consts.stringEmpty ? format.format(text) : text;
+                this._pElement.innerHTML = text == null ? layouts.Consts.stringEmpty : text;
+                _super.prototype.attachVisualOverride.call(this, elementContainer);
+            };
+            TextBlock.prototype.measureOverride = function (constraint) {
+                var pElement = this._pElement;
+                if (this._measuredSize == null) {
+                    pElement.style.width = "";
+                    pElement.style.height = "";
+                    this._measuredSize = new layouts.Size(pElement.clientWidth, pElement.clientHeight);
+                }
+                return new layouts.Size(Math.min(constraint.width, this._measuredSize.width), Math.min(constraint.height, this._measuredSize.height));
+            };
+            TextBlock.prototype.arrangeOverride = function (finalSize) {
+                var pElement = this._pElement;
+                pElement.style.width = finalSize.width.toString() + "px";
+                pElement.style.height = finalSize.height.toString() + "px";
+                return finalSize;
+            };
+            TextBlock.prototype.onDependencyPropertyChanged = function (property, value, oldValue) {
+                if (property == TextBlock.textProperty ||
+                    property == TextBlock.formatProperty) {
+                    var pElement = this._pElement;
+                    var text = value;
+                    var format = this.format;
+                    text = format != null && text != null && text != layouts.Consts.stringEmpty ? format.format(text) : text;
+                    if (pElement != null) {
+                        pElement.innerHTML = text == null ? layouts.Consts.stringEmpty : text;
+                        this._measuredSize = null;
+                    }
+                }
+                else if (property == TextBlock.whiteSpaceProperty) {
+                    var pElement = this._pElement;
+                    if (pElement != null) {
+                        pElement.style.whiteSpace = value;
+                        this._measuredSize = null;
+                    }
+                }
+                _super.prototype.onDependencyPropertyChanged.call(this, property, value, oldValue);
+            };
+            Object.defineProperty(TextBlock.prototype, "text", {
+                get: function () {
+                    return this.getValue(TextBlock.textProperty);
+                },
+                set: function (value) {
+                    this.setValue(TextBlock.textProperty, value);
+                },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(TextBlock.prototype, "whiteSpace", {
+                get: function () {
+                    return this.getValue(TextBlock.whiteSpaceProperty);
+                },
+                set: function (value) {
+                    this.setValue(TextBlock.whiteSpaceProperty, value);
+                },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(TextBlock.prototype, "format", {
+                get: function () {
+                    return this.getValue(TextBlock.formatProperty);
+                },
+                set: function (value) {
+                    this.setValue(TextBlock.formatProperty, value);
+                },
+                enumerable: true,
+                configurable: true
+            });
+            return TextBlock;
+        }(layouts.FrameworkElement));
+        TextBlock.typeName = "layouts.controls.TextBlock";
+        TextBlock.textProperty = layouts.DepObject.registerProperty(TextBlock.typeName, "Text", null, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender, function (v) { return String(v); });
+        TextBlock.whiteSpaceProperty = layouts.DepObject.registerProperty(TextBlock.typeName, "WhiteSpace", "pre", layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender);
+        TextBlock.formatProperty = layouts.DepObject.registerProperty(TextBlock.typeName, "Format", null, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender, function (v) { return String(v); });
+        controls.TextBlock = TextBlock;
+    })(controls = layouts.controls || (layouts.controls = {}));
+})(layouts || (layouts = {}));
+/// <reference path="..\DepProperty.ts" />
+/// <reference path="..\DepObject.ts" />
+/// <reference path="TextBlock.ts" /> 
+var layouts;
+(function (layouts) {
+    var controls;
+    (function (controls) {
+        var Label = (function (_super) {
+            __extends(Label, _super);
+            function Label() {
+                return _super.apply(this, arguments) || this;
+            }
+            Object.defineProperty(Label.prototype, "typeName", {
+                get: function () {
+                    return Label.typeName;
+                },
+                enumerable: true,
+                configurable: true
+            });
+            Label.prototype.createElement = function (elementContainer) {
+                this._label = document.createElement("label");
+                this._label.htmlFor = this.htmlFor;
+                return this._label;
+            };
+            Object.defineProperty(Label.prototype, "htmlFor", {
+                get: function () {
+                    return this.getValue(Label.htmlForProperty);
+                },
+                set: function (value) {
+                    this.setValue(Label.htmlForProperty, value);
+                },
+                enumerable: true,
+                configurable: true
+            });
+            Label.prototype.onDependencyPropertyChanged = function (property, value, oldValue) {
+                if (property == Label.htmlForProperty) {
+                    this._label.htmlFor = this.htmlFor;
+                }
+                _super.prototype.onDependencyPropertyChanged.call(this, property, value, oldValue);
+            };
+            return Label;
+        }(controls.TextBlock));
+        Label.typeName = "layouts.controls.Label";
+        Label.htmlForProperty = layouts.DepObject.registerProperty(Label.typeName, "For", null, layouts.FrameworkPropertyMetadataOptions.None, function (v) { return String(v); });
+        controls.Label = Label;
     })(controls = layouts.controls || (layouts.controls = {}));
 })(layouts || (layouts = {}));
 var layouts;
@@ -4491,7 +4902,7 @@ var layouts;
         var MediaTemplateSelector = (function (_super) {
             __extends(MediaTemplateSelector, _super);
             function MediaTemplateSelector() {
-                _super.apply(this, arguments);
+                return _super.apply(this, arguments) || this;
             }
             Object.defineProperty(MediaTemplateSelector.prototype, "typeName", {
                 get: function () {
@@ -4560,9 +4971,9 @@ var layouts;
                 enumerable: true,
                 configurable: true
             });
-            MediaTemplateSelector.typeName = "layouts.controls.MediaTemplateSelector";
             return MediaTemplateSelector;
         }(layouts.FrameworkElement));
+        MediaTemplateSelector.typeName = "layouts.controls.MediaTemplateSelector";
         controls.MediaTemplateSelector = MediaTemplateSelector;
     })(controls = layouts.controls || (layouts.controls = {}));
 })(layouts || (layouts = {}));
@@ -4573,30 +4984,69 @@ var layouts;
 (function (layouts) {
     var controls;
     (function (controls) {
-        var div = (function (_super) {
-            __extends(div, _super);
-            function div() {
-                _super.apply(this, arguments);
+        var NativeElement = (function (_super) {
+            __extends(NativeElement, _super);
+            function NativeElement(elementType) {
+                var _this = _super.call(this) || this;
+                _this.elementType = elementType;
+                return _this;
             }
-            Object.defineProperty(div.prototype, "typeName", {
+            Object.defineProperty(NativeElement.prototype, "typeName", {
                 get: function () {
-                    return div.typeName;
+                    return NativeElement.typeName;
                 },
                 enumerable: true,
                 configurable: true
             });
-            //constructor(public tagName: string) {
-            //    super();
-            //}
-            div.prototype.attachVisualOverride = function (elementContainer) {
-                this._visual = document.createElement("div");
-                this._visual.innerHTML = this._innerXaml;
+            Object.defineProperty(NativeElement.prototype, "child", {
+                get: function () {
+                    return this._child;
+                },
+                set: function (value) {
+                    if (this._child != value) {
+                        if (this._child != null && this._child.parent == this) {
+                            this._child.parent = null;
+                            this._child.attachVisual(null);
+                        }
+                        this._child = value;
+                        if (this._child != null) {
+                            this._child.parent = this;
+                            if (this._visual != null)
+                                this._child.attachVisual(this._visual, true);
+                        }
+                        this.invalidateMeasure();
+                    }
+                },
+                enumerable: true,
+                configurable: true
+            });
+            NativeElement.prototype.invalidateMeasure = function () {
+                this._measuredSize = null;
+                _super.prototype.invalidateMeasure.call(this);
+            };
+            NativeElement.prototype.attachVisualOverride = function (elementContainer) {
+                this._visual = document.createElement(this.elementType);
+                var text = this.text;
+                if (text != null)
+                    this._visual.innerHTML = text;
+                if (this._child != null) {
+                    var childVisual = this._child.attachVisual(this._visual, true);
+                    if (childVisual != null && !this.arrangeChild)
+                        childVisual.style.position = layouts.Consts.stringEmpty;
+                }
                 _super.prototype.attachVisualOverride.call(this, elementContainer);
             };
-            div.prototype.setInnerXaml = function (value) {
-                this._innerXaml = value;
+            NativeElement.prototype.onDependencyPropertyChanged = function (property, value, oldValue) {
+                if (property == NativeElement.textProperty && this._visual != null) {
+                    this._visual.innerHTML = value;
+                }
+                _super.prototype.onDependencyPropertyChanged.call(this, property, value, oldValue);
             };
-            div.prototype.measureOverride = function (constraint) {
+            NativeElement.prototype.measureOverride = function (constraint) {
+                if (this.arrangeChild) {
+                    if (this._child != null)
+                        this._child.measure(constraint);
+                }
                 var pElement = this._visual;
                 ;
                 if (this._measuredSize == null) {
@@ -4606,16 +5056,305 @@ var layouts;
                 }
                 return new layouts.Size(Math.min(constraint.width, this._measuredSize.width), Math.min(constraint.height, this._measuredSize.height));
             };
-            div.prototype.arrangeOverride = function (finalSize) {
+            NativeElement.prototype.arrangeOverride = function (finalSize) {
                 var pElement = this._visual;
                 pElement.style.width = finalSize.width.toString() + "px";
                 pElement.style.height = finalSize.height.toString() + "px";
+                if (this.arrangeChild) {
+                    var child = this.child;
+                    if (child != null) {
+                        child.arrange(new layouts.Rect(0, 0, finalSize.width, finalSize.height));
+                    }
+                }
                 return finalSize;
             };
-            div.typeName = "layouts.controls.div";
-            return div;
+            Object.defineProperty(NativeElement.prototype, "text", {
+                get: function () {
+                    return this.getValue(NativeElement.textProperty);
+                },
+                set: function (value) {
+                    this.setValue(NativeElement.textProperty, value);
+                },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(NativeElement.prototype, "arrangeChild", {
+                get: function () {
+                    return this.getValue(NativeElement.arrangeChildProperty);
+                },
+                set: function (value) {
+                    this.setValue(NativeElement.arrangeChildProperty, value);
+                },
+                enumerable: true,
+                configurable: true
+            });
+            return NativeElement;
         }(layouts.FrameworkElement));
+        NativeElement.typeName = "layouts.controls.NativeElement";
+        NativeElement.textProperty = layouts.DepObject.registerProperty(NativeElement.typeName, "Text", null, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender, function (v) { return String(v); });
+        NativeElement.arrangeChildProperty = layouts.DepObject.registerProperty(NativeElement.typeName, "ArrangeChild", true, layouts.FrameworkPropertyMetadataOptions.None, function (v) { return v != null && v.trim().toLowerCase() == "true"; });
+        controls.NativeElement = NativeElement;
+        var div = (function (_super) {
+            __extends(div, _super);
+            function div() {
+                return _super.call(this, "div") || this;
+            }
+            Object.defineProperty(div.prototype, "typeName", {
+                get: function () {
+                    return div.typeName;
+                },
+                enumerable: true,
+                configurable: true
+            });
+            return div;
+        }(NativeElement));
+        div.typeName = "layouts.controls.div";
         controls.div = div;
+        var a = (function (_super) {
+            __extends(a, _super);
+            function a() {
+                return _super.call(this, "a") || this;
+            }
+            Object.defineProperty(a.prototype, "typeName", {
+                get: function () {
+                    return a.typeName;
+                },
+                enumerable: true,
+                configurable: true
+            });
+            return a;
+        }(NativeElement));
+        a.typeName = "layouts.controls.a";
+        controls.a = a;
+        var img = (function (_super) {
+            __extends(img, _super);
+            function img() {
+                return _super.call(this, "img") || this;
+            }
+            Object.defineProperty(img.prototype, "typeName", {
+                get: function () {
+                    return img.typeName;
+                },
+                enumerable: true,
+                configurable: true
+            });
+            return img;
+        }(NativeElement));
+        img.typeName = "layouts.controls.img";
+        controls.img = img;
+        var i = (function (_super) {
+            __extends(i, _super);
+            function i() {
+                return _super.call(this, "i") || this;
+            }
+            Object.defineProperty(i.prototype, "typeName", {
+                get: function () {
+                    return i.typeName;
+                },
+                enumerable: true,
+                configurable: true
+            });
+            return i;
+        }(NativeElement));
+        i.typeName = "layouts.controls.i";
+        controls.i = i;
+        var ul = (function (_super) {
+            __extends(ul, _super);
+            function ul() {
+                return _super.call(this, "ul") || this;
+            }
+            Object.defineProperty(ul.prototype, "typeName", {
+                get: function () {
+                    return ul.typeName;
+                },
+                enumerable: true,
+                configurable: true
+            });
+            return ul;
+        }(NativeElement));
+        ul.typeName = "layouts.controls.ul";
+        controls.ul = ul;
+        var li = (function (_super) {
+            __extends(li, _super);
+            function li() {
+                return _super.call(this, "li") || this;
+            }
+            Object.defineProperty(li.prototype, "typeName", {
+                get: function () {
+                    return li.typeName;
+                },
+                enumerable: true,
+                configurable: true
+            });
+            return li;
+        }(NativeElement));
+        li.typeName = "layouts.controls.li";
+        controls.li = li;
+        var nav = (function (_super) {
+            __extends(nav, _super);
+            function nav() {
+                return _super.call(this, "nav") || this;
+            }
+            Object.defineProperty(nav.prototype, "typeName", {
+                get: function () {
+                    return nav.typeName;
+                },
+                enumerable: true,
+                configurable: true
+            });
+            return nav;
+        }(NativeElement));
+        nav.typeName = "layouts.controls.nav";
+        controls.nav = nav;
+        var span = (function (_super) {
+            __extends(span, _super);
+            function span() {
+                return _super.call(this, "span") || this;
+            }
+            Object.defineProperty(span.prototype, "typeName", {
+                get: function () {
+                    return span.typeName;
+                },
+                enumerable: true,
+                configurable: true
+            });
+            return span;
+        }(NativeElement));
+        span.typeName = "layouts.controls.span";
+        controls.span = span;
+        var h1 = (function (_super) {
+            __extends(h1, _super);
+            function h1() {
+                return _super.call(this, "h1") || this;
+            }
+            Object.defineProperty(h1.prototype, "typeName", {
+                get: function () {
+                    return h1.typeName;
+                },
+                enumerable: true,
+                configurable: true
+            });
+            return h1;
+        }(NativeElement));
+        h1.typeName = "layouts.controls.h1";
+        controls.h1 = h1;
+        var h2 = (function (_super) {
+            __extends(h2, _super);
+            function h2() {
+                return _super.call(this, "h2") || this;
+            }
+            Object.defineProperty(h2.prototype, "typeName", {
+                get: function () {
+                    return h2.typeName;
+                },
+                enumerable: true,
+                configurable: true
+            });
+            return h2;
+        }(NativeElement));
+        h2.typeName = "layouts.controls.h2";
+        controls.h2 = h2;
+        var h3 = (function (_super) {
+            __extends(h3, _super);
+            function h3() {
+                return _super.call(this, "h3") || this;
+            }
+            Object.defineProperty(h3.prototype, "typeName", {
+                get: function () {
+                    return h3.typeName;
+                },
+                enumerable: true,
+                configurable: true
+            });
+            return h3;
+        }(NativeElement));
+        h3.typeName = "layouts.controls.h3";
+        controls.h3 = h3;
+        var h4 = (function (_super) {
+            __extends(h4, _super);
+            function h4() {
+                return _super.call(this, "h4") || this;
+            }
+            Object.defineProperty(h4.prototype, "typeName", {
+                get: function () {
+                    return h4.typeName;
+                },
+                enumerable: true,
+                configurable: true
+            });
+            return h4;
+        }(NativeElement));
+        h4.typeName = "layouts.controls.h4";
+        controls.h4 = h4;
+        var h5 = (function (_super) {
+            __extends(h5, _super);
+            function h5() {
+                return _super.call(this, "h5") || this;
+            }
+            Object.defineProperty(h5.prototype, "typeName", {
+                get: function () {
+                    return h5.typeName;
+                },
+                enumerable: true,
+                configurable: true
+            });
+            return h5;
+        }(NativeElement));
+        h5.typeName = "layouts.controls.h5";
+        controls.h5 = h5;
+        //export class div extends NativeElement {
+        //    static typeName: string = "layouts.controls.div";
+        //    get typeName(): string {
+        //        return div.typeName;
+        //    }
+        //    constructor() {
+        //        super("div");
+        //    }
+        //}
+        //export class a extends NativeElement {
+        //    static typeName: string = "layouts.controls.a";
+        //    get typeName(): string {
+        //        return a.typeName;
+        //    }
+        //    constructor() {
+        //        super("a");
+        //    }
+        //    protected measureOverride(constraint: Size): Size {
+        //        var text = this.text;
+        //        var mySize = new Size();
+        //        var pElement = <HTMLAnchorElement>this._visual;
+        //        var txtChanged = (pElement.innerText != text);
+        //        if (isFinite(constraint.width))
+        //            pElement.style.maxWidth = constraint.width + "px";
+        //        if (isFinite(constraint.height))
+        //            pElement.style.maxHeight = constraint.height + "px";
+        //        pElement.style.width = "auto";
+        //        pElement.style.height = "auto";
+        //        if (txtChanged) {
+        //            pElement.innerHTML = this.text;
+        //        }
+        //        mySize = new Size(pElement.clientWidth, pElement.clientHeight);
+        //        if (txtChanged && this.renderSize != null) {
+        //            pElement.style.width = this.renderSize.width.toString() + "px";
+        //            pElement.style.height = this.renderSize.height.toString() + "px";
+        //        }
+        //        return mySize;
+        //    }
+        //    static hrefProperty = DepObject.registerProperty(a.typeName, "href", null, FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender, (v) => String(v));
+        //    get href(): string {
+        //        return <string>this.getValue(a.hrefProperty);
+        //    }
+        //    set href(value: string) {
+        //        this.setValue(a.hrefProperty, value);
+        //    }
+        //    static textProperty = DepObject.registerProperty(a.typeName, "Text", null, FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender, (v) => String(v));
+        //    get text(): string {
+        //        return <string>this.getValue(a.textProperty);
+        //    }
+        //    set text(value: string) {
+        //        this.setValue(a.textProperty, value);
+        //    }
+        //}
     })(controls = layouts.controls || (layouts.controls = {}));
 })(layouts || (layouts = {}));
 /// <reference path="..\DepProperty.ts" />
@@ -4629,11 +5368,12 @@ var layouts;
         var ItemsControl = (function (_super) {
             __extends(ItemsControl, _super);
             function ItemsControl() {
-                _super.apply(this, arguments);
+                var _this = _super.apply(this, arguments) || this;
                 //list of items created
                 //note that in general this list is not 1:1 with itemssource collection
                 //for example the case when some sort of virtualization of items is applied
-                this._elements = null;
+                _this._elements = null;
+                return _this;
             }
             Object.defineProperty(ItemsControl.prototype, "typeName", {
                 get: function () {
@@ -4807,7 +5547,7 @@ var layouts;
                     if (elements == null)
                         throw new Error("Unable to get list of elements from itemsSource");
                     this._elements =
-                        Enumerable.From(elements).Select(function (item) {
+                        elements.map(function (item) {
                             var templateForItem = controls.DataTemplate.getTemplateForItem(_this._templates.toArray(), item);
                             if (templateForItem == null) {
                                 throw new Error("Unable to find a valid template for item");
@@ -4815,7 +5555,7 @@ var layouts;
                             var newElement = templateForItem.createElement();
                             newElement.setValue(layouts.FrameworkElement.dataContextProperty, item);
                             return newElement;
-                        }).ToArray();
+                        });
                 }
                 if (this._elements != null) {
                     if (this.itemsPanel == null) {
@@ -4828,14 +5568,14 @@ var layouts;
                 }
                 this.invalidateMeasure();
             };
-            ItemsControl.typeName = "layouts.controls.ItemsControl";
-            ItemsControl._init = ItemsControl.initProperties();
-            //itemsSource property
-            ItemsControl.itemsSourceProperty = layouts.DepObject.registerProperty(ItemsControl.typeName, "ItemsSource", null, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender);
-            //itemsPanel property
-            ItemsControl.itemsPanelProperty = layouts.DepObject.registerProperty(ItemsControl.typeName, "ItemsPanel", null, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender);
             return ItemsControl;
         }(layouts.FrameworkElement));
+        ItemsControl.typeName = "layouts.controls.ItemsControl";
+        ItemsControl._init = ItemsControl.initProperties();
+        //itemsSource property
+        ItemsControl.itemsSourceProperty = layouts.DepObject.registerProperty(ItemsControl.typeName, "ItemsSource", null, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender);
+        //itemsPanel property
+        ItemsControl.itemsPanelProperty = layouts.DepObject.registerProperty(ItemsControl.typeName, "ItemsPanel", null, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender);
         controls.ItemsControl = ItemsControl;
     })(controls = layouts.controls || (layouts.controls = {}));
 })(layouts || (layouts = {}));
@@ -4846,7 +5586,7 @@ var layouts;
         var ComboBox = (function (_super) {
             __extends(ComboBox, _super);
             function ComboBox() {
-                _super.apply(this, arguments);
+                return _super.apply(this, arguments) || this;
             }
             Object.defineProperty(ComboBox.prototype, "typeName", {
                 get: function () {
@@ -4899,7 +5639,7 @@ var layouts;
                 }
                 else if (property == ComboBox.selectedValueProperty) {
                     if (this._selectElement != null && this.selectMember != null && this._elements != null)
-                        this.selectedItem = Enumerable.From(this._elements).FirstOrDefault(null, function (_) { return _[_this.selectMember] == value; });
+                        this.selectedItem = this._elements.firstOrDefault(function (_) { return _[_this.selectMember] == value; }, null);
                 }
                 _super.prototype.onDependencyPropertyChanged.call(this, property, value, oldValue);
             };
@@ -4930,7 +5670,7 @@ var layouts;
                     var selectedItem = this.selectedItem;
                     if (this.selectMember != null) {
                         var selectedValue = this.selectedValue;
-                        selectedItem = Enumerable.From(this._elements).FirstOrDefault(null, function (_) { return _[_this.selectMember] == selectedValue; });
+                        selectedItem = this._elements.firstOrDefault(function (_) { return _[_this.selectMember] == selectedValue; }, null);
                     }
                     this._selectElement.selectedIndex = selectedItem == null ? -1 : this._elements.indexOf(selectedItem);
                 }
@@ -5013,19 +5753,19 @@ var layouts;
                 enumerable: true,
                 configurable: true
             });
-            ComboBox.typeName = "layouts.controls.ComboBox";
-            //itemsSource property
-            ComboBox.itemsSourceProperty = layouts.DepObject.registerProperty(ComboBox.typeName, "ItemsSource", null, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender);
-            //selectedItem property
-            ComboBox.selectedItemProperty = layouts.DepObject.registerProperty(ComboBox.typeName, "SelectedItem", null, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender);
-            //displayMember property
-            ComboBox.displayMemberProperty = layouts.DepObject.registerProperty(ComboBox.typeName, "DisplayMember", null, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender);
-            //selectValue property
-            ComboBox.selectedValueProperty = layouts.DepObject.registerProperty(ComboBox.typeName, "SelectedValue", null, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender);
-            //selectMember property
-            ComboBox.selectMemberProperty = layouts.DepObject.registerProperty(ComboBox.typeName, "SelectMember", null, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender);
             return ComboBox;
         }(layouts.FrameworkElement));
+        ComboBox.typeName = "layouts.controls.ComboBox";
+        //itemsSource property
+        ComboBox.itemsSourceProperty = layouts.DepObject.registerProperty(ComboBox.typeName, "ItemsSource", null, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender);
+        //selectedItem property
+        ComboBox.selectedItemProperty = layouts.DepObject.registerProperty(ComboBox.typeName, "SelectedItem", null, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender);
+        //displayMember property
+        ComboBox.displayMemberProperty = layouts.DepObject.registerProperty(ComboBox.typeName, "DisplayMember", null, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender);
+        //selectValue property
+        ComboBox.selectedValueProperty = layouts.DepObject.registerProperty(ComboBox.typeName, "SelectedValue", null, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender);
+        //selectMember property
+        ComboBox.selectMemberProperty = layouts.DepObject.registerProperty(ComboBox.typeName, "SelectMember", null, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender);
         controls.ComboBox = ComboBox;
     })(controls = layouts.controls || (layouts.controls = {}));
 })(layouts || (layouts = {}));
@@ -5040,6 +5780,7 @@ var layouts;
         /// Orientation indicates a direction of a control/layout that can exist in a horizontal or vertical state.
         /// Examples of these elements include: <see cref="Slider" /> and <see cref="Primitives.ScrollBar" />.
         /// </summary>
+        var Orientation;
         (function (Orientation) {
             /// <summary>
             /// Control/Layout should be horizontally oriented.
@@ -5049,12 +5790,11 @@ var layouts;
             /// Control/Layout should be vertically oriented.
             /// </summary>
             Orientation[Orientation["Vertical"] = 1] = "Vertical";
-        })(controls.Orientation || (controls.Orientation = {}));
-        var Orientation = controls.Orientation;
+        })(Orientation = controls.Orientation || (controls.Orientation = {}));
         var Stack = (function (_super) {
             __extends(Stack, _super);
             function Stack() {
-                _super.apply(this, arguments);
+                return _super.apply(this, arguments) || this;
             }
             Object.defineProperty(Stack.prototype, "typeName", {
                 get: function () {
@@ -5131,116 +5871,11 @@ var layouts;
                 enumerable: true,
                 configurable: true
             });
-            Stack.typeName = "layouts.controls.Stack";
-            Stack.orientationProperty = layouts.DepObject.registerProperty(Stack.typeName, "Orientation", Orientation.Vertical, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure, function (v) { return Orientation[String(v)]; });
             return Stack;
         }(controls.Panel));
+        Stack.typeName = "layouts.controls.Stack";
+        Stack.orientationProperty = layouts.DepObject.registerProperty(Stack.typeName, "Orientation", Orientation.Vertical, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure, function (v) { return Orientation[String(v)]; });
         controls.Stack = Stack;
-    })(controls = layouts.controls || (layouts.controls = {}));
-})(layouts || (layouts = {}));
-/// <reference path="..\DepProperty.ts" />
-/// <reference path="..\DepObject.ts" />
-/// <reference path="..\FrameworkElement.ts" /> 
-var layouts;
-(function (layouts) {
-    var controls;
-    (function (controls) {
-        var TextBlock = (function (_super) {
-            __extends(TextBlock, _super);
-            function TextBlock() {
-                _super.apply(this, arguments);
-            }
-            Object.defineProperty(TextBlock.prototype, "typeName", {
-                get: function () {
-                    return TextBlock.typeName;
-                },
-                enumerable: true,
-                configurable: true
-            });
-            TextBlock.prototype.attachVisualOverride = function (elementContainer) {
-                this._visual = this._pElement = document.createElement("p");
-                this._visual.style.msUserSelect =
-                    this._visual.style.webkitUserSelect = "none";
-                this._pElement.style.whiteSpace = this.whiteSpace;
-                var text = this.text;
-                var format = this.format;
-                text = format != null && text != null && text != layouts.Consts.stringEmpty ? format.format(text) : text;
-                this._pElement.innerHTML = text == null ? layouts.Consts.stringEmpty : text;
-                _super.prototype.attachVisualOverride.call(this, elementContainer);
-            };
-            TextBlock.prototype.measureOverride = function (constraint) {
-                var pElement = this._pElement;
-                if (this._measuredSize == null) {
-                    pElement.style.width = "";
-                    pElement.style.height = "";
-                    this._measuredSize = new layouts.Size(pElement.clientWidth, pElement.clientHeight);
-                }
-                return new layouts.Size(Math.min(constraint.width, this._measuredSize.width), Math.min(constraint.height, this._measuredSize.height));
-            };
-            TextBlock.prototype.arrangeOverride = function (finalSize) {
-                var pElement = this._pElement;
-                pElement.style.width = finalSize.width.toString() + "px";
-                pElement.style.height = finalSize.height.toString() + "px";
-                return finalSize;
-            };
-            TextBlock.prototype.onDependencyPropertyChanged = function (property, value, oldValue) {
-                if (property == TextBlock.textProperty ||
-                    property == TextBlock.formatProperty) {
-                    var pElement = this._pElement;
-                    var text = value;
-                    var format = this.format;
-                    text = format != null && text != null && text != layouts.Consts.stringEmpty ? format.format(text) : text;
-                    if (pElement != null) {
-                        pElement.innerHTML = text == null ? layouts.Consts.stringEmpty : text;
-                        this._measuredSize = null;
-                    }
-                }
-                else if (property == TextBlock.whiteSpaceProperty) {
-                    var pElement = this._pElement;
-                    if (pElement != null) {
-                        pElement.style.whiteSpace = value;
-                        this._measuredSize = null;
-                    }
-                }
-                _super.prototype.onDependencyPropertyChanged.call(this, property, value, oldValue);
-            };
-            Object.defineProperty(TextBlock.prototype, "text", {
-                get: function () {
-                    return this.getValue(TextBlock.textProperty);
-                },
-                set: function (value) {
-                    this.setValue(TextBlock.textProperty, value);
-                },
-                enumerable: true,
-                configurable: true
-            });
-            Object.defineProperty(TextBlock.prototype, "whiteSpace", {
-                get: function () {
-                    return this.getValue(TextBlock.whiteSpaceProperty);
-                },
-                set: function (value) {
-                    this.setValue(TextBlock.whiteSpaceProperty, value);
-                },
-                enumerable: true,
-                configurable: true
-            });
-            Object.defineProperty(TextBlock.prototype, "format", {
-                get: function () {
-                    return this.getValue(TextBlock.formatProperty);
-                },
-                set: function (value) {
-                    this.setValue(TextBlock.formatProperty, value);
-                },
-                enumerable: true,
-                configurable: true
-            });
-            TextBlock.typeName = "layouts.controls.TextBlock";
-            TextBlock.textProperty = layouts.DepObject.registerProperty(TextBlock.typeName, "Text", null, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender, function (v) { return String(v); });
-            TextBlock.whiteSpaceProperty = layouts.DepObject.registerProperty(TextBlock.typeName, "WhiteSpace", "pre", layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender);
-            TextBlock.formatProperty = layouts.DepObject.registerProperty(TextBlock.typeName, "Format", null, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender, function (v) { return String(v); });
-            return TextBlock;
-        }(layouts.FrameworkElement));
-        controls.TextBlock = TextBlock;
     })(controls = layouts.controls || (layouts.controls = {}));
 })(layouts || (layouts = {}));
 /// <reference path="..\DepProperty.ts" />
@@ -5253,7 +5888,7 @@ var layouts;
         var TextBox = (function (_super) {
             __extends(TextBox, _super);
             function TextBox() {
-                _super.apply(this, arguments);
+                return _super.apply(this, arguments) || this;
             }
             Object.defineProperty(TextBox.prototype, "typeName", {
                 get: function () {
@@ -5303,21 +5938,18 @@ var layouts;
                     var pElement = this._pElement;
                     if (pElement != null) {
                         this._pElement.value = value;
-                        this._measuredSize = null;
                     }
                 }
                 else if (property == TextBox.placeholderProperty) {
                     var pElement = this._pElement;
                     if (pElement != null) {
                         pElement.placeholder = value;
-                        this._measuredSize = null;
                     }
                 }
                 else if (property == TextBox.typeProperty) {
                     var pElement = this._pElement;
                     if (pElement != null) {
                         pElement.type = value;
-                        this._measuredSize = null;
                     }
                 }
                 else if (property == TextBox.isReadonlyProperty) {
@@ -5368,13 +6000,13 @@ var layouts;
                 enumerable: true,
                 configurable: true
             });
-            TextBox.typeName = "layouts.controls.TextBox";
-            TextBox.textProperty = layouts.DepObject.registerProperty(TextBox.typeName, "Text", null, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender);
-            TextBox.placeholderProperty = layouts.DepObject.registerProperty(TextBox.typeName, "Placeholder", "", layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender);
-            TextBox.typeProperty = layouts.DepObject.registerProperty(TextBox.typeName, "Type", "text", layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender);
-            TextBox.isReadonlyProperty = layouts.DepObject.registerProperty(TextBox.typeName, "IsReadonly", false);
             return TextBox;
         }(layouts.FrameworkElement));
+        TextBox.typeName = "layouts.controls.TextBox";
+        TextBox.textProperty = layouts.DepObject.registerProperty(TextBox.typeName, "Text", null, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender);
+        TextBox.placeholderProperty = layouts.DepObject.registerProperty(TextBox.typeName, "Placeholder", "", layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender);
+        TextBox.typeProperty = layouts.DepObject.registerProperty(TextBox.typeName, "Type", "text", layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender);
+        TextBox.isReadonlyProperty = layouts.DepObject.registerProperty(TextBox.typeName, "IsReadonly", false);
         controls.TextBox = TextBox;
     })(controls = layouts.controls || (layouts.controls = {}));
 })(layouts || (layouts = {}));
@@ -5385,7 +6017,7 @@ var layouts;
         var DataTemplate = (function (_super) {
             __extends(DataTemplate, _super);
             function DataTemplate() {
-                _super.apply(this, arguments);
+                return _super.apply(this, arguments) || this;
             }
             Object.defineProperty(DataTemplate.prototype, "typeName", {
                 get: function () {
@@ -5406,11 +6038,16 @@ var layouts;
                     reader = new layouts.XamlReader();
                 return reader.Parse(this._innerXaml);
             };
-            DataTemplate.getTemplateForItem = function (templates, item) {
+            DataTemplate.getTemplateForItem = function (templates, item, name) {
+                if (name === void 0) { name = null; }
                 if (templates == null ||
                     templates.length == 0)
                     return null;
-                var foundTemplate = Enumerable.From(templates).FirstOrDefault(null, function (template) {
+                var foundTemplate = templates.firstOrDefault(function (template) {
+                    if (name != null &&
+                        template.name != null &&
+                        template.name.toLowerCase() == name.toLowerCase())
+                        return true;
                     if (template.targetType == null)
                         return false;
                     var itemForTemplate = item;
@@ -5429,25 +6066,25 @@ var layouts;
                         template.targetType.toLowerCase() == typeName.toLowerCase())
                         return true;
                     return false;
-                });
+                }, null);
                 if (foundTemplate != null)
                     return foundTemplate;
-                return Enumerable.From(templates).FirstOrDefault(null, function (dt) { return dt.targetType == null; });
+                return templates.firstOrDefault(function (dt) { return dt.targetType == null; }, null);
             };
             DataTemplate.getTemplateForMedia = function (templates) {
                 if (templates == null ||
                     templates.length == 0)
                     return null;
-                var foundTemplate = Enumerable.From(templates).FirstOrDefault(null, function (template) {
+                var foundTemplate = templates.firstOrDefault(function (template) {
                     if (template.media == null ||
                         template.media.trim().length == 0) {
                         return true;
                     }
                     return window.matchMedia(template.media).matches;
-                });
+                }, null);
                 if (foundTemplate != null)
                     return foundTemplate;
-                return Enumerable.From(templates).FirstOrDefault(null, function (dt) { return dt.targetType == null; });
+                return templates.firstOrDefault(function (dt) { return dt.targetType == null; }, null);
             };
             Object.defineProperty(DataTemplate.prototype, "targetType", {
                 get: function () {
@@ -5479,14 +6116,25 @@ var layouts;
                 enumerable: true,
                 configurable: true
             });
-            DataTemplate.typeName = "layouts.controls.DataTemplate";
-            ///returns the type datatemplate is suited for
-            ///if null it means it's a generic template usable for any object of any type
-            DataTemplate.targetTypeProperty = layouts.DepObject.registerProperty(DataTemplate.typeName, "TargetType", null);
-            DataTemplate.targetMemberProperty = layouts.DepObject.registerProperty(DataTemplate.typeName, "TargetMember", null);
-            DataTemplate.mediaProperty = layouts.DepObject.registerProperty(DataTemplate.typeName, "Media", null);
+            Object.defineProperty(DataTemplate.prototype, "name", {
+                get: function () {
+                    return this.getValue(DataTemplate.nameProperty);
+                },
+                set: function (value) {
+                    this.setValue(DataTemplate.nameProperty, value);
+                },
+                enumerable: true,
+                configurable: true
+            });
             return DataTemplate;
         }(layouts.DepObject));
+        DataTemplate.typeName = "layouts.controls.DataTemplate";
+        ///returns the type datatemplate is suited for
+        ///if null it means it's a generic template usable for any object of any type
+        DataTemplate.targetTypeProperty = layouts.DepObject.registerProperty(DataTemplate.typeName, "TargetType", null);
+        DataTemplate.targetMemberProperty = layouts.DepObject.registerProperty(DataTemplate.typeName, "TargetMember", null);
+        DataTemplate.mediaProperty = layouts.DepObject.registerProperty(DataTemplate.typeName, "Media", null);
+        DataTemplate.nameProperty = layouts.DepObject.registerProperty(DataTemplate.typeName, "Name", null);
         controls.DataTemplate = DataTemplate;
     })(controls = layouts.controls || (layouts.controls = {}));
 })(layouts || (layouts = {}));
@@ -5500,7 +6148,7 @@ var layouts;
         var UserControl = (function (_super) {
             __extends(UserControl, _super);
             function UserControl() {
-                _super.apply(this, arguments);
+                return _super.apply(this, arguments) || this;
             }
             Object.defineProperty(UserControl.prototype, "typeName", {
                 get: function () {
@@ -5551,6 +6199,27 @@ var layouts;
                     this.tryLoadChildFromServer();
                 }
             };
+            UserControl.prototype.invalidateMeasure = function () {
+                _super.prototype.invalidateMeasure.call(this);
+                var child = this._content;
+                if (child != null) {
+                    child.invalidateMeasure();
+                }
+            };
+            UserControl.prototype.invalidateArrange = function () {
+                _super.prototype.invalidateArrange.call(this);
+                var child = this._content;
+                if (child != null) {
+                    child.invalidateArrange();
+                }
+            };
+            UserControl.prototype.invalidateLayout = function () {
+                _super.prototype.invalidateLayout.call(this);
+                var child = this._content;
+                if (child != null) {
+                    child.invalidateLayout();
+                }
+            };
             UserControl.prototype.measureOverride = function (constraint) {
                 var child = this._content;
                 if (child != null) {
@@ -5561,8 +6230,10 @@ var layouts;
             };
             UserControl.prototype.arrangeOverride = function (finalSize) {
                 var child = this._content;
-                if (child != null)
+                if (child != null) {
                     child.arrange(finalSize.toRect());
+                }
+                this.invalidateLayout();
                 return finalSize;
             };
             UserControl.prototype.layoutOverride = function () {
@@ -5575,11 +6246,147 @@ var layouts;
                     child.layout(childOffset);
                 }
             };
-            UserControl.typeName = "layouts.controls.UserControl";
             return UserControl;
         }(layouts.FrameworkElement));
+        UserControl.typeName = "layouts.controls.UserControl";
         controls.UserControl = UserControl;
     })(controls = layouts.controls || (layouts.controls = {}));
+})(layouts || (layouts = {}));
+var layouts;
+(function (layouts) {
+    var EasingFunctions = (function () {
+        function EasingFunctions() {
+        }
+        // t: current time, b: begInnIng value, c: change In value, d: duration
+        EasingFunctions.linearTween = function (t, b, c, d) {
+            return c * t / d + b;
+        };
+        ;
+        EasingFunctions.easeInQuad = function (t, b, c, d) {
+            t /= d;
+            return c * t * t + b;
+        };
+        ;
+        EasingFunctions.easeOutQuad = function (t, b, c, d) {
+            t /= d;
+            return -c * t * (t - 2) + b;
+        };
+        ;
+        EasingFunctions.easeInOutQuad = function (t, b, c, d) {
+            t /= d / 2;
+            if (t < 1)
+                return c / 2 * t * t + b;
+            t--;
+            return -c / 2 * (t * (t - 2) - 1) + b;
+        };
+        ;
+        EasingFunctions.easeInCubic = function (t, b, c, d) {
+            t /= d;
+            return c * t * t * t + b;
+        };
+        ;
+        EasingFunctions.easeOutCubic = function (t, b, c, d) {
+            t /= d;
+            t--;
+            return c * (t * t * t + 1) + b;
+        };
+        ;
+        EasingFunctions.easeInOutCubic = function (t, b, c, d) {
+            t /= d / 2;
+            if (t < 1)
+                return c / 2 * t * t * t + b;
+            t -= 2;
+            return c / 2 * (t * t * t + 2) + b;
+        };
+        ;
+        EasingFunctions.easeInQuart = function (t, b, c, d) {
+            t /= d;
+            return c * t * t * t * t + b;
+        };
+        ;
+        EasingFunctions.easeOutQuart = function (t, b, c, d) {
+            t /= d;
+            t--;
+            return -c * (t * t * t * t - 1) + b;
+        };
+        ;
+        EasingFunctions.easeInOutQuart = function (t, b, c, d) {
+            t /= d / 2;
+            if (t < 1)
+                return c / 2 * t * t * t * t + b;
+            t -= 2;
+            return -c / 2 * (t * t * t * t - 2) + b;
+        };
+        ;
+        EasingFunctions.easeInQuint = function (t, b, c, d) {
+            t /= d;
+            return c * t * t * t * t * t + b;
+        };
+        ;
+        EasingFunctions.easeOutQuint = function (t, b, c, d) {
+            t /= d;
+            t--;
+            return c * (t * t * t * t * t + 1) + b;
+        };
+        ;
+        EasingFunctions.easeInOutQuint = function (t, b, c, d) {
+            t /= d / 2;
+            if (t < 1)
+                return c / 2 * t * t * t * t * t + b;
+            t -= 2;
+            return c / 2 * (t * t * t * t * t + 2) + b;
+        };
+        ;
+        EasingFunctions.easeInSine = function (t, b, c, d) {
+            return -c * Math.cos(t / d * (Math.PI / 2)) + c + b;
+        };
+        ;
+        EasingFunctions.easeOutSine = function (t, b, c, d) {
+            return c * Math.sin(t / d * (Math.PI / 2)) + b;
+        };
+        ;
+        EasingFunctions.easeInOutSine = function (t, b, c, d) {
+            return -c / 2 * (Math.cos(Math.PI * t / d) - 1) + b;
+        };
+        ;
+        EasingFunctions.easeInExpo = function (t, b, c, d) {
+            return c * Math.pow(2, 10 * (t / d - 1)) + b;
+        };
+        ;
+        EasingFunctions.easeOutExpo = function (t, b, c, d) {
+            return c * (-Math.pow(2, -10 * t / d) + 1) + b;
+        };
+        ;
+        EasingFunctions.easeInOutExpo = function (t, b, c, d) {
+            t /= d / 2;
+            if (t < 1)
+                return c / 2 * Math.pow(2, 10 * (t - 1)) + b;
+            t--;
+            return c / 2 * (-Math.pow(2, -10 * t) + 2) + b;
+        };
+        ;
+        EasingFunctions.easeInCirc = function (t, b, c, d) {
+            t /= d;
+            return -c * (Math.sqrt(1 - t * t) - 1) + b;
+        };
+        ;
+        EasingFunctions.easeOutCirc = function (t, b, c, d) {
+            t /= d;
+            t--;
+            return c * Math.sqrt(1 - t * t) + b;
+        };
+        ;
+        EasingFunctions.easeInOutCirc = function (t, b, c, d) {
+            t /= d / 2;
+            if (t < 1)
+                return -c / 2 * (Math.sqrt(1 - t * t) - 1) + b;
+            t -= 2;
+            return c / 2 * (Math.sqrt(1 - t * t) + 1) + b;
+        };
+        ;
+        return EasingFunctions;
+    }());
+    layouts.EasingFunctions = EasingFunctions;
 })(layouts || (layouts = {}));
 var layouts;
 (function (layouts) {
@@ -5715,32 +6522,42 @@ var layouts;
                         this._createdObjectsWithId[att.value] = containerObject;
                 }
             }
-            var childrenProperties = Enumerable.From(xamlNode.childNodes).Where(function (_) { return _.nodeType == 1 && _.localName.indexOf(".") > -1; });
-            childrenProperties.ForEach(function (childNode) {
+            //var childrenProperties = Enumerable.From(xamlNode.childNodes).Where(_=> _.nodeType == 1 && _.localName.indexOf(".") > -1);
+            //childrenProperties.ForEach(childNode => {
+            //    var indexOfDot = childNode.localName.indexOf(".");
+            //    if (childNode.localName.substr(0, indexOfDot) == xamlNode.localName) {
+            //        let propertyName = childNode.localName.substr(indexOfDot + 1);
+            //        let childOfChild = Enumerable.From(childNode.childNodes).FirstOrDefault(null, _=> _.nodeType == 1);
+            //        let valueToSet = childOfChild == null ? null : this.Load(childOfChild);
+            //        this.trySetProperty(containerObject, propertyName, this.resolveNameSpace(childNode.namespaceURI), valueToSet);
+            //    }
+            //});
+            var childrenProperties = xamlNode.childNodes.where(function (_) { return _.nodeType == 1 && _.localName.indexOf(".") > -1; });
+            childrenProperties.forEach(function (childNode) {
                 var indexOfDot = childNode.localName.indexOf(".");
                 if (childNode.localName.substr(0, indexOfDot) == xamlNode.localName) {
                     var propertyName = childNode.localName.substr(indexOfDot + 1);
-                    var childOfChild = Enumerable.From(childNode.childNodes).FirstOrDefault(null, function (_) { return _.nodeType == 1; });
+                    var childOfChild = childNode.childNodes.firstOrDefault(function (_) { return _.nodeType == 1; }, null);
                     var valueToSet = childOfChild == null ? null : _this.Load(childOfChild);
                     _this.trySetProperty(containerObject, propertyName, _this.resolveNameSpace(childNode.namespaceURI), valueToSet);
                 }
             });
-            var children = Enumerable.From(xamlNode.childNodes).Where(function (_) { return _.nodeType == 1 && _.localName.indexOf(".") == -1; });
+            var children = xamlNode.childNodes.where(function (_) { return _.nodeType == 1 && _.localName.indexOf(".") == -1; });
             if (containerObject["setInnerXaml"] != null) {
-                if (children.Count() > 0)
-                    containerObject["setInnerXaml"]((new XMLSerializer()).serializeToString(children.ToArray()[0]));
+                if (children.length > 0)
+                    containerObject["setInnerXaml"]((new XMLSerializer()).serializeToString(children[0]));
                 if (containerObject["setXamlLoader"] != null)
                     containerObject["setXamlLoader"](this);
                 return containerObject;
             }
-            if (children.Count() == 0)
+            if (children.length == 0)
                 return containerObject; //no children
             //load children or content or items
             if (layouts.Ext.hasProperty(containerObject, "content") || layouts.Ext.hasProperty(containerObject, "child")) {
                 //support direct content...try to set content of container object with first child
                 //skip any other children of lml node
                 var contentPropertyName = layouts.Ext.hasProperty(containerObject, "content") ? "content" : "child";
-                containerObject[contentPropertyName] = this.Load(children.First());
+                containerObject[contentPropertyName] = this.Load(children[0]);
             }
             else {
                 var collectionPropertyName = null;
@@ -5750,10 +6567,12 @@ var layouts;
                     collectionPropertyName = "items";
                 if (layouts.Ext.hasProperty(containerObject, "templates"))
                     collectionPropertyName = "templates";
+                if (layouts.Ext.hasProperty(containerObject, "animations"))
+                    collectionPropertyName = "animations";
                 if (collectionPropertyName != null) {
                     //if object has a property called Children or Items
                     //load all children from children nodes and set property with resulting list
-                    var listOfChildren = children.Select(function (childNode) { return _this.Load(childNode); }).ToArray();
+                    var listOfChildren = children.map(function (childNode) { return _this.Load(childNode); });
                     containerObject[collectionPropertyName] = new layouts.ObservableCollection(listOfChildren);
                 }
             }
@@ -5777,15 +6596,13 @@ var layouts;
                     attLeft.value != attRight.value)
                     return false;
             }
-            var childrenLeft = Enumerable.From(nodeLeft.childNodes).Where(function (_) { return _.nodeType == 1; });
-            var childrenRight = Enumerable.From(nodeRight.childNodes).Where(function (_) { return _.nodeType == 1; });
-            if (childrenLeft.Count() != childrenRight.Count())
+            var childrenLeft = nodeLeft.childNodes.where(function (_) { return _.nodeType == 1; });
+            var childrenRight = nodeRight.childNodes.where(function (_) { return _.nodeType == 1; });
+            if (childrenLeft.length != childrenRight.length)
                 return false;
-            var arrayOfChildrenLeft = childrenLeft.ToArray();
-            var arrayOfChildrenRight = childrenRight.ToArray();
-            for (var i = 0; i < childrenLeft.Count(); i++) {
-                var childNodeLeft = arrayOfChildrenLeft[i];
-                var childNodeRight = arrayOfChildrenRight[i];
+            for (var i = 0; i < childrenLeft.length; i++) {
+                var childNodeLeft = childrenLeft[i];
+                var childNodeRight = childrenRight[i];
                 if (!XamlReader.compareXml(childNodeLeft, childNodeRight))
                     return false;
             }
@@ -5901,9 +6718,9 @@ var layouts;
             }
             return null;
         };
-        XamlReader.DefaultNamespace = "http://schemas.layouts.com/";
         return XamlReader;
     }());
+    XamlReader.DefaultNamespace = "http://schemas.layouts.com/";
     layouts.XamlReader = XamlReader;
 })(layouts || (layouts = {}));
 var layouts;

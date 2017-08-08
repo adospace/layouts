@@ -10,7 +10,7 @@ var layouts;
         var Button = (function (_super) {
             __extends(Button, _super);
             function Button() {
-                _super.apply(this, arguments);
+                return _super.apply(this, arguments) || this;
             }
             Object.defineProperty(Button.prototype, "typeName", {
                 get: function () {
@@ -157,13 +157,13 @@ var layouts;
                 enumerable: true,
                 configurable: true
             });
-            Button.typeName = "layouts.controls.Button";
-            Button.paddingProperty = layouts.DepObject.registerProperty(Button.typeName, "Padding", new layouts.Thickness(), layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender);
-            Button.textProperty = layouts.DepObject.registerProperty(Button.typeName, "Text", null, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender);
-            Button.whiteSpaceProperty = layouts.DepObject.registerProperty(Button.typeName, "WhiteSpace", "pre", layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender);
-            Button.isEnabledProperty = layouts.DepObject.registerProperty(Button.typeName, "IsEnabled", true, layouts.FrameworkPropertyMetadataOptions.AffectsRender);
             return Button;
         }(layouts.FrameworkElement));
+        Button.typeName = "layouts.controls.Button";
+        Button.paddingProperty = layouts.DepObject.registerProperty(Button.typeName, "Padding", new layouts.Thickness(), layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender);
+        Button.textProperty = layouts.DepObject.registerProperty(Button.typeName, "Text", null, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender);
+        Button.whiteSpaceProperty = layouts.DepObject.registerProperty(Button.typeName, "WhiteSpace", "pre", layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender);
+        Button.isEnabledProperty = layouts.DepObject.registerProperty(Button.typeName, "IsEnabled", true, layouts.FrameworkPropertyMetadataOptions.AffectsRender);
         controls.Button = Button;
     })(controls = layouts.controls || (layouts.controls = {}));
 })(layouts || (layouts = {}));

@@ -58,6 +58,40 @@ Number.prototype.isLessThen = function (other) {
 Number.prototype.isGreaterThen = function (other) {
     return (this - other) > 1e-10;
 };
+if (!Array.prototype.firstOrDefault) {
+    Array.prototype.firstOrDefault = function (callback, defaultValue) {
+        var arrayOfItems = this;
+        for (var i = 0; i < arrayOfItems.length; ++i) {
+            var item = arrayOfItems[i];
+            if (callback(item, i))
+                return item;
+        }
+        return defaultValue;
+    };
+}
+if (!NodeList.prototype.firstOrDefault) {
+    NodeList.prototype.firstOrDefault = function (callback, defaultValue) {
+        var nodeList = this;
+        for (var i = 0; i < nodeList.length; ++i) {
+            var item = nodeList[i];
+            if (callback(item, i))
+                return item;
+        }
+        return defaultValue;
+    };
+}
+if (!NodeList.prototype.where) {
+    NodeList.prototype.where = function (callback) {
+        var nodeList = this;
+        var res = new Array();
+        for (var i = 0; i < nodeList.length; ++i) {
+            var item = nodeList[i];
+            if (callback(item, i))
+                res.push(item);
+        }
+        return res;
+    };
+}
 var InstanceLoader = (function () {
     function InstanceLoader(context) {
         this.context = context;

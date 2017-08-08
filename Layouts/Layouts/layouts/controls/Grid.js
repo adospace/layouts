@@ -7,12 +7,12 @@ var layouts;
 (function (layouts) {
     var controls;
     (function (controls) {
+        var GridUnitType;
         (function (GridUnitType) {
             GridUnitType[GridUnitType["Auto"] = 0] = "Auto";
             GridUnitType[GridUnitType["Pixel"] = 1] = "Pixel";
             GridUnitType[GridUnitType["Star"] = 2] = "Star";
-        })(controls.GridUnitType || (controls.GridUnitType = {}));
-        var GridUnitType = controls.GridUnitType;
+        })(GridUnitType = controls.GridUnitType || (controls.GridUnitType = {}));
         var GridLength = (function () {
             function GridLength(value, type) {
                 if (type === void 0) { type = GridUnitType.Pixel; }
@@ -24,7 +24,7 @@ var layouts;
             GridLength.parseString = function (value) {
                 value = value.trim();
                 var tokens = value.split(" ");
-                return Enumerable.From(tokens).Select(function (token) {
+                return tokens.map(function (token) {
                     token = token.trim();
                     if (token.length == 0)
                         return;
@@ -55,7 +55,7 @@ var layouts;
                             length: GridLength.fromString(token)
                         };
                     }
-                }).ToArray();
+                });
             };
             GridLength.fromString = function (value) {
                 if (value == "Auto")
@@ -291,7 +291,7 @@ var layouts;
         var Grid = (function (_super) {
             __extends(Grid, _super);
             function Grid() {
-                _super.apply(this, arguments);
+                return _super.apply(this, arguments) || this;
             }
             Object.defineProperty(Grid.prototype, "typeName", {
                 get: function () {
@@ -621,15 +621,15 @@ var layouts;
                     return 1;
                 return intValue;
             };
-            Grid.typeName = "layouts.controls.Grid";
-            Grid.rowsProperty = layouts.DepObject.registerProperty(Grid.typeName, "Rows", null, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender, function (v) { return Grid.rowsFromString(v); });
-            Grid.columnsProperty = layouts.DepObject.registerProperty(Grid.typeName, "Columns", null, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender, function (v) { return Grid.columnsFromString(v); });
-            Grid.rowProperty = layouts.DepObject.registerProperty(Grid.typeName, "Grid#Row", 0, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure, function (v) { return Grid.fromString(v); });
-            Grid.columnProperty = layouts.DepObject.registerProperty(Grid.typeName, "Grid#Column", 0, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure, function (v) { return Grid.fromString(v); });
-            Grid.rowSpanProperty = layouts.DepObject.registerProperty(Grid.typeName, "Grid#RowSpan", 1, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure, function (v) { return Grid.spanFromString(v); });
-            Grid.columnSpanProperty = layouts.DepObject.registerProperty(Grid.typeName, "Grid#ColumnSpan", 1, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure, function (v) { return Grid.spanFromString(v); });
             return Grid;
         }(controls.Panel));
+        Grid.typeName = "layouts.controls.Grid";
+        Grid.rowsProperty = layouts.DepObject.registerProperty(Grid.typeName, "Rows", null, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender, function (v) { return Grid.rowsFromString(v); });
+        Grid.columnsProperty = layouts.DepObject.registerProperty(Grid.typeName, "Columns", null, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender, function (v) { return Grid.columnsFromString(v); });
+        Grid.rowProperty = layouts.DepObject.registerProperty(Grid.typeName, "Grid#Row", 0, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure, function (v) { return Grid.fromString(v); });
+        Grid.columnProperty = layouts.DepObject.registerProperty(Grid.typeName, "Grid#Column", 0, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure, function (v) { return Grid.fromString(v); });
+        Grid.rowSpanProperty = layouts.DepObject.registerProperty(Grid.typeName, "Grid#RowSpan", 1, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure, function (v) { return Grid.spanFromString(v); });
+        Grid.columnSpanProperty = layouts.DepObject.registerProperty(Grid.typeName, "Grid#ColumnSpan", 1, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure, function (v) { return Grid.spanFromString(v); });
         controls.Grid = Grid;
     })(controls = layouts.controls || (layouts.controls = {}));
 })(layouts || (layouts = {}));

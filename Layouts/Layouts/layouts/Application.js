@@ -53,9 +53,9 @@ var layouts;
             }
             return result;
         };
-        UriMapping._rxMapping = new RegExp("\{([\w\d_&$]+)\}", "gi");
         return UriMapping;
     }());
+    UriMapping._rxMapping = new RegExp("\{([\w\d_&$]+)\}", "gi");
     layouts.UriMapping = UriMapping;
     var NavigationItem = (function () {
         function NavigationItem(uri) {
@@ -67,7 +67,7 @@ var layouts;
         function Application() {
             var _this = this;
             this._mappings = [];
-            this._navigationStack = new Array();
+            this._cachedPages = {};
             if (Application._current != null)
                 throw new Error("Application already initialized");
             Application._current = this;
@@ -132,8 +132,7 @@ var layouts;
             configurable: true
         });
         Application.prototype.map = function (uri, mappedUri) {
-            var mappings = Enumerable.From(this._mappings);
-            var uriMapping = mappings.FirstOrDefault(null, function (m) { return m.uri == uri; });
+            var uriMapping = this._mappings.firstOrDefault(function (m) { return m.uri == uri; }, null);
             if (uriMapping == null) {
                 uriMapping = new UriMapping(uri, mappedUri);
                 this._mappings.push(uriMapping);
@@ -146,30 +145,27 @@ var layouts;
                 uri = window.location.hash.length > 0 ?
                     window.location.hash.slice(1) : layouts.Consts.stringEmpty;
             }
-            if (this._currentNavigationitem != null &&
-                this._currentNavigationitem.uri == uri)
+            if (this._currentUri == uri)
                 return true;
-            var mappings = Enumerable.From(this._mappings);
-            var uriMapping = mappings.FirstOrDefault(null, function (m) { return m.test(uri); });
+            var uriMapping = this._mappings.firstOrDefault(function (m) { return m.test(uri); }, null);
             if (uriMapping != null) {
                 var queryString = uriMapping.resolve(uri);
-                if (this._currentNavigationitem != null) {
-                    var currentNavigationItem = this._currentNavigationitem;
-                    var navigationStack = this._navigationStack;
-                    while (navigationStack.length > 0 &&
-                        navigationStack[navigationStack.length - 1] != currentNavigationItem) {
-                        navigationStack.pop();
-                    }
-                    if (this.page.cachePage)
-                        this._currentNavigationitem.cachedPage = this.page;
-                }
                 var previousPage = this.page;
-                var previousUri = this._currentNavigationitem != null ? this._currentNavigationitem.uri : null;
-                if (loader == null)
-                    loader = new InstanceLoader(window);
-                var targetPage = loader.getInstance(uriMapping.mapping);
-                if (targetPage == null) {
-                    throw new Error("Unable to navigate to page '{0}'".format(uriMapping.mapping));
+                var previousUri = this._currentUri;
+                var targetPage = null;
+                if (uriMapping.mapping in this._cachedPages)
+                    targetPage = this._cachedPages[uriMapping.mapping];
+                else {
+                    if (loader == null)
+                        loader = new InstanceLoader(window);
+                    targetPage = loader.getInstance(uriMapping.mapping);
+                    if (targetPage == null) {
+                        throw new Error("Unable to navigate to page '{0}'".format(uriMapping.mapping));
+                    }
+                }
+                if (targetPage.cachePage) {
+                    if (!(targetPage.typeName in this._cachedPages))
+                        this._cachedPages[uriMapping.mapping] = targetPage;
                 }
                 var navContext = new layouts.controls.NavigationContext(previousPage, previousUri, targetPage, uri, queryString);
                 navContext.returnUri = this._returnUri;
@@ -186,8 +182,7 @@ var layouts;
                         return false;
                     }
                 }
-                this._currentNavigationitem = new NavigationItem(uri);
-                this._navigationStack.push(this._currentNavigationitem);
+                this._currentUri = uri;
                 this.page = targetPage;
                 this.page.onNavigate(navContext);
                 if (window.location.hash != "#" + uri)
@@ -201,8 +196,8 @@ var layouts;
         Application.prototype.hashChanged = function (hash) {
             this.navigate(hash.slice(1));
         };
-        Application._beginInvokeActions = [];
         return Application;
     }());
+    Application._beginInvokeActions = [];
     layouts.Application = Application;
 })(layouts || (layouts = {}));

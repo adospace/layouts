@@ -96,9 +96,9 @@ var layouts;
                 LayoutManager.updateLayout();
             }
         };
-        LayoutManager.popups = [];
         return LayoutManager;
     }());
+    LayoutManager.popups = [];
     layouts.LayoutManager = LayoutManager;
     window.onresize = function () {
         LayoutManager.updateLayout();

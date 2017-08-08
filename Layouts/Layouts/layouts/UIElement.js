@@ -59,6 +59,7 @@ var layouts;
         return Vector;
     }());
     layouts.Vector = Vector;
+    var FrameworkPropertyMetadataOptions;
     (function (FrameworkPropertyMetadataOptions) {
         FrameworkPropertyMetadataOptions[FrameworkPropertyMetadataOptions["None"] = 0] = "None";
         FrameworkPropertyMetadataOptions[FrameworkPropertyMetadataOptions["AffectsMeasure"] = 1] = "AffectsMeasure";
@@ -70,8 +71,7 @@ var layouts;
         FrameworkPropertyMetadataOptions[FrameworkPropertyMetadataOptions["OverridesInheritanceBehavior"] = 64] = "OverridesInheritanceBehavior";
         FrameworkPropertyMetadataOptions[FrameworkPropertyMetadataOptions["NotDataBindable"] = 128] = "NotDataBindable";
         FrameworkPropertyMetadataOptions[FrameworkPropertyMetadataOptions["BindsTwoWayByDefault"] = 256] = "BindsTwoWayByDefault";
-    })(layouts.FrameworkPropertyMetadataOptions || (layouts.FrameworkPropertyMetadataOptions = {}));
-    var FrameworkPropertyMetadataOptions = layouts.FrameworkPropertyMetadataOptions;
+    })(FrameworkPropertyMetadataOptions = layouts.FrameworkPropertyMetadataOptions || (layouts.FrameworkPropertyMetadataOptions = {}));
     var ExtendedProperty = (function () {
         function ExtendedProperty(name, value) {
             this.name = name;
@@ -83,12 +83,13 @@ var layouts;
     var UIElement = (function (_super) {
         __extends(UIElement, _super);
         function UIElement() {
-            _super.apply(this, arguments);
-            this.relativeOffset = null;
-            this.measureDirty = true;
-            this.arrangeDirty = true;
-            this.layoutInvalid = true;
-            this._extendedProperties = [];
+            var _this = _super.apply(this, arguments) || this;
+            _this.relativeOffset = null;
+            _this.measureDirty = true;
+            _this.arrangeDirty = true;
+            _this.layoutInvalid = true;
+            _this._extendedProperties = [];
+            return _this;
         }
         Object.defineProperty(UIElement.prototype, "typeName", {
             get: function () {
@@ -108,12 +109,13 @@ var layouts;
             if (!this.measureDirty && isCloseToPreviousMeasure)
                 return;
             this.previousAvailableSize = availableSize;
-            this.desiredSize = this.measureCore(availableSize);
-            if (isNaN(this.desiredSize.width) ||
-                !isFinite(this.desiredSize.width) ||
-                isNaN(this.desiredSize.height) ||
-                !isFinite(this.desiredSize.height))
+            var desiredSize = this.measureCore(availableSize);
+            if (isNaN(desiredSize.width) ||
+                !isFinite(desiredSize.width) ||
+                isNaN(desiredSize.height) ||
+                !isFinite(desiredSize.height))
                 throw new Error("measure pass must return valid size");
+            this.desiredSize = this.animateSize(desiredSize);
             this.measureDirty = false;
         };
         UIElement.prototype.measureCore = function (availableSize) {
@@ -162,6 +164,9 @@ var layouts;
                 }
             }
         };
+        UIElement.prototype.animateSize = function (desiredSize) {
+            return desiredSize;
+        };
         UIElement.prototype.attachVisual = function (elementContainer, showImmediately) {
             if (showImmediately === void 0) { showImmediately = false; }
             if (this._visual == null &&
@@ -171,7 +176,7 @@ var layouts;
                 elementContainer == null)
                 this.attachVisualOverride(null);
             if (this._visual == null)
-                return;
+                return null;
             if (elementContainer != this._visual.parentElement) {
                 if (this._visual.parentElement != null) {
                     var parentElement = this._visual.parentElement;
@@ -187,7 +192,15 @@ var layouts;
                         this.visualConnected(elementContainer);
                 }
             }
+            return this._visual;
         };
+        Object.defineProperty(UIElement.prototype, "visual", {
+            get: function () {
+                return this._visual;
+            },
+            enumerable: true,
+            configurable: true
+        });
         UIElement.prototype.attachVisualOverride = function (elementContainer) {
             var _this = this;
             if (this._visual == null)
@@ -228,10 +241,12 @@ var layouts;
             if (popup != null) {
                 layouts.LayoutManager.showPopup(popup);
                 ev.stopPropagation();
-                document.addEventListener("mouseup", function () {
-                    this.removeEventListener("mouseup", arguments.callee);
-                    layouts.LayoutManager.closePopup(popup);
-                });
+                if (this.autoClosePopup) {
+                    document.addEventListener("mouseup", function () {
+                        this.removeEventListener("mouseup", arguments.callee);
+                        layouts.LayoutManager.closePopup(popup);
+                    });
+                }
             }
         };
         UIElement.prototype.getBoundingClientRect = function () {
@@ -323,18 +338,18 @@ var layouts;
             return this.localPropertyValueMap[property.name];
         };
         UIElement.prototype.invalidateMeasure = function () {
+            this.arrangeDirty = true;
+            this.layoutInvalid = true;
             if (!this.measureDirty) {
                 this.measureDirty = true;
-                this.arrangeDirty = true;
-                this.layoutInvalid = true;
                 if (this._parent != null)
                     this._parent.invalidateMeasure();
             }
         };
         UIElement.prototype.invalidateArrange = function () {
+            this.layoutInvalid = true;
             if (!this.arrangeDirty) {
                 this.arrangeDirty = true;
-                this.layoutInvalid = true;
                 if (this._parent != null)
                     this._parent.invalidateArrange();
             }
@@ -358,6 +373,21 @@ var layouts;
                 }
             }
             return null;
+        };
+        UIElement.prototype.forAllChildrenOfType = function (elementType, action) {
+            var typeName = elementType["typeName"];
+            if (this._logicalChildren != null) {
+                for (var i = 0; i < this._logicalChildren.length; i++) {
+                    var child = this._logicalChildren[i];
+                    if (child.typeName == typeName) {
+                        if (!action(child))
+                            return false;
+                    }
+                    if (!child.forAllChildrenOfType(elementType, action))
+                        return false;
+                }
+            }
+            return true;
         };
         Object.defineProperty(UIElement.prototype, "parent", {
             get: function () {
@@ -468,6 +498,16 @@ var layouts;
             enumerable: true,
             configurable: true
         });
+        Object.defineProperty(UIElement.prototype, "autoClosePopup", {
+            get: function () {
+                return this.getValue(UIElement.autoClosePopupProperty);
+            },
+            set: function (value) {
+                this.setValue(UIElement.autoClosePopupProperty, value);
+            },
+            enumerable: true,
+            configurable: true
+        });
         Object.defineProperty(UIElement.prototype, "layoutUpdated", {
             get: function () {
                 return this.getValue(UIElement.layoutUpdatedProperty);
@@ -478,15 +518,20 @@ var layouts;
             enumerable: true,
             configurable: true
         });
-        UIElement.typeName = "layouts.UIElement";
-        UIElement.isVisibleProperty = layouts.DepObject.registerProperty(UIElement.typeName, "IsVisible", true, FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsParentMeasure | FrameworkPropertyMetadataOptions.AffectsRender);
-        UIElement.classProperty = layouts.DepObject.registerProperty(UIElement.typeName, "class", null, FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender);
-        UIElement.idProperty = layouts.DepObject.registerProperty(UIElement.typeName, "id", layouts.Consts.stringEmpty, FrameworkPropertyMetadataOptions.AffectsRender);
-        UIElement.commandProperty = layouts.DepObject.registerProperty(UIElement.typeName, "Command", null, FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender);
-        UIElement.commandParameterProperty = layouts.DepObject.registerProperty(UIElement.typeName, "CommandParameter", null, FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender);
-        UIElement.popupProperty = layouts.DepObject.registerProperty(UIElement.typeName, "Popup", null, FrameworkPropertyMetadataOptions.AffectsRender);
-        UIElement.layoutUpdatedProperty = layouts.DepObject.registerProperty(UIElement.typeName, "LayoutUpdated", null, FrameworkPropertyMetadataOptions.None);
         return UIElement;
     }(layouts.DepObject));
+    UIElement.typeName = "layouts.UIElement";
+    UIElement.isVisibleProperty = layouts.DepObject.registerProperty(UIElement.typeName, "IsVisible", true, FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsParentMeasure | FrameworkPropertyMetadataOptions.AffectsRender);
+    UIElement.classProperty = layouts.DepObject.registerProperty(UIElement.typeName, "class", null, FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender);
+    UIElement.idProperty = layouts.DepObject.registerProperty(UIElement.typeName, "id", layouts.Consts.stringEmpty, FrameworkPropertyMetadataOptions.AffectsRender);
+    UIElement.commandProperty = layouts.DepObject.registerProperty(UIElement.typeName, "Command", null, FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender);
+    UIElement.commandParameterProperty = layouts.DepObject.registerProperty(UIElement.typeName, "CommandParameter", null, FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender);
+    UIElement.popupProperty = layouts.DepObject.registerProperty(UIElement.typeName, "Popup", null, FrameworkPropertyMetadataOptions.None);
+    UIElement.autoClosePopupProperty = layouts.DepObject.registerProperty(UIElement.typeName, "AutoClosePopup", true, FrameworkPropertyMetadataOptions.None, function (value) {
+        if (value == null || (value.toLowerCase() != "true" && value.toLowerCase() != "false"))
+            throw new Error("Unable to valuate string '{0}' as boolean".format(value));
+        return value.toLowerCase() == "true" ? true : false;
+    });
+    UIElement.layoutUpdatedProperty = layouts.DepObject.registerProperty(UIElement.typeName, "LayoutUpdated", null, FrameworkPropertyMetadataOptions.None);
     layouts.UIElement = UIElement;
 })(layouts || (layouts = {}));

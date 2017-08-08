@@ -10,7 +10,7 @@ var layouts;
         var TextBox = (function (_super) {
             __extends(TextBox, _super);
             function TextBox() {
-                _super.apply(this, arguments);
+                return _super.apply(this, arguments) || this;
             }
             Object.defineProperty(TextBox.prototype, "typeName", {
                 get: function () {
@@ -56,21 +56,18 @@ var layouts;
                     var pElement = this._pElement;
                     if (pElement != null) {
                         this._pElement.value = value;
-                        this._measuredSize = null;
                     }
                 }
                 else if (property == TextBox.placeholderProperty) {
                     var pElement = this._pElement;
                     if (pElement != null) {
                         pElement.placeholder = value;
-                        this._measuredSize = null;
                     }
                 }
                 else if (property == TextBox.typeProperty) {
                     var pElement = this._pElement;
                     if (pElement != null) {
                         pElement.type = value;
-                        this._measuredSize = null;
                     }
                 }
                 else if (property == TextBox.isReadonlyProperty) {
@@ -121,13 +118,13 @@ var layouts;
                 enumerable: true,
                 configurable: true
             });
-            TextBox.typeName = "layouts.controls.TextBox";
-            TextBox.textProperty = layouts.DepObject.registerProperty(TextBox.typeName, "Text", null, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender);
-            TextBox.placeholderProperty = layouts.DepObject.registerProperty(TextBox.typeName, "Placeholder", "", layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender);
-            TextBox.typeProperty = layouts.DepObject.registerProperty(TextBox.typeName, "Type", "text", layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender);
-            TextBox.isReadonlyProperty = layouts.DepObject.registerProperty(TextBox.typeName, "IsReadonly", false);
             return TextBox;
         }(layouts.FrameworkElement));
+        TextBox.typeName = "layouts.controls.TextBox";
+        TextBox.textProperty = layouts.DepObject.registerProperty(TextBox.typeName, "Text", null, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender);
+        TextBox.placeholderProperty = layouts.DepObject.registerProperty(TextBox.typeName, "Placeholder", "", layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender);
+        TextBox.typeProperty = layouts.DepObject.registerProperty(TextBox.typeName, "Type", "text", layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender);
+        TextBox.isReadonlyProperty = layouts.DepObject.registerProperty(TextBox.typeName, "IsReadonly", false);
         controls.TextBox = TextBox;
     })(controls = layouts.controls || (layouts.controls = {}));
 })(layouts || (layouts = {}));

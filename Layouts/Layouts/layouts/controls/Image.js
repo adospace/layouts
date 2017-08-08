@@ -7,23 +7,23 @@ var layouts;
 (function (layouts) {
     var controls;
     (function (controls) {
+        var Stretch;
         (function (Stretch) {
             Stretch[Stretch["None"] = 0] = "None";
             Stretch[Stretch["Fill"] = 1] = "Fill";
             Stretch[Stretch["Uniform"] = 2] = "Uniform";
             Stretch[Stretch["UniformToFill"] = 3] = "UniformToFill";
-        })(controls.Stretch || (controls.Stretch = {}));
-        var Stretch = controls.Stretch;
+        })(Stretch = controls.Stretch || (controls.Stretch = {}));
+        var StretchDirection;
         (function (StretchDirection) {
             StretchDirection[StretchDirection["UpOnly"] = 0] = "UpOnly";
             StretchDirection[StretchDirection["DownOnly"] = 1] = "DownOnly";
             StretchDirection[StretchDirection["Both"] = 2] = "Both";
-        })(controls.StretchDirection || (controls.StretchDirection = {}));
-        var StretchDirection = controls.StretchDirection;
+        })(StretchDirection = controls.StretchDirection || (controls.StretchDirection = {}));
         var Image = (function (_super) {
             __extends(Image, _super);
             function Image() {
-                _super.apply(this, arguments);
+                return _super.apply(this, arguments) || this;
             }
             Object.defineProperty(Image.prototype, "typeName", {
                 get: function () {
@@ -161,12 +161,12 @@ var layouts;
                 enumerable: true,
                 configurable: true
             });
-            Image.typeName = "layouts.controls.Image";
-            Image.srcProperty = layouts.DepObject.registerProperty(Image.typeName, "Source", null, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender);
-            Image.stretchProperty = layouts.DepObject.registerProperty(Image.typeName, "Stretch", Stretch.None, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender, function (v) { return Stretch[String(v)]; });
-            Image.stretchDirectionProperty = layouts.DepObject.registerProperty(Image.typeName, "StretchDirection", StretchDirection.Both, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender, function (v) { return StretchDirection[String(v)]; });
             return Image;
         }(layouts.FrameworkElement));
+        Image.typeName = "layouts.controls.Image";
+        Image.srcProperty = layouts.DepObject.registerProperty(Image.typeName, "Source", null, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender);
+        Image.stretchProperty = layouts.DepObject.registerProperty(Image.typeName, "Stretch", Stretch.None, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender, function (v) { return Stretch[String(v)]; });
+        Image.stretchDirectionProperty = layouts.DepObject.registerProperty(Image.typeName, "StretchDirection", StretchDirection.Both, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender, function (v) { return StretchDirection[String(v)]; });
         controls.Image = Image;
     })(controls = layouts.controls || (layouts.controls = {}));
 })(layouts || (layouts = {}));

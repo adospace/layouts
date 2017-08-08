@@ -22,17 +22,17 @@ You'll notice some important new components:
 There are other types of panels in *layouts*, for example the most powerful called Grid but you can also create your own Panel that can organize children as you need.
 
 ### measure-arrange layout strategy
-Everytime *layouts* need to place elements on screen need to measure them and then need to arrande them. In the sample above, *layouts* layoutManager (an internal class) ask the page to measure how much sace it requires. in turn page ask Stack to measure how much space it requires that again in turn ask any child to measure itself. Than back to Page every element return its 'desidered' size. What described so fare is called 'Measure' pass. Second pass of the layout process is called 'Arrange' pass and start always from root element Page. Page arrange child Stack element giving the space it "can" give to it (it can be different from what it desired). In turn Stack panel finally arranges in stack (accordining to its Orientation) its children.
+Everytime *layouts* need to place elements on screen need to measure them and then need to arrange them. In the sample above, *layouts* layoutManager (an internal class) asks the page to measure how much space it requires. In turn page asks Stack to measure how much space it requires that again in turn ask any child to measure itself. Than back to Page every element return its 'desidered' size. What described so far is called 'Measure' pass. Second pass of the layout process is called 'Arrange' pass and start always from root element Page. Page arrange child Stack element giving the space it "can" give to it (it can be different from what it desired). In turn Stack panel finally arranges in stack (accordining to its Orientation) its children.
 
 *layouts* elements can be nested. For example using Panels but also using simple one-child container like Border or UserControl that I'll introduce later.
 
 ### stack
-Stack is a panel that arranges its children like a stack. It has a property called Orientation that describe how children are stacked. Stack is fast and easy to use and will be together with Grid panel your first panel choice.
+Stack is a panel that arranges its children like a stack. It has a property called Orientation that describe how children are stacked. Stack is fast and easy to use and will be, together with Grid panel, your first panel choice.
 
 ### grid
 Grid is a panel that arranges its children according to a grid layout. Grid is the most powerful builtin panel you can find in *layouts* but it's also slower that stack so use it only we you need. When you define a Grid you need to specify how many rows and columns it has. By default a Grid is composed of one row and one column. Foreach row/column you should also need to specify its height/width.
 
-A row height or a column width can be specified as fixed value, as a "star" value or as special value "auto":
+A row height or a column width can be specified as fixed value or as a "star" value or as special value "auto":
 
 - Fixed values specify that the row/column should have that value expressed in pixel
 - Star values specify that row/column has a width relative to other row/column with star height/width and should divide with them available space. Ok seems complicated but it's not and you'll see in a moment.

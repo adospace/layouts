@@ -3,8 +3,8 @@ var layouts;
     var Consts = (function () {
         function Consts() {
         }
-        Consts.stringEmpty = "";
         return Consts;
     }());
+    Consts.stringEmpty = "";
     layouts.Consts = Consts;
 })(layouts || (layouts = {}));

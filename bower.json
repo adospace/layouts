@@ -1,0 +1,37 @@
+{
+  "name": "layouts",
+  "description": "Layouts is Javascript/Typescript library that allows web developers build complex UI in HTML5 using a Xaml derived markup.",
+  "main": [
+    "/Layouts/Layouts/layouts.js",
+    "/Layouts/Layouts/layouts.d.ts",
+    "/Layouts/Layouts/layouts.js.map"
+  ],
+  "dependencies": {
+  },
+  "ignore": [
+    "**/.*",
+    "**/*.sln",
+    "**/*.csproj",
+    "**/*.config",
+    "**/*.jmconfig",
+    "cp_article",
+    "Scripts",
+    "bower_components",
+    "Samples",
+    "packages",
+    "NuGet"
+  ],
+  "keywords": [
+    "xaml",
+    "mvvm",
+    "html5",
+    "ui",
+    "binding",
+    "layout",
+    "page"
+  ],
+  "license": "MIT",
+  "authors": [
+    "Adolfo Marinucci <adospace@msn.com>"
+  ]
+}

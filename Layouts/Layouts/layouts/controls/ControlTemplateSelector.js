@@ -10,7 +10,7 @@ var layouts;
         var ControlTemplateSelector = (function (_super) {
             __extends(ControlTemplateSelector, _super);
             function ControlTemplateSelector() {
-                _super.apply(this, arguments);
+                return _super.apply(this, arguments) || this;
             }
             Object.defineProperty(ControlTemplateSelector.prototype, "typeName", {
                 get: function () {
@@ -115,10 +115,10 @@ var layouts;
                 }
                 this.invalidateMeasure();
             };
-            ControlTemplateSelector.typeName = "layouts.controls.ControlTemplateSelector";
-            ControlTemplateSelector.contentSourceProperty = layouts.DepObject.registerProperty(ControlTemplateSelector.typeName, "ContentSource", null, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender);
             return ControlTemplateSelector;
         }(layouts.FrameworkElement));
+        ControlTemplateSelector.typeName = "layouts.controls.ControlTemplateSelector";
+        ControlTemplateSelector.contentSourceProperty = layouts.DepObject.registerProperty(ControlTemplateSelector.typeName, "ContentSource", null, layouts.FrameworkPropertyMetadataOptions.AffectsMeasure | layouts.FrameworkPropertyMetadataOptions.AffectsRender);
         controls.ControlTemplateSelector = ControlTemplateSelector;
     })(controls = layouts.controls || (layouts.controls = {}));
 })(layouts || (layouts = {}));

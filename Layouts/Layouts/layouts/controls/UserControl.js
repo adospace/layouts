@@ -10,7 +10,7 @@ var layouts;
         var UserControl = (function (_super) {
             __extends(UserControl, _super);
             function UserControl() {
-                _super.apply(this, arguments);
+                return _super.apply(this, arguments) || this;
             }
             Object.defineProperty(UserControl.prototype, "typeName", {
                 get: function () {
@@ -54,6 +54,27 @@ var layouts;
                     this.tryLoadChildFromServer();
                 }
             };
+            UserControl.prototype.invalidateMeasure = function () {
+                _super.prototype.invalidateMeasure.call(this);
+                var child = this._content;
+                if (child != null) {
+                    child.invalidateMeasure();
+                }
+            };
+            UserControl.prototype.invalidateArrange = function () {
+                _super.prototype.invalidateArrange.call(this);
+                var child = this._content;
+                if (child != null) {
+                    child.invalidateArrange();
+                }
+            };
+            UserControl.prototype.invalidateLayout = function () {
+                _super.prototype.invalidateLayout.call(this);
+                var child = this._content;
+                if (child != null) {
+                    child.invalidateLayout();
+                }
+            };
             UserControl.prototype.measureOverride = function (constraint) {
                 var child = this._content;
                 if (child != null) {
@@ -64,8 +85,10 @@ var layouts;
             };
             UserControl.prototype.arrangeOverride = function (finalSize) {
                 var child = this._content;
-                if (child != null)
+                if (child != null) {
                     child.arrange(finalSize.toRect());
+                }
+                this.invalidateLayout();
                 return finalSize;
             };
             UserControl.prototype.layoutOverride = function () {
@@ -78,9 +101,9 @@ var layouts;
                     child.layout(childOffset);
                 }
             };
-            UserControl.typeName = "layouts.controls.UserControl";
             return UserControl;
         }(layouts.FrameworkElement));
+        UserControl.typeName = "layouts.controls.UserControl";
         controls.UserControl = UserControl;
     })(controls = layouts.controls || (layouts.controls = {}));
 })(layouts || (layouts = {}));

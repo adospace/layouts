@@ -10,9 +10,10 @@ var layouts;
         var Panel = (function (_super) {
             __extends(Panel, _super);
             function Panel() {
-                _super.apply(this, arguments);
-                this.virtualItemCount = 0;
-                this.virtualOffset = null;
+                var _this = _super.apply(this, arguments) || this;
+                _this.virtualItemCount = 0;
+                _this.virtualOffset = null;
+                return _this;
             }
             Object.defineProperty(Panel.prototype, "typeName", {
                 get: function () {
@@ -97,10 +98,10 @@ var layouts;
                 enumerable: true,
                 configurable: true
             });
-            Panel.typeName = "layouts.controls.Panel";
-            Panel.backgroundProperty = layouts.DepObject.registerProperty(Panel.typeName, "Background", null, layouts.FrameworkPropertyMetadataOptions.AffectsRender);
             return Panel;
         }(layouts.FrameworkElement));
+        Panel.typeName = "layouts.controls.Panel";
+        Panel.backgroundProperty = layouts.DepObject.registerProperty(Panel.typeName, "Background", null, layouts.FrameworkPropertyMetadataOptions.AffectsRender);
         controls.Panel = Panel;
     })(controls = layouts.controls || (layouts.controls = {}));
 })(layouts || (layouts = {}));

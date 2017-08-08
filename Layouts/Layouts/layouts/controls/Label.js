@@ -10,7 +10,7 @@ var layouts;
         var Label = (function (_super) {
             __extends(Label, _super);
             function Label() {
-                _super.apply(this, arguments);
+                return _super.apply(this, arguments) || this;
             }
             Object.defineProperty(Label.prototype, "typeName", {
                 get: function () {
@@ -20,9 +20,9 @@ var layouts;
                 configurable: true
             });
             Label.prototype.createElement = function (elementContainer) {
-                var label = document.createElement("label");
-                label.htmlFor = this.htmlFor;
-                return label;
+                this._label = document.createElement("label");
+                this._label.htmlFor = this.htmlFor;
+                return this._label;
             };
             Object.defineProperty(Label.prototype, "htmlFor", {
                 get: function () {
@@ -34,10 +34,16 @@ var layouts;
                 enumerable: true,
                 configurable: true
             });
-            Label.typeName = "layouts.controls.Label";
-            Label.htmlForProperty = layouts.DepObject.registerProperty(Label.typeName, "For", null, layouts.FrameworkPropertyMetadataOptions.None, function (v) { return String(v); });
+            Label.prototype.onDependencyPropertyChanged = function (property, value, oldValue) {
+                if (property == Label.htmlForProperty) {
+                    this._label.htmlFor = this.htmlFor;
+                }
+                _super.prototype.onDependencyPropertyChanged.call(this, property, value, oldValue);
+            };
             return Label;
         }(controls.TextBlock));
+        Label.typeName = "layouts.controls.Label";
+        Label.htmlForProperty = layouts.DepObject.registerProperty(Label.typeName, "For", null, layouts.FrameworkPropertyMetadataOptions.None, function (v) { return String(v); });
         controls.Label = Label;
     })(controls = layouts.controls || (layouts.controls = {}));
 })(layouts || (layouts = {}));

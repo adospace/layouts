@@ -10,7 +10,7 @@ var layouts;
         var MediaTemplateSelector = (function (_super) {
             __extends(MediaTemplateSelector, _super);
             function MediaTemplateSelector() {
-                _super.apply(this, arguments);
+                return _super.apply(this, arguments) || this;
             }
             Object.defineProperty(MediaTemplateSelector.prototype, "typeName", {
                 get: function () {
@@ -79,9 +79,9 @@ var layouts;
                 enumerable: true,
                 configurable: true
             });
-            MediaTemplateSelector.typeName = "layouts.controls.MediaTemplateSelector";
             return MediaTemplateSelector;
         }(layouts.FrameworkElement));
+        MediaTemplateSelector.typeName = "layouts.controls.MediaTemplateSelector";
         controls.MediaTemplateSelector = MediaTemplateSelector;
     })(controls = layouts.controls || (layouts.controls = {}));
 })(layouts || (layouts = {}));
