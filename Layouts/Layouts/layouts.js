@@ -6523,7 +6523,7 @@ var layouts;
                 }
             }
             //var childrenProperties = Enumerable.From(xamlNode.childNodes).Where(_=> _.nodeType == 1 && _.localName.indexOf(".") > -1);
-            //childrenProperties.ForEach(childNode => {home
+            //childrenProperties.ForEach(childNode => {
             //    var indexOfDot = childNode.localName.indexOf(".");
             //    if (childNode.localName.substr(0, indexOfDot) == xamlNode.localName) {
             //        let propertyName = childNode.localName.substr(indexOfDot + 1);

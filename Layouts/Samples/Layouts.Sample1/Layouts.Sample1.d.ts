@@ -308,8 +308,8 @@ declare module layouts.controls {
     class Popup extends FrameworkElement {
         static typeName: string;
         readonly typeName: string;
-        private static _init;
         private static initProperties();
+        private static _init;
         constructor();
         private tryLoadChildFromServer();
         private _popupContainer;
@@ -784,8 +784,8 @@ declare module layouts.controls {
     class ItemsControl extends FrameworkElement implements ISupportCollectionChanged {
         static typeName: string;
         readonly typeName: string;
-        private static _init;
         private static initProperties();
+        private static _init;
         protected _elements: Array<UIElement>;
         protected _divElement: HTMLDivElement;
         attachVisualOverride(elementContainer: HTMLElement): void;

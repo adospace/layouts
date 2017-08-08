@@ -534,11 +534,16 @@ var layouts;
         return PropertyPath;
     }());
 })(layouts || (layouts = {}));
-var __extends = (this && this.__extends) || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-};
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = Object.setPrototypeOf ||
+        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
 var layouts;
 (function (layouts) {
     var Size = (function () {
@@ -619,7 +624,7 @@ var layouts;
     var UIElement = (function (_super) {
         __extends(UIElement, _super);
         function UIElement() {
-            var _this = _super.apply(this, arguments) || this;
+            var _this = _super !== null && _super.apply(this, arguments) || this;
             _this.relativeOffset = null;
             _this.measureDirty = true;
             _this.arrangeDirty = true;
@@ -1154,7 +1159,7 @@ var layouts;
     var FrameworkElement = (function (_super) {
         __extends(FrameworkElement, _super);
         function FrameworkElement() {
-            var _this = _super.apply(this, arguments) || this;
+            var _this = _super !== null && _super.apply(this, arguments) || this;
             _this.visualOffset = null;
             return _this;
         }
@@ -1765,7 +1770,7 @@ var layouts;
         var Page = (function (_super) {
             __extends(Page, _super);
             function Page() {
-                var _this = _super.apply(this, arguments) || this;
+                var _this = _super !== null && _super.apply(this, arguments) || this;
                 _this.cachePage = false;
                 return _this;
             }
@@ -2136,7 +2141,7 @@ var layouts;
         var Border = (function (_super) {
             __extends(Border, _super);
             function Border() {
-                return _super.apply(this, arguments) || this;
+                return _super !== null && _super.apply(this, arguments) || this;
             }
             Object.defineProperty(Border.prototype, "typeName", {
                 get: function () {
@@ -2316,7 +2321,7 @@ var layouts;
         var Button = (function (_super) {
             __extends(Button, _super);
             function Button() {
-                return _super.apply(this, arguments) || this;
+                return _super !== null && _super.apply(this, arguments) || this;
             }
             Object.defineProperty(Button.prototype, "typeName", {
                 get: function () {
@@ -2480,7 +2485,7 @@ var layouts;
         var Panel = (function (_super) {
             __extends(Panel, _super);
             function Panel() {
-                var _this = _super.apply(this, arguments) || this;
+                var _this = _super !== null && _super.apply(this, arguments) || this;
                 _this.virtualItemCount = 0;
                 _this.virtualOffset = null;
                 return _this;
@@ -2582,7 +2587,7 @@ var layouts;
         var Canvas = (function (_super) {
             __extends(Canvas, _super);
             function Canvas() {
-                return _super.apply(this, arguments) || this;
+                return _super !== null && _super.apply(this, arguments) || this;
             }
             Object.defineProperty(Canvas.prototype, "typeName", {
                 get: function () {
@@ -2667,7 +2672,7 @@ var layouts;
         var CheckBox = (function (_super) {
             __extends(CheckBox, _super);
             function CheckBox() {
-                return _super.apply(this, arguments) || this;
+                return _super !== null && _super.apply(this, arguments) || this;
             }
             Object.defineProperty(CheckBox.prototype, "typeName", {
                 get: function () {
@@ -2769,7 +2774,7 @@ var layouts;
         var ComboBox = (function (_super) {
             __extends(ComboBox, _super);
             function ComboBox() {
-                return _super.apply(this, arguments) || this;
+                return _super !== null && _super.apply(this, arguments) || this;
             }
             Object.defineProperty(ComboBox.prototype, "typeName", {
                 get: function () {
@@ -2951,7 +2956,7 @@ var layouts;
         var ContentTemplate = (function (_super) {
             __extends(ContentTemplate, _super);
             function ContentTemplate() {
-                return _super.apply(this, arguments) || this;
+                return _super !== null && _super.apply(this, arguments) || this;
             }
             Object.defineProperty(ContentTemplate.prototype, "typeName", {
                 get: function () {
@@ -3050,7 +3055,7 @@ var layouts;
         var ControlTemplate = (function (_super) {
             __extends(ControlTemplate, _super);
             function ControlTemplate() {
-                return _super.apply(this, arguments) || this;
+                return _super !== null && _super.apply(this, arguments) || this;
             }
             Object.defineProperty(ControlTemplate.prototype, "typeName", {
                 get: function () {
@@ -3132,7 +3137,7 @@ var layouts;
         var ControlTemplateSelector = (function (_super) {
             __extends(ControlTemplateSelector, _super);
             function ControlTemplateSelector() {
-                return _super.apply(this, arguments) || this;
+                return _super !== null && _super.apply(this, arguments) || this;
             }
             Object.defineProperty(ControlTemplateSelector.prototype, "typeName", {
                 get: function () {
@@ -3251,7 +3256,7 @@ var layouts;
         var DataTemplate = (function (_super) {
             __extends(DataTemplate, _super);
             function DataTemplate() {
-                return _super.apply(this, arguments) || this;
+                return _super !== null && _super.apply(this, arguments) || this;
             }
             Object.defineProperty(DataTemplate.prototype, "typeName", {
                 get: function () {
@@ -3377,7 +3382,7 @@ var layouts;
         var Frame = (function (_super) {
             __extends(Frame, _super);
             function Frame() {
-                return _super.apply(this, arguments) || this;
+                return _super !== null && _super.apply(this, arguments) || this;
             }
             Object.defineProperty(Frame.prototype, "typeName", {
                 get: function () {
@@ -3716,7 +3721,7 @@ var layouts;
         var Grid = (function (_super) {
             __extends(Grid, _super);
             function Grid() {
-                return _super.apply(this, arguments) || this;
+                return _super !== null && _super.apply(this, arguments) || this;
             }
             Object.defineProperty(Grid.prototype, "typeName", {
                 get: function () {
@@ -4467,7 +4472,7 @@ var layouts;
         var Image = (function (_super) {
             __extends(Image, _super);
             function Image() {
-                return _super.apply(this, arguments) || this;
+                return _super !== null && _super.apply(this, arguments) || this;
             }
             Object.defineProperty(Image.prototype, "typeName", {
                 get: function () {
@@ -4621,7 +4626,7 @@ var layouts;
         var ItemsControl = (function (_super) {
             __extends(ItemsControl, _super);
             function ItemsControl() {
-                var _this = _super.apply(this, arguments) || this;
+                var _this = _super !== null && _super.apply(this, arguments) || this;
                 _this._elements = null;
                 return _this;
             }
@@ -4811,7 +4816,7 @@ var layouts;
         var TextBlock = (function (_super) {
             __extends(TextBlock, _super);
             function TextBlock() {
-                return _super.apply(this, arguments) || this;
+                return _super !== null && _super.apply(this, arguments) || this;
             }
             Object.defineProperty(TextBlock.prototype, "typeName", {
                 get: function () {
@@ -4916,7 +4921,7 @@ var layouts;
         var Label = (function (_super) {
             __extends(Label, _super);
             function Label() {
-                return _super.apply(this, arguments) || this;
+                return _super !== null && _super.apply(this, arguments) || this;
             }
             Object.defineProperty(Label.prototype, "typeName", {
                 get: function () {
@@ -4960,7 +4965,7 @@ var layouts;
         var MediaTemplateSelector = (function (_super) {
             __extends(MediaTemplateSelector, _super);
             function MediaTemplateSelector() {
-                return _super.apply(this, arguments) || this;
+                return _super !== null && _super.apply(this, arguments) || this;
             }
             Object.defineProperty(MediaTemplateSelector.prototype, "typeName", {
                 get: function () {
@@ -5371,7 +5376,7 @@ var layouts;
         var Stack = (function (_super) {
             __extends(Stack, _super);
             function Stack() {
-                return _super.apply(this, arguments) || this;
+                return _super !== null && _super.apply(this, arguments) || this;
             }
             Object.defineProperty(Stack.prototype, "typeName", {
                 get: function () {
@@ -5462,7 +5467,7 @@ var layouts;
         var TextBox = (function (_super) {
             __extends(TextBox, _super);
             function TextBox() {
-                return _super.apply(this, arguments) || this;
+                return _super !== null && _super.apply(this, arguments) || this;
             }
             Object.defineProperty(TextBox.prototype, "typeName", {
                 get: function () {
@@ -5587,7 +5592,7 @@ var layouts;
         var UserControl = (function (_super) {
             __extends(UserControl, _super);
             function UserControl() {
-                return _super.apply(this, arguments) || this;
+                return _super !== null && _super.apply(this, arguments) || this;
             }
             Object.defineProperty(UserControl.prototype, "typeName", {
                 get: function () {
@@ -6149,7 +6154,7 @@ window.onload = function () {
 var AceView = (function (_super) {
     __extends(AceView, _super);
     function AceView() {
-        var _this = _super.apply(this, arguments) || this;
+        var _this = _super !== null && _super.apply(this, arguments) || this;
         _this._changeTimer = null;
         _this._reentrantFlag = false;
         return _this;
@@ -6210,7 +6215,7 @@ AceView.sourceCodeProperty = layouts.DepObject.registerProperty(AceView.typeName
 var AppViewModel = (function (_super) {
     __extends(AppViewModel, _super);
     function AppViewModel() {
-        var _this = _super.apply(this, arguments) || this;
+        var _this = _super !== null && _super.apply(this, arguments) || this;
         _this._items = new layouts.ObservableCollection();
         return _this;
     }
